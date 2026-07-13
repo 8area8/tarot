@@ -17,7 +17,9 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
     actions favorisent la réussite (~50–83 % de victoire selon le prisme joué).
 - **Oracles** :
   - **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
-    mineurs), option inversée. Illustrations et textes **domaine public**.
+    mineurs), option inversée. Textes en cadre **JDR solo** : majeure = un acteur
+    marquant (personne, lieu, événement), mineure = un événement/une ambiance de
+    scène ; le négatif est assumé. Illustrations **domaine public**.
   - **Pièce** — pile ou face (Soleil / Lune), lancer 3D.
 
 Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.

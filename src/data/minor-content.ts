@@ -1,575 +1,577 @@
 import type { CardContent } from '../lib/types';
 
 /**
- * Contenu rédigé des 56 arcanes mineurs (ton contemporain, FR+EN).
+ * Contenu des 56 arcanes mineurs (cadre JDR solo, FR+EN).
+ * Chaque mineure = un événement immédiat / une ambiance de scène.
+ * Registre : nominal + tutoiement ; le négatif est assumé (inversé = tournure défavorable).
  * Clé = id de la carte (ex. "wands-01"). Fusionné dans cards.ts.
  */
 export const MINOR_CONTENT: Record<string, CardContent> = {
-  // ─────────────── BÂTONS / WANDS (feu : énergie, action, passion) ───────────────
+  // ─────────────── BÂTONS / WANDS (feu : énergie, action, conflit) ───────────────
   'wands-01': {
     keywords: {
-      upright: { fr: ['inspiration', 'nouvelle énergie', 'élan', 'potentiel'], en: ['inspiration', 'new energy', 'spark', 'potential'] },
-      reversed: { fr: ['blocage', 'manque de direction', 'hésitation', 'faux départ'], en: ['blockage', 'lack of direction', 'hesitation', 'false start'] },
+      upright: { fr: ['étincelle', 'occasion', 'élan', 'énergie neuve'], en: ['spark', 'opportunity', 'drive', 'fresh energy'] },
+      reversed: { fr: ['faux départ', 'énergie dispersée', 'retard', 'projet avorté'], en: ['false start', 'scattered energy', 'delay', 'stalled venture'] },
     },
     meaning: {
-      upright: { fr: "Une étincelle créative surgit : envie, idée, projet à faire naître. Saisissez cet élan tant qu'il est vif.", en: "A creative spark ignites: a desire, an idea, a project waiting to be born. Grab the momentum while it's hot." },
-      reversed: { fr: "L'énergie est là mais tourne à vide, faute de cap clair. Précisez ce que vous voulez vraiment avant de foncer.", en: "The energy is there but spinning in place for lack of a clear aim. Get specific about what you want before charging ahead." },
+      upright: { fr: "Une étincelle jaillit : une occasion d'agir, un projet qui s'allume, une énergie neuve dans l'air.", en: "A spark leaps up: a chance to act, a venture catching fire, fresh energy in the air." },
+      reversed: { fr: "L'élan retombe : faux départ, énergie qui s'éparpille, une occasion qui fait long feu.", en: "The drive fizzles: a false start, scattered energy, an opportunity that comes to nothing." },
     },
   },
   'wands-02': {
     keywords: {
-      upright: { fr: ['planification', 'décision', 'vision', 'premiers pas'], en: ['planning', 'decision', 'vision', 'first steps'] },
-      reversed: { fr: ['peur de l\'inconnu', 'zone de confort', 'plan flou', 'immobilisme'], en: ['fear of the unknown', 'comfort zone', 'vague plan', 'standing still'] },
+      upright: { fr: ['plan', 'horizon', 'décision', 'ambition'], en: ['planning', 'horizon', 'decision', 'ambition'] },
+      reversed: { fr: ['hésitation', 'peur du saut', 'statu quo', 'indécision'], en: ['hesitation', 'fear of the leap', 'status quo', 'indecision'] },
     },
     meaning: {
-      upright: { fr: "Vous regardez au loin et posez les bases d'un projet. Un choix de direction s'ouvre : osez viser plus grand.", en: "You're looking ahead and laying the groundwork for a plan. A choice of direction opens up: dare to aim bigger." },
-      reversed: { fr: "La peur de quitter le connu vous fige, ou le plan reste trop vague. Tranchez et faites le premier pas.", en: "Fear of leaving the familiar freezes you, or the plan stays too vague. Decide, and take the first step." },
+      upright: { fr: "Un temps de plan : on contemple l'horizon avant de se lancer, une décision d'expansion se prépare.", en: "A moment of planning: gazing at the horizon before the leap, a decision to expand takes shape." },
+      reversed: { fr: "L'hésitation gèle l'action : peur de l'inconnu, plan resté lettre morte, on reste au bord.", en: "Hesitation freezes the action: fear of the unknown, a plan left on paper, you stay at the edge." },
     },
   },
   'wands-03': {
     keywords: {
-      upright: { fr: ['expansion', 'progrès', 'anticipation', 'opportunités'], en: ['expansion', 'progress', 'foresight', 'opportunities'] },
-      reversed: { fr: ['retards', 'obstacles', 'frustration', 'court-termisme'], en: ['delays', 'obstacles', 'frustration', 'short-sightedness'] },
+      upright: { fr: ['progrès', 'renforts', 'expansion', 'premiers fruits'], en: ['progress', 'reinforcements', 'expansion', 'first fruits'] },
+      reversed: { fr: ['retard', 'obstacle', 'attente vaine', 'vue courte'], en: ['delay', 'obstacle', 'fruitless wait', 'short sight'] },
     },
     meaning: {
-      upright: { fr: "Vos efforts commencent à porter et l'horizon s'élargit. Restez ouvert aux opportunités qui arrivent de loin.", en: "Your efforts are starting to pay off and the horizon widens. Stay open to opportunities coming from afar." },
-      reversed: { fr: "Des contretemps ralentissent l'élan et la patience s'use. Regardez plus loin que la contrariété du moment.", en: "Setbacks are slowing the momentum and patience wears thin. Look beyond the immediate annoyance." },
+      upright: { fr: "Les efforts portent : un premier succès, des renforts en vue, l'entreprise s'étend.", en: "Effort pays off: a first success, reinforcements on the way, the venture spreads out." },
+      reversed: { fr: "Les renforts tardent : retards, obstacles, une attente qui décourage.", en: "The reinforcements are late: delays, obstacles, a wait that wears you down." },
     },
   },
   'wands-04': {
     keywords: {
-      upright: { fr: ['célébration', 'harmonie', 'étape franchie', 'foyer'], en: ['celebration', 'harmony', 'milestone', 'home'] },
-      reversed: { fr: ['transition', 'harmonie fragile', 'manque de soutien', 'instabilité'], en: ['transition', 'fragile harmony', 'lack of support', 'instability'] },
+      upright: { fr: ['fête', 'foyer', 'célébration', 'étape'], en: ['celebration', 'home', 'milestone', 'stability'] },
+      reversed: { fr: ['harmonie fragile', 'transition', 'soutien absent', 'instabilité'], en: ['fragile harmony', 'transition', 'missing support', 'instability'] },
     },
     meaning: {
-      upright: { fr: "Un palier heureux est atteint : c'est le moment de fêter et de savourer avec vos proches. Le terrain est stable sous vos pieds.", en: "A happy milestone is reached: time to celebrate and savour it with those close to you. The ground feels solid underfoot." },
-      reversed: { fr: "La stabilité est encore fragile ou une transition brouille les repères. Ancrez-vous à ce qui vous soutient vraiment.", en: "Stability is still fragile, or a transition blurs your bearings. Anchor into what truly supports you." },
+      upright: { fr: "Une fête et un foyer : célébration, retour au bercail, une étape heureuse franchie ensemble.", en: "A feast and a home: celebration, homecoming, a happy milestone crossed together." },
+      reversed: { fr: "L'harmonie se fissure : fête gâchée, foyer instable, un soutien qui manque.", en: "The harmony cracks: a spoiled feast, an unsteady home, support that fails." },
     },
   },
   'wands-05': {
     keywords: {
-      upright: { fr: ['tensions', 'rivalité', 'désaccords', 'confrontation'], en: ['tension', 'rivalry', 'disagreement', 'competition'] },
-      reversed: { fr: ['apaisement', 'compromis', 'fin du conflit', 'évitement'], en: ['de-escalation', 'compromise', 'end of conflict', 'avoidance'] },
+      upright: { fr: ['querelle', 'rivalité', 'mêlée', 'chaos'], en: ['quarrel', 'rivalry', 'skirmish', 'chaos'] },
+      reversed: { fr: ['trêve', 'compromis', 'conflit évité', 'apaisement'], en: ['truce', 'compromise', 'conflict avoided', 'de-escalation'] },
     },
     meaning: {
-      upright: { fr: "Les egos s'entrechoquent et rien n'avance dans la cohue. Canalisez cette énergie plutôt que de la disperser en querelles.", en: "Egos clash and nothing moves forward in the scramble. Channel this energy rather than scattering it in squabbles." },
-      reversed: { fr: "Les tensions retombent et un terrain d'entente se dessine. Ou vous fuyez un désaccord qui gagnerait à être posé.", en: "Tensions ease and common ground appears. Or you're dodging a disagreement that would be better faced." },
+      upright: { fr: "Une empoignade éclate : rivalités, disputes, chacun pour soi dans la confusion.", en: "A brawl breaks out: rivalries, squabbles, every one for themselves in the confusion." },
+      reversed: { fr: "La bagarre s'apaise ou s'évite : trêve, compromis, ou l'on fuit le conflit.", en: "The fight eases or is dodged: a truce, a compromise, or the conflict is avoided." },
     },
   },
   'wands-06': {
     keywords: {
-      upright: { fr: ['victoire', 'reconnaissance', 'confiance', 'succès'], en: ['victory', 'recognition', 'confidence', 'success'] },
-      reversed: { fr: ['manque de reconnaissance', 'doute', 'succès retardé', 'orgueil'], en: ['lack of recognition', 'self-doubt', 'delayed success', 'pride'] },
+      upright: { fr: ['victoire', 'triomphe', 'honneurs', 'reconnaissance'], en: ['victory', 'triumph', 'honours', 'recognition'] },
+      reversed: { fr: ['gloire volée', 'doute', 'revers public', 'orgueil'], en: ['stolen glory', 'doubt', 'public setback', 'pride'] },
     },
     meaning: {
-      upright: { fr: "Vos efforts sont reconnus et vous avancez en tête, porté par la confiance. Assumez ce succès sans fausse modestie.", en: "Your efforts are recognised and you lead the way, buoyed by confidence. Own this success without false modesty." },
-      reversed: { fr: "La reconnaissance tarde ou le doute grignote votre assurance. Votre valeur ne dépend pas des applaudissements.", en: "Recognition is slow to come, or doubt nibbles at your confidence. Your worth doesn't hinge on applause." },
+      upright: { fr: "Un triomphe s'affiche : retour victorieux, honneurs, une réussite reconnue de tous.", en: "A triumph on display: a victorious return, honours, a success everyone acknowledges." },
+      reversed: { fr: "La gloire se dérobe : victoire volée, reconnaissance qui manque, orgueil avant la chute.", en: "Glory slips away: a stolen victory, recognition withheld, pride before the fall." },
     },
   },
   'wands-07': {
     keywords: {
-      upright: { fr: ['défense', 'persévérance', 'tenir bon', 'conviction'], en: ['defensiveness', 'perseverance', 'standing firm', 'conviction'] },
-      reversed: { fr: ['épuisement', 'abandon', 'submergé', 'concession'], en: ['exhaustion', 'giving up', 'overwhelmed', 'backing down'] },
+      upright: { fr: ['défi', 'tenir tête', 'défense', 'avantage'], en: ['challenge', 'standing firm', 'defence', 'high ground'] },
+      reversed: { fr: ['débordé', 'épuisement', 'recul', 'abandon'], en: ['overwhelmed', 'exhaustion', 'retreat', 'giving up'] },
     },
     meaning: {
-      upright: { fr: "Vous devez défendre votre position face à la pression. Tenez bon : votre conviction vaut la peine d'être défendue.", en: "You have to defend your ground under pressure. Hold firm: your conviction is worth standing up for." },
-      reversed: { fr: "La lutte vous épuise et vous songez à tout lâcher. Distinguez les combats qui en valent la peine de ceux à laisser filer.", en: "The fight is draining you and you're tempted to give up. Tell apart the battles worth fighting from those to let go." },
+      upright: { fr: "Une position à défendre : on te met au défi, tu tiens tête, seul contre plusieurs.", en: "A position to defend: you're challenged, you hold your ground, one against many." },
+      reversed: { fr: "La défense cède : débordé, épuisé, on lâche du terrain.", en: "The defence gives way: overwhelmed, worn out, ground is lost." },
     },
   },
   'wands-08': {
     keywords: {
-      upright: { fr: ['rapidité', 'mouvement', 'nouvelles', 'action'], en: ['speed', 'movement', 'news', 'action'] },
-      reversed: { fr: ['retards', 'précipitation', 'ralentissement', 'frustration'], en: ['delays', 'haste', 'slowing down', 'frustration'] },
+      upright: { fr: ['rapidité', 'nouvelles', 'mouvement', 'action'], en: ['speed', 'news', 'movement', 'action'] },
+      reversed: { fr: ['retard', 'message perdu', 'précipitation', 'blocage'], en: ['delay', 'lost message', 'haste', 'blockage'] },
     },
     meaning: {
-      upright: { fr: "Les choses s'accélèrent : nouvelles, messages, événements s'enchaînent. Suivez le rythme, l'élan est de votre côté.", en: "Things speed up: news, messages and events come in quick succession. Keep pace — the momentum is on your side." },
-      reversed: { fr: "Ça piétine, ou au contraire tout va trop vite et vous précipite. Reprenez la main sur le tempo.", en: "It stalls, or everything moves too fast and rushes you. Take back control of the tempo." },
+      upright: { fr: "Tout s'accélère : nouvelles rapides, messages, événements qui s'enchaînent sans répit.", en: "Everything speeds up: swift news, messages, events tumbling one after another." },
+      reversed: { fr: "Ça s'enraye : retards, messages perdus, précipitation qui gâche tout.", en: "It jams: delays, lost messages, a haste that ruins everything." },
     },
   },
   'wands-09': {
     keywords: {
-      upright: { fr: ['résilience', 'ténacité', 'dernière ligne', 'vigilance'], en: ['resilience', 'persistence', 'last stand', 'vigilance'] },
-      reversed: { fr: ['épuisement', 'méfiance excessive', 'sur la défensive', 'entêtement'], en: ['burnout', 'excessive wariness', 'defensiveness', 'stubbornness'] },
+      upright: { fr: ['vigilance', 'dernier rempart', 'ténacité', 'sur ses gardes'], en: ['vigilance', 'last stand', 'resilience', 'on guard'] },
+      reversed: { fr: ['épuisement', 'paranoïa', 'à bout', 'reddition'], en: ['exhaustion', 'paranoia', 'at the end', 'surrender'] },
     },
     meaning: {
-      upright: { fr: "Vous êtes fatigué mais toujours debout : le but est proche, tenez encore un peu. Votre endurance est votre force.", en: "You're weary but still standing: the goal is close, hold on a little longer. Your endurance is your strength." },
-      reversed: { fr: "À force de vous protéger, vous vous épuisez et vous méfiez de tout. Baissez un peu la garde, tout n'est pas une menace.", en: "From constant self-protection, you're exhausted and wary of everything. Lower your guard a little — not everything is a threat." },
+      upright: { fr: "L'ultime garde : blessé mais debout, on guette la prochaine attaque, prêt à tenir encore.", en: "The last watch: wounded but standing, bracing for the next assault, ready to hold on." },
+      reversed: { fr: "La garde s'effondre : épuisement, méfiance de tout, on n'en peut plus.", en: "The guard collapses: exhaustion, distrust of everything, you can't go on." },
     },
   },
   'wands-10': {
     keywords: {
-      upright: { fr: ['fardeau', 'responsabilités', 'surcharge', 'devoir'], en: ['burden', 'responsibility', 'overload', 'duty'] },
-      reversed: { fr: ['lâcher du lest', 'déléguer', 'libération', 'refus de charge'], en: ['offloading', 'delegating', 'release', 'refusing the load'] },
+      upright: { fr: ['fardeau', 'surcharge', 'épuisement', 'devoir'], en: ['burden', 'overload', 'exhaustion', 'duty'] },
+      reversed: { fr: ['délestage', 'effondrement', 'abandon', 'trop-plein'], en: ['offloading', 'collapse', 'giving up', 'overwhelm'] },
     },
     meaning: {
-      upright: { fr: "Vous portez trop, souvent seul, et le poids devient écrasant. Ce que vous avez bâti est réel, mais pas au prix de vous briser.", en: "You're carrying too much, often alone, and the weight becomes crushing. What you've built is real — but not worth breaking yourself over." },
-      reversed: { fr: "Il est temps de poser une partie du fardeau : déléguez, dites non, allégez. Vous n'avez pas à tout porter.", en: "It's time to set down part of the load: delegate, say no, lighten up. You don't have to carry it all." },
+      upright: { fr: "Un fardeau écrasant : trop de charges sur les épaules, une tâche qui épuise, on ploie sous le poids.", en: "A crushing burden: too much on your shoulders, a draining task, you buckle under the weight." },
+      reversed: { fr: "Le fardeau se pose — ou t'écrase : on délègue et on lâche, ou l'on s'effondre.", en: "The burden is set down — or crushes you: you delegate and let go, or you collapse." },
     },
   },
   'wands-11': {
     keywords: {
-      upright: { fr: ['curiosité', 'enthousiasme', 'idées neuves', 'esprit libre'], en: ['curiosity', 'enthusiasm', 'fresh ideas', 'free spirit'] },
-      reversed: { fr: ['dispersion', 'procrastination', 'projet sans suite', 'immaturité'], en: ['scattered focus', 'procrastination', 'unfinished ideas', 'immaturity'] },
+      upright: { fr: ['jeune fougueux', 'messager', 'enthousiasme', 'idée neuve'], en: ['eager youth', 'messenger', 'enthusiasm', 'fresh idea'] },
+      reversed: { fr: ['dispersion', 'vantardise', 'projet sans suite', 'fausse nouvelle'], en: ['scattered', 'bragging', 'no follow-through', 'false news'] },
     },
     meaning: {
-      upright: { fr: "Une curiosité pétillante vous pousse à explorer et à tenter. Laissez cet enthousiasme neuf ouvrir des portes.", en: "A fizzing curiosity pushes you to explore and try things. Let this fresh enthusiasm open doors." },
-      reversed: { fr: "Les idées fusent mais peu aboutissent, faute de suite. Choisissez-en une et menez-la au bout.", en: "Ideas fly but few land, for lack of follow-through. Pick one and see it through." },
+      upright: { fr: "Un jeune fougueux paraît : messager enthousiaste, apprenti audacieux, une nouvelle qui donne envie d'agir.", en: "An eager youth appears: an enthusiastic messenger, a bold apprentice, news that makes you want to act." },
+      reversed: { fr: "Le fougueux déçoit : promesses en l'air, dispersion, une nouvelle qui fait pschitt.", en: "The eager one disappoints: empty promises, scattered focus, news that fizzles out." },
     },
   },
   'wands-12': {
     keywords: {
-      upright: { fr: ['action', 'aventure', 'audace', 'passion'], en: ['action', 'adventure', 'boldness', 'passion'] },
-      reversed: { fr: ['imprudence', 'précipitation', 'impatience', 'énergie mal placée'], en: ['recklessness', 'haste', 'impatience', 'misdirected energy'] },
+      upright: { fr: ['aventurier', 'fougue', 'passion', 'départ'], en: ['adventurer', 'dash', 'passion', 'departure'] },
+      reversed: { fr: ['imprudence', 'colère', 'précipitation', 'sans suite'], en: ['recklessness', 'anger', 'haste', 'no follow-through'] },
     },
     meaning: {
-      upright: { fr: "Vous foncez avec fougue vers ce qui vous passionne. Cette audace fait avancer, tant qu'elle garde un cap.", en: "You charge boldly toward what fires you up. That daring moves things forward — as long as it keeps a direction." },
-      reversed: { fr: "L'empressement vire à l'imprudence : vous partez sans regarder devant. Canalisez la fougue avant qu'elle ne coûte cher.", en: "Eagerness tips into recklessness: you set off without looking ahead. Channel the drive before it costs you." },
+      upright: { fr: "Un aventurier fonce dans la scène : cavalier impétueux, passion, départ précipité vers l'action.", en: "An adventurer charges onto the scene: an impetuous rider, passion, a headlong rush into action." },
+      reversed: { fr: "L'impétueux devient danger : imprudence, colère, une charge qui tourne au désastre.", en: "The impetuous one turns dangerous: recklessness, anger, a charge that ends in disaster." },
     },
   },
   'wands-13': {
     keywords: {
-      upright: { fr: ['assurance', 'chaleur', 'détermination', 'charisme'], en: ['confidence', 'warmth', 'determination', 'charisma'] },
-      reversed: { fr: ['insécurité', 'jalousie', 'exigence', 'susceptibilité'], en: ['insecurity', 'jealousy', 'demanding', 'touchiness'] },
+      upright: { fr: ['meneuse', 'assurance', 'charisme', 'chaleur'], en: ['leader', 'confidence', 'charisma', 'warmth'] },
+      reversed: { fr: ['jalousie', 'exigence', 'susceptibilité', 'domination'], en: ['jealousy', 'demanding', 'touchiness', 'domineering'] },
     },
     meaning: {
-      upright: { fr: "Vous rayonnez d'une assurance chaleureuse qui entraîne les autres. Avancez avec cette détermination joyeuse.", en: "You radiate a warm confidence that draws others in. Move forward with this joyful determination." },
-      reversed: { fr: "Le doute intérieur se cache derrière l'exigence ou la jalousie. Reconnectez-vous à votre valeur, sans la mesurer aux autres.", en: "Inner doubt hides behind demandingness or jealousy. Reconnect with your worth without measuring it against others." },
+      upright: { fr: "Une femme rayonnante mène la scène : assurance chaleureuse, charisme, une meneuse qu'on suit volontiers.", en: "A radiant woman leads the scene: warm confidence, charisma, a leader people gladly follow." },
+      reversed: { fr: "L'assurance vire à l'excès : jalousie, exigence, une meneuse qui étouffe ou s'égare.", en: "Confidence tips into excess: jealousy, demands, a leader who smothers or loses her way." },
     },
   },
   'wands-14': {
     keywords: {
-      upright: { fr: ['vision', 'leadership', 'audace', 'entreprendre'], en: ['vision', 'leadership', 'boldness', 'enterprise'] },
-      reversed: { fr: ['autoritarisme', 'impulsivité', 'précipitation', 'intolérance'], en: ['domineering', 'impulsiveness', 'haste', 'intolerance'] },
+      upright: { fr: ['chef visionnaire', 'audace', 'leadership', 'inspiration'], en: ['visionary leader', 'boldness', 'leadership', 'inspiration'] },
+      reversed: { fr: ['despote', 'impulsivité', 'intolérance', 'tyrannie'], en: ['despot', 'impulsiveness', 'intolerance', 'tyranny'] },
     },
     meaning: {
-      upright: { fr: "Vous avez la vision et le souffle pour entraîner un projet et les gens autour. Menez avec audace et générosité.", en: "You have the vision and the drive to lead a project and the people around it. Lead with boldness and generosity." },
-      reversed: { fr: "Le meneur vire au tyran impatient qui n'écoute plus. Ralentissez et laissez de la place aux autres.", en: "The leader slides into an impatient tyrant who's stopped listening. Slow down and make room for others." },
+      upright: { fr: "Un chef visionnaire s'impose : meneur audacieux, bâtisseur, une autorité naturelle qui inspire.", en: "A visionary leader takes charge: a bold chief, a builder, a natural authority that inspires." },
+      reversed: { fr: "Le chef vire au despote : impulsif, intolérant, il brûle ce qu'il touche.", en: "The leader turns despot: impulsive, intolerant, he scorches all he touches." },
     },
   },
 
-  // ─────────────── COUPES / CUPS (eau : émotions, liens, intuition) ───────────────
+  // ─────────────── COUPES / CUPS (eau : émotions, liens, ambiance) ───────────────
   'cups-01': {
     keywords: {
-      upright: { fr: ['nouvel amour', 'ouverture du cœur', 'compassion', 'émotion neuve'], en: ['new love', 'open heart', 'compassion', 'new feeling'] },
-      reversed: { fr: ['émotions bloquées', 'cœur fermé', 'vide', 'amour refoulé'], en: ['blocked emotions', 'closed heart', 'emptiness', 'repressed love'] },
+      upright: { fr: ['amour naissant', 'émotion', 'tendresse', 'grâce'], en: ['new love', 'emotion', 'tenderness', 'grace'] },
+      reversed: { fr: ['cœur fermé', 'vide', 'amour refoulé', 'froideur'], en: ['closed heart', 'emptiness', 'repressed love', 'coldness'] },
     },
     meaning: {
-      upright: { fr: "Le cœur s'ouvre : un amour, une tendresse, une émotion neuve afflue. Laissez-vous toucher sans vous protéger.", en: "The heart opens: love, tenderness or a new feeling flows in. Let yourself be moved without shielding up." },
-      reversed: { fr: "Vous retenez vos émotions ou fermez la porte du cœur. Ce trop-plein contenu demande à être laissé couler.", en: "You're holding your emotions back or closing the heart's door. That contained overflow needs to be let out." },
+      upright: { fr: "Le cœur s'ouvre : un amour naissant, une émotion neuve, un moment de grâce et de tendresse.", en: "The heart opens: a budding love, a new feeling, a moment of grace and tenderness." },
+      reversed: { fr: "L'émotion se bloque : cœur fermé, amour refoulé, un vide affectif.", en: "Feeling shuts down: a closed heart, repressed love, an emotional void." },
     },
   },
   'cups-02': {
     keywords: {
-      upright: { fr: ['lien', 'attirance mutuelle', 'partenariat', 'harmonie'], en: ['connection', 'mutual attraction', 'partnership', 'harmony'] },
-      reversed: { fr: ['rupture', 'déséquilibre', 'tension', 'malentendu'], en: ['breakup', 'imbalance', 'tension', 'misunderstanding'] },
+      upright: { fr: ['rencontre', 'attirance', 'pacte', 'réciprocité'], en: ['meeting', 'attraction', 'pact', 'reciprocity'] },
+      reversed: { fr: ['rupture', 'déséquilibre', 'malentendu', 'tension'], en: ['breakup', 'imbalance', 'misunderstanding', 'tension'] },
     },
     meaning: {
-      upright: { fr: "Une belle réciprocité se noue entre vous et l'autre. Ce lien fondé sur le respect mutuel peut s'épanouir.", en: "A lovely reciprocity forms between you and another. This bond, built on mutual respect, is ready to flourish." },
-      reversed: { fr: "L'équilibre d'une relation s'est rompu, ou un malentendu s'installe. Rétablissez le dialogue avant que la distance ne grandisse.", en: "The balance of a relationship has broken, or a misunderstanding sets in. Reopen the dialogue before the distance grows." },
+      upright: { fr: "Deux êtres s'accordent : rencontre, attirance, pacte scellé, une belle réciprocité.", en: "Two hearts align: a meeting, attraction, a pact sealed, a fine reciprocity." },
+      reversed: { fr: "Le lien se déséquilibre : dispute, rupture, malentendu qui éloigne.", en: "The bond tips off balance: a quarrel, a breakup, a misunderstanding that drives apart." },
     },
   },
   'cups-03': {
     keywords: {
-      upright: { fr: ['amitié', 'célébration', 'communauté', 'joie partagée'], en: ['friendship', 'celebration', 'community', 'shared joy'] },
-      reversed: { fr: ['excès', 'commérages', 'isolement', 'lassitude'], en: ['overindulgence', 'gossip', 'isolation', 'weariness'] },
+      upright: { fr: ['célébration', 'amitié', 'retrouvailles', 'joie'], en: ['celebration', 'friendship', 'reunion', 'joy'] },
+      reversed: { fr: ['excès', 'ragots', 'isolement', 'lassitude'], en: ['excess', 'gossip', 'isolation', 'weariness'] },
     },
     meaning: {
-      upright: { fr: "Entouré des vôtres, vous célébrez et la joie se partage. Nourrissez ces liens qui vous font du bien.", en: "Surrounded by your people, you celebrate and joy is shared. Nurture these bonds that lift you up." },
-      reversed: { fr: "La fête tourne à l'excès, ou les liens se délitent dans les non-dits. Recentrez-vous sur les relations sincères.", en: "The party tips into excess, or bonds fray amid unspoken things. Refocus on the relationships that are genuine." },
+      upright: { fr: "Une célébration joyeuse : retrouvailles, amitiés, on lève son verre ensemble.", en: "A joyful celebration: reunions, friendships, glasses raised together." },
+      reversed: { fr: "La fête tourne mal : excès, ragots, une amitié se fissure dans l'ivresse.", en: "The party sours: excess, gossip, a friendship cracking amid the drink." },
     },
   },
   'cups-04': {
     keywords: {
-      upright: { fr: ['lassitude', 'introspection', 'insatisfaction', 'ennui'], en: ['apathy', 'introspection', 'discontent', 'boredom'] },
-      reversed: { fr: ['éveil', 'nouvelle envie', 'acceptation', 'ré-engagement'], en: ['awakening', 'new desire', 'acceptance', 're-engagement'] },
+      upright: { fr: ['morosité', 'ennui', 'lassitude', 'offre ignorée'], en: ['gloom', 'boredom', 'apathy', 'offer ignored'] },
+      reversed: { fr: ['réveil', 'nouvelle envie', 'ouverture', 'regain'], en: ['awakening', 'new desire', 'opening', 'renewal'] },
     },
     meaning: {
-      upright: { fr: "Une morosité s'installe : ce qu'on vous offre ne vous fait plus envie. Demandez-vous ce qui vous nourrirait vraiment.", en: "A flatness sets in: what's on offer no longer appeals. Ask yourself what would truly nourish you." },
-      reversed: { fr: "Vous sortez de la torpeur et une nouvelle envie pointe. Saisissez la main tendue que vous ignoriez.", en: "You're shaking off the torpor and a new desire appears. Take the outstretched hand you'd been ignoring." },
+      upright: { fr: "Une ambiance morne s'installe : lassitude, ennui, une offre qu'on regarde sans envie.", en: "A dull mood sets in: weariness, boredom, an offer looked at without appetite." },
+      reversed: { fr: "L'ennui se rompt : un réveil, une nouvelle envie, on saisit enfin ce qu'on ignorait.", en: "The boredom breaks: an awakening, a new desire, you finally take what you'd ignored." },
     },
   },
   'cups-05': {
     keywords: {
       upright: { fr: ['perte', 'chagrin', 'regret', 'deuil'], en: ['loss', 'grief', 'regret', 'mourning'] },
-      reversed: { fr: ['acceptation', 'aller de l\'avant', 'pardon', 'ce qui reste'], en: ['acceptance', 'moving on', 'forgiveness', 'what remains'] },
+      reversed: { fr: ['acceptation', 'ce qui reste', 'pardon', 'on avance'], en: ['acceptance', 'what remains', 'forgiveness', 'moving on'] },
     },
     meaning: {
-      upright: { fr: "Une déception pèse et vous fixez ce qui s'est renversé. Le chagrin est légitime, mais tout n'est pas perdu derrière vous.", en: "A disappointment weighs on you and you stare at what's spilled. The grief is valid, but not everything behind you is lost." },
-      reversed: { fr: "Vous relevez la tête et voyez enfin ce qui vous reste. Le deuil s'apaise, l'avenir se rouvre.", en: "You lift your head and finally see what remains. The mourning eases and the future opens again." },
+      upright: { fr: "Un chagrin pèse : une perte, un regret, on fixe ce qui s'est renversé.", en: "Grief weighs down: a loss, a regret, eyes fixed on what has spilled." },
+      reversed: { fr: "Le deuil s'allège : on relève la tête, on voit ce qui reste, on avance.", en: "The mourning eases: you lift your head, see what remains, and move on." },
     },
   },
   'cups-06': {
     keywords: {
-      upright: { fr: ['nostalgie', 'souvenirs', 'douceur', 'retrouvailles'], en: ['nostalgia', 'memories', 'tenderness', 'reunion'] },
-      reversed: { fr: ['passé encombrant', 'idéalisation', 'lâcher le passé', 'avancer'], en: ['clinging to the past', 'idealising', 'letting go', 'moving forward'] },
+      upright: { fr: ['nostalgie', 'souvenir', 'retrouvailles', 'innocence'], en: ['nostalgia', 'memory', 'reunion', 'innocence'] },
+      reversed: { fr: ['nostalgie pesante', 'idéalisation', 'stagnation', 'regret'], en: ['heavy nostalgia', 'idealising', 'stagnation', 'regret'] },
     },
     meaning: {
-      upright: { fr: "Un parfum d'enfance ou de retrouvailles vous réchauffe le cœur. Puisez dans ces racines douces sans vous y enfermer.", en: "A whiff of childhood or reunion warms your heart. Draw on these gentle roots without getting stuck in them." },
-      reversed: { fr: "Le passé idéalisé vous retient loin du présent. Gardez la tendresse, mais tournez-vous vers ce qui vient.", en: "An idealised past keeps you from the present. Keep the tenderness, but turn toward what's ahead." },
+      upright: { fr: "Une douceur du passé : souvenir tendre, retrouvailles, un cadeau ou une main innocente.", en: "A sweetness from the past: a tender memory, a reunion, a gift or an innocent hand." },
+      reversed: { fr: "Le passé retient : nostalgie qui enferme, souvenir idéalisé, on refuse d'avancer.", en: "The past holds you: nostalgia that cages, an idealised memory, a refusal to move on." },
     },
   },
   'cups-07': {
     keywords: {
-      upright: { fr: ['choix multiples', 'illusions', 'rêverie', 'imagination'], en: ['many choices', 'illusion', 'daydreaming', 'imagination'] },
+      upright: { fr: ['choix multiples', 'mirage', 'rêverie', 'tentation'], en: ['many choices', 'mirage', 'daydream', 'temptation'] },
       reversed: { fr: ['clarté', 'décision', 'priorités', 'retour au réel'], en: ['clarity', 'decision', 'priorities', 'back to reality'] },
     },
     meaning: {
-      upright: { fr: "Les options se multiplient, séduisantes mais floues comme des mirages. Distinguez le rêve réel de la simple fantaisie.", en: "Options multiply, alluring but hazy like mirages. Tell the achievable dream from mere fantasy." },
-      reversed: { fr: "Le brouillard se lève : vous voyez enfin ce qui compte vraiment. Choisissez et engagez-vous.", en: "The fog lifts: you finally see what truly matters. Choose, and commit." },
+      upright: { fr: "Un éventail de mirages : choix multiples, rêves séduisants, on ne sait où donner de la tête.", en: "A spread of mirages: many choices, alluring dreams, and no idea where to turn." },
+      reversed: { fr: "Le brouillard se lève : on tranche, on voit clair, la fantaisie cède au réel.", en: "The fog lifts: you decide, you see clearly, fantasy gives way to reality." },
     },
   },
   'cups-08': {
     keywords: {
-      upright: { fr: ['départ', 'quête de sens', 'désillusion', 'tourner la page'], en: ['walking away', 'search for meaning', 'disillusion', 'turning the page'] },
-      reversed: { fr: ['peur de partir', 'rester coincé', 'aller-retour', 'indécision'], en: ['fear of leaving', 'staying stuck', 'back and forth', 'indecision'] },
+      upright: { fr: ['départ', 'quête', 'renoncement', 'tourner la page'], en: ['departure', 'quest', 'letting go', 'turning the page'] },
+      reversed: { fr: ['peur de partir', 'stagnation', 'allers-retours', 'indécision'], en: ['fear of leaving', 'stagnation', 'back and forth', 'indecision'] },
     },
     meaning: {
-      upright: { fr: "Vous quittez une situation qui a cessé de vous nourrir, en quête de plus juste. Ce départ demande du courage, mais il libère.", en: "You leave a situation that's stopped feeding you, in search of something truer. This departure takes courage, but it frees you." },
-      reversed: { fr: "Vous savez qu'il faut partir mais restez, tiraillé. Écoutez ce qui vous dit que ce n'est plus votre place.", en: "You know you should leave but stay, torn. Listen to what tells you this is no longer your place." },
+      upright: { fr: "Un départ silencieux : on quitte ce qui ne nourrit plus, en quête d'un ailleurs plus vrai.", en: "A quiet departure: leaving what no longer nourishes, seeking somewhere truer." },
+      reversed: { fr: "Le départ hésite : on reste par peur, allers-retours, on tourne en rond.", en: "The departure falters: staying out of fear, back and forth, going in circles." },
     },
   },
   'cups-09': {
     keywords: {
-      upright: { fr: ['contentement', 'satisfaction', 'vœu exaucé', 'gratitude'], en: ['contentment', 'satisfaction', 'wish fulfilled', 'gratitude'] },
-      reversed: { fr: ['insatisfaction', 'toujours plus', 'suffisance', 'plaisir vide'], en: ['dissatisfaction', 'always more', 'smugness', 'hollow pleasure'] },
+      upright: { fr: ['contentement', 'vœu exaucé', 'plaisir', 'satisfaction'], en: ['contentment', 'wish granted', 'pleasure', 'satisfaction'] },
+      reversed: { fr: ['suffisance', 'plaisir vide', 'insatiable', 'vanité'], en: ['smugness', 'hollow pleasure', 'never enough', 'vanity'] },
     },
     meaning: {
-      upright: { fr: "Un souhait se réalise et vous goûtez un vrai contentement. Savourez ce moment sans culpabilité.", en: "A wish comes true and you taste real contentment. Savour this moment without guilt." },
-      reversed: { fr: "La satisfaction sonne creux : à courir après plus, vous manquez ce que vous avez. Cherchez ce qui comble en profondeur.", en: "The satisfaction rings hollow: chasing more, you miss what you have. Look for what fulfils you deeply." },
+      upright: { fr: "Un moment de contentement : un vœu exaucé, du plaisir, la satisfaction tranquille de l'instant.", en: "A moment of contentment: a wish granted, pleasure, the quiet satisfaction of the moment." },
+      reversed: { fr: "La satisfaction sonne creux : suffisance, plaisir vide, on veut toujours plus.", en: "The satisfaction rings hollow: smugness, empty pleasure, always wanting more." },
     },
   },
   'cups-10': {
     keywords: {
-      upright: { fr: ['plénitude', 'harmonie', 'famille', 'bonheur partagé'], en: ['fulfilment', 'harmony', 'family', 'shared happiness'] },
-      reversed: { fr: ['harmonie rompue', 'discorde', 'façade', 'désalignement'], en: ['broken harmony', 'discord', 'facade', 'misalignment'] },
+      upright: { fr: ['plénitude', 'foyer', 'harmonie', 'bonheur'], en: ['fulfilment', 'home', 'harmony', 'happiness'] },
+      reversed: { fr: ['façade', 'discorde', 'tensions cachées', 'désunion'], en: ['facade', 'discord', 'hidden tension', 'disunity'] },
     },
     meaning: {
-      upright: { fr: "Une harmonie profonde règne dans vos liens les plus chers. C'est le bonheur simple d'être en accord avec les vôtres.", en: "A deep harmony fills your dearest bonds. It's the simple happiness of being in tune with your people." },
-      reversed: { fr: "L'image du bonheur cache des tensions non réglées. Rapprochez la façade de ce que vous ressentez vraiment.", en: "The picture of happiness hides unresolved tensions. Bring the facade closer to what you actually feel." },
+      upright: { fr: "Une plénitude partagée : foyer heureux, harmonie, un bonheur simple qui rayonne.", en: "A shared fulfilment: a happy home, harmony, a simple joy that radiates." },
+      reversed: { fr: "L'harmonie se fissure : façade heureuse, tensions cachées, un foyer qui sonne faux.", en: "The harmony cracks: a happy facade, hidden tensions, a home that rings false." },
     },
   },
   'cups-11': {
     keywords: {
-      upright: { fr: ['sensibilité', 'intuition', 'créativité', 'curiosité du cœur'], en: ['sensitivity', 'intuition', 'creativity', 'curiosity of the heart'] },
-      reversed: { fr: ['immaturité émotionnelle', 'humeur changeante', 'créativité bloquée', 'susceptibilité'], en: ['emotional immaturity', 'moodiness', 'blocked creativity', 'touchiness'] },
+      upright: { fr: ['âme sensible', 'messager tendre', 'rêverie', 'invitation'], en: ['sensitive soul', 'tender messenger', 'reverie', 'invitation'] },
+      reversed: { fr: ['caprice', 'humeur', 'susceptibilité', 'immaturité'], en: ['whim', 'moodiness', 'touchiness', 'immaturity'] },
     },
     meaning: {
-      upright: { fr: "Une sensibilité neuve et curieuse vous inspire. Accueillez ces messages du cœur et de l'imaginaire.", en: "A fresh, curious sensitivity inspires you. Welcome these messages from the heart and the imagination." },
-      reversed: { fr: "Les émotions débordent ou se braquent au moindre heurt. Apprivoisez cette sensibilité plutôt que de la subir.", en: "Emotions overflow or bristle at the slightest bump. Tame this sensitivity rather than being ruled by it." },
+      upright: { fr: "Un être sensible paraît : messager tendre, âme rêveuse, une invitation du cœur ou de l'imaginaire.", en: "A sensitive figure appears: a tender messenger, a dreamy soul, an invitation of the heart or the imagination." },
+      reversed: { fr: "La sensibilité déborde : caprice, humeur changeante, une émotion qu'on ne maîtrise pas.", en: "Sensitivity spills over: a whim, shifting moods, an emotion out of control." },
     },
   },
   'cups-12': {
     keywords: {
-      upright: { fr: ['romantisme', 'charme', 'suivre son cœur', 'idéalisme'], en: ['romance', 'charm', 'following the heart', 'idealism'] },
-      reversed: { fr: ['idéalisation', 'promesses en l\'air', 'humeur', 'déception'], en: ['idealising', 'empty promises', 'moodiness', 'disappointment'] },
+      upright: { fr: ['romantique', 'charmeur', 'proposition', 'idéal'], en: ['romantic', 'charmer', 'proposal', 'ideal'] },
+      reversed: { fr: ['belles paroles', 'humeur', 'déception', 'mirage'], en: ['empty words', 'moodiness', 'disappointment', 'mirage'] },
     },
     meaning: {
-      upright: { fr: "Une proposition venue du cœur se présente, romantique et sincère. Suivez cet élan tout en gardant les pieds sur terre.", en: "A heartfelt, romantic and sincere offer appears. Follow the impulse while keeping your feet on the ground." },
-      reversed: { fr: "Les belles paroles ne suivent pas d'actes, et la déception guette. Vérifiez que les promesses tiennent la route.", en: "Fine words aren't matched by action, and disappointment looms. Check whether the promises hold up." },
+      upright: { fr: "Un romantique s'avance : charmeur, cœur sur la main, une proposition sincère et idéaliste.", en: "A romantic steps forward: a charmer, heart on the sleeve, a sincere and idealistic offer." },
+      reversed: { fr: "Le charme cache le vide : belles paroles sans actes, humeur, une déception en vue.", en: "The charm hides emptiness: fine words with no deeds, moods, disappointment ahead." },
     },
   },
   'cups-13': {
     keywords: {
-      upright: { fr: ['compassion', 'empathie', 'écoute', 'sécurité affective'], en: ['compassion', 'empathy', 'listening', 'emotional security'] },
-      reversed: { fr: ['trop-plein émotionnel', 'dépendance', 'oubli de soi', 'susceptibilité'], en: ['emotional overwhelm', 'dependence', 'self-neglect', 'over-sensitivity'] },
+      upright: { fr: ['bienveillance', 'compassion', 'écoute', 'soutien'], en: ['kindness', 'compassion', 'listening', 'support'] },
+      reversed: { fr: ['trop-plein', 'dépendance', 'oubli de soi', 'susceptibilité'], en: ['overwhelm', 'dependence', 'self-neglect', 'over-sensitivity'] },
     },
     meaning: {
-      upright: { fr: "Vous offrez une écoute chaleureuse et un vrai soutien émotionnel. Cette douceur apaise autour de vous.", en: "You offer warm listening and real emotional support. This gentleness soothes those around you." },
-      reversed: { fr: "À trop absorber les émotions des autres, vous vous oubliez. Reposez vos propres limites avant de vous noyer.", en: "Absorbing everyone's emotions, you lose yourself. Restore your own limits before you drown." },
+      upright: { fr: "Une présence bienveillante veille : écoute, compassion, un cœur qui apaise et soutient.", en: "A caring presence watches over: listening, compassion, a heart that soothes and supports." },
+      reversed: { fr: "La bienveillance s'épuise : trop-plein d'émotions, dépendance, on s'oublie pour les autres.", en: "The kindness burns out: emotional overflow, dependence, losing yourself for others." },
     },
   },
   'cups-14': {
     keywords: {
-      upright: { fr: ['équilibre émotionnel', 'diplomatie', 'calme', 'bienveillance'], en: ['emotional balance', 'diplomacy', 'calm', 'kindness'] },
-      reversed: { fr: ['instabilité', 'humeurs', 'froideur', 'manipulation'], en: ['volatility', 'moodiness', 'coldness', 'manipulation'] },
+      upright: { fr: ['maîtrise', 'calme', 'diplomatie', 'sagesse du cœur'], en: ['composure', 'calm', 'diplomacy', 'wise heart'] },
+      reversed: { fr: ['instabilité', 'manipulation', 'froideur', 'houle cachée'], en: ['volatility', 'manipulation', 'coldness', 'hidden storm'] },
     },
     meaning: {
-      upright: { fr: "Vous maîtrisez vos émotions sans les nier et gardez le cap avec calme. Cette maturité inspire confiance.", en: "You master your emotions without denying them and stay steady, calm. This maturity inspires trust." },
-      reversed: { fr: "Les émotions tanguent sous une surface lisse, ou servent à influencer. Renouez avec une sincérité tranquille.", en: "Emotions lurch beneath a smooth surface, or get used to influence. Return to a quiet sincerity." },
+      upright: { fr: "Un être maître de ses émotions : calme, diplomate, une main sûre dans la tempête affective.", en: "Someone in command of their feelings: calm, diplomatic, a steady hand in an emotional storm." },
+      reversed: { fr: "Le calme cache la houle : humeurs sous la surface, manipulation, froideur qui blesse.", en: "The calm hides a swell: moods beneath the surface, manipulation, a coldness that wounds." },
     },
   },
 
-  // ─────────────── ÉPÉES / SWORDS (air : pensée, vérité, conflit) ───────────────
+  // ─────────────── ÉPÉES / SWORDS (air : esprit, conflit, vérité) ───────────────
   'swords-01': {
     keywords: {
-      upright: { fr: ['clarté', 'idée neuve', 'vérité', 'percée'], en: ['clarity', 'new idea', 'truth', 'breakthrough'] },
-      reversed: { fr: ['confusion', 'brouillard mental', 'désinformation', 'idée mal posée'], en: ['confusion', 'mental fog', 'misinformation', 'muddled idea'] },
+      upright: { fr: ['clarté', 'vérité', 'idée décisive', 'percée'], en: ['clarity', 'truth', 'decisive idea', 'breakthrough'] },
+      reversed: { fr: ['confusion', 'désinformation', 'brouillard', 'idée faussée'], en: ['confusion', 'misinformation', 'fog', 'muddled idea'] },
     },
     meaning: {
-      upright: { fr: "Une idée tranchante coupe le brouillard : vous voyez clair d'un coup. Saisissez cette lucidité pour trancher.", en: "A sharp idea cuts through the fog: suddenly you see clearly. Seize this lucidity to make the cut." },
-      reversed: { fr: "Les pensées s'embrouillent et la vérité vous échappe. Prenez du recul avant de conclure à chaud.", en: "Thoughts tangle and the truth slips away. Step back before drawing hasty conclusions." },
+      upright: { fr: "Une clarté tranchante : une vérité éclate, une idée décisive coupe le brouillard. L'esprit y voit net.", en: "A cutting clarity: a truth breaks open, a decisive idea slices through the fog. The mind sees sharp." },
+      reversed: { fr: "L'esprit s'embrouille : confusion, information faussée, une idée qui tourne mal.", en: "The mind tangles: confusion, twisted information, an idea gone wrong." },
     },
   },
   'swords-02': {
     keywords: {
-      upright: { fr: ['choix difficile', 'impasse', 'indécision', 'évitement'], en: ['difficult choice', 'stalemate', 'indecision', 'avoidance'] },
-      reversed: { fr: ['décision prise', 'clarté', 'vérité révélée', 'déblocage'], en: ['decision made', 'clarity', 'truth revealed', 'unblocking'] },
+      upright: { fr: ['impasse', 'choix évité', 'statu quo', 'tension'], en: ['stalemate', 'avoided choice', 'standoff', 'tension'] },
+      reversed: { fr: ['déblocage', 'vérité révélée', 'décision', 'tension qui lâche'], en: ['breakthrough', 'truth revealed', 'decision', 'release'] },
     },
     meaning: {
-      upright: { fr: "Vous refusez de choisir, les yeux bandés face à une décision. Ôtez le bandeau : fuir le choix est déjà un choix.", en: "You refuse to choose, blindfolded before a decision. Take off the blindfold: avoiding the choice is already a choice." },
-      reversed: { fr: "L'impasse se dénoue et vous tranchez enfin. Une information qui manquait éclaire la voie.", en: "The stalemate breaks and you finally decide. A missing piece of information lights the way." },
+      upright: { fr: "Une impasse tendue : un choix qu'on refuse de voir, un statu quo bancal, deux forces qui se neutralisent.", en: "A tense stalemate: a choice refused, a wobbly standoff, two forces cancelling out." },
+      reversed: { fr: "L'impasse se dénoue — ou explose : une vérité tombe, on tranche enfin, la tension lâche.", en: "The stalemate breaks — or bursts: a truth drops, a choice is finally made, the tension releases." },
     },
   },
   'swords-03': {
     keywords: {
-      upright: { fr: ['chagrin', 'vérité douloureuse', 'peine de cœur', 'rupture'], en: ['heartache', 'painful truth', 'heartbreak', 'rupture'] },
-      reversed: { fr: ['guérison', 'pardon', 'libérer la douleur', 'reconstruction'], en: ['healing', 'forgiveness', 'releasing pain', 'rebuilding'] },
+      upright: { fr: ['blessure', 'trahison', 'parole qui blesse', 'chagrin'], en: ['heartbreak', 'betrayal', 'wounding words', 'grief'] },
+      reversed: { fr: ['guérison', 'pardon', 'douleur relâchée', 'reconstruction'], en: ['healing', 'forgiveness', 'pain released', 'rebuilding'] },
     },
     meaning: {
-      upright: { fr: "Une vérité fait mal et le cœur se serre. La peine est réelle : laissez-la traverser plutôt que de la nier.", en: "A truth hurts and the heart tightens. The pain is real: let it pass through rather than deny it." },
-      reversed: { fr: "La blessure commence à cicatriser et vous relâchez la douleur. Le pardon, même envers vous-même, ouvre la guérison.", en: "The wound begins to heal and you release the pain. Forgiveness, even toward yourself, opens the way to healing." },
+      upright: { fr: "Une blessure au cœur : trahison, parole qui transperce, un chagrin net et douloureux.", en: "A wound to the heart: betrayal, words that pierce, a sharp and painful sorrow." },
+      reversed: { fr: "La plaie commence à guérir : on relâche la douleur, le pardon s'amorce.", en: "The wound starts to close: the pain is released, forgiveness begins." },
     },
   },
   'swords-04': {
     keywords: {
-      upright: { fr: ['repos', 'récupération', 'pause', 'réflexion'], en: ['rest', 'recovery', 'pause', 'reflection'] },
-      reversed: { fr: ['agitation', 'épuisement', 'repos négligé', 'reprise'], en: ['restlessness', 'burnout', 'rest ignored', 'resuming'] },
+      upright: { fr: ['repos', 'trêve', 'récupération', 'pause'], en: ['rest', 'truce', 'recovery', 'pause'] },
+      reversed: { fr: ['agitation', 'épuisement', 'repos refusé', 'reprise forcée'], en: ['restlessness', 'exhaustion', 'rest refused', 'forced return'] },
     },
     meaning: {
-      upright: { fr: "Il est temps de vous arrêter et de recharger vraiment. Ce repos n'est pas une pause perdue mais une nécessité.", en: "It's time to stop and truly recharge. This rest isn't wasted downtime but a necessity." },
-      reversed: { fr: "Vous repoussez le repos alors que l'épuisement guette. Écoutez le signal avant qu'il ne vous force à l'arrêt.", en: "You keep putting off rest while burnout looms. Heed the signal before it forces you to stop." },
+      upright: { fr: "Une trêve nécessaire : repos, retraite, un temps de calme pour panser ses forces.", en: "A needed truce: rest, retreat, a spell of quiet to mend your strength." },
+      reversed: { fr: "Le repos manque : agitation, épuisement qu'on ignore, une trêve refusée.", en: "Rest is missing: restlessness, exhaustion ignored, a truce refused." },
     },
   },
   'swords-05': {
     keywords: {
-      upright: { fr: ['conflit', 'victoire amère', 'tension', 'ego'], en: ['conflict', 'hollow victory', 'tension', 'ego'] },
-      reversed: { fr: ['réconciliation', 'lâcher prise', 'se retirer', 'pardon'], en: ['reconciliation', 'letting go', 'walking away', 'forgiveness'] },
+      upright: { fr: ['querelle', 'humiliation', 'victoire amère', 'rancune'], en: ['quarrel', 'humiliation', 'hollow victory', 'resentment'] },
+      reversed: { fr: ['réconciliation', 'on lâche', 'retrait', 'pardon'], en: ['reconciliation', 'letting go', 'walking away', 'forgiveness'] },
     },
     meaning: {
-      upright: { fr: "Gagner à tout prix laisse un goût amer et des liens abîmés. Demandez-vous si cette victoire en valait le coût.", en: "Winning at all costs leaves a bitter taste and damaged bonds. Ask whether this victory was worth the cost." },
-      reversed: { fr: "Vous êtes prêt à déposer les armes et à réparer. Le pardon, ou simplement partir, vaut mieux qu'avoir raison.", en: "You're ready to lay down arms and mend things. Forgiveness — or simply walking away — beats being right." },
+      upright: { fr: "Une querelle laisse un goût amer : quelqu'un l'emporte par la ruse ou l'humiliation. L'air est lourd de rancune.", en: "A quarrel leaves a bitter taste: someone wins by cunning or humiliation. The air is heavy with spite." },
+      reversed: { fr: "Les armes s'abaissent : la défaite se digère, on quitte le champ de bataille, ou l'on tend la main.", en: "The weapons lower: the defeat is swallowed, the field abandoned, or a hand is offered." },
     },
   },
   'swords-06': {
     keywords: {
-      upright: { fr: ['transition', 'passage', 'aller vers mieux', 'apaisement'], en: ['transition', 'passage', 'moving to calmer waters', 'relief'] },
-      reversed: { fr: ['résistance au changement', 'bagage non réglé', 'coincé', 'retour en arrière'], en: ['resisting change', 'unfinished baggage', 'stuck', 'backsliding'] },
+      upright: { fr: ['passage', 'traversée', 'apaisement', 'départ'], en: ['passage', 'crossing', 'relief', 'departure'] },
+      reversed: { fr: ['bagage', 'retour en arrière', 'enlisement', 'départ manqué'], en: ['baggage', 'backsliding', 'stuck', 'failed departure'] },
     },
     meaning: {
-      upright: { fr: "Vous quittez des eaux agitées vers un lieu plus calme. La transition est en cours : le pire est derrière.", en: "You're leaving choppy waters for somewhere calmer. The transition is underway: the worst is behind you." },
-      reversed: { fr: "Vous traînez un bagage qui vous empêche de tourner la page. Réglez ce qui doit l'être pour avancer léger.", en: "You're dragging baggage that keeps you from turning the page. Settle what needs settling to move on lighter." },
+      upright: { fr: "Un passage vers le calme : on quitte des eaux agitées, une traversée vers un lieu plus sûr.", en: "A passage to calmer waters: leaving rough seas, a crossing toward safer ground." },
+      reversed: { fr: "La traversée s'enlise : un bagage qu'on traîne, un retour en arrière, on n'arrive pas à partir.", en: "The crossing bogs down: baggage dragged along, a slide backwards, unable to leave." },
     },
   },
   'swords-07': {
     keywords: {
-      upright: { fr: ['stratégie', 'ruse', 'agir seul', 'discrétion'], en: ['strategy', 'cunning', 'acting alone', 'discretion'] },
-      reversed: { fr: ['aveu', 'conscience', 'se faire prendre', 'honnêteté'], en: ['confession', 'conscience', 'getting caught', 'honesty'] },
+      upright: { fr: ['ruse', 'larcin', 'stratégie', 'discrétion'], en: ['stealth', 'theft', 'strategy', 'discretion'] },
+      reversed: { fr: ['pris sur le fait', 'aveu', 'conscience', 'plan éventé'], en: ['caught', 'confession', 'conscience', 'plan exposed'] },
     },
     meaning: {
-      upright: { fr: "Vous avancez masqué, par stratégie ou par esquive. La ruse peut servir, mais gare à ce qu'elle ne se retourne contre vous.", en: "You move under cover, by strategy or evasion. Cunning can help, but beware it turning against you." },
-      reversed: { fr: "La vérité refait surface et le poids du secret s'allège. Jouer franc-jeu vous soulagera plus que de continuer à cacher.", en: "The truth resurfaces and the weight of the secret lifts. Coming clean will relieve you more than hiding on." },
+      upright: { fr: "Une manœuvre en douce : ruse, larcin, quelqu'un agit dans ton dos avec un plan bien à lui.", en: "A quiet manoeuvre: cunning, a theft, someone acting behind your back with a plan of their own." },
+      reversed: { fr: "La ruse se retourne : on se fait prendre, la conscience parle, un aveu tombe.", en: "The trickery backfires: caught in the act, conscience speaks, a confession drops." },
     },
   },
   'swords-08': {
     keywords: {
-      upright: { fr: ['sentiment de piège', 'blocage mental', 'impuissance', 'limites auto-imposées'], en: ['feeling trapped', 'mental block', 'powerlessness', 'self-imposed limits'] },
-      reversed: { fr: ['libération', 'nouveau regard', 'se dégager', 'reprise de pouvoir'], en: ['release', 'new perspective', 'breaking free', 'reclaiming power'] },
+      upright: { fr: ['piège', 'entrave', 'impuissance', 'aveuglement'], en: ['trap', 'restriction', 'powerlessness', 'blindfold'] },
+      reversed: { fr: ['libération', 'issue', 'nouveau regard', 'délivrance'], en: ['release', 'way out', 'new perspective', 'freeing'] },
     },
     meaning: {
-      upright: { fr: "Vous vous sentez pris au piège, mais les liens sont surtout dans la tête. Regardez : une issue existe déjà.", en: "You feel trapped, but the ropes are mostly in your head. Look again: a way out already exists." },
-      reversed: { fr: "Vous ôtez le bandeau et voyez que rien ne vous retient vraiment. Un pas suffit pour vous libérer.", en: "You lift the blindfold and see nothing truly holds you. One step is enough to free yourself." },
+      upright: { fr: "Un piège se referme : entravé, aveuglé, coincé — pourtant les liens sont plus lâches qu'ils n'en ont l'air.", en: "A trap closes in: bound, blindfolded, stuck — yet the ropes are looser than they look." },
+      reversed: { fr: "Les liens se défont : on ôte le bandeau, on trouve l'issue, on se libère.", en: "The bonds come undone: the blindfold lifts, a way out appears, you break free." },
     },
   },
   'swords-09': {
     keywords: {
-      upright: { fr: ['angoisse', 'ruminations', 'peur', 'nuits blanches'], en: ['anxiety', 'rumination', 'fear', 'sleepless nights'] },
-      reversed: { fr: ['apaisement', 'lâcher les peurs', 'demander de l\'aide', 'sortie du tunnel'], en: ['relief', 'releasing fears', 'asking for help', 'coming out of it'] },
+      upright: { fr: ['angoisse', 'cauchemar', 'peur', 'culpabilité'], en: ['anguish', 'nightmare', 'fear', 'guilt'] },
+      reversed: { fr: ['apaisement', 'peur qui reflue', 'aide', 'sortie du tunnel'], en: ['relief', 'fear receding', 'help', 'coming through'] },
     },
     meaning: {
-      upright: { fr: "Les pensées tournent la nuit et l'angoisse gonfle tout. La peur exagère souvent : nommez-la pour la dégonfler.", en: "Thoughts spin at night and anxiety magnifies everything. Fear usually exaggerates: name it to deflate it." },
-      reversed: { fr: "L'angoisse desserre son étreinte et vous respirez mieux. En parler, à quelqu'un, allège le fardeau.", en: "The anxiety loosens its grip and you breathe easier. Talking it out with someone lightens the load." },
+      upright: { fr: "Une angoisse dévorante : nuit blanche, cauchemars, une peur qui gonfle tout dans le noir.", en: "A devouring dread: a sleepless night, nightmares, a fear that swells everything in the dark." },
+      reversed: { fr: "L'étau se desserre : la peur reflue, on en parle, l'aube approche.", en: "The grip loosens: the fear recedes, it's spoken aloud, dawn draws near." },
     },
   },
   'swords-10': {
     keywords: {
-      upright: { fr: ['fin douloureuse', 'point bas', 'trahison', 'épuisement'], en: ['painful ending', 'rock bottom', 'betrayal', 'exhaustion'] },
-      reversed: { fr: ['relèvement', 'le pire est passé', 'renaissance', 'guérison'], en: ['recovery', 'the worst is over', 'rebirth', 'healing'] },
+      upright: { fr: ['ruine', 'trahison', 'point bas', 'fin brutale'], en: ['ruin', 'betrayal', 'rock bottom', 'brutal ending'] },
+      reversed: { fr: ['relèvement', 'pire passé', 'aube', 'survie'], en: ['recovery', 'worst is over', 'dawn', 'survival'] },
     },
     meaning: {
-      upright: { fr: "Quelque chose touche le fond, de façon brutale. Mais ce point bas est aussi un terminus : après, ça ne peut que remonter.", en: "Something hits bottom, harshly. Yet this low point is also an end of the line: from here, it can only rise." },
-      reversed: { fr: "Vous vous relevez d'une épreuve : le plus dur est derrière. Accueillez cette renaissance pas à pas.", en: "You're getting up after an ordeal: the hardest part is behind you. Welcome this rebirth step by step." },
+      upright: { fr: "Le point le plus bas : trahison consommée, effondrement, une fin brutale. Rien de pire ne peut arriver.", en: "The lowest point: a betrayal complete, collapse, a brutal ending. Nothing worse can happen." },
+      reversed: { fr: "On se relève du désastre : le pire est passé, une aube pâle après la nuit.", en: "You rise from the disaster: the worst is over, a pale dawn after the night." },
     },
   },
   'swords-11': {
     keywords: {
-      upright: { fr: ['curiosité', 'vigilance', 'soif d\'apprendre', 'idées'], en: ['curiosity', 'vigilance', 'thirst for learning', 'ideas'] },
-      reversed: { fr: ['précipitation', 'commérages', 'pensées éparpillées', 'espionnage'], en: ['haste', 'gossip', 'scattered thoughts', 'snooping'] },
+      upright: { fr: ['esprit vif', 'guetteur', 'curiosité', 'vigilance'], en: ['sharp mind', 'watcher', 'curiosity', 'vigilance'] },
+      reversed: { fr: ['espionnage', 'ragots', 'précipitation', 'médisance'], en: ['snooping', 'gossip', 'haste', 'slander'] },
     },
     meaning: {
-      upright: { fr: "Un esprit vif et curieux cherche à comprendre et à apprendre. Cultivez cette soif, elle ouvre des portes.", en: "A sharp, curious mind seeks to understand and learn. Cultivate this thirst — it opens doors." },
-      reversed: { fr: "La curiosité vire à la précipitation ou au commérage. Vérifiez vos informations avant de les relayer.", en: "Curiosity tips into haste or gossip. Check your facts before passing them on." },
+      upright: { fr: "Un esprit vif et curieux rôde : guetteur, espion, une soif de savoir, une nouvelle qui pique.", en: "A sharp, curious mind is about: a watcher, a spy, a thirst to know, news that stings." },
+      reversed: { fr: "La curiosité vire à l'espionnage : ragots, précipitation, une langue trop bien pendue.", en: "Curiosity turns to snooping: gossip, haste, a tongue too sharp." },
     },
   },
   'swords-12': {
     keywords: {
-      upright: { fr: ['ambition', 'franchise', 'action rapide', 'détermination'], en: ['ambition', 'directness', 'fast action', 'determination'] },
-      reversed: { fr: ['agressivité', 'imprudence', 'sans suite', 'brusquerie'], en: ['aggression', 'recklessness', 'no follow-through', 'bluntness'] },
+      upright: { fr: ['assaut', 'franchise', 'rapidité', 'détermination'], en: ['charge', 'bluntness', 'speed', 'determination'] },
+      reversed: { fr: ['agressivité', 'imprudence', 'brusquerie', 'sans suite'], en: ['aggression', 'recklessness', 'harshness', 'no follow-through'] },
     },
     meaning: {
-      upright: { fr: "Vous foncez vers votre but avec franchise et rapidité. Cette énergie directe fait bouger les lignes.", en: "You charge toward your goal with directness and speed. This straightforward energy shifts things." },
-      reversed: { fr: "La fougue vire à la brusquerie et vous partez tête baissée. Pesez vos mots et vos actes avant de heurter.", en: "The drive turns brusque and you rush in headlong. Weigh your words and moves before you bruise someone." },
+      upright: { fr: "Un assaut direct : cavalier fougueux, franc-parler, une charge rapide et sans détour.", en: "A direct assault: a fiery rider, blunt speech, a fast charge with no detour." },
+      reversed: { fr: "La fougue blesse : agressivité, imprudence, une charge qui s'effondre sans suite.", en: "The drive wounds: aggression, recklessness, a charge that collapses with nothing behind it." },
     },
   },
   'swords-13': {
     keywords: {
-      upright: { fr: ['lucidité', 'franchise', 'indépendance d\'esprit', 'perspicacité'], en: ['clarity', 'honesty', 'independent thinking', 'perceptiveness'] },
+      upright: { fr: ['lucidité', 'perspicacité', 'franchise', 'indépendance'], en: ['clarity', 'perceptiveness', 'frankness', 'independence'] },
       reversed: { fr: ['froideur', 'jugement dur', 'amertume', 'sarcasme'], en: ['coldness', 'harsh judgement', 'bitterness', 'sarcasm'] },
     },
     meaning: {
-      upright: { fr: "Vous pensez avec clarté et dites les choses sans détour. Cette honnêteté lucide inspire le respect.", en: "You think clearly and say things straight. This clear-eyed honesty earns respect." },
-      reversed: { fr: "La franchise se fait tranchante et le jugement, sans pitié. Ajoutez un peu de chaleur à votre lucidité.", en: "Frankness turns cutting and judgement becomes merciless. Add a little warmth to your clarity." },
+      upright: { fr: "Une femme lucide et directe : perspicace, indépendante, elle voit clair et dit vrai.", en: "A clear-eyed, direct woman: perceptive, independent, she sees clearly and speaks true." },
+      reversed: { fr: "La lucidité se fait tranchante : froideur, jugement sans pitié, amertume qui blesse.", en: "The clarity turns cutting: coldness, merciless judgement, a bitterness that wounds." },
     },
   },
   'swords-14': {
     keywords: {
-      upright: { fr: ['intelligence', 'autorité', 'vérité', 'jugement juste'], en: ['intellect', 'authority', 'truth', 'sound judgement'] },
-      reversed: { fr: ['abus de pouvoir', 'manipulation', 'froideur', 'rigidité'], en: ['abuse of power', 'manipulation', 'coldness', 'rigidity'] },
+      upright: { fr: ['intelligence', 'autorité', 'rigueur', 'vérité'], en: ['intellect', 'authority', 'rigour', 'truth'] },
+      reversed: { fr: ['manipulation', 'froideur', 'abus', 'rigidité'], en: ['manipulation', 'coldness', 'abuse', 'rigidity'] },
     },
     meaning: {
-      upright: { fr: "Vous tranchez avec raison et intégrité, guidé par la vérité. Cette clarté fait autorité sans écraser.", en: "You decide with reason and integrity, guided by truth. This clarity carries authority without crushing." },
-      reversed: { fr: "L'intelligence sert le contrôle ou la manipulation. Remettez la raison au service du juste, pas du pouvoir.", en: "Intellect gets used for control or manipulation. Put reason back in service of what's fair, not power." },
+      upright: { fr: "Une autorité de l'esprit : juge, stratège, une intelligence qui tranche avec rigueur et vérité.", en: "An authority of the mind: a judge, a strategist, an intellect that decides with rigour and truth." },
+      reversed: { fr: "L'intelligence sert le pouvoir : manipulation, froideur, une loi qui écrase sans cœur.", en: "Intellect serves power: manipulation, coldness, a law that crushes without heart." },
     },
   },
 
   // ─────────────── DENIERS / PENTACLES (terre : matériel, travail, corps) ───────────────
   'pentacles-01': {
     keywords: {
-      upright: { fr: ['opportunité', 'nouveau projet', 'prospérité', 'concret'], en: ['opportunity', 'new venture', 'prosperity', 'the tangible'] },
-      reversed: { fr: ['occasion manquée', 'insécurité', 'mauvais timing', 'plan bancal'], en: ['missed opportunity', 'insecurity', 'bad timing', 'shaky plan'] },
+      upright: { fr: ['aubaine', 'occasion', 'richesse', 'prospérité'], en: ['windfall', 'opportunity', 'wealth', 'prosperity'] },
+      reversed: { fr: ['occasion manquée', 'piège', 'promesse creuse', 'perte'], en: ['missed chance', 'trap', 'hollow promise', 'loss'] },
     },
     meaning: {
-      upright: { fr: "Une opportunité concrète se présente : emploi, argent, projet solide. Saisissez cette graine et faites-la fructifier.", en: "A concrete opportunity appears: a job, money, a solid project. Take this seed and grow it." },
-      reversed: { fr: "Une occasion file ou repose sur des bases fragiles. Consolidez le terrain avant de vous engager.", en: "An opportunity slips by or rests on shaky ground. Firm up the footing before you commit." },
+      upright: { fr: "Une aubaine concrète : une bourse, un objet précieux, une porte qui s'ouvre sur la prospérité.", en: "A concrete windfall: a purse, a precious object, a door opening onto prosperity." },
+      reversed: { fr: "L'occasion s'évapore ou cache un piège : promesse creuse, affaire pourrie, argent qui file.", en: "The opportunity evaporates or hides a trap: a hollow promise, a rotten deal, money slipping away." },
     },
   },
   'pentacles-02': {
     keywords: {
-      upright: { fr: ['équilibre', 'adaptabilité', 'jongler', 'souplesse'], en: ['balance', 'adaptability', 'juggling', 'flexibility'] },
-      reversed: { fr: ['surcharge', 'désorganisation', 'déséquilibre', 'trop de fronts'], en: ['overload', 'disorganisation', 'imbalance', 'too many fronts'] },
+      upright: { fr: ['jonglage', 'adaptation', 'équilibre', 'souplesse'], en: ['juggling', 'adaptability', 'balance', 'flexibility'] },
+      reversed: { fr: ['surcharge', 'désordre', 'déséquilibre', 'trop de fronts'], en: ['overload', 'disorder', 'imbalance', 'too many fronts'] },
     },
     meaning: {
-      upright: { fr: "Vous jonglez avec plusieurs priorités et gardez l'équilibre. Restez souple, ce n'est qu'une question de rythme.", en: "You're juggling several priorities and keeping your balance. Stay flexible — it's just a matter of rhythm." },
-      reversed: { fr: "Trop de balles en l'air : quelque chose va tomber. Allégez la charge et hiérarchisez.", en: "Too many balls in the air: something's about to drop. Lighten the load and set priorities." },
+      upright: { fr: "Un numéro d'équilibre : on jongle avec les moyens, on s'adapte, deux affaires menées de front.", en: "A balancing act: juggling resources, adapting, two matters handled at once." },
+      reversed: { fr: "Trop de balles en l'air : surcharge, désordre, quelque chose va tomber.", en: "Too many balls in the air: overload, disorder, something's about to drop." },
     },
   },
   'pentacles-03': {
     keywords: {
-      upright: { fr: ['collaboration', 'savoir-faire', 'construire', 'reconnaissance'], en: ['collaboration', 'craft', 'building', 'recognition'] },
-      reversed: { fr: ['manque de coopération', 'désorganisation', 'travail bâclé', 'egos'], en: ['lack of cooperation', 'disorganisation', 'sloppy work', 'egos'] },
+      upright: { fr: ['savoir-faire', 'collaboration', 'chantier', 'reconnaissance'], en: ['craft', 'collaboration', 'project', 'recognition'] },
+      reversed: { fr: ['cafouillage', 'rôles flous', 'travail bâclé', 'egos'], en: ['muddle', 'unclear roles', 'sloppy work', 'egos'] },
     },
     meaning: {
-      upright: { fr: "En unissant vos compétences à celles des autres, vous bâtissez du solide. Votre savoir-faire est reconnu.", en: "By joining your skills to others', you build something solid. Your craft is being recognised." },
-      reversed: { fr: "La coopération grippe : rôles flous, egos, travail négligé. Reclarifiez qui fait quoi.", en: "Cooperation is jamming: unclear roles, egos, careless work. Re-clarify who does what." },
+      upright: { fr: "Un chantier prend forme : savoir-faire, collaboration, un travail d'équipe reconnu.", en: "A project takes shape: craft, collaboration, teamwork that gets recognised." },
+      reversed: { fr: "Le chantier grippe : cafouillage, rôles flous, travail bâclé et egos.", en: "The project jams: muddle, unclear roles, sloppy work and egos." },
     },
   },
   'pentacles-04': {
     keywords: {
-      upright: { fr: ['sécurité', 'épargne', 'stabilité', 'contrôle'], en: ['security', 'saving', 'stability', 'control'] },
-      reversed: { fr: ['possessivité', 'avarice', 'lâcher prise', 'peur de manquer'], en: ['possessiveness', 'clinging', 'letting go', 'fear of scarcity'] },
+      upright: { fr: ['sécurité', 'épargne', 'contrôle', 'possession'], en: ['security', 'saving', 'control', 'possession'] },
+      reversed: { fr: ['avarice', 'possessivité', 'isolement', 'perte'], en: ['greed', 'possessiveness', 'isolation', 'loss'] },
     },
     meaning: {
-      upright: { fr: "Vous sécurisez vos acquis et bâtissez une base stable. Utile, tant que la prudence ne devient pas une prison.", en: "You secure what you have and build a stable base. Useful — as long as caution doesn't become a cage." },
-      reversed: { fr: "Le besoin de tout garder vous crispe et vous isole. Desserrez la prise : retenir n'est pas posséder.", en: "The need to hold on to everything tightens and isolates you. Loosen your grip: holding on isn't the same as having." },
+      upright: { fr: "On serre ce qu'on a : sécurité, épargne, une main fermée sur ses biens.", en: "Holding tight to what you have: security, saving, a closed fist around your goods." },
+      reversed: { fr: "La prise se crispe : avarice, possessivité qui isole — ou tout part en fumée.", en: "The grip tightens: greed, possessiveness that isolates — or it all goes up in smoke." },
     },
   },
   'pentacles-05': {
     keywords: {
-      upright: { fr: ['difficulté', 'insécurité', 'manque', 'isolement'], en: ['hardship', 'insecurity', 'lack', 'isolation'] },
-      reversed: { fr: ['sortie de crise', 'aide qui arrive', 'reprise', 'espoir'], en: ['recovery', 'help arriving', 'turning the corner', 'hope'] },
+      upright: { fr: ['disette', 'manque', 'exclusion', 'froid'], en: ['hardship', 'want', 'exclusion', 'cold'] },
+      reversed: { fr: ['secours', 'refuge', 'reprise', 'espoir'], en: ['aid', 'shelter', 'recovery', 'hope'] },
     },
     meaning: {
-      upright: { fr: "Une période de manque ou de solitude pèse lourd. L'aide existe pourtant, à condition d'oser la demander.", en: "A stretch of lack or loneliness weighs heavily. Help is there, though — if you dare to ask for it." },
-      reversed: { fr: "Vous sortez de la traversée du désert : le soutien revient. Le plus dur s'éloigne, accueillez ce répit.", en: "You're emerging from the hard stretch: support returns. The worst recedes — welcome this reprieve." },
+      upright: { fr: "La disette et le froid : manque, exclusion, on erre dehors pendant que la lumière brille ailleurs.", en: "Hardship and cold: want, exclusion, wandering outside while the light shines elsewhere." },
+      reversed: { fr: "La misère desserre son étau : un secours arrive, un refuge s'ouvre, le pire s'éloigne.", en: "The hardship loosens its grip: aid arrives, a shelter opens, the worst recedes." },
     },
   },
   'pentacles-06': {
     keywords: {
-      upright: { fr: ['générosité', 'partage', 'entraide', 'donner et recevoir'], en: ['generosity', 'sharing', 'mutual aid', 'giving and receiving'] },
-      reversed: { fr: ['dons intéressés', 'déséquilibre', 'dette', 'dépendance'], en: ['strings attached', 'imbalance', 'debt', 'dependence'] },
+      upright: { fr: ['générosité', 'partage', 'mécène', 'échange juste'], en: ['generosity', 'sharing', 'patron', 'fair exchange'] },
+      reversed: { fr: ['don intéressé', 'dette', 'déséquilibre', 'dépendance'], en: ['strings attached', 'debt', 'imbalance', 'dependence'] },
     },
     meaning: {
-      upright: { fr: "L'échange circule justement : vous donnez ou recevez au bon moment. La générosité, dans les deux sens, fait du bien.", en: "Exchange flows fairly: you give or receive at the right time. Generosity, both ways, does good." },
-      reversed: { fr: "Un don cache un intérêt, ou le rapport donneur/receveur est déséquilibré. Clarifiez ce qui est vraiment gratuit.", en: "A gift hides a motive, or the giver/receiver balance is off. Get clear on what's truly freely given." },
+      upright: { fr: "Un geste de générosité : un mécène, une aumône, un échange juste entre qui donne et qui reçoit.", en: "An act of generosity: a patron, an alms, a fair exchange between giver and receiver." },
+      reversed: { fr: "Le don cache un calcul : générosité intéressée, dette, une balance qui penche.", en: "The gift hides a calculation: generosity with strings, debt, a scale that tips." },
     },
   },
   'pentacles-07': {
     keywords: {
-      upright: { fr: ['patience', 'vision long terme', 'bilan', 'investissement'], en: ['patience', 'long-term view', 'assessment', 'investment'] },
-      reversed: { fr: ['impatience', 'faible rendement', 'doute', 'effort mal placé'], en: ['impatience', 'poor return', 'doubt', 'misplaced effort'] },
+      upright: { fr: ['patience', 'récolte à venir', 'évaluation', 'investissement'], en: ['patience', 'coming harvest', 'assessment', 'investment'] },
+      reversed: { fr: ['maigre récolte', 'effort vain', 'impatience', 'doute'], en: ['poor harvest', 'wasted effort', 'impatience', 'doubt'] },
     },
     meaning: {
-      upright: { fr: "Vous faites une pause pour évaluer ce que vos efforts ont fait pousser. La récolte se prépare : laissez le temps agir.", en: "You pause to assess what your efforts have grown. The harvest is coming: let time do its work." },
-      reversed: { fr: "L'impatience monte face à un rendement décevant. Demandez-vous si ce champ mérite encore vos efforts.", en: "Impatience rises at a disappointing return. Ask whether this field still deserves your effort." },
+      upright: { fr: "Un temps de patience : on évalue la récolte à venir, un investissement qui mûrit lentement.", en: "A time of patience: sizing up the coming harvest, an investment ripening slowly." },
+      reversed: { fr: "L'attente déçoit : maigre récolte, effort mal placé, impatience qui ronge.", en: "The wait disappoints: a poor harvest, misplaced effort, gnawing impatience." },
     },
   },
   'pentacles-08': {
     keywords: {
-      upright: { fr: ['application', 'apprentissage', 'maîtrise', 'rigueur'], en: ['diligence', 'skill-building', 'mastery', 'rigour'] },
-      reversed: { fr: ['perfectionnisme', 'lassitude', 'manque de sens', 'travail mécanique'], en: ['perfectionism', 'weariness', 'lack of meaning', 'mechanical work'] },
+      upright: { fr: ['application', 'métier', 'constance', 'apprentissage'], en: ['diligence', 'craft', 'consistency', 'apprenticeship'] },
+      reversed: { fr: ['routine vide', 'perfectionnisme', 'sans cœur', 'bâclage'], en: ['empty routine', 'perfectionism', 'heartless', 'sloppiness'] },
     },
     meaning: {
-      upright: { fr: "Vous affinez votre savoir-faire avec application et constance. Ce travail patient bâtit une vraie maîtrise.", en: "You refine your craft with diligence and consistency. This patient work builds real mastery." },
-      reversed: { fr: "Le travail tourne à la routine vide ou au perfectionnisme stérile. Reconnectez-vous au sens de ce que vous faites.", en: "Work turns into empty routine or sterile perfectionism. Reconnect with the meaning of what you do." },
+      upright: { fr: "Un travail appliqué : on affûte son métier, ouvrage après ouvrage, avec constance.", en: "Dedicated work: honing the craft, piece after piece, with steady consistency." },
+      reversed: { fr: "Le travail se vide de sens : routine mécanique, perfectionnisme stérile, cœur qui n'y est plus.", en: "The work drains of meaning: mechanical routine, sterile perfectionism, the heart no longer in it." },
     },
   },
   'pentacles-09': {
     keywords: {
-      upright: { fr: ['autonomie', 'abondance', 'réussite personnelle', 'plaisir mérité'], en: ['self-sufficiency', 'abundance', 'personal success', 'earned pleasure'] },
-      reversed: { fr: ['surmenage', 'dépendance', 'superficialité', 'réussite creuse'], en: ['overwork', 'dependence', 'superficiality', 'hollow success'] },
+      upright: { fr: ['aisance', 'autonomie', 'confort', 'récompense'], en: ['ease', 'self-reliance', 'comfort', 'reward'] },
+      reversed: { fr: ['surmenage', 'vide', 'dépendance', 'luxe creux'], en: ['overwork', 'emptiness', 'dependence', 'hollow luxury'] },
     },
     meaning: {
-      upright: { fr: "Vous savourez le fruit de votre travail, autonome et à l'aise. Cette réussite est méritée : profitez-en.", en: "You savour the fruit of your work, self-reliant and at ease. This success is earned — enjoy it." },
-      reversed: { fr: "Le confort masque un vide, ou vous vous épuisez à le maintenir. Cherchez ce qui comble au-delà du matériel.", en: "Comfort masks an emptiness, or you exhaust yourself maintaining it. Look for what fulfils beyond the material." },
+      upright: { fr: "Une aisance méritée : autonomie, confort raffiné, on savoure le fruit de son travail.", en: "An earned ease: self-reliance, refined comfort, savouring the fruit of your work." },
+      reversed: { fr: "Le confort masque un vide : surmenage pour tenir le train de vie, ou luxe qui sonne creux.", en: "The comfort masks a void: overwork to keep up the lifestyle, or a luxury that rings hollow." },
     },
   },
   'pentacles-10': {
     keywords: {
-      upright: { fr: ['prospérité durable', 'famille', 'héritage', 'stabilité'], en: ['lasting prosperity', 'family', 'legacy', 'stability'] },
-      reversed: { fr: ['instabilité', 'tensions familiales', 'succès éphémère', 'conflit d\'argent'], en: ['instability', 'family tension', 'fleeting success', 'money conflict'] },
+      upright: { fr: ['richesse durable', 'héritage', 'maisonnée', 'stabilité'], en: ['lasting wealth', 'legacy', 'household', 'stability'] },
+      reversed: { fr: ['héritage disputé', 'argent qui divise', 'instabilité', 'sursis'], en: ['disputed legacy', 'money that divides', 'instability', 'borrowed time'] },
     },
     meaning: {
-      upright: { fr: "Une abondance solide et durable soutient vous et les vôtres. C'est la sécurité qui se transmet et dure.", en: "A solid, lasting abundance supports you and yours. It's the kind of security that endures and passes on." },
-      reversed: { fr: "Des tensions, souvent autour de l'argent ou de la famille, fragilisent l'édifice. Traitez la racine avant la façade.", en: "Tensions, often over money or family, weaken the structure. Address the root before the facade." },
+      upright: { fr: "Une richesse qui dure : héritage, maisonnée prospère, une lignée établie et à l'abri.", en: "A wealth that lasts: legacy, a prosperous household, an established line, sheltered." },
+      reversed: { fr: "L'édifice se lézarde : querelle d'héritage, argent qui divise, une prospérité en sursis.", en: "The edifice cracks: a quarrel over inheritance, money that divides, a prosperity on borrowed time." },
     },
   },
   'pentacles-11': {
     keywords: {
-      upright: { fr: ['apprentissage', 'ambition', 'nouveau projet', 'sérieux'], en: ['learning', 'ambition', 'new venture', 'seriousness'] },
-      reversed: { fr: ['procrastination', 'manque de progrès', 'occasion manquée', 'dispersion'], en: ['procrastination', 'lack of progress', 'missed chance', 'distraction'] },
+      upright: { fr: ['jeune studieux', 'apprenti', 'occasion', 'projet concret'], en: ['studious youth', 'apprentice', 'opportunity', 'concrete plan'] },
+      reversed: { fr: ['procrastination', 'occasion gâchée', 'stagnation', 'rêverie'], en: ['procrastination', 'missed chance', 'stagnation', 'daydreaming'] },
     },
     meaning: {
-      upright: { fr: "Une envie d'apprendre et de bâtir du concret vous anime. Posez le premier jalon d'un projet sérieux.", en: "A drive to learn and build something concrete moves you. Lay the first stone of a serious project." },
-      reversed: { fr: "L'ambition reste au stade de l'intention, faute d'action. Transformez le rêve en une première étape réelle.", en: "Ambition stays at the intention stage, for lack of action. Turn the dream into a first real step." },
+      upright: { fr: "Un jeune studieux paraît : apprenti sérieux, une occasion d'apprendre ou d'entreprendre du concret.", en: "A studious youth appears: an earnest apprentice, a chance to learn or to build something concrete." },
+      reversed: { fr: "L'élan reste lettre morte : procrastination, occasion gâchée, on rêve sans agir.", en: "The impulse stays on paper: procrastination, a wasted chance, dreaming without doing." },
     },
   },
   'pentacles-12': {
     keywords: {
-      upright: { fr: ['fiabilité', 'travail régulier', 'persévérance', 'sérieux'], en: ['reliability', 'steady work', 'persistence', 'dependability'] },
-      reversed: { fr: ['routine pesante', 'stagnation', 'ennui', 'paresse'], en: ['dull routine', 'stagnation', 'boredom', 'laziness'] },
+      upright: { fr: ['fiabilité', 'constance', 'sérieux', 'labeur'], en: ['reliability', 'consistency', 'diligence', 'toil'] },
+      reversed: { fr: ['routine', 'ennui', 'stagnation', 'paresse'], en: ['dull routine', 'boredom', 'stagnation', 'laziness'] },
     },
     meaning: {
-      upright: { fr: "Vous avancez avec constance et fiabilité, un pas après l'autre. Cette persévérance tranquille mène loin.", en: "You move with steadiness and reliability, one step at a time. This quiet persistence goes far." },
-      reversed: { fr: "La régularité vire à la routine qui endort. Introduisez un peu de nouveauté avant de vous enliser.", en: "Steadiness slides into a routine that dulls you. Bring in a little novelty before you get bogged down." },
+      upright: { fr: "Un travailleur fiable avance : constance, sérieux, un pas régulier qui finit par payer.", en: "A reliable worker plods on: consistency, seriousness, a steady pace that pays off in the end." },
+      reversed: { fr: "La régularité s'enlise : routine qui endort, ennui, stagnation.", en: "The steadiness bogs down: a dulling routine, boredom, stagnation." },
     },
   },
   'pentacles-13': {
     keywords: {
-      upright: { fr: ['sens pratique', 'générosité', 'ancrage', 'ressources'], en: ['practicality', 'nurturing', 'groundedness', 'resourcefulness'] },
-      reversed: { fr: ['oubli de soi', 'déséquilibre vie/travail', 'surprotection', 'dispersion'], en: ['self-neglect', 'work-life imbalance', 'smothering', 'overstretch'] },
+      upright: { fr: ['sens pratique', 'générosité', 'ancrage', 'débrouille'], en: ['practicality', 'generosity', 'groundedness', 'resourcefulness'] },
+      reversed: { fr: ['oubli de soi', 'surprotection', 'déséquilibre', 'dispersion'], en: ['self-neglect', 'smothering', 'imbalance', 'overstretch'] },
     },
     meaning: {
-      upright: { fr: "Vous alliez sens pratique et chaleur, capable de prendre soin sans vous perdre. Cet équilibre nourrit tout autour de vous.", en: "You blend practicality and warmth, able to care without losing yourself. This balance nourishes everything around you." },
-      reversed: { fr: "À tout gérer pour les autres, vous vous négligez. Remettez un peu de soin de votre côté de la balance.", en: "Managing everything for others, you neglect yourself. Put some care back on your side of the scale." },
+      upright: { fr: "Une femme pratique et généreuse : ancrée, débrouillarde, elle prend soin des siens sans se perdre.", en: "A practical, generous woman: grounded, resourceful, she cares for her own without losing herself." },
+      reversed: { fr: "Elle se néglige à force de gérer : déséquilibre, surprotection, tout pour les autres, rien pour soi.", en: "She neglects herself from managing everything: imbalance, smothering, all for others and nothing for herself." },
     },
   },
   'pentacles-14': {
     keywords: {
-      upright: { fr: ['réussite', 'sécurité', 'leadership', 'discipline'], en: ['success', 'security', 'leadership', 'discipline'] },
-      reversed: { fr: ['matérialisme', 'avidité', 'entêtement', 'contrôle rigide'], en: ['materialism', 'greed', 'stubbornness', 'rigid control'] },
+      upright: { fr: ['prospérité', 'discipline', 'pourvoyeur', 'réussite solide'], en: ['prosperity', 'discipline', 'provider', 'solid success'] },
+      reversed: { fr: ['avidité', 'matérialisme', 'entêtement', 'contrôle'], en: ['greed', 'materialism', 'stubbornness', 'control'] },
     },
     meaning: {
-      upright: { fr: "Vous avez bâti une réussite solide et savez la faire prospérer avec discipline. Cette abondance peut aussi profiter aux autres.", en: "You've built solid success and know how to grow it with discipline. This abundance can benefit others too." },
-      reversed: { fr: "La réussite se change en avidité ou en obsession du contrôle. Rappelez-vous ce que l'argent est censé servir.", en: "Success curdles into greed or an obsession with control. Remember what the money is meant to serve." },
+      upright: { fr: "Un maître prospère règne : bâtisseur, pourvoyeur, une réussite solide qu'il sait faire fructifier.", en: "A prosperous master presides: a builder, a provider, a solid success he knows how to grow." },
+      reversed: { fr: "La réussite vire à l'avidité : cupidité, matérialisme, contrôle obstiné de tout.", en: "Success curdles into greed: avarice, materialism, a stubborn control over everything." },
     },
   },
 };
