@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Listing, { type ListGroup } from '../../components/Listing.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -7,6 +8,29 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.lang as Locale;
+
+const groups: ListGroup[] = [
+  {
+    title: t(locale, 'nav.personnage'),
+    items: [
+      { href: `/${locale}/personnage/`, name: t(locale, 'profil.heading'), desc: t(locale, 'hub.profil.desc'), icon: 'profil' },
+    ],
+  },
+  {
+    title: t(locale, 'nav.agir'),
+    items: [
+      { href: `/${locale}/agir/action/`, name: t(locale, 'agir.heading'), desc: t(locale, 'agir.action.desc'), icon: 'action' },
+      { href: `/${locale}/agir/confrontation/`, name: t(locale, 'confront.heading'), desc: t(locale, 'agir.confront.desc'), icon: 'confrontation' },
+    ],
+  },
+  {
+    title: t(locale, 'nav.oracles'),
+    items: [
+      { href: `/${locale}/oracles/tarot/`, name: t(locale, 'nav.tarot'), desc: t(locale, 'hub.tarot.desc'), icon: 'tarot' },
+      { href: `/${locale}/oracles/coin/`, name: t(locale, 'nav.coin'), desc: t(locale, 'hub.coin.desc'), icon: 'coin' },
+    ],
+  },
+];
 ---
 
 <Base locale={locale}>
@@ -15,59 +39,15 @@ const locale = Astro.params.lang as Locale;
       <h1>{t(locale, 'site.title')}</h1>
       <p class="hub-tagline">{t(locale, 'site.tagline')}</p>
     </div>
-
-    <nav class="portals" aria-label={t(locale, 'site.title')}>
-      <a class="portal" href={`/${locale}/personnage/`}>
-        <span class="portal-emblem" aria-hidden="true">
-          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path d="M40 12 L64 60 H16 Z" />
-            <path d="M14 40 H30" stroke-width="1.3" />
-            <g stroke-width="1.3">
-              <path d="M46 44 l18 -7M47 50 l17 0M46 56 l18 7" opacity="0.9" />
-            </g>
-          </svg>
-        </span>
-        <span class="portal-title">{t(locale, 'nav.personnage')}</span>
-        <span class="portal-desc">{t(locale, 'hub.personnage.desc')}</span>
-        <span class="portal-enter">{t(locale, 'hub.enter')} →</span>
-      </a>
-
-      <a class="portal" href={`/${locale}/agir/`}>
-        <span class="portal-emblem" aria-hidden="true">
-          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
-            <circle cx="40" cy="40" r="28" />
-            <path d="M40 55 V27 M30 37 l10 -10 l10 10" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </span>
-        <span class="portal-title">{t(locale, 'nav.agir')}</span>
-        <span class="portal-desc">{t(locale, 'hub.agir.desc')}</span>
-        <span class="portal-enter">{t(locale, 'hub.enter')} →</span>
-      </a>
-
-      <a class="portal" href={`/${locale}/oracles/`}>
-        <span class="portal-emblem" aria-hidden="true">
-          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
-            <circle cx="40" cy="40" r="28" />
-            <path
-              d="M40 18 L44 36 L62 40 L44 44 L40 62 L36 44 L18 40 L36 36 Z"
-              fill="currentColor"
-              stroke="none"
-            />
-          </svg>
-        </span>
-        <span class="portal-title">{t(locale, 'nav.oracles')}</span>
-        <span class="portal-desc">{t(locale, 'hub.oracles.desc')}</span>
-        <span class="portal-enter">{t(locale, 'hub.enter')} →</span>
-      </a>
-    </nav>
+    <Listing groups={groups} />
   </section>
 </Base>
 
 <style>
   .hub {
     display: grid;
-    gap: 3rem;
-    padding-top: 2rem;
+    gap: 2.75rem;
+    padding-top: 1.5rem;
   }
   .hub-lede {
     text-align: center;
@@ -83,64 +63,5 @@ const locale = Astro.params.lang as Locale;
     font-size: 1.2rem;
     font-style: italic;
     margin: 0;
-  }
-  .portals {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: 1.5rem;
-    max-width: 58rem;
-    width: 100%;
-    margin: 0 auto;
-  }
-  .portal {
-    display: grid;
-    justify-items: center;
-    gap: 0.6rem;
-    text-align: center;
-    text-decoration: none;
-    color: var(--text);
-    padding: 2.5rem 1.75rem 2rem;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: var(--panel);
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  }
-  .portal:hover,
-  .portal:focus-visible {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(201, 164, 76, 0.15);
-  }
-  .portal-emblem {
-    color: var(--accent);
-    width: 5rem;
-    height: 5rem;
-  }
-  .portal-emblem svg {
-    width: 100%;
-    height: 100%;
-  }
-  .portal-title {
-    font-family: var(--font-display);
-    font-size: 2.2rem;
-    font-weight: 600;
-    line-height: 1;
-  }
-  .portal-desc {
-    color: var(--muted);
-    max-width: 16rem;
-  }
-  .portal-enter {
-    margin-top: 0.4rem;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--accent);
-  }
-
-  @media (max-width: 40rem) {
-    .portals {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

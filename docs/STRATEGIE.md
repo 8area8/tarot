@@ -14,7 +14,8 @@
 `/fr` et `/en`.
 
 ```
-/{lang}                    Hub — portails Personnage · Agir · Oracles
+/{lang}                    Hub — listing groupé par partie (accès direct à toutes
+                           les pages : Profil, Action, Confrontation, Tarot, Pièce)
 ├─ /{lang}/personnage      Profil : nom + arcane fondatrice (majeure tirée) +
 │                          5 prismes (équilibre chacun), auto-save localStorage,
 │                          visuel de prisme réfractant
