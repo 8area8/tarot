@@ -9,6 +9,11 @@ interface Props {
 
 const { locale, title } = Astro.props;
 const pageTitle = title ? `${title} — ${t(locale, 'site.title')}` : t(locale, 'site.title');
+
+// Variante de langue de la page courante, pour les liens hreflang.
+const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
+const path = Astro.url.pathname;
+const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
 ---
 
 <!doctype html>
@@ -19,6 +24,8 @@ const pageTitle = title ? `${title} — ${t(locale, 'site.title')}` : t(locale, 
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
     <meta name="description" content={t(locale, 'site.tagline')} />
+    <link rel="alternate" hreflang={locale} href={path} />
+    <link rel="alternate" hreflang={otherLocale} href={otherPath} />
   </head>
   <body>
     <header class="site-header">

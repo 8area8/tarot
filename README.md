@@ -1,0 +1,69 @@
+# Tarot Rider-Waite-Smith
+
+Site statique de tirage de tarot **Rider-Waite-Smith**, bilingue **FR / EN**.
+Tirage d'une carte sur le jeu complet, les arcanes majeurs ou les mineurs, avec
+option de cartes inversées. Illustrations et textes issus du **domaine public**.
+
+Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
+
+## Développement
+
+```bash
+npm install
+npm run dev        # http://localhost:4321
+```
+
+| Commande | Effet |
+|---|---|
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Build de production dans `dist/` |
+| `npm run preview` | Prévisualise le build |
+| `npx astro check` | Vérification de types |
+| `npx astro dev stop` | Arrête le serveur de dev détaché |
+
+## Structure
+
+```
+src/
+  data/
+    cards.ts           # 78 cartes : structure + contenu des majeurs
+    minor-content.ts   # significations des 56 mineurs
+  lib/
+    types.ts           # types Card / CardContent
+    deck.ts            # filtres de jeu + tirage (drawCard)
+    i18n.ts            # libellés d'UI FR/EN
+  layouts/Base.astro   # layout, header, hreflang
+  components/           # LangToggle, …
+  pages/[lang]/         # index (tirage) + credits
+public/cards/           # 78 illustrations WebP + back.svg + manifest.json
+scripts/fetch-cards.mjs # (re)télécharge et convertit les illustrations
+```
+
+## Illustrations
+
+Les 78 scans proviennent de l'édition RWS de 1909 (domaine public) via
+Wikimedia Commons. Pour les régénérer (nécessite `cwebp` — paquet `webp`) :
+
+```bash
+node scripts/fetch-cards.mjs
+```
+
+Le script est reprenable (retry/backoff, saute les fichiers déjà présents) et
+écrit `public/cards/manifest.json` (provenance et licence par carte).
+
+## Déploiement — Cloudflare Pages
+
+Site 100 % statique déployé à la racine du domaine (pas de `base` à configurer).
+
+- **Build command** : `npm run build`
+- **Build output directory** : `dist`
+- **Node version** : 20+
+
+Netlify / GitHub Pages fonctionnent aussi (pour GitHub Pages en sous-chemin,
+définir `base` dans `astro.config.mjs`).
+
+## Licence & crédits
+
+Illustrations : domaine public (Pamela Colman Smith, 1909). Significations :
+textes originaux contemporains inspirés de *The Pictorial Key to the Tarot*
+(A. E. Waite, 1911, domaine public). Voir la page **Crédits** du site.
