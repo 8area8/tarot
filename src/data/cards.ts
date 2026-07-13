@@ -1,4 +1,5 @@
 import type { Card, CardContent, Suit } from '../lib/types';
+import { MINOR_CONTENT } from './minor-content';
 
 /**
  * Source de vérité des 78 cartes.
@@ -380,7 +381,7 @@ const minorCards: Card[] = SUIT_ORDER.flatMap((suit) =>
       number: rank,
       image: `${suit}-${pad2(rank)}.webp`,
       name: { fr: `${r.fr} de ${s.fr}`, en: `${r.en} of ${s.en}` },
-      content: null, // contenu rédigé ultérieurement
+      content: MINOR_CONTENT[`${suit}-${pad2(rank)}`] ?? null,
     };
   }),
 );
