@@ -1,6 +1,6 @@
 ---
-import '@fontsource-variable/cormorant';
-import '@fontsource-variable/eb-garamond';
+import cormorantWoff2 from '@fontsource-variable/cormorant/files/cormorant-latin-wght-normal.woff2';
+import ebGaramondWoff2 from '@fontsource-variable/eb-garamond/files/eb-garamond-latin-wght-normal.woff2';
 import { type Locale, t } from '../lib/i18n';
 import LangToggle from '../components/LangToggle.astro';
 
@@ -16,6 +16,13 @@ const pageTitle = title ? `${title} — ${t(locale, 'site.title')}` : t(locale, 
 const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
 const path = Astro.url.pathname;
 const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
+
+// Polices auto-hébergées en `font-display: optional` + préchargées : la police
+// arrive avant le premier rendu et ne « swappe » jamais après coup (pas de glitch).
+const fontFace = `
+@font-face{font-family:'Cormorant Variable';font-style:normal;font-display:optional;font-weight:300 700;src:url(${cormorantWoff2}) format('woff2-variations');}
+@font-face{font-family:'EB Garamond Variable';font-style:normal;font-display:optional;font-weight:400 800;src:url(${ebGaramondWoff2}) format('woff2-variations');}
+`;
 ---
 
 <!doctype html>
@@ -25,6 +32,9 @@ const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href={cormorantWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={ebGaramondWoff2} as="font" type="font/woff2" crossorigin="anonymous" />
+    <style set:html={fontFace}></style>
     <title>{pageTitle}</title>
     <meta name="description" content={t(locale, 'site.tagline')} />
     <meta property="og:title" content={pageTitle} />

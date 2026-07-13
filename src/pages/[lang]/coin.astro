@@ -21,22 +21,29 @@ const locale = Astro.params.lang as Locale;
         <div class="coin" id="coin">
           <div class="coin-face face-sun">
             <svg viewBox="0 0 120 120" aria-hidden="true">
-              <circle class="emblem" cx="60" cy="60" r="15" />
+              <circle class="emblem" cx="60" cy="60" r="13" />
+              <circle class="emblem-ring" cx="60" cy="60" r="20" />
               <g class="emblem-stroke">
-                <line x1="60" y1="18" x2="60" y2="34" />
-                <line x1="60" y1="86" x2="60" y2="102" />
-                <line x1="18" y1="60" x2="34" y2="60" />
-                <line x1="86" y1="60" x2="102" y2="60" />
-                <line x1="30" y1="30" x2="41" y2="41" />
-                <line x1="90" y1="30" x2="79" y2="41" />
-                <line x1="30" y1="90" x2="41" y2="79" />
-                <line x1="90" y1="90" x2="79" y2="79" />
+                <line x1="60" y1="14" x2="60" y2="29" />
+                <line x1="60" y1="91" x2="60" y2="106" />
+                <line x1="14" y1="60" x2="29" y2="60" />
+                <line x1="91" y1="60" x2="106" y2="60" />
+                <line x1="27" y1="27" x2="38" y2="38" />
+                <line x1="93" y1="27" x2="82" y2="38" />
+                <line x1="27" y1="93" x2="38" y2="82" />
+                <line x1="93" y1="93" x2="82" y2="82" />
               </g>
             </svg>
           </div>
           <div class="coin-face face-moon">
             <svg viewBox="0 0 120 120" aria-hidden="true">
-              <path class="emblem" d="M78 60a30 30 0 1 1-26-29.7A23 23 0 1 0 78 60Z" />
+              <defs>
+                <mask id="crescent-mask">
+                  <rect width="120" height="120" fill="#fff" />
+                  <circle cx="76" cy="52" r="28" fill="#000" />
+                </mask>
+              </defs>
+              <circle class="emblem" cx="58" cy="62" r="31" mask="url(#crescent-mask)" />
             </svg>
           </div>
         </div>
@@ -60,7 +67,6 @@ const locale = Astro.params.lang as Locale;
   const locale = app.dataset.locale as Locale;
   const T = ui[locale];
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const FLIP_MS = 1100;
 
   const coin = document.querySelector<HTMLElement>('#coin')!;
   const toss = document.querySelector<HTMLElement>('#toss')!;
@@ -85,7 +91,7 @@ const locale = Astro.params.lang as Locale;
 
     // Face (Soleil) → rotation ≡ 0 (mod 360) ; Pile (Lune) → ≡ 180.
     const target = side === 'heads' ? 0 : 180;
-    const spins = 4 + Math.floor(rand() * 3); // 4 à 6 tours
+    const spins = 4 + Math.floor(rand() * 5); // 4 à 8 tours
     rotation += spins * 360;
     rotation += ((target - (rotation % 360)) + 360) % 360;
 
@@ -95,10 +101,20 @@ const locale = Astro.params.lang as Locale;
       return;
     }
 
+    // Chaque lancer est unique : durée, hauteur et bascule légèrement randomisées.
+    const duration = Math.round(950 + rand() * 750); // 950–1700 ms
+    const tossH = Math.round(60 + rand() * 60); // 60–120 px
+    const tossRot = (rand() * 28 - 14).toFixed(1); // -14° à +14°
+
     btn.disabled = true;
     result.classList.add('is-fading');
 
+    coin.style.transitionDuration = `${duration}ms`;
     coin.style.transform = `rotateX(${rotation}deg)`;
+
+    toss.style.setProperty('--toss-h', `${tossH}px`);
+    toss.style.setProperty('--toss-rot', `${tossRot}deg`);
+    toss.style.animationDuration = `${duration}ms`;
     toss.classList.remove('is-tossing');
     void toss.offsetWidth; // relance l'animation
     toss.classList.add('is-tossing');
@@ -107,7 +123,7 @@ const locale = Astro.params.lang as Locale;
       showResult(side);
       result.classList.remove('is-fading');
       btn.disabled = false;
-    }, FLIP_MS);
+    }, duration);
   });
 </script>
 
@@ -133,56 +149,89 @@ const locale = Astro.params.lang as Locale;
   }
 
   .coin-stage {
-    perspective: 900px;
+    perspective: 1000px;
     padding: 1.5rem 0;
   }
   .coin-toss {
-    width: 190px;
-    height: 190px;
+    width: 204px;
+    height: 204px;
   }
   .coin-toss.is-tossing {
-    animation: toss var(--flip, 1100ms) ease-in-out;
+    animation: toss 1100ms ease-in-out;
   }
   .coin {
     position: relative;
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transition: transform 1100ms cubic-bezier(0.33, 0, 0.2, 1);
+    transition: transform 1100ms cubic-bezier(0.32, 0.02, 0.18, 1);
   }
   .coin-face {
     position: absolute;
     inset: 0;
     border-radius: 50%;
+    overflow: hidden;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     background:
-      radial-gradient(circle at 36% 30%, #f6e2a4 0%, #d4b25c 42%, #b58e3b 70%, #8a6a2c 100%);
+      radial-gradient(circle at 38% 28%,
+        #fbeeb8 0%, #ecd68e 24%, #d4b25c 48%, #bd9743 72%, #94742f 90%, #6f571f 100%);
     box-shadow:
-      inset 0 0 0 6px rgba(138, 106, 44, 0.5),
-      inset 0 6px 14px rgba(255, 246, 214, 0.45),
-      inset 0 -8px 16px rgba(90, 66, 24, 0.55),
-      0 16px 34px rgba(0, 0, 0, 0.5);
+      inset 0 0 0 3px rgba(111, 82, 31, 0.55),
+      inset 0 0 0 5px rgba(251, 238, 184, 0.3),
+      inset 0 9px 18px rgba(255, 246, 214, 0.4),
+      inset 0 -12px 22px rgba(80, 58, 20, 0.55),
+      0 20px 38px rgba(0, 0, 0, 0.55);
+  }
+  /* tranche moletée (reeded edge) */
+  .coin-face::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from 0deg,
+      rgba(90, 66, 24, 0.6) 0deg 2.2deg,
+      rgba(240, 214, 140, 0.3) 2.2deg 4.4deg
+    );
+    -webkit-mask: radial-gradient(circle, transparent 0 45%, #000 47% 50%, transparent 51%);
+    mask: radial-gradient(circle, transparent 0 45%, #000 47% 50%, transparent 51%);
+  }
+  /* brillance spéculaire */
+  .coin-face::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(125deg, rgba(255, 252, 240, 0.6) 0%, transparent 40%);
+    opacity: 0.55;
   }
   .face-sun {
-    transform: rotateX(0deg) translateZ(5px);
+    transform: rotateX(0deg) translateZ(6px);
   }
   .face-moon {
-    transform: rotateX(180deg) translateZ(5px);
+    transform: rotateX(180deg) translateZ(6px);
   }
   .coin-face svg {
+    position: relative;
     width: 100%;
     height: 100%;
   }
   .emblem {
-    fill: #7a5c24;
-    opacity: 0.85;
+    fill: #6a4e1f;
+    opacity: 0.9;
+  }
+  .emblem-ring {
+    fill: none;
+    stroke: #6a4e1f;
+    stroke-width: 3;
+    opacity: 0.75;
   }
   .emblem-stroke {
-    stroke: #7a5c24;
+    stroke: #6a4e1f;
     stroke-width: 5;
     stroke-linecap: round;
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
   .coin-result {
@@ -235,13 +284,13 @@ const locale = Astro.params.lang as Locale;
 
   @keyframes toss {
     0% {
-      transform: translateY(0) scale(1);
+      transform: translateY(0) rotate(0deg) scale(1);
     }
     45% {
-      transform: translateY(-70px) scale(1.06);
+      transform: translateY(calc(-1 * var(--toss-h, 80px))) rotate(var(--toss-rot, 0deg)) scale(1.06);
     }
     100% {
-      transform: translateY(0) scale(1);
+      transform: translateY(0) rotate(0deg) scale(1);
     }
   }
   @media (prefers-reduced-motion: reduce) {
