@@ -247,13 +247,15 @@ const locale = Astro.params.lang as Locale;
       align-items: center;
       gap: 2.5rem;
     }
-    /* Sélecteur d'équilibre en vertical, à droite du texte, centré. */
-    .balances {
+    /* Sélecteur d'équilibre en vertical, à droite du texte, centré.
+       Sélecteurs préfixés .prisms-layout pour surpasser la règle de base
+       (même spécificité mais déclarée après → l'emporterait sinon). */
+    .prisms-layout .balances {
       flex-direction: column;
       border-radius: 12px;
       padding: 0.25rem;
     }
-    .bal span {
+    .prisms-layout .bal span {
       text-align: center;
       padding: 0.4rem 0.9rem;
     }
