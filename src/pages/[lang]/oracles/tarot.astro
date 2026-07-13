@@ -24,7 +24,7 @@ const locale = Astro.params.lang as Locale;
       </div>
 
       <label class="switch">
-        <input type="checkbox" name="reversed" />
+        <input type="checkbox" name="reversed" checked />
         <span class="switch-track"><span class="switch-thumb"></span></span>
         <span class="switch-text">{t(locale, 'option.reversed')}</span>
       </label>
@@ -366,8 +366,16 @@ const locale = Astro.params.lang as Locale;
   .face-front {
     transform: rotateY(180deg);
   }
+  .face-front img {
+    transition: transform 0.5s cubic-bezier(0.4, 0.15, 0.2, 1);
+  }
   .face-front img.is-reversed {
     transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .face-front img {
+      transition: none;
+    }
   }
 
   .reading {
