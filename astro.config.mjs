@@ -10,8 +10,8 @@ export default defineConfig({
     routing: {
       // Les deux langues ont un préfixe explicite : /fr et /en.
       prefixDefaultLocale: true,
-      // `/` redirige vers /fr.
-      redirectToDefaultLocale: true,
+      // La racine `/` est redirigée vers /fr par src/pages/index.astro.
+      redirectToDefaultLocale: false,
     },
   },
 });
