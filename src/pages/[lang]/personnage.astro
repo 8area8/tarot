@@ -1,0 +1,397 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale, type UIKey, t } from '../../lib/i18n';
+import { PRISMS, BALANCES } from '../../lib/profile';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Base locale={locale} title={t(locale, 'profil.heading')}>
+  <section class="profil" data-locale={locale}>
+    <div class="lede">
+      <p class="eyebrow">{t(locale, 'profil.eyebrow')}</p>
+      <h1>{t(locale, 'profil.heading')}</h1>
+      <p class="intro">{t(locale, 'profil.intro')}</p>
+    </div>
+
+    <form class="profil-form" id="profil-form" autocomplete="off">
+      <label class="name-field">
+        <span class="field-label">{t(locale, 'profil.name.label')}</span>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          maxlength="40"
+          placeholder={t(locale, 'profil.name.placeholder')}
+        />
+      </label>
+
+      <div class="prisms">
+        <h2>{t(locale, 'profil.prisms')}</h2>
+        <ul class="prism-list">
+          {
+            PRISMS.map((p) => (
+              <li class="prism-row">
+                <span class="prism-name">
+                  <span class:list={['dot', `dot-${p}`]} aria-hidden="true" />
+                  {t(locale, `prism.${p}` as UIKey)}
+                </span>
+                <div class="balances" role="radiogroup" aria-label={t(locale, `prism.${p}` as UIKey)}>
+                  {BALANCES.map((b) => (
+                    <label class="bal">
+                      <input type="radio" name={`prism-${p}`} value={b} checked={b === 'balanced'} />
+                      <span>{t(locale, `balance.${b}` as UIKey)}</span>
+                    </label>
+                  ))}
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </form>
+
+    <div class="prism-visual" aria-hidden="true">
+      <svg class="prism-vis" viewBox="0 0 460 260" fill="none">
+        <line class="beam" x1="16" y1="130" x2="150" y2="130" />
+        <path class="prism-shape" d="M150 76 L150 184 L216 130 Z" />
+        <g class="rays" stroke-linecap="round">
+          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" x1="206" y1="124" x2="446" y2="46" />
+          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" x1="210" y1="128" x2="446" y2="94" />
+          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" x1="214" y1="130" x2="446" y2="130" />
+          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" x1="210" y1="132" x2="446" y2="166" />
+          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" x1="206" y1="136" x2="446" y2="214" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="profil-foot">
+      <span class="saved" id="saved">{t(locale, 'profil.saved')} ✓</span>
+      <button type="button" class="btn-reset" id="reset">{t(locale, 'profil.reset')}</button>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { loadProfile, saveProfile, DEFAULT_PROFILE, PRISMS, type Prism, type Balance } from '../../lib/profile';
+
+  const form = document.querySelector<HTMLFormElement>('#profil-form')!;
+  const nameInput = document.querySelector<HTMLInputElement>('#name')!;
+  const savedEl = document.querySelector<HTMLElement>('#saved')!;
+  const resetBtn = document.querySelector<HTMLButtonElement>('#reset')!;
+  const visual = document.querySelector<SVGElement>('.prism-vis')!;
+
+  let profile = loadProfile();
+  let savedTimer: number | undefined;
+
+  function updateRay(prism: Prism, balance: Balance) {
+    visual.querySelector(`.ray[data-prism="${prism}"]`)?.setAttribute('data-balance', balance);
+  }
+
+  function apply(p: typeof profile) {
+    nameInput.value = p.name;
+    for (const prism of PRISMS) {
+      const balance = p.prisms[prism];
+      const input = form.querySelector<HTMLInputElement>(`input[name="prism-${prism}"][value="${balance}"]`);
+      if (input) input.checked = true;
+      updateRay(prism, balance);
+    }
+  }
+
+  function flashSaved() {
+    savedEl.classList.add('is-visible');
+    window.clearTimeout(savedTimer);
+    savedTimer = window.setTimeout(() => savedEl.classList.remove('is-visible'), 1600);
+  }
+
+  // Initialisation depuis localStorage.
+  apply(profile);
+
+  nameInput.addEventListener('input', () => {
+    profile.name = nameInput.value;
+    saveProfile(profile);
+    flashSaved();
+  });
+
+  form.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.type !== 'radio') return;
+    const prism = target.name.replace('prism-', '') as Prism;
+    const balance = target.value as Balance;
+    profile.prisms[prism] = balance;
+    updateRay(prism, balance);
+    saveProfile(profile);
+    flashSaved();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    profile = { name: '', prisms: { ...DEFAULT_PROFILE.prisms } };
+    apply(profile);
+    saveProfile(profile);
+    flashSaved();
+  });
+</script>
+
+<style>
+  .profil {
+    display: grid;
+    gap: 2.5rem;
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+  .lede {
+    text-align: center;
+  }
+  .eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+  }
+  .lede h1 {
+    font-size: clamp(2.6rem, 6vw, 3.6rem);
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .profil-form {
+    display: grid;
+    gap: 2rem;
+  }
+  .name-field {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .field-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+  }
+  #name {
+    width: min(24rem, 100%);
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    text-align: center;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 0.35rem 0.5rem;
+  }
+  #name::placeholder {
+    color: rgba(240, 226, 196, 0.35);
+    font-style: italic;
+  }
+  #name:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+
+  .prisms h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin: 0 0 1.25rem;
+  }
+  .prism-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .prism-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    padding: 0.75rem 0.25rem;
+    border-bottom: 1px solid rgba(201, 164, 76, 0.12);
+  }
+  .prism-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+  }
+  .dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    flex: none;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .dot-instinct {
+    color: #e0685a;
+    background: #e0685a;
+  }
+  .dot-concentration {
+    color: #e3a24c;
+    background: #e3a24c;
+  }
+  .dot-eloquence {
+    color: #d6c95c;
+    background: #d6c95c;
+  }
+  .dot-creativity {
+    color: #6db2c9;
+    background: #6db2c9;
+  }
+  .dot-perseverance {
+    color: #9d7bd0;
+    background: #9d7bd0;
+  }
+
+  /* segmented control des équilibres */
+  .balances {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel);
+  }
+  .bal {
+    cursor: pointer;
+  }
+  .bal input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .bal span {
+    display: block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    white-space: nowrap;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .bal:hover span {
+    color: var(--text);
+  }
+  .bal input:checked + span {
+    color: var(--ground);
+    background: var(--accent);
+  }
+  .bal input:focus-visible + span {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* prisme réfractant */
+  .prism-visual {
+    display: flex;
+    justify-content: center;
+  }
+  .prism-vis {
+    width: min(460px, 100%);
+    height: auto;
+  }
+  .beam {
+    stroke: rgba(255, 250, 235, 0.9);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 5px rgba(255, 250, 235, 0.6));
+  }
+  .prism-shape {
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    fill: rgba(201, 164, 76, 0.06);
+  }
+  .ray {
+    stroke: currentColor;
+    transition: stroke-width 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+  }
+  .ray-instinct {
+    color: #e0685a;
+  }
+  .ray-concentration {
+    color: #e3a24c;
+  }
+  .ray-eloquence {
+    color: #d6c95c;
+  }
+  .ray-creativity {
+    color: #6db2c9;
+  }
+  .ray-perseverance {
+    color: #9d7bd0;
+  }
+  .ray[data-balance='confident'] {
+    stroke-width: 2;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  .ray[data-balance='balanced'] {
+    stroke-width: 3.5;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+  .ray[data-balance='risky'] {
+    stroke-width: 6.5;
+    opacity: 1;
+    filter: drop-shadow(0 0 12px currentColor);
+  }
+
+  .profil-foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  .saved {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .saved.is-visible {
+    opacity: 1;
+  }
+  .btn-reset {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.45rem 1.1rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn-reset:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 34rem) {
+    .prism-row {
+      justify-content: center;
+    }
+    .bal span {
+      padding: 0.35rem 0.7rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ray {
+      transition: none;
+    }
+  }
+</style>

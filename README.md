@@ -1,14 +1,20 @@
 # Les Terres Libres
 
-Hub statique de hasard, bilingue **FR / EN**, autour de deux univers :
+Hub statique bilingue **FR / EN**, organisé en deux parties :
 
-- **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
-  mineurs), option de cartes inversées. Illustrations et textes **domaine public**.
-- **Pièce** — pile ou face (Soleil / Lune), lancer 3D.
+- **Personnage** → **Profil** : un nom et 5 prismes (instinct, concentration,
+  éloquence, créativité, persévérance), chacun réglé sur un équilibre
+  (confiant / équilibré / risqué). Sauvegarde automatique en localStorage,
+  avec un visuel de prisme réfractant qui réagit à la configuration.
+- **Oracles** :
+  - **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
+    mineurs), option inversée. Illustrations et textes **domaine public**.
+  - **Pièce** — pile ou face (Soleil / Lune), lancer 3D.
 
 Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
 
-Routes : `/{lang}` (hub) · `/{lang}/tarot` · `/{lang}/coin` · `/{lang}/credits`.
+Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/oracles`
+· `/{lang}/oracles/tarot` · `/{lang}/oracles/coin` · `/{lang}/credits`.
 
 ## Développement
 
@@ -36,10 +42,15 @@ src/
     types.ts           # types Card / CardContent
     deck.ts            # filtres de jeu + tirage (drawCard)
     coin.ts            # lancer de pièce (flipCoin)
+    profile.ts         # personnage : prismes + load/save localStorage
     i18n.ts            # libellés d'UI FR/EN
   layouts/Base.astro   # layout, header (nav), hreflang
   components/           # LangToggle, …
-  pages/[lang]/         # index (hub) + tarot + coin + credits
+  pages/[lang]/
+    index.astro        # hub (Personnage / Oracles)
+    personnage.astro   # profil (nom + prismes)
+    credits.astro
+    oracles/           # index (Tarot / Pièce) + tarot + coin
 public/cards/           # 78 illustrations WebP + back.svg + manifest.json
 scripts/fetch-cards.mjs # (re)télécharge et convertit les illustrations
 ```

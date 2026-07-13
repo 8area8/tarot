@@ -1,6 +1,6 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { LOCALES, type Locale, t } from '../../lib/i18n';
+import Base from '../../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../../lib/i18n';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -61,10 +61,10 @@ const locale = Astro.params.lang as Locale;
 </Base>
 
 <script>
-  import { ui, type Locale } from '../../lib/i18n';
-  import { drawCard, type DeckMode } from '../../lib/deck';
-  import { SUIT_NAMES } from '../../data/cards';
-  import type { Card, Orientation } from '../../lib/types';
+  import { ui, type Locale } from '../../../lib/i18n';
+  import { drawCard, type DeckMode } from '../../../lib/deck';
+  import { SUIT_NAMES } from '../../../data/cards';
+  import type { Card, Orientation } from '../../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
