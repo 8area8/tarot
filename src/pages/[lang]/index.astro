@@ -32,6 +32,18 @@ const locale = Astro.params.lang as Locale;
         <span class="portal-enter">{t(locale, 'hub.enter')} →</span>
       </a>
 
+      <a class="portal" href={`/${locale}/agir/`}>
+        <span class="portal-emblem" aria-hidden="true">
+          <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="40" cy="40" r="28" />
+            <path d="M40 55 V27 M30 37 l10 -10 l10 10" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span class="portal-title">{t(locale, 'nav.agir')}</span>
+        <span class="portal-desc">{t(locale, 'hub.agir.desc')}</span>
+        <span class="portal-enter">{t(locale, 'hub.enter')} →</span>
+      </a>
+
       <a class="portal" href={`/${locale}/oracles/`}>
         <span class="portal-emblem" aria-hidden="true">
           <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -74,9 +86,9 @@ const locale = Astro.params.lang as Locale;
   }
   .portals {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: 1.5rem;
-    max-width: 46rem;
+    max-width: 58rem;
     width: 100%;
     margin: 0 auto;
   }

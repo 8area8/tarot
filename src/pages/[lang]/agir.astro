@@ -1,0 +1,423 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale, type UIKey, t } from '../../lib/i18n';
+import { PRISMS } from '../../lib/profile';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const slots = [0, 1, 2];
+---
+
+<Base locale={locale} title={t(locale, 'agir.heading')}>
+  <section class="act" data-locale={locale}>
+    <div class="lede">
+      <p class="eyebrow">{t(locale, 'agir.eyebrow')}</p>
+      <h1>{t(locale, 'agir.heading')}</h1>
+      <p class="intro" id="intro">{t(locale, 'agir.intro')}</p>
+    </div>
+
+    <fieldset class="prism-pick" id="prism-pick">
+      <legend>{t(locale, 'agir.pick')}</legend>
+      <div class="pcards">
+        {
+          PRISMS.map((p) => (
+            <label class="pcard">
+              <input type="radio" name="prism" value={p} />
+              <span class="pcard-in">
+                <span class:list={['dot', `dot-${p}`]} aria-hidden="true" />
+                <span class="pcard-name">{t(locale, `prism.${p}` as UIKey)}</span>
+                <span class="pcard-bal" data-prism={p} />
+              </span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <div class="arena" id="arena" hidden>
+      <p class="arena-note" id="arena-note" aria-live="polite" />
+      <p class="arena-stop">{t(locale, 'agir.stop')}</p>
+
+      <div class="slots" id="slots">
+        {
+          slots.map((i) => (
+            <div class="slot idle" data-index={i} hidden>
+              <div class="coin">
+                <div class="face face-sun">
+                  <svg viewBox="0 0 120 120" class="cface"><use href="#ag-sun" /></svg>
+                </div>
+                <div class="face face-moon">
+                  <svg viewBox="0 0 120 120" class="cface"><use href="#ag-moon" /></svg>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <button type="button" class="btn-act" id="btn-act">{t(locale, 'agir.act')}</button>
+      <p class="verdict" id="verdict" aria-live="polite" hidden />
+    </div>
+
+    <svg class="ag-defs" width="0" height="0" aria-hidden="true">
+      <defs>
+        <mask id="ag-crescent">
+          <rect width="120" height="120" fill="#fff" />
+          <circle cx="76" cy="52" r="28" fill="#000" />
+        </mask>
+        <symbol id="ag-sun" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="13" fill="#6a4e1f" />
+          <circle cx="60" cy="60" r="20" fill="none" stroke="#6a4e1f" stroke-width="3" opacity="0.75" />
+          <g stroke="#6a4e1f" stroke-width="5" stroke-linecap="round">
+            <line x1="60" y1="14" x2="60" y2="29" />
+            <line x1="60" y1="91" x2="60" y2="106" />
+            <line x1="14" y1="60" x2="29" y2="60" />
+            <line x1="91" y1="60" x2="106" y2="60" />
+            <line x1="27" y1="27" x2="38" y2="38" />
+            <line x1="93" y1="27" x2="82" y2="38" />
+            <line x1="27" y1="93" x2="38" y2="82" />
+            <line x1="93" y1="93" x2="82" y2="82" />
+          </g>
+        </symbol>
+        <symbol id="ag-moon" viewBox="0 0 120 120">
+          <circle cx="58" cy="62" r="31" fill="#6a4e1f" mask="url(#ag-crescent)" />
+        </symbol>
+      </defs>
+    </svg>
+  </section>
+</Base>
+
+<script>
+  import { ui, type Locale } from '../../lib/i18n';
+  import { loadProfile, PRISMS, type Prism, type Balance } from '../../lib/profile';
+  import { flipCoin } from '../../lib/coin';
+
+  const section = document.querySelector<HTMLElement>('.act')!;
+  const locale = section.dataset.locale as Locale;
+  const T = ui[locale];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FLIP_MS = 850;
+
+  const ATTEMPTS: Record<Balance, number> = { risky: 1, balanced: 2, confident: 3 };
+  const PRISM_COLOR: Record<Prism, string> = {
+    instinct: '#e0564c',
+    perseverance: '#e8cf55',
+    eloquence: '#5fb573',
+    concentration: '#5b8fd6',
+    creativity: '#a578d6',
+  };
+
+  const introEl = document.querySelector<HTMLElement>('#intro')!;
+  const pick = document.querySelector<HTMLElement>('#prism-pick')!;
+  const arena = document.querySelector<HTMLElement>('#arena')!;
+  const noteEl = document.querySelector<HTMLElement>('#arena-note')!;
+  const slotEls = Array.from(document.querySelectorAll<HTMLElement>('.slot'));
+  const btn = document.querySelector<HTMLButtonElement>('#btn-act')!;
+  const verdict = document.querySelector<HTMLElement>('#verdict')!;
+
+  const profile = loadProfile();
+  let selected: Prism | null = null;
+  let attempts = 0;
+  const rot = [0, 0, 0];
+  let busy = false;
+
+  const delay = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
+  const attemptsWord = (n: number) => (n > 1 ? T['agir.attempts'] : T['agir.attempt']);
+
+  // Personnalisation + libellés des cartes depuis la config du personnage.
+  if (profile.name.trim()) introEl.textContent = `${profile.name.trim()} — ${T['agir.intro']}`;
+  for (const p of PRISMS) {
+    const bal = profile.prisms[p];
+    const n = ATTEMPTS[bal];
+    const el = section.querySelector<HTMLElement>(`.pcard-bal[data-prism="${p}"]`);
+    if (el) el.textContent = `${T[`balance.${bal}`]} · ${n} ${attemptsWord(n)}`;
+  }
+
+  function resetSlots() {
+    slotEls.forEach((s) => s.classList.remove('is-sun', 'is-moon', 'active'));
+    slotEls.forEach((s) => s.classList.add('idle'));
+  }
+
+  pick.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.type !== 'radio') return;
+    selected = target.value as Prism;
+    const bal = profile.prisms[selected];
+    attempts = ATTEMPTS[bal];
+    section.style.setProperty('--prism', PRISM_COLOR[selected]);
+    noteEl.textContent = `${T[`prism.${selected}`]} · ${T[`balance.${bal}`]} — ${attempts} ${attemptsWord(attempts)}`;
+    slotEls.forEach((s, i) => (s.hidden = i >= attempts));
+    resetSlots();
+    verdict.hidden = true;
+    btn.textContent = T['agir.act'];
+    btn.disabled = false;
+    arena.hidden = false;
+  });
+
+  async function flipSlot(i: number, side: 'heads' | 'tails') {
+    const slot = slotEls[i];
+    const coin = slot.querySelector<HTMLElement>('.coin')!;
+    slot.classList.remove('idle');
+    slot.classList.add('active');
+
+    const targetDeg = side === 'heads' ? 0 : 180;
+    const spins = 3 + Math.floor(Math.random() * 2);
+    rot[i] += spins * 360;
+    rot[i] += ((targetDeg - (rot[i] % 360)) + 360) % 360;
+
+    if (reduceMotion) {
+      coin.style.transition = 'none';
+      coin.style.transform = `rotateX(${rot[i]}deg)`;
+    } else {
+      coin.style.transform = `rotateX(${rot[i]}deg)`;
+    }
+    await delay(reduceMotion ? 120 : FLIP_MS);
+    slot.classList.add(side === 'heads' ? 'is-sun' : 'is-moon');
+  }
+
+  btn.addEventListener('click', async () => {
+    if (busy || !selected) return;
+    busy = true;
+    btn.disabled = true;
+    verdict.hidden = true;
+    resetSlots();
+    await delay(reduceMotion ? 0 : 160);
+
+    let success = false;
+    for (let i = 0; i < attempts; i++) {
+      const side = flipCoin();
+      await flipSlot(i, side);
+      if (side === 'heads') {
+        success = true;
+        break;
+      }
+      await delay(reduceMotion ? 0 : 240);
+    }
+
+    verdict.textContent = success ? T['agir.success'] : T['agir.failure'];
+    verdict.classList.toggle('is-fail', !success);
+    verdict.hidden = false;
+    btn.textContent = T['agir.again'];
+    btn.disabled = false;
+    busy = false;
+  });
+</script>
+
+<style>
+  .act {
+    display: grid;
+    gap: 2.5rem;
+    max-width: 44rem;
+    margin: 0 auto;
+    --prism: var(--accent);
+  }
+  .lede {
+    text-align: center;
+  }
+  .eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+  }
+  .lede h1 {
+    font-size: clamp(2.6rem, 6vw, 3.6rem);
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- Choix du prisme ---- */
+  .prism-pick {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  .prism-pick legend {
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .pcards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.75rem;
+  }
+  .pcard {
+    cursor: pointer;
+  }
+  .pcard input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pcard-in {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    text-align: center;
+    padding: 1rem 0.75rem;
+    height: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+  .pcard:hover .pcard-in {
+    transform: translateY(-2px);
+  }
+  .pcard input:checked + .pcard-in {
+    border-color: var(--prism, var(--accent));
+    box-shadow: 0 0 20px -6px var(--prism, var(--accent));
+  }
+  .pcard input:focus-visible + .pcard-in {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .pcard-name {
+    font-size: 1.1rem;
+  }
+  .pcard-bal {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .dot {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .dot-instinct { color: #e0564c; background: #e0564c; }
+  .dot-perseverance { color: #e8cf55; background: #e8cf55; }
+  .dot-eloquence { color: #5fb573; background: #5fb573; }
+  .dot-concentration { color: #5b8fd6; background: #5b8fd6; }
+  .dot-creativity { color: #a578d6; background: #a578d6; }
+
+  /* ---- Arène ---- */
+  .arena {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+  }
+  .arena-note {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--prism, var(--accent));
+  }
+  .arena-stop {
+    margin: -0.75rem 0 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .slots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    min-height: 92px;
+    padding: 0.5rem 0;
+  }
+  .slot {
+    width: 92px;
+    height: 92px;
+    perspective: 600px;
+    transition: opacity 0.3s ease;
+  }
+  .slot.idle {
+    opacity: 0.4;
+  }
+  .slot.idle .cface {
+    opacity: 0;
+  }
+  .slot.is-sun {
+    filter: drop-shadow(0 0 9px var(--prism, var(--accent)));
+  }
+  .coin {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.85s cubic-bezier(0.32, 0.02, 0.18, 1);
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: radial-gradient(circle at 38% 28%,
+      #fbeeb8 0%, #ecd68e 24%, #d4b25c 48%, #bd9743 72%, #94742f 90%, #6f571f 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(111, 82, 31, 0.55),
+      inset 0 5px 11px rgba(255, 246, 214, 0.4),
+      inset 0 -7px 13px rgba(80, 58, 20, 0.5),
+      0 10px 22px rgba(0, 0, 0, 0.5);
+  }
+  .face-sun {
+    transform: rotateX(0deg) translateZ(4px);
+  }
+  .face-moon {
+    transform: rotateX(180deg) translateZ(4px);
+  }
+  .cface {
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn-act {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 0.7rem 1.9rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ground);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-act:hover:not(:disabled) {
+    background: #d9b45c;
+    box-shadow: 0 0 24px rgba(201, 164, 76, 0.35);
+  }
+  .btn-act:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .verdict {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    font-weight: 600;
+    color: var(--prism, var(--accent));
+    text-shadow: 0 0 24px color-mix(in srgb, var(--prism, var(--accent)) 45%, transparent);
+  }
+  .verdict.is-fail {
+    color: var(--muted);
+    text-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coin,
+    .cface,
+    .pcard-in {
+      transition: none;
+    }
+  }
+</style>
