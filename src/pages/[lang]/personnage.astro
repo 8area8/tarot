@@ -76,15 +76,15 @@ const locale = Astro.params.lang as Locale;
       </div>
 
       <div class="prism-visual" aria-hidden="true">
-      <svg class="prism-vis" viewBox="0 0 260 460" fill="none">
-        <line class="beam" x1="130" y1="14" x2="130" y2="150" />
-        <path class="prism-shape" d="M86 150 L174 150 L130 216 Z" />
+      <svg class="prism-vis" viewBox="0 0 460 260" fill="none">
+        <line class="beam" x1="16" y1="130" x2="150" y2="130" />
+        <path class="prism-shape" d="M150 76 L150 184 L216 130 Z" />
         <g class="rays" stroke-linecap="round">
-          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" pathLength="100" x1="130" y1="216" x2="44" y2="448" />
-          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" pathLength="100" x1="130" y1="216" x2="92" y2="448" />
-          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" pathLength="100" x1="130" y1="216" x2="130" y2="448" />
-          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" pathLength="100" x1="130" y1="216" x2="168" y2="448" />
-          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" pathLength="100" x1="130" y1="216" x2="216" y2="448" />
+          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="44" />
+          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="92" />
+          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="130" />
+          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="168" />
+          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="216" />
         </g>
       </svg>
       </div>
@@ -228,37 +228,16 @@ const locale = Astro.params.lang as Locale;
   .profil {
     display: grid;
     gap: 2.5rem;
-    max-width: 54rem;
+    max-width: 44rem;
     margin: 0 auto;
   }
   .lede {
     text-align: center;
-    max-width: 34rem;
-    margin: 0 auto;
   }
-  /* Sur grand écran : prismes à gauche, prisme réfractant à droite. */
+  /* Prismes puis prisme réfractant, empilés. */
   .prisms-layout {
     display: grid;
-    gap: 1.5rem;
-  }
-  @media (min-width: 56rem) {
-    .prisms-layout {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 16rem);
-      align-items: center;
-      gap: 2.5rem;
-    }
-    /* Sélecteur d'équilibre en vertical, à droite du texte, centré.
-       Sélecteurs préfixés .prisms-layout pour surpasser la règle de base
-       (même spécificité mais déclarée après → l'emporterait sinon). */
-    .prisms-layout .balances {
-      flex-direction: column;
-      border-radius: 12px;
-      padding: 0.25rem;
-    }
-    .prisms-layout .bal span {
-      text-align: center;
-      padding: 0.4rem 0.9rem;
-    }
+    gap: 2rem;
   }
   .eyebrow {
     margin: 0 0 0.35rem;
@@ -518,7 +497,7 @@ const locale = Astro.params.lang as Locale;
     justify-content: center;
   }
   .prism-vis {
-    width: min(200px, 70%);
+    width: min(460px, 100%);
     height: auto;
   }
   .beam {
