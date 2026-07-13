@@ -1,11 +1,46 @@
-# Tarot RWS — Document de stratégie
+# Les Terres Libres — Document de stratégie
 
-> Site frontend statique de tirage de tarot **Rider-Waite-Smith** (RWS), bilingue **FR/EN**.
-> Stack retenue : **Astro** · Contenu et images **domaine public**.
+> Hub frontend statique bilingue **FR/EN**, bâti sur **Astro**.
+> Le projet a démarré comme un tirage de tarot (RWS, domaine public) puis est
+> devenu un hub à plusieurs univers. Ce document conserve la stratégie tarot
+> d'origine (sections 1+) ; la section 0 ci-dessous décrit **l'état actuel**.
 
 ---
 
-## 1. Objectif & périmètre
+## 0. État actuel (V4)
+
+**Les Terres Libres** — un hub organisé en trois parties, thème « nuit mystique »
+(sombre indigo-aubergine + or, serifs Cormorant/EB Garamond), i18n par routes
+`/fr` et `/en`.
+
+```
+/{lang}                    Hub — portails Personnage · Agir · Oracles
+├─ /{lang}/personnage      Profil : nom + 5 prismes (équilibre chacun),
+│                          auto-save localStorage, visuel de prisme réfractant
+├─ /{lang}/agir            Action : tenter une action portée par un prisme
+│                          (lancers de pièce selon l'équilibre, issues critiques)
+├─ /{lang}/oracles         Landing — Tarot · Pièce
+│  ├─ /{lang}/oracles/tarot  Tirage RWS (jeu complet / majeurs / mineurs, inversé)
+│  └─ /{lang}/oracles/coin   Pile ou Face (Soleil / Lune), lancer 3D
+└─ /{lang}/credits         Provenance & domaine public
+```
+
+**Concepts transverses**
+- **Prismes** (5) : instinct, concentration, éloquence, créativité, persévérance.
+  Ordre d'affichage = spectre (rouge→jaune→vert→bleu→violet). Chacun a une
+  **phrase** (sens JDR) et un **équilibre** : confiant / équilibré / risqué.
+- **Pièce** : Face = Soleil (réussite), Pile = Lune. Réutilisée dans Agir.
+- **Agir** : l'équilibre fixe le nombre de lancers (risqué 1 · équilibré 2 ·
+  confiant 3) ; on s'arrête à la 1ʳᵉ Face (réussite), sinon échec. Issues
+  critiques : réussite en risqué = *Retournement* ; échec en confiant =
+  *Excès de confiance*.
+
+**Détails techniques importants** : voir `CLAUDE.md` (conventions, pièges,
+commandes) et `README.md` (structure des fichiers, déploiement).
+
+---
+
+## 1. Objectif & périmètre <span>(stratégie tarot d'origine — historique)</span>
 
 Un site statique (déployable sur n'importe quel hébergeur de fichiers : GitHub Pages, Netlify, Cloudflare Pages…) qui permet :
 
