@@ -50,6 +50,12 @@ Point vérifié car il conditionne tout le projet.
 
 Traitement : **héberger localement** (`public/cards/`), **pas** de hotlink externe ; **renommer** selon `id` (`major-00.webp`…) ; **optimiser en WebP** (garder l'original haute déf pour d'éventuels zooms). Prévoir un **dos de carte** (card back).
 
+**✅ Fait (étape 2)** — Les 78 cartes ont été récupérées depuis Wikimedia Commons via `scripts/fetch-cards.mjs` (résolvable/reprenable, retry+backoff, User-Agent poli) :
+- Source : scans **édition 1909**, tous marqués **« Public domain »**, résolution ~1100×1920.
+- Sortie : `public/cards/<id>.webp` (qualité 82, ~37 Mo au total) + **`public/cards/manifest.json`** (provenance : source Commons, URL originale, dimensions, licence — alimentera la page crédits).
+- Dos de carte : **`public/cards/back.svg`** (dessin original, aucun problème de droits).
+- ⚠️ *Optimisation d'affichage à prévoir (étape UI)* : ces WebP sont la **source haute déf**. Pour l'affichage courant, générer des variantes plus petites (srcset responsive) — soit en déplaçant les images vers `src/assets/` + composant `<Image>` d'Astro, soit via une seconde passe `cwebp` à largeur réduite.
+
 ### 3.2 Textes (mots-clés + significations droit / inversé)
 
 La source **canonique et intégralement domaine public** est :
