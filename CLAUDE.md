@@ -86,10 +86,16 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
   Chaque prisme a une **phrase** (`prism.<p>.desc`) et un **équilibre**
   (`confident` / `balanced` / `risky`).
 - **Pièce** : `heads` = Face = Soleil ; `tails` = Pile = Lune.
-- **Agir** (`agir.astro`) : tentatives = { risky: 1, balanced: 2, confident: 3 }.
-  On lance jusqu'à la 1ʳᵉ Face → **réussite** ; sinon **échec**. Issues critiques :
-  - réussite + `risky` → **Retournement** (éclatant),
-  - échec + `confident` → **Excès de confiance** (cuisant).
+- **Agir** — landing (`agir/index.astro`) avec deux pages :
+  - **Action** (`agir/action.astro`) : tentatives = { risky: 1, balanced: 2,
+    confident: 3 } ; on lance jusqu'à la 1ʳᵉ Face → **réussite**, sinon **échec**.
+    Issues critiques : réussite + `risky` → **Retournement** ; échec + `confident`
+    → **Excès de confiance**.
+  - **Confrontation** (`agir/confrontation.astro`) : deux jauges (Victoire / Échec,
+    premier à **5**). Chaque round = une action ; réussite +1 (ou +2 si `risky`)
+    côté Victoire, échec +1 (ou +2 si `confident`) côté Échec.
+  - Le composant « pièce par emplacement » (slots + `flipSlot`) est **dupliqué**
+    entre Action et Confrontation (scripts de page isolés) — garder les deux en phase.
 - **Tarot** : `drawCard(mode, allowReversed)` ; modes `full`/`major`/`minor` ;
   inversé = rotation 180° + texte `reversed`.
 

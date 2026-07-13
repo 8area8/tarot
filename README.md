@@ -6,9 +6,14 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
   éloquence, créativité, persévérance), chacun réglé sur un équilibre
   (confiant / équilibré / risqué). Sauvegarde automatique en localStorage,
   avec un visuel de prisme réfractant qui réagit à la configuration.
-- **Agir** → **Action** : tente une action incertaine portée par un prisme.
-  L'équilibre du prisme fixe le nombre de lancers de pièce (risqué 1, équilibré 2,
-  confiant 3) ; on s'arrête à la première Face (réussite), sinon échec.
+- **Agir** :
+  - **Action** : tente une action incertaine portée par un prisme. L'équilibre
+    fixe le nombre de lancers de pièce (risqué 1, équilibré 2, confiant 3) ; on
+    s'arrête à la première Face (réussite), sinon échec. Issues critiques
+    (retournement / excès de confiance).
+  - **Confrontation** : enchaîne les actions sur deux jauges (Victoire / Échec) ;
+    première jauge pleine (5) l'emporte. Réussite en risqué ou échec en confiant
+    valent 2 points.
 - **Oracles** :
   - **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
     mineurs), option inversée. Illustrations et textes **domaine public**.
@@ -16,8 +21,9 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
 
 Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
 
-Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/agir` · `/{lang}/oracles`
-· `/{lang}/oracles/tarot` · `/{lang}/oracles/coin` · `/{lang}/credits`.
+Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/agir`
+(· `/agir/action` · `/agir/confrontation`) · `/{lang}/oracles`
+(· `/oracles/tarot` · `/oracles/coin`) · `/{lang}/credits`.
 
 ## Développement
 
@@ -52,8 +58,8 @@ src/
   pages/[lang]/
     index.astro        # hub (Personnage / Agir / Oracles)
     personnage.astro   # profil (nom + prismes)
-    agir.astro         # action (prisme + lancers de pièce)
     credits.astro
+    agir/              # index (Action / Confrontation) + action + confrontation
     oracles/           # index (Tarot / Pièce) + tarot + coin
 public/cards/           # 78 illustrations WebP + back.svg + manifest.json
 scripts/fetch-cards.mjs # (re)télécharge et convertit les illustrations
