@@ -60,11 +60,11 @@ const locale = Astro.params.lang as Locale;
         <line class="beam" x1="16" y1="130" x2="150" y2="130" />
         <path class="prism-shape" d="M150 76 L150 184 L216 130 Z" />
         <g class="rays" stroke-linecap="round">
-          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" x1="206" y1="124" x2="446" y2="46" />
-          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" x1="210" y1="128" x2="446" y2="94" />
-          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" x1="214" y1="130" x2="446" y2="130" />
-          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" x1="210" y1="132" x2="446" y2="166" />
-          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" x1="206" y1="136" x2="446" y2="214" />
+          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" x1="216" y1="130" x2="448" y2="44" />
+          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" x1="216" y1="130" x2="448" y2="92" />
+          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" x1="216" y1="130" x2="448" y2="130" />
+          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" x1="216" y1="130" x2="448" y2="168" />
+          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" x1="216" y1="130" x2="448" y2="216" />
         </g>
       </svg>
     </div>
@@ -233,24 +233,24 @@ const locale = Astro.params.lang as Locale;
     box-shadow: 0 0 8px currentColor;
   }
   .dot-instinct {
-    color: #e0685a;
-    background: #e0685a;
+    color: #e0564c;
+    background: #e0564c;
   }
   .dot-concentration {
-    color: #e3a24c;
-    background: #e3a24c;
+    color: #5b8fd6;
+    background: #5b8fd6;
   }
   .dot-eloquence {
-    color: #d6c95c;
-    background: #d6c95c;
+    color: #5fb573;
+    background: #5fb573;
   }
   .dot-creativity {
-    color: #6db2c9;
-    background: #6db2c9;
+    color: #a578d6;
+    background: #a578d6;
   }
   .dot-perseverance {
-    color: #9d7bd0;
-    background: #9d7bd0;
+    color: #e8cf55;
+    background: #e8cf55;
   }
 
   /* segmented control des équilibres */
@@ -313,37 +313,83 @@ const locale = Astro.params.lang as Locale;
   }
   .ray {
     stroke: currentColor;
-    transition: stroke-width 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+    stroke-width: var(--w-base, 3.2);
+    animation: ray-pulse var(--pulse-dur, 2.3s) ease-in-out infinite;
   }
   .ray-instinct {
-    color: #e0685a;
+    color: #e0564c;
   }
   .ray-concentration {
-    color: #e3a24c;
+    color: #5b8fd6;
   }
   .ray-eloquence {
-    color: #d6c95c;
+    color: #5fb573;
   }
   .ray-creativity {
-    color: #6db2c9;
+    color: #a578d6;
   }
   .ray-perseverance {
-    color: #9d7bd0;
+    color: #e8cf55;
   }
+  /* décalages : évite une pulsation synchrone mécanique */
+  .ray-concentration {
+    animation-delay: -0.5s;
+  }
+  .ray-eloquence {
+    animation-delay: -1s;
+  }
+  .ray-creativity {
+    animation-delay: -1.5s;
+  }
+  .ray-perseverance {
+    animation-delay: -0.9s;
+  }
+
+  /* Confiant : stable et intense — faible amplitude, éclat élevé, lent. */
   .ray[data-balance='confident'] {
-    stroke-width: 2;
-    opacity: 0.95;
-    filter: drop-shadow(0 0 3px currentColor);
+    --w-base: 3.4;
+    --w-min: 3.1;
+    --w-max: 3.7;
+    --o-min: 0.9;
+    --o-max: 1;
+    --g-min: 6px;
+    --g-max: 9px;
+    --pulse-dur: 3.6s;
   }
+  /* Équilibré : entre les deux. */
   .ray[data-balance='balanced'] {
-    stroke-width: 3.5;
-    opacity: 0.8;
-    filter: drop-shadow(0 0 6px currentColor);
+    --w-base: 3.2;
+    --w-min: 2.7;
+    --w-max: 4.1;
+    --o-min: 0.6;
+    --o-max: 0.95;
+    --g-min: 4px;
+    --g-max: 10px;
+    --pulse-dur: 2.3s;
   }
+  /* Risqué : pulse fortement — grande amplitude, rapide. */
   .ray[data-balance='risky'] {
-    stroke-width: 6.5;
-    opacity: 1;
-    filter: drop-shadow(0 0 12px currentColor);
+    --w-base: 3.6;
+    --w-min: 2.4;
+    --w-max: 5.2;
+    --o-min: 0.32;
+    --o-max: 1;
+    --g-min: 3px;
+    --g-max: 18px;
+    --pulse-dur: 1.05s;
+  }
+  @keyframes ray-pulse {
+    0%,
+    100% {
+      opacity: var(--o-min, 0.6);
+      stroke-width: var(--w-min, 2.7);
+      filter: drop-shadow(0 0 var(--g-min, 4px) currentColor);
+    }
+    50% {
+      opacity: var(--o-max, 0.95);
+      stroke-width: var(--w-max, 4.1);
+      filter: drop-shadow(0 0 var(--g-max, 10px) currentColor);
+    }
   }
 
   .profil-foot {
@@ -390,8 +436,12 @@ const locale = Astro.params.lang as Locale;
     }
   }
   @media (prefers-reduced-motion: reduce) {
+    /* Pas de pulsation : différenciation statique via les valeurs hautes. */
     .ray {
-      transition: none;
+      animation: none;
+      stroke-width: var(--w-max, 4.1);
+      opacity: var(--o-max, 0.95);
+      filter: drop-shadow(0 0 var(--g-max, 8px) currentColor);
     }
   }
 </style>
