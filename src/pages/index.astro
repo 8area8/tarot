@@ -1,4 +1,4 @@
 ---
 // Redirige la racine vers la langue par défaut (voir defaultLocale dans astro.config.mjs).
-return Astro.redirect('/fr/');
+return Astro.redirect(`${import.meta.env.BASE_URL}fr/`);
 ---

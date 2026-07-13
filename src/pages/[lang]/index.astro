@@ -7,6 +7,7 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.lang as Locale;
+const base = import.meta.env.BASE_URL;
 ---
 
 <Base locale={locale}>
@@ -35,7 +36,7 @@ const locale = Astro.params.lang as Locale;
       <div class="card-slot">
         <div class="flip" id="flip">
           <div class="face face-back">
-            <img src="/cards/back.svg" alt="" width="300" height="524" />
+            <img src={`${base}cards/back.svg`} alt="" width="300" height="524" />
           </div>
           <div class="face face-front">
             <img id="card-img" alt="" width="300" height="524" />
@@ -68,6 +69,7 @@ const locale = Astro.params.lang as Locale;
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
   const T = ui[locale];
+  const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FLIP_MS = 700;
 
@@ -100,7 +102,7 @@ const locale = Astro.params.lang as Locale;
 
   function renderReading(card: Card, orientation: Orientation) {
     const reversed = orientation === 'reversed';
-    cardImg.src = `/cards/${card.image}`;
+    cardImg.src = `${BASE}cards/${card.image}`;
     cardImg.alt = card.name[locale];
     cardImg.classList.toggle('is-reversed', reversed);
 
@@ -150,7 +152,7 @@ const locale = Astro.params.lang as Locale;
     view = draw.orientation;
 
     btnDraw.disabled = true;
-    await preload(`/cards/${draw.card.image}`);
+    await preload(`${BASE}cards/${draw.card.image}`);
 
     const reveal = () => {
       renderReading(draw.card, draw.orientation);
