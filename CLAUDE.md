@@ -48,7 +48,7 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 | `src/lib/types.ts` | types des cartes (`Card`, `CardContent`, `Orientation`) |
 | `src/lib/deck.ts` | `getDeck()`, `drawCard()` (tarot) |
 | `src/lib/coin.ts` | `flipCoin()` → `'heads'` (Face/Soleil) \| `'tails'` (Pile/Lune) |
-| `src/lib/profile.ts` | `PRISMS`, `BALANCES`, `Profile`, `load/saveProfile` (localStorage) |
+| `src/lib/profile.ts` | `PRISMS`, `BALANCES`, `Profile` (name + `arcana` majeure + prisms), `load/saveProfile` (localStorage) |
 | `src/data/cards.ts` | 78 cartes (22 majeurs rédigés + 56 mineurs) |
 | `src/data/minor-content.ts` | significations des 56 mineurs |
 | `public/cards/` | 78 WebP + `back.svg` + `manifest.json` (provenance) |

@@ -15,8 +15,9 @@
 
 ```
 /{lang}                    Hub — portails Personnage · Agir · Oracles
-├─ /{lang}/personnage      Profil : nom + 5 prismes (équilibre chacun),
-│                          auto-save localStorage, visuel de prisme réfractant
+├─ /{lang}/personnage      Profil : nom + arcane fondatrice (majeure tirée) +
+│                          5 prismes (équilibre chacun), auto-save localStorage,
+│                          visuel de prisme réfractant
 ├─ /{lang}/agir            Landing — Action · Confrontation
 │  ├─ /{lang}/agir/action        Tenter une action portée par un prisme
 │  │                             (lancers de pièce selon l'équilibre, issues critiques)

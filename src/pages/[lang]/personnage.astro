@@ -30,6 +30,24 @@ const locale = Astro.params.lang as Locale;
         />
       </label>
 
+      <section class="arcana" aria-labelledby="arcana-title">
+        <h2 id="arcana-title">{t(locale, 'profil.arcana.title')}</h2>
+        <p class="arcana-hint">{t(locale, 'profil.arcana.hint')}</p>
+
+        <div class="arcana-card" id="arcana-card">
+          <img class="arcana-back" src="/cards/back.svg" alt="" width="220" height="384" />
+          <img class="arcana-front" id="arcana-img" alt="" width="220" height="384" hidden />
+        </div>
+
+        <div class="arcana-reading" id="arcana-reading" aria-live="polite" hidden>
+          <h3 id="arcana-name"></h3>
+          <div class="arcana-keywords" id="arcana-keywords"></div>
+          <p class="arcana-meaning" id="arcana-meaning"></p>
+        </div>
+
+        <button type="button" class="btn-arcana" id="arcana-btn">{t(locale, 'profil.arcana.draw')}</button>
+      </section>
+
       <div class="prisms">
         <h2>{t(locale, 'profil.prisms')}</h2>
         <ul class="prism-list">
@@ -81,6 +99,14 @@ const locale = Astro.params.lang as Locale;
 
 <script>
   import { loadProfile, saveProfile, DEFAULT_PROFILE, PRISMS, type Prism, type Balance } from '../../lib/profile';
+  import { ui, type Locale } from '../../lib/i18n';
+  import { drawCard } from '../../lib/deck';
+  import { cards } from '../../data/cards';
+
+  const section = document.querySelector<HTMLElement>('.profil')!;
+  const locale = section.dataset.locale as Locale;
+  const T = ui[locale];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const form = document.querySelector<HTMLFormElement>('#profil-form')!;
   const nameInput = document.querySelector<HTMLInputElement>('#name')!;
@@ -88,8 +114,50 @@ const locale = Astro.params.lang as Locale;
   const resetBtn = document.querySelector<HTMLButtonElement>('#reset')!;
   const visual = document.querySelector<SVGElement>('.prism-vis')!;
 
+  const arcanaCard = document.querySelector<HTMLElement>('#arcana-card')!;
+  const arcanaImg = document.querySelector<HTMLImageElement>('#arcana-img')!;
+  const arcanaBack = document.querySelector<HTMLImageElement>('.arcana-back')!;
+  const arcanaReading = document.querySelector<HTMLElement>('#arcana-reading')!;
+  const arcanaName = document.querySelector<HTMLElement>('#arcana-name')!;
+  const arcanaKeywords = document.querySelector<HTMLElement>('#arcana-keywords')!;
+  const arcanaMeaning = document.querySelector<HTMLElement>('#arcana-meaning')!;
+  const arcanaBtn = document.querySelector<HTMLButtonElement>('#arcana-btn')!;
+
   let profile = loadProfile();
   let savedTimer: number | undefined;
+
+  function renderArcana(id: string | null, animate: boolean) {
+    const card = id ? cards.find((c) => c.id === id) : undefined;
+    if (!card) {
+      arcanaImg.hidden = true;
+      arcanaBack.hidden = false;
+      arcanaReading.hidden = true;
+      arcanaBtn.textContent = T['profil.arcana.draw'];
+      return;
+    }
+    arcanaImg.src = `/cards/${card.image}`;
+    arcanaImg.alt = card.name[locale];
+    arcanaImg.hidden = false;
+    arcanaBack.hidden = true;
+    arcanaName.textContent = card.name[locale];
+    arcanaKeywords.replaceChildren();
+    if (card.content) {
+      for (const word of card.content.keywords.upright[locale]) {
+        const chip = document.createElement('span');
+        chip.className = 'arcana-chip';
+        chip.textContent = word;
+        arcanaKeywords.appendChild(chip);
+      }
+      arcanaMeaning.textContent = card.content.meaning.upright[locale];
+    }
+    arcanaReading.hidden = false;
+    arcanaBtn.textContent = T['profil.arcana.redraw'];
+    if (animate && !reduceMotion) {
+      arcanaCard.classList.remove('reveal');
+      void arcanaCard.offsetWidth;
+      arcanaCard.classList.add('reveal');
+    }
+  }
 
   // Confiant = rai long ; équilibré = médian ; risqué = court (fraction de pathLength).
   const RAY_LENGTH: Record<Balance, number> = { confident: 1, balanced: 0.8, risky: 0.56 };
@@ -110,6 +178,7 @@ const locale = Astro.params.lang as Locale;
       if (input) input.checked = true;
       updateRay(prism, balance);
     }
+    renderArcana(p.arcana, false);
   }
 
   function flashSaved() {
@@ -138,8 +207,16 @@ const locale = Astro.params.lang as Locale;
     flashSaved();
   });
 
+  arcanaBtn.addEventListener('click', () => {
+    const { card } = drawCard('major', false); // arcane fondatrice : toujours à l'endroit
+    profile.arcana = card.id;
+    renderArcana(card.id, true);
+    saveProfile(profile);
+    flashSaved();
+  });
+
   resetBtn.addEventListener('click', () => {
-    profile = { name: '', prisms: { ...DEFAULT_PROFILE.prisms } };
+    profile = { name: '', arcana: null, prisms: { ...DEFAULT_PROFILE.prisms } };
     apply(profile);
     saveProfile(profile);
     flashSaved();
@@ -206,6 +283,102 @@ const locale = Astro.params.lang as Locale;
   #name:focus {
     outline: none;
     border-bottom-color: var(--accent);
+  }
+
+  /* ---- Arcane fondatrice ---- */
+  .arcana {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(201, 164, 76, 0.12);
+    border-bottom: 1px solid rgba(201, 164, 76, 0.12);
+  }
+  .arcana h2 {
+    font-size: 1.6rem;
+    margin: 0;
+  }
+  .arcana-hint {
+    margin: 0;
+    max-width: 30rem;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+  .arcana-card {
+    position: relative;
+    width: min(200px, 58vw);
+    aspect-ratio: 1100 / 1920;
+    margin: 0.5rem 0;
+  }
+  .arcana-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--line), 0 0 26px rgba(201, 164, 76, 0.16);
+  }
+  .arcana-card.reveal .arcana-front {
+    animation: arcana-reveal 0.55s ease;
+  }
+  @keyframes arcana-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .arcana-reading {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 30rem;
+  }
+  .arcana-reading h3 {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--accent);
+  }
+  .arcana-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+  .arcana-chip {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+  .arcana-meaning {
+    margin: 0;
+    line-height: 1.7;
+  }
+  .btn-arcana {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.55rem 1.4rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-arcana:hover {
+    background: rgba(201, 164, 76, 0.1);
+    box-shadow: 0 0 20px -6px var(--accent);
   }
 
   .prisms h2 {

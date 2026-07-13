@@ -13,11 +13,14 @@ export type Balance = (typeof BALANCES)[number];
 
 export interface Profile {
   name: string;
+  /** Id d'une arcane majeure (ex. "major-04") tirée comme arcane fondatrice, ou null. */
+  arcana: string | null;
   prisms: Record<Prism, Balance>;
 }
 
 export const DEFAULT_PROFILE: Profile = {
   name: '',
+  arcana: null,
   prisms: {
     instinct: 'balanced',
     concentration: 'balanced',
@@ -37,6 +40,7 @@ function isBalance(value: unknown): value is Balance {
 export function loadProfile(): Profile {
   const profile: Profile = {
     name: DEFAULT_PROFILE.name,
+    arcana: DEFAULT_PROFILE.arcana,
     prisms: { ...DEFAULT_PROFILE.prisms },
   };
   try {
@@ -44,6 +48,7 @@ export function loadProfile(): Profile {
     if (!raw) return profile;
     const parsed = JSON.parse(raw) as Partial<Profile>;
     if (typeof parsed.name === 'string') profile.name = parsed.name;
+    if (typeof parsed.arcana === 'string') profile.arcana = parsed.arcana;
     if (parsed.prisms) {
       for (const prism of PRISMS) {
         const value = parsed.prisms[prism];

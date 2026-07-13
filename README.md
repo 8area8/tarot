@@ -2,7 +2,8 @@
 
 Hub statique bilingue **FR / EN**, organisé en deux parties :
 
-- **Personnage** → **Profil** : un nom et 5 prismes (instinct, concentration,
+- **Personnage** → **Profil** : un nom, une **arcane fondatrice** (arcane majeure
+  tirée, qui représente le personnage) et 5 prismes (instinct, concentration,
   éloquence, créativité, persévérance), chacun réglé sur un équilibre
   (confiant / équilibré / risqué). Sauvegarde automatique en localStorage,
   avec un visuel de prisme réfractant qui réagit à la configuration.
