@@ -1,0 +1,84 @@
+---
+import { type Locale, t } from '../lib/i18n';
+import LangToggle from '../components/LangToggle.astro';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+}
+
+const { locale, title } = Astro.props;
+const pageTitle = title ? `${title} — ${t(locale, 'site.title')}` : t(locale, 'site.title');
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={t(locale, 'site.tagline')} />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={`/${locale}/`}>{t(locale, 'site.title')}</a>
+      <nav>
+        <a href={`/${locale}/credits/`}>{t(locale, 'nav.credits')}</a>
+        <LangToggle locale={locale} />
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <small>{t(locale, 'site.tagline')}</small>
+    </footer>
+
+    <style>
+      :root {
+        color-scheme: light dark;
+        --maxw: 48rem;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        line-height: 1.6;
+      }
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .site-header nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .brand {
+        font-weight: 700;
+        text-decoration: none;
+      }
+      main {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .site-footer {
+        max-width: var(--maxw);
+        margin: 2rem auto;
+        padding: 1rem;
+        opacity: 0.7;
+      }
+    </style>
+  </body>
+</html>

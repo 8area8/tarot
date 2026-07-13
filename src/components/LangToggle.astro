@@ -1,0 +1,30 @@
+---
+import { type Locale, t } from '../lib/i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const other: Locale = locale === 'fr' ? 'en' : 'fr';
+// Même page, autre langue (les routes sont symétriques : /fr/… ↔ /en/…).
+const href = `/${other}/`;
+---
+
+<a class="lang-toggle" href={href} hreflang={other} rel="alternate">
+  {t(locale, 'lang.switch')}
+</a>
+
+<style>
+  .lang-toggle {
+    font: inherit;
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    opacity: 0.85;
+  }
+  .lang-toggle:hover {
+    opacity: 1;
+  }
+</style>

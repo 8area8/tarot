@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+
+const content = {
+  fr: {
+    title: 'Crédits',
+    body: [
+      "Les illustrations proviennent de l'édition originale Rider-Waite-Smith de 1909, illustrée par Pamela Colman Smith d'après A. E. Waite.",
+      "Cette œuvre est dans le domaine public (États-Unis depuis 1966 ; Royaume-Uni et Union européenne depuis 2022, l'autrice étant décédée en 1951).",
+      "Les significations sont des textes originaux rédigés dans un langage contemporain, s'appuyant sur The Pictorial Key to the Tarot (A. E. Waite, 1911), lui aussi dans le domaine public.",
+    ],
+  },
+  en: {
+    title: 'Credits',
+    body: [
+      'The illustrations come from the original 1909 Rider-Waite-Smith edition, drawn by Pamela Colman Smith after A. E. Waite.',
+      'This work is in the public domain (United States since 1966; United Kingdom and European Union since 2022, the artist having died in 1951).',
+      'The meanings are original texts written in contemporary language, based on The Pictorial Key to the Tarot (A. E. Waite, 1911), also in the public domain.',
+    ],
+  },
+} satisfies Record<Locale, { title: string; body: string[] }>;
+
+const page = content[locale];
+---
+
+<Base locale={locale} title={page.title}>
+  <h1>{page.title}</h1>
+  {page.body.map((p) => <p>{p}</p>)}
+</Base>

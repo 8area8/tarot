@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Base locale={locale}>
+  <h1>{t(locale, 'home.heading')}</h1>
+  <p>{t(locale, 'home.intro')}</p>
+  <!-- Étapes suivantes : sélecteur de jeu, bouton de tirage, composant carte. -->
+</Base>
