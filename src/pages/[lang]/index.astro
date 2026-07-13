@@ -11,6 +11,233 @@ const locale = Astro.params.lang as Locale;
 
 <Base locale={locale}>
   <h1>{t(locale, 'home.heading')}</h1>
-  <p>{t(locale, 'home.intro')}</p>
-  <!-- Étapes suivantes : sélecteur de jeu, bouton de tirage, composant carte. -->
+  <p class="intro">{t(locale, 'home.intro')}</p>
+
+  <section class="draw-app" data-locale={locale}>
+    <form class="controls" id="controls">
+      <fieldset class="deck">
+        <legend>{t(locale, 'deck.label')}</legend>
+        <label><input type="radio" name="deck" value="full" checked /> {t(locale, 'deck.full')}</label>
+        <label><input type="radio" name="deck" value="major" /> {t(locale, 'deck.major')}</label>
+        <label><input type="radio" name="deck" value="minor" /> {t(locale, 'deck.minor')}</label>
+      </fieldset>
+
+      <label class="reversed-opt">
+        <input type="checkbox" name="reversed" /> {t(locale, 'option.reversed')}
+      </label>
+
+      <button type="submit" class="btn-draw" id="btn-draw">{t(locale, 'action.draw')}</button>
+    </form>
+
+    <div class="stage">
+      <p class="placeholder" id="placeholder">{t(locale, 'card.placeholder')}</p>
+
+      <figure class="card" id="card" hidden>
+        <img id="card-img" alt="" width="330" height="570" />
+      </figure>
+    </div>
+
+    <article class="reading" id="reading" hidden aria-live="polite">
+      <p class="orientation" id="orientation"></p>
+      <h2 id="reading-name"></h2>
+      <div class="keywords" id="keywords"></div>
+      <p class="meaning" id="meaning"></p>
+    </article>
+  </section>
 </Base>
+
+<script>
+  import { ui, type Locale } from '../../lib/i18n';
+  import { drawCard, type DeckMode } from '../../lib/deck';
+
+  const app = document.querySelector<HTMLElement>('.draw-app')!;
+  const locale = app.dataset.locale as Locale;
+  const T = ui[locale];
+
+  const form = document.querySelector<HTMLFormElement>('#controls')!;
+  const btnDraw = document.querySelector<HTMLButtonElement>('#btn-draw')!;
+  const placeholder = document.querySelector<HTMLParagraphElement>('#placeholder')!;
+  const cardFig = document.querySelector<HTMLElement>('#card')!;
+  const cardImg = document.querySelector<HTMLImageElement>('#card-img')!;
+  const reading = document.querySelector<HTMLElement>('#reading')!;
+  const orientationEl = document.querySelector<HTMLParagraphElement>('#orientation')!;
+  const nameEl = document.querySelector<HTMLHeadingElement>('#reading-name')!;
+  const keywordsEl = document.querySelector<HTMLDivElement>('#keywords')!;
+  const meaningEl = document.querySelector<HTMLParagraphElement>('#meaning')!;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const mode = (data.get('deck') as DeckMode) ?? 'full';
+    const allowReversed = data.get('reversed') === 'on';
+
+    const { card, orientation } = drawCard(mode, allowReversed);
+    const reversed = orientation === 'reversed';
+
+    // Illustration
+    cardImg.src = `/cards/${card.image}`;
+    cardImg.alt = card.name[locale];
+    cardImg.classList.toggle('is-reversed', reversed);
+    placeholder.hidden = true;
+    cardFig.hidden = false;
+
+    // Relance l'animation d'apparition
+    cardFig.classList.remove('reveal');
+    void cardFig.offsetWidth;
+    cardFig.classList.add('reveal');
+
+    // Lecture
+    orientationEl.textContent = reversed ? T['card.reversed'] : T['card.upright'];
+    orientationEl.classList.toggle('is-reversed', reversed);
+    nameEl.textContent = card.name[locale];
+
+    keywordsEl.replaceChildren();
+    meaningEl.textContent = '';
+
+    if (card.content) {
+      const key = reversed ? 'reversed' : 'upright';
+      for (const word of card.content.keywords[key][locale]) {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = word;
+        keywordsEl.appendChild(chip);
+      }
+      meaningEl.textContent = card.content.meaning[key][locale];
+    } else {
+      meaningEl.textContent = T['card.noContent'];
+    }
+
+    reading.hidden = false;
+    btnDraw.textContent = T['action.again'];
+    reading.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>
+
+<style>
+  .intro {
+    opacity: 0.8;
+    margin-top: -0.25rem;
+  }
+  .draw-app {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+    border-radius: 12px;
+  }
+  fieldset.deck {
+    border: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+  fieldset.deck legend {
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 0.25rem;
+  }
+  fieldset.deck label,
+  .reversed-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+  .btn-draw {
+    margin-left: auto;
+    font: inherit;
+    font-weight: 600;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    border-radius: 999px;
+    background: #2a3f6b;
+    color: #fbf3e0;
+    cursor: pointer;
+  }
+  .btn-draw:hover {
+    background: #35508a;
+  }
+  .stage {
+    display: flex;
+    justify-content: center;
+    min-height: 4rem;
+  }
+  .placeholder {
+    opacity: 0.6;
+    font-style: italic;
+    align-self: center;
+  }
+  .card img {
+    width: min(330px, 80vw);
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    display: block;
+  }
+  .card img.is-reversed {
+    transform: rotate(180deg);
+  }
+  .card.reveal {
+    animation: reveal 0.5s ease;
+  }
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .reading {
+    text-align: center;
+    display: grid;
+    gap: 0.75rem;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+  .orientation {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin: 0;
+  }
+  .orientation.is-reversed {
+    color: #b4531f;
+    opacity: 1;
+  }
+  .reading h2 {
+    margin: 0;
+  }
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  .chip {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+  .meaning {
+    margin: 0;
+    line-height: 1.7;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card.reveal {
+      animation: none;
+    }
+  }
+</style>
