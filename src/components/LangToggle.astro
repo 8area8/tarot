@@ -17,14 +17,19 @@ const href = `/${other}/`;
 
 <style>
   .lang-toggle {
-    font: inherit;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
     text-decoration: none;
-    padding: 0.35rem 0.75rem;
-    border: 1px solid currentColor;
+    color: var(--accent);
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    opacity: 0.85;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
   }
   .lang-toggle:hover {
-    opacity: 1;
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.08);
   }
 </style>
