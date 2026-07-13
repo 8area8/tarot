@@ -36,10 +36,13 @@ const locale = Astro.params.lang as Locale;
           {
             PRISMS.map((p) => (
               <li class="prism-row">
-                <span class="prism-name">
-                  <span class:list={['dot', `dot-${p}`]} aria-hidden="true" />
-                  {t(locale, `prism.${p}` as UIKey)}
-                </span>
+                <div class="prism-info">
+                  <span class="prism-name">
+                    <span class:list={['dot', `dot-${p}`]} aria-hidden="true" />
+                    {t(locale, `prism.${p}` as UIKey)}
+                  </span>
+                  <span class="prism-desc">{t(locale, `prism.${p}.desc` as UIKey)}</span>
+                </div>
                 <div class="balances" role="radiogroup" aria-label={t(locale, `prism.${p}` as UIKey)}>
                   {BALANCES.map((b) => (
                     <label class="bal">
@@ -226,11 +229,21 @@ const locale = Astro.params.lang as Locale;
     padding: 0.75rem 0.25rem;
     border-bottom: 1px solid rgba(201, 164, 76, 0.12);
   }
+  .prism-info {
+    display: grid;
+    gap: 0.25rem;
+  }
   .prism-name {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
     font-size: 1.15rem;
+  }
+  .prism-desc {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--muted);
+    max-width: 42ch;
   }
   .dot {
     width: 0.7rem;
