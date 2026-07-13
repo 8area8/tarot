@@ -313,8 +313,7 @@ const locale = Astro.params.lang as Locale;
   }
   .ray {
     stroke: currentColor;
-    stroke-width: var(--base-w, 3);
-    animation: ecg var(--beat-dur, 1s) ease-out infinite;
+    stroke-linecap: round;
   }
   .ray-instinct {
     color: #e0564c;
@@ -331,80 +330,20 @@ const locale = Astro.params.lang as Locale;
   .ray-creativity {
     color: #a578d6;
   }
-  /* battements décalés : une onde de pouls parcourt le spectre */
-  .ray-perseverance {
-    animation-delay: -0.12s;
-  }
-  .ray-eloquence {
-    animation-delay: -0.24s;
-  }
-  .ray-concentration {
-    animation-delay: -0.36s;
-  }
-  .ray-creativity {
-    animation-delay: -0.48s;
-  }
 
-  /* Confiant : battement lent, régulier, éclat soutenu (base haute, pic doux). */
+  /* Distinction statique (pas d'animation) : épaisseur + saturation, glow conservé.
+     Confiant = épais (3) et désaturé ; Équilibré = médian ; Risqué = fin (1) et très saturé. */
   .ray[data-balance='confident'] {
-    --base-o: 0.82;
-    --peak-o: 1;
-    --dip-o: 0.68;
-    --base-w: 3.2;
-    --peak-w: 4.2;
-    --dip-w: 2.9;
-    --base-g: 6px;
-    --peak-g: 12px;
-    --beat-dur: 1.5s;
+    stroke-width: 3;
+    filter: saturate(0.4) drop-shadow(0 0 5px currentColor);
   }
-  /* Équilibré : entre les deux. */
   .ray[data-balance='balanced'] {
-    --base-o: 0.5;
-    --peak-o: 0.97;
-    --dip-o: 0.38;
-    --base-w: 2.7;
-    --peak-w: 4.8;
-    --dip-w: 2.5;
-    --base-g: 4px;
-    --peak-g: 13px;
-    --beat-dur: 1s;
+    stroke-width: 2;
+    filter: saturate(1) drop-shadow(0 0 5px currentColor);
   }
-  /* Risqué : battement rapide et marqué (base basse, pic vif). */
   .ray[data-balance='risky'] {
-    --base-o: 0.28;
-    --peak-o: 1;
-    --dip-o: 0.18;
-    --base-w: 2.2;
-    --peak-w: 5.6;
-    --dip-w: 2;
-    --base-g: 2px;
-    --peak-g: 18px;
-    --beat-dur: 0.52s;
-  }
-  /* Silhouette d'électrocardiogramme : ligne calme, pic bref (QRS), petit creux, retour au calme. */
-  @keyframes ecg {
-    0%,
-    7% {
-      opacity: var(--base-o, 0.5);
-      stroke-width: var(--base-w, 2.7);
-      filter: drop-shadow(0 0 var(--base-g, 4px) currentColor);
-    }
-    11% {
-      opacity: var(--peak-o, 0.97);
-      stroke-width: var(--peak-w, 4.8);
-      filter: drop-shadow(0 0 var(--peak-g, 13px) currentColor);
-    }
-    15% {
-      opacity: var(--dip-o, 0.38);
-      stroke-width: var(--dip-w, 2.5);
-      filter: drop-shadow(0 0 var(--base-g, 4px) currentColor);
-    }
-    22%,
-    100% {
-      opacity: var(--base-o, 0.5);
-      stroke-width: var(--base-w, 2.7);
-      filter: drop-shadow(0 0 var(--base-g, 4px) currentColor);
-    }
+    stroke-width: 1;
+    filter: saturate(1.9) drop-shadow(0 0 6px currentColor);
   }
 
   .profil-foot {
@@ -448,15 +387,6 @@ const locale = Astro.params.lang as Locale;
     }
     .bal span {
       padding: 0.35rem 0.7rem;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    /* Pas de battement : différenciation statique via l'épaisseur/éclat du pic. */
-    .ray {
-      animation: none;
-      stroke-width: var(--peak-w, 4.1);
-      opacity: var(--base-o, 0.75);
-      filter: drop-shadow(0 0 var(--peak-g, 8px) currentColor);
     }
   }
 </style>
