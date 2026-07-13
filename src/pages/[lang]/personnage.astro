@@ -88,8 +88,25 @@ const locale = Astro.params.lang as Locale;
   let profile = loadProfile();
   let savedTimer: number | undefined;
 
+  const RAY_ORIGIN = { x: 216, y: 130 };
+  const RAY_END: Record<Prism, { x: number; y: number }> = {
+    instinct: { x: 448, y: 44 },
+    perseverance: { x: 448, y: 92 },
+    eloquence: { x: 448, y: 130 },
+    concentration: { x: 448, y: 168 },
+    creativity: { x: 448, y: 216 },
+  };
+  // Confiant = rai long ; équilibré = médian ; risqué = court.
+  const RAY_LENGTH: Record<Balance, number> = { confident: 1, balanced: 0.8, risky: 0.56 };
+
   function updateRay(prism: Prism, balance: Balance) {
-    visual.querySelector(`.ray[data-prism="${prism}"]`)?.setAttribute('data-balance', balance);
+    const line = visual.querySelector(`.ray[data-prism="${prism}"]`);
+    if (!line) return;
+    line.setAttribute('data-balance', balance);
+    const end = RAY_END[prism];
+    const f = RAY_LENGTH[balance];
+    line.setAttribute('x2', String(RAY_ORIGIN.x + (end.x - RAY_ORIGIN.x) * f));
+    line.setAttribute('y2', String(RAY_ORIGIN.y + (end.y - RAY_ORIGIN.y) * f));
   }
 
   function apply(p: typeof profile) {
@@ -311,9 +328,12 @@ const locale = Astro.params.lang as Locale;
     stroke-width: 1.6;
     fill: rgba(201, 164, 76, 0.06);
   }
+  /* Rays uniformes ; seule la LONGUEUR distingue l'équilibre (gérée en JS via x2/y2). */
   .ray {
     stroke: currentColor;
+    stroke-width: 2.5;
     stroke-linecap: round;
+    filter: drop-shadow(0 0 5px currentColor);
   }
   .ray-instinct {
     color: #e0564c;
@@ -329,21 +349,6 @@ const locale = Astro.params.lang as Locale;
   }
   .ray-creativity {
     color: #a578d6;
-  }
-
-  /* Distinction statique (pas d'animation) : épaisseur + saturation, glow conservé.
-     Confiant = épais (3) et désaturé ; Équilibré = médian ; Risqué = fin (1) et très saturé. */
-  .ray[data-balance='confident'] {
-    stroke-width: 3;
-    filter: saturate(0.4) drop-shadow(0 0 5px currentColor);
-  }
-  .ray[data-balance='balanced'] {
-    stroke-width: 2;
-    filter: saturate(1) drop-shadow(0 0 5px currentColor);
-  }
-  .ray[data-balance='risky'] {
-    stroke-width: 1;
-    filter: saturate(1.9) drop-shadow(0 0 6px currentColor);
   }
 
   .profil-foot {

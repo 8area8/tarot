@@ -1,9 +1,10 @@
+// Ordre spectral (rouge → jaune → vert → bleu → violet), aligné sur le prisme.
 export const PRISMS = [
   'instinct',
-  'concentration',
-  'eloquence',
-  'creativity',
   'perseverance',
+  'eloquence',
+  'concentration',
+  'creativity',
 ] as const;
 export type Prism = (typeof PRISMS)[number];
 
