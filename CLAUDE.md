@@ -92,10 +92,10 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
     Issues critiques : réussite + `risky` → **Retournement** ; échec + `confident`
     → **Excès de confiance**.
   - **Confrontation** (`agir/confrontation.astro`) : deux jauges **asymétriques**
-    (`WIN_TARGET = 6`, `LOSE_TARGET = 3`). Chaque round = une action ; réussite +1
+    (`WIN_TARGET = 5`, `LOSE_TARGET = 3`). Chaque round = une action ; réussite +1
     (ou +2 si `risky`) côté Victoire, échec +1 (ou +2 si `confident`) côté Échec.
-    L'asymétrie 6/3 est **volontaire** : les actions favorisant la réussite
-    (50–87,5 %), un seuil Échec plus bas rend la défaite crédible (~50–78 % de victoire).
+    L'asymétrie 5/3 est **volontaire** : les actions favorisant la réussite
+    (50–87,5 %), un seuil Échec plus bas rend la défaite crédible (~50–83 % de victoire).
   - Le composant « pièce par emplacement » (slots + `flipSlot`) est **dupliqué**
     entre Action et Confrontation (scripts de page isolés) — garder les deux en phase.
 - **Tarot** : `drawCard(mode, allowReversed)` ; modes `full`/`major`/`minor` ;

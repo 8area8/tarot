@@ -9,7 +9,7 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const slots = [0, 1, 2];
-const winSegs = [0, 1, 2, 3, 4, 5]; // Victoire : premier à 6
+const winSegs = [0, 1, 2, 3, 4]; // Victoire : premier à 5
 const loseSegs = [0, 1, 2]; // Échec : premier à 3
 ---
 
@@ -115,7 +115,7 @@ const loseSegs = [0, 1, 2]; // Échec : premier à 3
   import { loadProfile, PRISMS, type Prism, type Balance } from '../../../lib/profile';
   import { flipCoin } from '../../../lib/coin';
 
-  const WIN_TARGET = 6;
+  const WIN_TARGET = 5;
   const LOSE_TARGET = 3;
   const ATTEMPTS: Record<Balance, number> = { risky: 1, balanced: 2, confident: 3 };
   const PRISM_COLOR: Record<Prism, string> = {
