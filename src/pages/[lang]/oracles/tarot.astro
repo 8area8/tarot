@@ -465,6 +465,22 @@ const locale = Astro.params.lang as Locale;
     .btn-orient {
       justify-self: center;
     }
+    /* Le sélecteur de deck débordait : 3 segments pleine largeur qui peuvent replier le texte. */
+    .controls {
+      gap: 1rem;
+    }
+    .deck-select {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      width: 100%;
+    }
+    .seg span {
+      padding: 0.45rem 0.4rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      white-space: normal;
+      text-align: center;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .flip {

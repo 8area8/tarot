@@ -209,6 +209,23 @@ const fontFace = `
         height: 0.9rem;
         background: var(--line);
       }
+      @media (max-width: 40rem) {
+        /* Sur mobile : défilement horizontal plutôt que retour à la ligne. */
+        .subnav {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          justify-content: flex-start;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .subnav::-webkit-scrollbar {
+          display: none;
+        }
+        .subnav-link,
+        .subnav-sep {
+          flex: none;
+        }
+      }
       .brand {
         display: inline-flex;
         align-items: center;

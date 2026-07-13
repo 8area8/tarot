@@ -13,7 +13,6 @@ const locale = Astro.params.lang as Locale;
 <Base locale={locale} title={t(locale, 'profil.heading')}>
   <section class="profil" data-locale={locale}>
     <div class="lede">
-      <p class="eyebrow">{t(locale, 'profil.eyebrow')}</p>
       <h1>{t(locale, 'profil.heading')}</h1>
       <p class="intro">{t(locale, 'profil.intro')}</p>
     </div>
@@ -48,6 +47,7 @@ const locale = Astro.params.lang as Locale;
         <button type="button" class="btn-arcana" id="arcana-btn">{t(locale, 'profil.arcana.draw')}</button>
       </section>
 
+      <div class="prisms-layout">
       <div class="prisms">
         <h2>{t(locale, 'profil.prisms')}</h2>
         <ul class="prism-list">
@@ -74,9 +74,8 @@ const locale = Astro.params.lang as Locale;
           }
         </ul>
       </div>
-    </form>
 
-    <div class="prism-visual" aria-hidden="true">
+      <div class="prism-visual" aria-hidden="true">
       <svg class="prism-vis" viewBox="0 0 460 260" fill="none">
         <line class="beam" x1="16" y1="130" x2="150" y2="130" />
         <path class="prism-shape" d="M150 76 L150 184 L216 130 Z" />
@@ -88,7 +87,9 @@ const locale = Astro.params.lang as Locale;
           <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="216" />
         </g>
       </svg>
-    </div>
+      </div>
+      </div>
+    </form>
 
     <div class="profil-foot">
       <span class="saved" id="saved">{t(locale, 'profil.saved')} ✓</span>
@@ -227,11 +228,25 @@ const locale = Astro.params.lang as Locale;
   .profil {
     display: grid;
     gap: 2.5rem;
-    max-width: 44rem;
+    max-width: 54rem;
     margin: 0 auto;
   }
   .lede {
     text-align: center;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+  /* Sur grand écran : prismes à gauche, prisme réfractant à droite. */
+  .prisms-layout {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 56rem) {
+    .prisms-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+      align-items: center;
+      gap: 2rem;
+    }
   }
   .eyebrow {
     margin: 0 0 0.35rem;
