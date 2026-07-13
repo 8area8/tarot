@@ -71,6 +71,12 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
   égale (`.x[data-attr]`) placé après.
 - **SVG `<use>` + `<symbol>`** : mettre les couleurs en **attributs inline**
   (`fill="#…"`) dans le symbole ; les classes CSS ne traversent pas toujours l'instance.
+- **CSS scopé + éléments créés en JS** : Astro scope `<style>` via un attribut
+  `data-astro-cid-*` posé sur les seuls éléments **du template**. Les nœuds créés
+  dans `<script>` (`document.createElement`) ne l'ont pas → **les règles scopées ne
+  s'appliquent pas**. Recopier l'attribut de scope sur chaque nœud créé (voir
+  `applyScope` dans `monde/acteurs.astro`/`questions.astro` : on lit
+  `data-astro-cid-*` sur la section racine, sans hash codé en dur).
 - **Relancer une animation** au clic : `el.classList.remove(x); void el.offsetWidth; el.classList.add(x)`.
 - **Test de logique (`lib/*.ts`) hors navigateur** : Node ne résout pas les imports
   TS sans extension. Bundler d'abord avec esbuild (présent via Vite) :

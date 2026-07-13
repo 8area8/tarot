@@ -12,12 +12,17 @@ const locale = Astro.params.lang as Locale;
 <Base locale={locale} title={t(locale, 'monde.acteurs')}>
   <section class="acteurs" data-locale={locale}>
     <div class="lede">
+      <p class="eyebrow">{t(locale, 'nav.monde')}</p>
       <h1>{t(locale, 'monde.acteurs')}</h1>
       <p class="intro">{t(locale, 'acteurs.intro')}</p>
     </div>
 
     <div class="acteurs-bar">
-      <button type="button" class="btn-draw" id="draw-actor">{t(locale, 'acteurs.draw')}</button>
+      <button type="button" class="btn-draw" id="draw-actor">
+        <span class="btn-draw-glyph" aria-hidden="true">✦</span>
+        <span>{t(locale, 'acteurs.draw')}</span>
+      </button>
+      <span class="tally" id="tally" hidden></span>
       <p class="all-used" id="all-used" hidden>{t(locale, 'acteurs.allUsed')}</p>
     </div>
 
@@ -29,19 +34,63 @@ const locale = Astro.params.lang as Locale;
 <script>
   import { ui, type Locale } from '../../../lib/i18n';
   import { loadWorld, saveWorld, newId, type Actor } from '../../../lib/world';
-  import { cards } from '../../../data/cards';
+  import { cards, SUIT_NAMES } from '../../../data/cards';
+  import type { Card } from '../../../lib/types';
 
   const section = document.querySelector<HTMLElement>('.acteurs')!;
   const locale = section.dataset.locale as Locale;
   const T = ui[locale];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SWAP_MS = 260;
 
   const drawBtn = document.querySelector<HTMLButtonElement>('#draw-actor')!;
+  const tally = document.querySelector<HTMLElement>('#tally')!;
   const allUsed = document.querySelector<HTMLElement>('#all-used')!;
   const emptyEl = document.querySelector<HTMLElement>('#empty')!;
   const list = document.querySelector<HTMLElement>('#actor-list')!;
 
   const world = loadWorld();
   const cardById = new Map(cards.map((c) => [c.id, c]));
+  // Un acteur n'est incarné que par un arcane majeur (22 cartes).
+  const majors = cards.filter((c) => c.arcana === 'major');
+
+  // Astro scope les styles via un attribut data-astro-cid-* posé sur les éléments
+  // du template ; ceux créés ici en JS ne l'ont pas. On le recopie sur chaque
+  // nœud créé, sinon les règles scopées (.actor…) ne s'appliquent jamais.
+  const SCOPE = section.getAttributeNames().find((n) => n.startsWith('data-astro-cid-'));
+  function applyScope(root: HTMLElement) {
+    if (!SCOPE) return;
+    root.setAttribute(SCOPE, '');
+    for (const el of root.querySelectorAll<HTMLElement>('*')) el.setAttribute(SCOPE, '');
+  }
+
+  const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+    'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+
+  function metaLabel(card: Card): string {
+    if (card.arcana === 'major') {
+      return card.number > 0 ? `${T['meta.major']} · ${ROMAN[card.number]}` : T['meta.major'];
+    }
+    return `${T['meta.minor']} · ${SUIT_NAMES[card.suit!][locale]}`;
+  }
+
+  function preload(src: string): Promise<void> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = src;
+    });
+  }
+
+  /** Écrit l'illustration + la méta dans une fiche déjà présente dans le DOM. */
+  function applyCard(art: HTMLElement, card: Card) {
+    const img = art.querySelector<HTMLImageElement>('.actor-card')!;
+    const meta = art.querySelector<HTMLElement>('.actor-meta')!;
+    img.src = `/cards/${card.image}`;
+    img.alt = card.name[locale];
+    meta.textContent = metaLabel(card);
+  }
 
   function makeActorEl(actor: Actor): HTMLElement | null {
     const card = cardById.get(actor.cardId);
@@ -51,20 +100,28 @@ const locale = Astro.params.lang as Locale;
     art.className = 'actor';
     art.dataset.id = actor.id;
 
+    const portrait = document.createElement('div');
+    portrait.className = 'actor-portrait';
+
     const img = document.createElement('img');
     img.className = 'actor-card';
-    img.src = `/cards/${card.image}`;
-    img.alt = card.name[locale];
     img.width = 120;
     img.height = 210;
     img.loading = 'lazy';
+    img.draggable = false;
+
+    const change = document.createElement('button');
+    change.type = 'button';
+    change.className = 'actor-change';
+    change.innerHTML = `<span class="actor-change-glyph" aria-hidden="true">⟳</span><span>${T['acteurs.change']}</span>`;
+
+    portrait.append(img, change);
 
     const fields = document.createElement('div');
     fields.className = 'actor-fields';
 
-    const arcana = document.createElement('span');
-    arcana.className = 'actor-arcana';
-    arcana.textContent = card.name[locale];
+    const meta = document.createElement('span');
+    meta.className = 'actor-meta';
 
     const name = document.createElement('input');
     name.className = 'actor-name';
@@ -79,27 +136,32 @@ const locale = Astro.params.lang as Locale;
     text.placeholder = T['acteurs.text'];
     text.value = actor.text;
 
-    fields.append(arcana, name, text);
+    fields.append(meta, name, text);
 
     const del = document.createElement('button');
     del.type = 'button';
     del.className = 'actor-del';
     del.setAttribute('aria-label', T['acteurs.delete']);
-    del.textContent = '×';
+    del.innerHTML = '<span aria-hidden="true">×</span>';
 
-    art.append(img, fields, del);
+    art.append(portrait, fields, del);
+    applyCard(art, card);
+    applyScope(art);
     return art;
   }
 
-  function usedCount() {
-    return world.actors.length;
-  }
-
   function refreshState() {
-    emptyEl.hidden = world.actors.length > 0;
-    const full = usedCount() >= cards.length;
+    const n = world.actors.length;
+    emptyEl.hidden = n > 0;
+    const full = n >= majors.length;
     drawBtn.disabled = full;
     allUsed.hidden = !full;
+    tally.hidden = n === 0;
+    tally.textContent = `${n} ${n === 1 ? T['acteurs.one'] : T['acteurs.many']}`;
+    // Impossible de changer de carte quand les 78 sont assignées.
+    for (const btn of list.querySelectorAll<HTMLButtonElement>('.actor-change')) {
+      btn.disabled = full;
+    }
   }
 
   // Rendu initial.
@@ -111,7 +173,7 @@ const locale = Astro.params.lang as Locale;
 
   drawBtn.addEventListener('click', () => {
     const used = new Set(world.actors.map((a) => a.cardId));
-    const pool = cards.filter((c) => !used.has(c.id));
+    const pool = majors.filter((c) => !used.has(c.id));
     if (!pool.length) return;
     const card = pool[Math.floor(Math.random() * pool.length)];
     const actor: Actor = { id: newId(), cardId: card.id, name: '', text: '' };
@@ -122,7 +184,7 @@ const locale = Astro.params.lang as Locale;
       list.appendChild(el);
       el.classList.add('reveal');
       el.querySelector<HTMLInputElement>('.actor-name')?.focus();
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
     }
     refreshState();
   });
@@ -138,32 +200,76 @@ const locale = Astro.params.lang as Locale;
     saveWorld(world);
   });
 
-  list.addEventListener('click', (e) => {
-    const del = (e.target as HTMLElement).closest<HTMLElement>('.actor-del');
-    if (!del) return;
-    const art = del.closest<HTMLElement>('.actor');
-    if (!art) return;
-    const idx = world.actors.findIndex((a) => a.id === art.dataset.id);
-    if (idx >= 0) {
-      world.actors.splice(idx, 1);
-      saveWorld(world);
+  list.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+
+    const del = target.closest<HTMLElement>('.actor-del');
+    if (del) {
+      const art = del.closest<HTMLElement>('.actor');
+      if (!art) return;
+      const idx = world.actors.findIndex((a) => a.id === art.dataset.id);
+      if (idx >= 0) {
+        world.actors.splice(idx, 1);
+        saveWorld(world);
+      }
+      if (reduceMotion) {
+        art.remove();
+        refreshState();
+      } else {
+        art.classList.add('leaving');
+        art.addEventListener('transitionend', () => {
+          art.remove();
+          refreshState();
+        }, { once: true });
+      }
+      return;
     }
-    art.remove();
-    refreshState();
+
+    const change = target.closest<HTMLButtonElement>('.actor-change');
+    if (change) {
+      const art = change.closest<HTMLElement>('.actor');
+      if (!art || change.disabled) return;
+      const actor = world.actors.find((a) => a.id === art.dataset.id);
+      if (!actor) return;
+      const used = new Set(world.actors.map((a) => a.cardId));
+      const pool = majors.filter((c) => !used.has(c.id)); // exclut la carte actuelle
+      if (!pool.length) return;
+      const card = pool[Math.floor(Math.random() * pool.length)];
+      actor.cardId = card.id;
+      saveWorld(world);
+
+      await preload(`/cards/${card.image}`);
+      if (reduceMotion) {
+        applyCard(art, card);
+      } else {
+        art.classList.add('swapping');
+        window.setTimeout(() => {
+          applyCard(art, card);
+          art.classList.remove('swapping');
+        }, SWAP_MS);
+      }
+    }
   });
 </script>
 
 <style>
   .acteurs {
     display: grid;
-    gap: 1.75rem;
-    max-width: 46rem;
+    gap: 2rem;
+    max-width: 48rem;
     margin: 0 auto;
   }
   .lede {
     text-align: center;
     max-width: 34rem;
     margin: 0 auto;
+  }
+  .eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--accent);
   }
   .lede h1 {
     font-size: clamp(2.6rem, 6vw, 3.6rem);
@@ -173,13 +279,19 @@ const locale = Astro.params.lang as Locale;
     color: var(--muted);
     margin: 0;
   }
+
+  /* ---- Barre d'action ---- */
   .acteurs-bar {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.6rem;
+    justify-content: center;
+    gap: 0.75rem 1rem;
   }
   .btn-draw {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     font-family: var(--font-body);
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -190,7 +302,11 @@ const locale = Astro.params.lang as Locale;
     background: var(--accent);
     color: var(--ground);
     cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-draw-glyph {
+    font-size: 0.95rem;
+    line-height: 1;
   }
   .btn-draw:hover:not(:disabled) {
     background: #d9b45c;
@@ -200,7 +316,18 @@ const locale = Astro.params.lang as Locale;
     opacity: 0.5;
     cursor: default;
   }
+  .tally {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
   .all-used {
+    flex-basis: 100%;
+    text-align: center;
     margin: 0;
     font-size: 0.85rem;
     color: var(--muted);
@@ -211,55 +338,120 @@ const locale = Astro.params.lang as Locale;
     font-style: italic;
     margin: 0;
   }
+
+  /* ---- Fiches acteurs ---- */
   .actor-list {
     display: grid;
-    gap: 1rem;
+    gap: 1.1rem;
   }
   .actor {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    gap: 1rem;
+    gap: 1.4rem;
     align-items: start;
-    padding: 1rem;
+    padding: 1.2rem 1.3rem;
     border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--panel);
+    border-radius: 16px;
+    background:
+      linear-gradient(180deg, rgba(240, 226, 196, 0.05), rgba(240, 226, 196, 0.015));
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+  .actor:hover {
+    border-color: rgba(201, 164, 76, 0.45);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
   .actor.reveal {
-    animation: actor-in 0.4s ease;
+    animation: actor-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .actor.leaving {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
   }
   @keyframes actor-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(10px);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
+
+  .actor-portrait {
+    display: grid;
+    gap: 0.55rem;
+    justify-items: center;
+  }
   .actor-card {
-    width: 84px;
+    width: 108px;
     height: auto;
     aspect-ratio: 1100 / 1920;
     object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line);
+    border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--line),
+      0 0 28px rgba(201, 164, 76, 0.12);
+    transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.4, 0.15, 0.2, 1);
   }
+  .actor:hover .actor-card {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 164, 76, 0.5),
+      0 0 34px rgba(201, 164, 76, 0.22);
+  }
+  .actor.swapping .actor-card {
+    opacity: 0;
+    transform: scale(0.94) rotate(-3deg);
+  }
+  .actor-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
+      opacity 0.2s ease;
+  }
+  .actor-change-glyph {
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: transform 0.4s ease;
+  }
+  .actor-change:hover:not(:disabled) {
+    color: var(--accent);
+    border-color: var(--line);
+    background: rgba(201, 164, 76, 0.08);
+  }
+  .actor-change:hover:not(:disabled) .actor-change-glyph {
+    transform: rotate(180deg);
+  }
+  .actor-change:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
   .actor-fields {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.55rem;
     min-width: 0;
   }
-  .actor-arcana {
+  .actor-meta {
     font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     color: var(--accent);
   }
   .actor-name {
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.55rem;
+    line-height: 1.15;
     color: var(--text);
     background: transparent;
     border: none;
@@ -267,7 +459,7 @@ const locale = Astro.params.lang as Locale;
     padding: 0.15rem 0.1rem;
   }
   .actor-name::placeholder {
-    color: rgba(240, 226, 196, 0.35);
+    color: rgba(240, 226, 196, 0.32);
     font-style: italic;
   }
   .actor-name:focus {
@@ -282,16 +474,18 @@ const locale = Astro.params.lang as Locale;
     background: rgba(240, 226, 196, 0.03);
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 0.5rem 0.65rem;
+    padding: 0.55rem 0.7rem;
     resize: vertical;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
   }
   .actor-text::placeholder {
-    color: rgba(240, 226, 196, 0.35);
+    color: rgba(240, 226, 196, 0.32);
     font-style: italic;
   }
   .actor-text:focus {
     outline: none;
     border-color: var(--accent);
+    background: rgba(240, 226, 196, 0.05);
   }
   .actor-del {
     flex: none;
@@ -309,16 +503,18 @@ const locale = Astro.params.lang as Locale;
   .actor-del:hover {
     color: var(--accent-2);
     border-color: var(--accent-2);
-    background: rgba(181, 83, 47, 0.1);
+    background: rgba(181, 83, 47, 0.12);
   }
 
   @media (max-width: 34rem) {
     .actor {
       grid-template-columns: auto 1fr;
-      grid-template-areas: 'card del' 'fields fields';
+      grid-template-areas: 'portrait del' 'portrait fields';
+      column-gap: 1.1rem;
+      row-gap: 0.6rem;
     }
-    .actor-card {
-      grid-area: card;
+    .actor-portrait {
+      grid-area: portrait;
     }
     .actor-del {
       grid-area: del;
@@ -327,10 +523,18 @@ const locale = Astro.params.lang as Locale;
     .actor-fields {
       grid-area: fields;
     }
+    .actor-card {
+      width: 92px;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .actor.reveal {
       animation: none;
+    }
+    .actor,
+    .actor-card,
+    .actor-change-glyph {
+      transition: none;
     }
   }
 </style>

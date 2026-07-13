@@ -9,6 +9,8 @@ export interface Actor {
 export interface Question {
   id: string;
   text: string;
+  /** Fil résolu ? (barré, estompé, mais conservé). */
+  done: boolean;
 }
 
 export interface World {
@@ -50,7 +52,11 @@ export function loadWorld(): World {
     if (Array.isArray(parsed.questions)) {
       for (const q of parsed.questions) {
         if (q && typeof q === 'object' && typeof (q as Question).text === 'string') {
-          world.questions.push({ id: str((q as Question).id) || newId(), text: (q as Question).text });
+          world.questions.push({
+            id: str((q as Question).id) || newId(),
+            text: (q as Question).text,
+            done: (q as Question).done === true,
+          });
         }
       }
     }
