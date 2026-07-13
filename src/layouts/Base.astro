@@ -42,6 +42,8 @@ const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
         <span>{t(locale, 'site.title')}</span>
       </a>
       <nav>
+        <a class="nav-link" href={`/${locale}/tarot/`}>{t(locale, 'nav.tarot')}</a>
+        <a class="nav-link" href={`/${locale}/coin/`}>{t(locale, 'nav.coin')}</a>
         <a class="nav-link" href={`/${locale}/credits/`}>{t(locale, 'nav.credits')}</a>
         <LangToggle locale={locale} />
       </nav>
@@ -117,7 +119,8 @@ const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
         max-width: var(--maxw);
         width: 100%;
         margin: 0 auto;
@@ -126,7 +129,8 @@ const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
       .site-header nav {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
       }
       .brand {
         display: inline-flex;

@@ -1,0 +1,255 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Base locale={locale} title={t(locale, 'nav.coin')}>
+  <section class="coin-app" data-locale={locale}>
+    <div class="lede">
+      <h1>{t(locale, 'coin.heading')}</h1>
+      <p class="intro">{t(locale, 'coin.intro')}</p>
+    </div>
+
+    <div class="coin-stage">
+      <div class="coin-toss" id="toss">
+        <div class="coin" id="coin">
+          <div class="coin-face face-sun">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="emblem" cx="60" cy="60" r="15" />
+              <g class="emblem-stroke">
+                <line x1="60" y1="18" x2="60" y2="34" />
+                <line x1="60" y1="86" x2="60" y2="102" />
+                <line x1="18" y1="60" x2="34" y2="60" />
+                <line x1="86" y1="60" x2="102" y2="60" />
+                <line x1="30" y1="30" x2="41" y2="41" />
+                <line x1="90" y1="30" x2="79" y2="41" />
+                <line x1="30" y1="90" x2="41" y2="79" />
+                <line x1="90" y1="90" x2="79" y2="79" />
+              </g>
+            </svg>
+          </div>
+          <div class="coin-face face-moon">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <path class="emblem" d="M78 60a30 30 0 1 1-26-29.7A23 23 0 1 0 78 60Z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="coin-result" aria-live="polite">
+      <p class="placeholder" id="placeholder">{t(locale, 'coin.placeholder')}</p>
+      <p class="result" id="result" hidden></p>
+    </div>
+
+    <button type="button" class="btn-flip" id="btn-flip">{t(locale, 'action.flip')}</button>
+  </section>
+</Base>
+
+<script>
+  import { ui, type Locale } from '../../lib/i18n';
+  import { flipCoin } from '../../lib/coin';
+
+  const app = document.querySelector<HTMLElement>('.coin-app')!;
+  const locale = app.dataset.locale as Locale;
+  const T = ui[locale];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FLIP_MS = 1100;
+
+  const coin = document.querySelector<HTMLElement>('#coin')!;
+  const toss = document.querySelector<HTMLElement>('#toss')!;
+  const btn = document.querySelector<HTMLButtonElement>('#btn-flip')!;
+  const placeholder = document.querySelector<HTMLElement>('#placeholder')!;
+  const result = document.querySelector<HTMLElement>('#result')!;
+
+  let rotation = 0; // degrés cumulés sur l'axe X
+  const rand = () => Math.random();
+
+  function showResult(side: 'heads' | 'tails') {
+    const isHeads = side === 'heads';
+    result.textContent = `${isHeads ? '☀' : '☾'} ${isHeads ? T['coin.heads'] : T['coin.tails']}`;
+    result.classList.toggle('is-tails', !isHeads);
+    placeholder.hidden = true;
+    result.hidden = false;
+    btn.textContent = T['action.flipAgain'];
+  }
+
+  btn.addEventListener('click', () => {
+    const side = flipCoin();
+
+    // Face (Soleil) → rotation ≡ 0 (mod 360) ; Pile (Lune) → ≡ 180.
+    const target = side === 'heads' ? 0 : 180;
+    const spins = 4 + Math.floor(rand() * 3); // 4 à 6 tours
+    rotation += spins * 360;
+    rotation += ((target - (rotation % 360)) + 360) % 360;
+
+    if (reduceMotion) {
+      coin.style.transform = `rotateX(${rotation}deg)`;
+      showResult(side);
+      return;
+    }
+
+    btn.disabled = true;
+    result.classList.add('is-fading');
+
+    coin.style.transform = `rotateX(${rotation}deg)`;
+    toss.classList.remove('is-tossing');
+    void toss.offsetWidth; // relance l'animation
+    toss.classList.add('is-tossing');
+
+    window.setTimeout(() => {
+      showResult(side);
+      result.classList.remove('is-fading');
+      btn.disabled = false;
+    }, FLIP_MS);
+  });
+</script>
+
+<style>
+  .coin-app {
+    display: grid;
+    justify-items: center;
+    gap: 2rem;
+    padding-top: 1rem;
+  }
+  .lede {
+    text-align: center;
+    max-width: 32rem;
+  }
+  .lede h1 {
+    font-size: clamp(2.6rem, 6vw, 3.8rem);
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .coin-stage {
+    perspective: 900px;
+    padding: 1.5rem 0;
+  }
+  .coin-toss {
+    width: 190px;
+    height: 190px;
+  }
+  .coin-toss.is-tossing {
+    animation: toss var(--flip, 1100ms) ease-in-out;
+  }
+  .coin {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1100ms cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  .coin-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background:
+      radial-gradient(circle at 36% 30%, #f6e2a4 0%, #d4b25c 42%, #b58e3b 70%, #8a6a2c 100%);
+    box-shadow:
+      inset 0 0 0 6px rgba(138, 106, 44, 0.5),
+      inset 0 6px 14px rgba(255, 246, 214, 0.45),
+      inset 0 -8px 16px rgba(90, 66, 24, 0.55),
+      0 16px 34px rgba(0, 0, 0, 0.5);
+  }
+  .face-sun {
+    transform: rotateX(0deg) translateZ(5px);
+  }
+  .face-moon {
+    transform: rotateX(180deg) translateZ(5px);
+  }
+  .coin-face svg {
+    width: 100%;
+    height: 100%;
+  }
+  .emblem {
+    fill: #7a5c24;
+    opacity: 0.85;
+  }
+  .emblem-stroke {
+    stroke: #7a5c24;
+    stroke-width: 5;
+    stroke-linecap: round;
+    opacity: 0.85;
+  }
+
+  .coin-result {
+    min-height: 3.2rem;
+    display: flex;
+    align-items: center;
+    text-align: center;
+  }
+  .placeholder {
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .result {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 3.2rem);
+    font-weight: 600;
+    margin: 0;
+    color: var(--accent);
+    transition: opacity 0.25s ease;
+  }
+  .result.is-tails {
+    color: #a9b6d6; /* clair lunaire */
+  }
+  .result.is-fading {
+    opacity: 0;
+  }
+
+  .btn-flip {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 0.7rem 1.9rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ground);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-flip:hover:not(:disabled) {
+    background: #d9b45c;
+    box-shadow: 0 0 24px rgba(201, 164, 76, 0.35);
+  }
+  .btn-flip:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  @keyframes toss {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    45% {
+      transform: translateY(-70px) scale(1.06);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .coin {
+      transition: none;
+    }
+    .coin-toss.is-tossing {
+      animation: none;
+    }
+  }
+</style>

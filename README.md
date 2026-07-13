@@ -1,10 +1,14 @@
-# Tarot Rider-Waite-Smith
+# Les Terres Libres
 
-Site statique de tirage de tarot **Rider-Waite-Smith**, bilingue **FR / EN**.
-Tirage d'une carte sur le jeu complet, les arcanes majeurs ou les mineurs, avec
-option de cartes inversées. Illustrations et textes issus du **domaine public**.
+Hub statique de hasard, bilingue **FR / EN**, autour de deux univers :
+
+- **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
+  mineurs), option de cartes inversées. Illustrations et textes **domaine public**.
+- **Pièce** — pile ou face (Soleil / Lune), lancer 3D.
 
 Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
+
+Routes : `/{lang}` (hub) · `/{lang}/tarot` · `/{lang}/coin` · `/{lang}/credits`.
 
 ## Développement
 
@@ -31,10 +35,11 @@ src/
   lib/
     types.ts           # types Card / CardContent
     deck.ts            # filtres de jeu + tirage (drawCard)
+    coin.ts            # lancer de pièce (flipCoin)
     i18n.ts            # libellés d'UI FR/EN
-  layouts/Base.astro   # layout, header, hreflang
+  layouts/Base.astro   # layout, header (nav), hreflang
   components/           # LangToggle, …
-  pages/[lang]/         # index (tirage) + credits
+  pages/[lang]/         # index (hub) + tarot + coin + credits
 public/cards/           # 78 illustrations WebP + back.svg + manifest.json
 scripts/fetch-cards.mjs # (re)télécharge et convertit les illustrations
 ```
