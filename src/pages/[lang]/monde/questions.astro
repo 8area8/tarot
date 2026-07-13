@@ -1,0 +1,241 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Base locale={locale} title={t(locale, 'monde.questions')}>
+  <section class="questions" data-locale={locale}>
+    <div class="lede">
+      <h1>{t(locale, 'monde.questions')}</h1>
+      <p class="intro">{t(locale, 'questions.intro')}</p>
+    </div>
+
+    <form class="q-add" id="q-add">
+      <input
+        type="text"
+        id="q-input"
+        maxlength="200"
+        autocomplete="off"
+        placeholder={t(locale, 'questions.add.ph')}
+      />
+      <button type="submit" class="btn-add">{t(locale, 'questions.add')}</button>
+    </form>
+
+    <p class="empty" id="empty" hidden>{t(locale, 'questions.empty')}</p>
+    <ol class="q-list" id="q-list"></ol>
+  </section>
+</Base>
+
+<script>
+  import { ui, type Locale } from '../../../lib/i18n';
+  import { loadWorld, saveWorld, newId, type Question } from '../../../lib/world';
+
+  const section = document.querySelector<HTMLElement>('.questions')!;
+  const locale = section.dataset.locale as Locale;
+  const T = ui[locale];
+
+  const form = document.querySelector<HTMLFormElement>('#q-add')!;
+  const input = document.querySelector<HTMLInputElement>('#q-input')!;
+  const emptyEl = document.querySelector<HTMLElement>('#empty')!;
+  const list = document.querySelector<HTMLOListElement>('#q-list')!;
+
+  const world = loadWorld();
+
+  function makeItem(q: Question): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'q-item';
+    li.dataset.id = q.id;
+
+    const field = document.createElement('input');
+    field.className = 'q-text';
+    field.type = 'text';
+    field.maxLength = 200;
+    field.value = q.text;
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'q-del';
+    del.setAttribute('aria-label', T['questions.delete']);
+    del.textContent = '×';
+
+    li.append(field, del);
+    return li;
+  }
+
+  function refreshEmpty() {
+    emptyEl.hidden = world.questions.length > 0;
+  }
+
+  for (const q of world.questions) list.appendChild(makeItem(q));
+  refreshEmpty();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    const q: Question = { id: newId(), text };
+    world.questions.push(q);
+    saveWorld(world);
+    list.appendChild(makeItem(q));
+    input.value = '';
+    input.focus();
+    refreshEmpty();
+  });
+
+  list.addEventListener('input', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.classList.contains('q-text')) return;
+    const li = target.closest<HTMLElement>('.q-item');
+    const q = world.questions.find((x) => x.id === li?.dataset.id);
+    if (q) {
+      q.text = (target as HTMLInputElement).value;
+      saveWorld(world);
+    }
+  });
+
+  list.addEventListener('click', (e) => {
+    const del = (e.target as HTMLElement).closest<HTMLElement>('.q-del');
+    if (!del) return;
+    const li = del.closest<HTMLElement>('.q-item');
+    const idx = world.questions.findIndex((x) => x.id === li?.dataset.id);
+    if (idx >= 0) {
+      world.questions.splice(idx, 1);
+      saveWorld(world);
+    }
+    li?.remove();
+    refreshEmpty();
+  });
+</script>
+
+<style>
+  .questions {
+    display: grid;
+    gap: 1.75rem;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+  .lede {
+    text-align: center;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+  .lede h1 {
+    font-size: clamp(2.6rem, 6vw, 3.6rem);
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    color: var(--muted);
+    margin: 0;
+  }
+  .q-add {
+    display: flex;
+    gap: 0.6rem;
+  }
+  #q-input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    color: var(--text);
+    background: rgba(240, 226, 196, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+  }
+  #q-input::placeholder {
+    color: rgba(240, 226, 196, 0.4);
+    font-style: italic;
+  }
+  #q-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .btn-add {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.6rem 1.3rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ground);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .btn-add:hover {
+    background: #d9b45c;
+  }
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .q-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    counter-reset: q;
+  }
+  .q-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    position: relative;
+    counter-increment: q;
+  }
+  .q-item::before {
+    content: counter(q);
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--accent);
+    opacity: 0.75;
+    min-width: 1.1rem;
+    text-align: center;
+  }
+  .q-text {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 1.02rem;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    padding: 0.35rem 0.2rem;
+  }
+  .q-text:focus {
+    outline: none;
+  }
+  .q-del {
+    flex: none;
+    width: 1.9rem;
+    height: 1.9rem;
+    line-height: 1;
+    font-size: 1.25rem;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .q-del:hover {
+    color: var(--accent-2);
+    border-color: var(--accent-2);
+    background: rgba(181, 83, 47, 0.1);
+  }
+</style>

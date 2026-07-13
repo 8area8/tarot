@@ -22,6 +22,9 @@ type NavEntry = { href: string; label: string } | 'sep';
 const subnav: NavEntry[] = [
   { href: `/${locale}/personnage/`, label: t(locale, 'profil.heading') },
   'sep',
+  { href: `/${locale}/monde/acteurs/`, label: t(locale, 'monde.acteurs') },
+  { href: `/${locale}/monde/questions/`, label: t(locale, 'monde.questions.short') },
+  'sep',
   { href: `/${locale}/agir/action/`, label: t(locale, 'agir.heading') },
   { href: `/${locale}/agir/confrontation/`, label: t(locale, 'confront.heading') },
   'sep',

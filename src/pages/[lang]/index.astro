@@ -17,6 +17,13 @@ const groups: ListGroup[] = [
     ],
   },
   {
+    title: t(locale, 'nav.monde'),
+    items: [
+      { href: `/${locale}/monde/acteurs/`, name: t(locale, 'monde.acteurs'), desc: t(locale, 'hub.acteurs.desc'), icon: 'acteurs' },
+      { href: `/${locale}/monde/questions/`, name: t(locale, 'monde.questions'), desc: t(locale, 'hub.questions.desc'), icon: 'questions' },
+    ],
+  },
+  {
     title: t(locale, 'nav.agir'),
     items: [
       { href: `/${locale}/agir/action/`, name: t(locale, 'agir.heading'), desc: t(locale, 'agir.action.desc'), icon: 'action' },

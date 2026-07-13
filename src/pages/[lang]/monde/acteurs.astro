@@ -1,0 +1,336 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { LOCALES, type Locale, t } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Base locale={locale} title={t(locale, 'monde.acteurs')}>
+  <section class="acteurs" data-locale={locale}>
+    <div class="lede">
+      <h1>{t(locale, 'monde.acteurs')}</h1>
+      <p class="intro">{t(locale, 'acteurs.intro')}</p>
+    </div>
+
+    <div class="acteurs-bar">
+      <button type="button" class="btn-draw" id="draw-actor">{t(locale, 'acteurs.draw')}</button>
+      <p class="all-used" id="all-used" hidden>{t(locale, 'acteurs.allUsed')}</p>
+    </div>
+
+    <p class="empty" id="empty" hidden>{t(locale, 'acteurs.empty')}</p>
+    <div class="actor-list" id="actor-list"></div>
+  </section>
+</Base>
+
+<script>
+  import { ui, type Locale } from '../../../lib/i18n';
+  import { loadWorld, saveWorld, newId, type Actor } from '../../../lib/world';
+  import { cards } from '../../../data/cards';
+
+  const section = document.querySelector<HTMLElement>('.acteurs')!;
+  const locale = section.dataset.locale as Locale;
+  const T = ui[locale];
+
+  const drawBtn = document.querySelector<HTMLButtonElement>('#draw-actor')!;
+  const allUsed = document.querySelector<HTMLElement>('#all-used')!;
+  const emptyEl = document.querySelector<HTMLElement>('#empty')!;
+  const list = document.querySelector<HTMLElement>('#actor-list')!;
+
+  const world = loadWorld();
+  const cardById = new Map(cards.map((c) => [c.id, c]));
+
+  function makeActorEl(actor: Actor): HTMLElement | null {
+    const card = cardById.get(actor.cardId);
+    if (!card) return null;
+
+    const art = document.createElement('article');
+    art.className = 'actor';
+    art.dataset.id = actor.id;
+
+    const img = document.createElement('img');
+    img.className = 'actor-card';
+    img.src = `/cards/${card.image}`;
+    img.alt = card.name[locale];
+    img.width = 120;
+    img.height = 210;
+    img.loading = 'lazy';
+
+    const fields = document.createElement('div');
+    fields.className = 'actor-fields';
+
+    const arcana = document.createElement('span');
+    arcana.className = 'actor-arcana';
+    arcana.textContent = card.name[locale];
+
+    const name = document.createElement('input');
+    name.className = 'actor-name';
+    name.type = 'text';
+    name.maxLength = 60;
+    name.placeholder = T['acteurs.name'];
+    name.value = actor.name;
+
+    const text = document.createElement('textarea');
+    text.className = 'actor-text';
+    text.rows = 3;
+    text.placeholder = T['acteurs.text'];
+    text.value = actor.text;
+
+    fields.append(arcana, name, text);
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'actor-del';
+    del.setAttribute('aria-label', T['acteurs.delete']);
+    del.textContent = '×';
+
+    art.append(img, fields, del);
+    return art;
+  }
+
+  function usedCount() {
+    return world.actors.length;
+  }
+
+  function refreshState() {
+    emptyEl.hidden = world.actors.length > 0;
+    const full = usedCount() >= cards.length;
+    drawBtn.disabled = full;
+    allUsed.hidden = !full;
+  }
+
+  // Rendu initial.
+  for (const actor of world.actors) {
+    const el = makeActorEl(actor);
+    if (el) list.appendChild(el);
+  }
+  refreshState();
+
+  drawBtn.addEventListener('click', () => {
+    const used = new Set(world.actors.map((a) => a.cardId));
+    const pool = cards.filter((c) => !used.has(c.id));
+    if (!pool.length) return;
+    const card = pool[Math.floor(Math.random() * pool.length)];
+    const actor: Actor = { id: newId(), cardId: card.id, name: '', text: '' };
+    world.actors.push(actor);
+    saveWorld(world);
+    const el = makeActorEl(actor);
+    if (el) {
+      list.appendChild(el);
+      el.classList.add('reveal');
+      el.querySelector<HTMLInputElement>('.actor-name')?.focus();
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    refreshState();
+  });
+
+  list.addEventListener('input', (e) => {
+    const target = e.target as HTMLElement;
+    const art = target.closest<HTMLElement>('.actor');
+    if (!art) return;
+    const actor = world.actors.find((a) => a.id === art.dataset.id);
+    if (!actor) return;
+    if (target.classList.contains('actor-name')) actor.name = (target as HTMLInputElement).value;
+    else if (target.classList.contains('actor-text')) actor.text = (target as HTMLTextAreaElement).value;
+    saveWorld(world);
+  });
+
+  list.addEventListener('click', (e) => {
+    const del = (e.target as HTMLElement).closest<HTMLElement>('.actor-del');
+    if (!del) return;
+    const art = del.closest<HTMLElement>('.actor');
+    if (!art) return;
+    const idx = world.actors.findIndex((a) => a.id === art.dataset.id);
+    if (idx >= 0) {
+      world.actors.splice(idx, 1);
+      saveWorld(world);
+    }
+    art.remove();
+    refreshState();
+  });
+</script>
+
+<style>
+  .acteurs {
+    display: grid;
+    gap: 1.75rem;
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  .lede {
+    text-align: center;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+  .lede h1 {
+    font-size: clamp(2.6rem, 6vw, 3.6rem);
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    color: var(--muted);
+    margin: 0;
+  }
+  .acteurs-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .btn-draw {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 0.7rem 1.8rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ground);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-draw:hover:not(:disabled) {
+    background: #d9b45c;
+    box-shadow: 0 0 24px rgba(201, 164, 76, 0.35);
+  }
+  .btn-draw:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .all-used {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .actor-list {
+    display: grid;
+    gap: 1rem;
+  }
+  .actor {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+  }
+  .actor.reveal {
+    animation: actor-in 0.4s ease;
+  }
+  @keyframes actor-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .actor-card {
+    width: 84px;
+    height: auto;
+    aspect-ratio: 1100 / 1920;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line);
+  }
+  .actor-fields {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+  .actor-arcana {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+  }
+  .actor-name {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 0.15rem 0.1rem;
+  }
+  .actor-name::placeholder {
+    color: rgba(240, 226, 196, 0.35);
+    font-style: italic;
+  }
+  .actor-name:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+  .actor-text {
+    font-family: var(--font-body);
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--text);
+    background: rgba(240, 226, 196, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    resize: vertical;
+  }
+  .actor-text::placeholder {
+    color: rgba(240, 226, 196, 0.35);
+    font-style: italic;
+  }
+  .actor-text:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .actor-del {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    line-height: 1;
+    font-size: 1.3rem;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .actor-del:hover {
+    color: var(--accent-2);
+    border-color: var(--accent-2);
+    background: rgba(181, 83, 47, 0.1);
+  }
+
+  @media (max-width: 34rem) {
+    .actor {
+      grid-template-columns: auto 1fr;
+      grid-template-areas: 'card del' 'fields fields';
+    }
+    .actor-card {
+      grid-area: card;
+    }
+    .actor-del {
+      grid-area: del;
+      justify-self: end;
+    }
+    .actor-fields {
+      grid-area: fields;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .actor.reveal {
+      animation: none;
+    }
+  }
+</style>

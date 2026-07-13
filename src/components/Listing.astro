@@ -3,7 +3,7 @@ export interface ListItem {
   href: string;
   name: string;
   desc: string;
-  icon: 'profil' | 'action' | 'confrontation' | 'tarot' | 'coin';
+  icon: 'profil' | 'acteurs' | 'questions' | 'action' | 'confrontation' | 'tarot' | 'coin';
 }
 export interface ListGroup {
   title?: string;
@@ -20,6 +20,17 @@ const EMBLEMS: Record<ListItem['icon'], string> = {
     <path d="M40 12 L64 60 H16 Z" />
     <path d="M14 40 H30" stroke-width="1.6" />
     <path d="M46 44 l18 -7M47 50 l17 0M46 56 l18 7" stroke-width="1.6" opacity="0.9" />
+  </svg>`,
+  acteurs: `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="30" cy="30" r="9" />
+    <path d="M15 58 a15 15 0 0 1 30 0" stroke-linecap="round" />
+    <circle cx="52" cy="34" r="8" opacity="0.65" />
+    <path d="M41 60 a12 12 0 0 1 24 0" opacity="0.65" stroke-linecap="round" />
+  </svg>`,
+  questions: `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="40" cy="40" r="28" />
+    <path d="M31 32 a9 9 0 1 1 13 8 c-3 2 -4 4 -4 7" stroke-linecap="round" />
+    <circle cx="40" cy="57" r="1.8" fill="currentColor" stroke="none" />
   </svg>`,
   action: `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2">
     <circle cx="40" cy="40" r="28" />

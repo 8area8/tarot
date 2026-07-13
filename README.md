@@ -7,6 +7,11 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
   éloquence, créativité, persévérance), chacun réglé sur un équilibre
   (confiant / équilibré / risqué). Sauvegarde automatique en localStorage,
   avec un visuel de prisme réfractant qui réagit à la configuration.
+- **Monde** :
+  - **Acteurs** : tire une carte de tarot non encore assignée pour incarner un
+    acteur, puis nomme-le et décris-le ; suppression possible.
+  - **Questions suspendues** : une liste de questions/fils narratifs, ajout,
+    édition et suppression. (Tout en localStorage.)
 - **Agir** :
   - **Action** : tente une action incertaine portée par un prisme. L'équilibre
     fixe le nombre de lancers de pièce (risqué 1, équilibré 2, confiant 3) ; on
@@ -25,7 +30,8 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
 
 Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
 
-Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/agir`
+Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/monde`
+(· `/monde/acteurs` · `/monde/questions`) · `/{lang}/agir`
 (· `/agir/action` · `/agir/confrontation`) · `/{lang}/oracles`
 (· `/oracles/tarot` · `/oracles/coin`) · `/{lang}/credits`.
 
@@ -56,13 +62,15 @@ src/
     deck.ts            # filtres de jeu + tirage (drawCard)
     coin.ts            # lancer de pièce (flipCoin)
     profile.ts         # personnage : prismes + load/save localStorage
+    world.ts           # monde : acteurs + questions + load/save localStorage
     i18n.ts            # libellés d'UI FR/EN
   layouts/Base.astro   # layout, header (nav), hreflang
   components/           # LangToggle, …
   pages/[lang]/
     index.astro        # hub (Personnage / Agir / Oracles)
-    personnage.astro   # profil (nom + prismes)
+    personnage.astro   # profil (nom + arcane + prismes)
     credits.astro
+    monde/             # index (Acteurs / Questions) + acteurs + questions
     agir/              # index (Action / Confrontation) + action + confrontation
     oracles/           # index (Tarot / Pièce) + tarot + coin
 public/cards/           # 78 illustrations WebP + back.svg + manifest.json

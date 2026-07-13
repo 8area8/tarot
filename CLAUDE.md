@@ -49,6 +49,7 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 | `src/lib/deck.ts` | `getDeck()`, `drawCard()` (tarot) |
 | `src/lib/coin.ts` | `flipCoin()` → `'heads'` (Face/Soleil) \| `'tails'` (Pile/Lune) |
 | `src/lib/profile.ts` | `PRISMS`, `BALANCES`, `Profile` (name + `arcana` majeure + prisms), `load/saveProfile` (localStorage) |
+| `src/lib/world.ts` | `Actor`, `Question`, `World`, `newId`, `load/saveWorld` (localStorage, clé `ltl.world.v1`) — partie Monde |
 | `src/data/cards.ts` | 78 cartes (22 majeurs rédigés + 56 mineurs) |
 | `src/data/minor-content.ts` | significations des 56 mineurs |
 | `public/cards/` | 78 WebP + `back.svg` + `manifest.json` (provenance) |
