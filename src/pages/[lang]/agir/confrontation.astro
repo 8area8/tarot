@@ -182,17 +182,27 @@ const loseSegs = [0, 1, 2]; // Échec : premier à 3
   }
   setRoundLabel();
 
-  function paintGauge(segsArr: HTMLElement[], value: number) {
-    segsArr.forEach((s, i) => {
-      const on = i < value;
-      if (on && !s.classList.contains('on')) s.classList.add('on', 'just');
-      else if (!on) s.classList.remove('on', 'just');
-    });
+  // Allume les crans [from, to) avec la couleur du prisme du round.
+  function fillSegs(segsArr: HTMLElement[], from: number, to: number, color: string) {
+    for (let i = from; i < to; i++) {
+      const s = segsArr[i];
+      if (!s) continue;
+      s.style.setProperty('--c', color);
+      s.classList.add('on', 'just');
+    }
     window.setTimeout(() => segsArr.forEach((s) => s.classList.remove('just')), 500);
   }
 
-  function floatPoints(el: HTMLElement, pts: number) {
+  function clearSegs(segsArr: HTMLElement[]) {
+    segsArr.forEach((s) => {
+      s.classList.remove('on', 'just');
+      s.style.removeProperty('--c');
+    });
+  }
+
+  function floatPoints(el: HTMLElement, pts: number, color: string) {
     el.textContent = `+${pts}`;
+    el.style.color = color;
     el.classList.remove('go');
     void el.offsetWidth;
     el.classList.add('go');
@@ -262,14 +272,17 @@ const loseSegs = [0, 1, 2]; // Échec : premier à 3
 
     const crit = success ? selectedBalance === 'risky' : selectedBalance === 'confident';
     const pts = crit ? 2 : 1;
+    const color = PRISM_COLOR[selected];
     if (success) {
+      const prev = win;
       win = Math.min(WIN_TARGET, win + pts);
-      paintGauge(winSegs, win);
-      floatPoints(floatWin, pts);
+      fillSegs(winSegs, prev, win, color);
+      floatPoints(floatWin, pts, color);
     } else {
+      const prev = lose;
       lose = Math.min(LOSE_TARGET, lose + pts);
-      paintGauge(loseSegs, lose);
-      floatPoints(floatLose, pts);
+      fillSegs(loseSegs, prev, lose, color);
+      floatPoints(floatLose, pts, color);
     }
     addLog(selected, success, pts, crit);
 
@@ -302,8 +315,8 @@ const loseSegs = [0, 1, 2]; // Échec : premier à 3
     round = 1;
     over = false;
     selected = null;
-    paintGauge(winSegs, 0);
-    paintGauge(loseSegs, 0);
+    clearSegs(winSegs);
+    clearSegs(loseSegs);
     logEl.replaceChildren();
     resetSlots();
     slotEls.forEach((s) => (s.hidden = true));
@@ -384,15 +397,18 @@ const loseSegs = [0, 1, 2]; // Échec : premier à 3
     background: rgba(240, 226, 196, 0.04);
     transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
   }
-  .gauge-win .seg.on {
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 12px -1px var(--accent);
+  /* crans vides : teinte discrète propre à la jauge (identité Victoire/Échec) */
+  .gauge-win .seg {
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
   }
-  .gauge-lose .seg.on {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    box-shadow: 0 0 12px -1px var(--accent-2);
+  .gauge-lose .seg {
+    border-color: color-mix(in srgb, var(--accent-2) 30%, var(--line));
+  }
+  /* cran allumé : couleur du prisme qui a marqué ce point */
+  .seg.on {
+    background: var(--c, var(--accent));
+    border-color: var(--c, var(--accent));
+    box-shadow: 0 0 12px -1px var(--c, var(--accent));
   }
   .seg.just {
     transform: translateY(-3px) scaleY(1.15);
