@@ -60,11 +60,11 @@ const locale = Astro.params.lang as Locale;
         <line class="beam" x1="16" y1="130" x2="150" y2="130" />
         <path class="prism-shape" d="M150 76 L150 184 L216 130 Z" />
         <g class="rays" stroke-linecap="round">
-          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" x1="216" y1="130" x2="448" y2="44" />
-          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" x1="216" y1="130" x2="448" y2="92" />
-          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" x1="216" y1="130" x2="448" y2="130" />
-          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" x1="216" y1="130" x2="448" y2="168" />
-          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" x1="216" y1="130" x2="448" y2="216" />
+          <line class="ray ray-instinct" data-prism="instinct" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="44" />
+          <line class="ray ray-perseverance" data-prism="perseverance" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="92" />
+          <line class="ray ray-eloquence" data-prism="eloquence" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="130" />
+          <line class="ray ray-concentration" data-prism="concentration" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="168" />
+          <line class="ray ray-creativity" data-prism="creativity" data-balance="balanced" pathLength="100" x1="216" y1="130" x2="448" y2="216" />
         </g>
       </svg>
     </div>
@@ -88,25 +88,15 @@ const locale = Astro.params.lang as Locale;
   let profile = loadProfile();
   let savedTimer: number | undefined;
 
-  const RAY_ORIGIN = { x: 216, y: 130 };
-  const RAY_END: Record<Prism, { x: number; y: number }> = {
-    instinct: { x: 448, y: 44 },
-    perseverance: { x: 448, y: 92 },
-    eloquence: { x: 448, y: 130 },
-    concentration: { x: 448, y: 168 },
-    creativity: { x: 448, y: 216 },
-  };
-  // Confiant = rai long ; équilibré = médian ; risqué = court.
+  // Confiant = rai long ; équilibré = médian ; risqué = court (fraction de pathLength).
   const RAY_LENGTH: Record<Balance, number> = { confident: 1, balanced: 0.8, risky: 0.56 };
 
   function updateRay(prism: Prism, balance: Balance) {
-    const line = visual.querySelector(`.ray[data-prism="${prism}"]`);
+    const line = visual.querySelector<SVGLineElement>(`.ray[data-prism="${prism}"]`);
     if (!line) return;
     line.setAttribute('data-balance', balance);
-    const end = RAY_END[prism];
-    const f = RAY_LENGTH[balance];
-    line.setAttribute('x2', String(RAY_ORIGIN.x + (end.x - RAY_ORIGIN.x) * f));
-    line.setAttribute('y2', String(RAY_ORIGIN.y + (end.y - RAY_ORIGIN.y) * f));
+    // pathLength = 100 → dashoffset masque la portion lointaine ; transition CSS anime.
+    line.style.strokeDashoffset = String(100 * (1 - RAY_LENGTH[balance]));
   }
 
   function apply(p: typeof profile) {
@@ -328,12 +318,15 @@ const locale = Astro.params.lang as Locale;
     stroke-width: 1.6;
     fill: rgba(201, 164, 76, 0.06);
   }
-  /* Rays uniformes ; seule la LONGUEUR distingue l'équilibre (gérée en JS via x2/y2). */
+  /* Rays uniformes ; seule la LONGUEUR distingue l'équilibre.
+     Longueur pilotée par stroke-dashoffset (pathLength=100), animée en douceur. */
   .ray {
     stroke: currentColor;
     stroke-width: 2.5;
     stroke-linecap: round;
     filter: drop-shadow(0 0 5px currentColor);
+    stroke-dasharray: 100 100;
+    transition: stroke-dashoffset 0.45s cubic-bezier(0.33, 0.1, 0.2, 1);
   }
   .ray-instinct {
     color: #e0564c;
@@ -392,6 +385,11 @@ const locale = Astro.params.lang as Locale;
     }
     .bal span {
       padding: 0.35rem 0.7rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ray {
+      transition: none;
     }
   }
 </style>
