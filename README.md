@@ -11,9 +11,10 @@ Hub statique bilingue **FR / EN**, organisé en deux parties :
     fixe le nombre de lancers de pièce (risqué 1, équilibré 2, confiant 3) ; on
     s'arrête à la première Face (réussite), sinon échec. Issues critiques
     (retournement / excès de confiance).
-  - **Confrontation** : enchaîne les actions sur deux jauges (Victoire / Échec) ;
-    première jauge pleine (5) l'emporte. Réussite en risqué ou échec en confiant
-    valent 2 points.
+  - **Confrontation** : enchaîne les actions sur deux jauges asymétriques
+    (Victoire à 6, Échec à 3) ; première pleine l'emporte. Réussite en risqué
+    ou échec en confiant valent 2 points. L'asymétrie compense le fait que les
+    actions favorisent la réussite (~50–78 % de victoire selon le prisme joué).
 - **Oracles** :
   - **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
     mineurs), option inversée. Illustrations et textes **domaine public**.

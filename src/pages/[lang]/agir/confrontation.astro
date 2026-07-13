@@ -9,7 +9,8 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const slots = [0, 1, 2];
-const segs = [0, 1, 2, 3, 4]; // seuil = 5
+const winSegs = [0, 1, 2, 3, 4, 5]; // Victoire : premier à 6
+const loseSegs = [0, 1, 2]; // Échec : premier à 3
 ---
 
 <Base locale={locale} title={t(locale, 'confront.heading')}>
@@ -24,14 +25,14 @@ const segs = [0, 1, 2, 3, 4]; // seuil = 5
       <div class="gauge gauge-win">
         <span class="gauge-label">{t(locale, 'confront.gaugeWin')}</span>
         <div class="gauge-track" id="track-win">
-          {segs.map(() => <span class="seg" />)}
+          {winSegs.map(() => <span class="seg" />)}
           <span class="float" id="float-win" aria-hidden="true" />
         </div>
       </div>
       <span class="gauge-vs" aria-hidden="true">✦</span>
       <div class="gauge gauge-lose">
         <div class="gauge-track" id="track-lose">
-          {segs.map(() => <span class="seg" />)}
+          {loseSegs.map(() => <span class="seg" />)}
           <span class="float" id="float-lose" aria-hidden="true" />
         </div>
         <span class="gauge-label">{t(locale, 'confront.gaugeLose')}</span>
@@ -114,7 +115,8 @@ const segs = [0, 1, 2, 3, 4]; // seuil = 5
   import { loadProfile, PRISMS, type Prism, type Balance } from '../../../lib/profile';
   import { flipCoin } from '../../../lib/coin';
 
-  const TARGET = 5;
+  const WIN_TARGET = 6;
+  const LOSE_TARGET = 3;
   const ATTEMPTS: Record<Balance, number> = { risky: 1, balanced: 2, confident: 3 };
   const PRISM_COLOR: Record<Prism, string> = {
     instinct: '#e0564c',
@@ -261,11 +263,11 @@ const segs = [0, 1, 2, 3, 4]; // seuil = 5
     const crit = success ? selectedBalance === 'risky' : selectedBalance === 'confident';
     const pts = crit ? 2 : 1;
     if (success) {
-      win = Math.min(TARGET, win + pts);
+      win = Math.min(WIN_TARGET, win + pts);
       paintGauge(winSegs, win);
       floatPoints(floatWin, pts);
     } else {
-      lose = Math.min(TARGET, lose + pts);
+      lose = Math.min(LOSE_TARGET, lose + pts);
       paintGauge(loseSegs, lose);
       floatPoints(floatLose, pts);
     }
@@ -273,9 +275,9 @@ const segs = [0, 1, 2, 3, 4]; // seuil = 5
 
     await delay(reduceMotion ? 0 : 420);
 
-    if (win >= TARGET || lose >= TARGET) {
+    if (win >= WIN_TARGET || lose >= LOSE_TARGET) {
       over = true;
-      const won = win >= TARGET;
+      const won = win >= WIN_TARGET;
       verdictMain.textContent = won ? T['confront.win'] : T['confront.lose'];
       verdictSub.textContent = won ? T['confront.win.sub'] : T['confront.lose.sub'];
       verdict.className = 'verdict';
@@ -376,7 +378,6 @@ const segs = [0, 1, 2, 3, 4]; // seuil = 5
   }
   .seg {
     flex: 1 1 0;
-    max-width: 3.4rem;
     height: 1.1rem;
     border-radius: 5px;
     border: 1px solid var(--line);

@@ -20,7 +20,7 @@
 ├─ /{lang}/agir            Landing — Action · Confrontation
 │  ├─ /{lang}/agir/action        Tenter une action portée par un prisme
 │  │                             (lancers de pièce selon l'équilibre, issues critiques)
-│  └─ /{lang}/agir/confrontation Duel à deux jauges (Victoire / Échec, premier à 5)
+│  └─ /{lang}/agir/confrontation Duel à deux jauges (Victoire à 6 / Échec à 3)
 ├─ /{lang}/oracles         Landing — Tarot · Pièce
 │  ├─ /{lang}/oracles/tarot  Tirage RWS (jeu complet / majeurs / mineurs, inversé)
 │  └─ /{lang}/oracles/coin   Pile ou Face (Soleil / Lune), lancer 3D
@@ -36,9 +36,10 @@
   confiant 3) ; on s'arrête à la 1ʳᵉ Face (réussite), sinon échec. Issues
   critiques : réussite en risqué = *Retournement* ; échec en confiant =
   *Excès de confiance*.
-- **Confrontation** : on enchaîne des actions sur deux jauges (Victoire / Échec,
-  segments face à face, premier à **5**). Réussite normale +1 côté Victoire,
-  échec normal +1 côté Échec ; réussite en risqué ou échec en confiant valent **+2**.
+- **Confrontation** : on enchaîne des actions sur deux jauges asymétriques
+  (segments face à face, **Victoire à 6 · Échec à 3**). Réussite +1 côté Victoire,
+  échec +1 côté Échec ; réussite en risqué ou échec en confiant valent **+2**.
+  L'asymétrie 6/3 compense le fait que chaque action favorise la réussite.
 
 **Détails techniques importants** : voir `CLAUDE.md` (conventions, pièges,
 commandes) et `README.md` (structure des fichiers, déploiement).
