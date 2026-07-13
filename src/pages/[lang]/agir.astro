@@ -30,6 +30,7 @@ const slots = [0, 1, 2];
                 <span class:list={['dot', `dot-${p}`]} aria-hidden="true" />
                 <span class="pcard-name">{t(locale, `prism.${p}` as UIKey)}</span>
                 <span class="pcard-bal" data-prism={p} />
+                <span class="pcard-pips" data-prism={p} aria-hidden="true" />
               </span>
             </label>
           ))
@@ -39,6 +40,7 @@ const slots = [0, 1, 2];
 
     <div class="arena" id="arena" hidden>
       <p class="arena-note" id="arena-note" aria-live="polite" />
+      <p class="arena-phrase" id="arena-phrase" />
       <p class="arena-stop">{t(locale, 'agir.stop')}</p>
 
       <div class="slots" id="slots">
@@ -59,7 +61,10 @@ const slots = [0, 1, 2];
       </div>
 
       <button type="button" class="btn-act" id="btn-act">{t(locale, 'agir.act')}</button>
-      <p class="verdict" id="verdict" aria-live="polite" hidden />
+      <div class="verdict" id="verdict" aria-live="polite" hidden>
+        <span class="verdict-main" id="verdict-main" />
+        <span class="verdict-sub" id="verdict-sub" />
+      </div>
     </div>
 
     <svg class="ag-defs" width="0" height="0" aria-hidden="true">
@@ -116,10 +121,14 @@ const slots = [0, 1, 2];
   const noteEl = document.querySelector<HTMLElement>('#arena-note')!;
   const slotEls = Array.from(document.querySelectorAll<HTMLElement>('.slot'));
   const btn = document.querySelector<HTMLButtonElement>('#btn-act')!;
+  const arenaPhrase = document.querySelector<HTMLElement>('#arena-phrase')!;
   const verdict = document.querySelector<HTMLElement>('#verdict')!;
+  const verdictMain = document.querySelector<HTMLElement>('#verdict-main')!;
+  const verdictSub = document.querySelector<HTMLElement>('#verdict-sub')!;
 
   const profile = loadProfile();
   let selected: Prism | null = null;
+  let selectedBalance: Balance = 'balanced';
   let attempts = 0;
   const rot = [0, 0, 0];
   let busy = false;
@@ -133,7 +142,18 @@ const slots = [0, 1, 2];
     const bal = profile.prisms[p];
     const n = ATTEMPTS[bal];
     const el = section.querySelector<HTMLElement>(`.pcard-bal[data-prism="${p}"]`);
-    if (el) el.textContent = `${T[`balance.${bal}`]} · ${n} ${attemptsWord(n)}`;
+    if (el) el.textContent = T[`balance.${bal}`];
+    // pips : une pastille par tentative, dans la couleur du prisme.
+    const pipsEl = section.querySelector<HTMLElement>(`.pcard-pips[data-prism="${p}"]`);
+    if (pipsEl) {
+      pipsEl.replaceChildren();
+      pipsEl.style.color = PRISM_COLOR[p];
+      for (let k = 0; k < 3; k++) {
+        const pip = document.createElement('span');
+        pip.className = k < n ? 'pip pip-on' : 'pip';
+        pipsEl.appendChild(pip);
+      }
+    }
   }
 
   function resetSlots() {
@@ -145,10 +165,11 @@ const slots = [0, 1, 2];
     const target = e.target as HTMLInputElement;
     if (target.type !== 'radio') return;
     selected = target.value as Prism;
-    const bal = profile.prisms[selected];
-    attempts = ATTEMPTS[bal];
+    selectedBalance = profile.prisms[selected];
+    attempts = ATTEMPTS[selectedBalance];
     section.style.setProperty('--prism', PRISM_COLOR[selected]);
-    noteEl.textContent = `${T[`prism.${selected}`]} · ${T[`balance.${bal}`]} — ${attempts} ${attemptsWord(attempts)}`;
+    noteEl.textContent = `${T[`prism.${selected}`]} · ${T[`balance.${selectedBalance}`]} — ${attempts} ${attemptsWord(attempts)}`;
+    arenaPhrase.textContent = T[`prism.${selected}.desc`];
     slotEls.forEach((s, i) => (s.hidden = i >= attempts));
     resetSlots();
     verdict.hidden = true;
@@ -197,9 +218,37 @@ const slots = [0, 1, 2];
       await delay(reduceMotion ? 0 : 240);
     }
 
-    verdict.textContent = success ? T['agir.success'] : T['agir.failure'];
-    verdict.classList.toggle('is-fail', !success);
+    // Issues critiques : réussite en risqué = Retournement ; échec en confiant = Excès de confiance.
+    const critSuccess = success && selectedBalance === 'risky';
+    const critFailure = !success && selectedBalance === 'confident';
+    let main: string;
+    let sub: string;
+    let state: string;
+    if (critSuccess) {
+      main = T['agir.critSuccess'];
+      sub = T['agir.critSuccess.sub'];
+      state = 'is-crit-success';
+    } else if (critFailure) {
+      main = T['agir.critFailure'];
+      sub = T['agir.critFailure.sub'];
+      state = 'is-crit-failure';
+    } else if (success) {
+      main = T['agir.success'];
+      sub = T['agir.success.sub'];
+      state = 'is-success';
+    } else {
+      main = T['agir.failure'];
+      sub = T['agir.failure.sub'];
+      state = 'is-fail';
+    }
+
+    verdictMain.textContent = main;
+    verdictSub.textContent = sub;
+    verdict.className = 'verdict';
     verdict.hidden = false;
+    void verdict.offsetWidth; // relance l'animation d'apparition
+    verdict.classList.add(state);
+
     btn.textContent = T['agir.again'];
     btn.disabled = false;
     busy = false;
@@ -248,11 +297,14 @@ const slots = [0, 1, 2];
     margin-bottom: 1rem;
   }
   .pcards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
   }
   .pcard {
+    flex: 1 1 8.5rem;
+    max-width: 10.5rem;
     cursor: pointer;
   }
   .pcard input {
@@ -263,40 +315,63 @@ const slots = [0, 1, 2];
   .pcard-in {
     display: grid;
     justify-items: center;
-    gap: 0.35rem;
+    gap: 0.5rem;
     text-align: center;
-    padding: 1rem 0.75rem;
+    padding: 1.4rem 0.9rem 1.15rem;
     height: 100%;
     border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--panel);
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(240, 226, 196, 0.06), rgba(240, 226, 196, 0.015));
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
   .pcard:hover .pcard-in {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
   }
   .pcard input:checked + .pcard-in {
     border-color: var(--prism, var(--accent));
-    box-shadow: 0 0 20px -6px var(--prism, var(--accent));
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--prism, var(--accent)) 14%, transparent),
+      rgba(240, 226, 196, 0.02));
+    box-shadow: 0 0 26px -8px var(--prism, var(--accent));
   }
   .pcard input:focus-visible + .pcard-in {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
   .pcard-name {
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.1;
   }
   .pcard-bal {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     color: var(--muted);
   }
-  .dot {
-    width: 0.8rem;
-    height: 0.8rem;
+  .pcard-pips {
+    display: inline-flex;
+    gap: 0.3rem;
+  }
+  .pip {
+    width: 0.42rem;
+    height: 0.42rem;
     border-radius: 50%;
-    box-shadow: 0 0 8px currentColor;
+    border: 1px solid currentColor;
+    opacity: 0.35;
+  }
+  .pip-on {
+    background: currentColor;
+    opacity: 1;
+    box-shadow: 0 0 6px currentColor;
+  }
+  .dot {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor;
   }
   .dot-instinct { color: #e0564c; background: #e0564c; }
   .dot-perseverance { color: #e8cf55; background: #e8cf55; }
@@ -313,12 +388,21 @@ const slots = [0, 1, 2];
   .arena-note {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     color: var(--prism, var(--accent));
+    text-align: center;
+  }
+  .arena-phrase {
+    margin: -0.5rem 0 0;
+    max-width: 30rem;
+    font-style: italic;
+    color: var(--text);
+    opacity: 0.85;
+    text-align: center;
   }
   .arena-stop {
-    margin: -0.75rem 0 0;
-    font-size: 0.9rem;
+    margin: 0;
+    font-size: 0.88rem;
     color: var(--muted);
     text-align: center;
   }
@@ -401,16 +485,81 @@ const slots = [0, 1, 2];
     cursor: default;
   }
   .verdict {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(2.2rem, 5vw, 3rem);
-    font-weight: 600;
-    color: var(--prism, var(--accent));
-    text-shadow: 0 0 24px color-mix(in srgb, var(--prism, var(--accent)) 45%, transparent);
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    min-height: 4.75rem; /* réserve la place : pas de saut de mise en page */
   }
-  .verdict.is-fail {
+  .verdict-main {
+    font-family: var(--font-display);
+    font-size: clamp(2.3rem, 5.5vw, 3.1rem);
+    font-weight: 600;
+    line-height: 1.02;
+  }
+  .verdict-sub {
+    font-size: 0.95rem;
     color: var(--muted);
-    text-shadow: none;
+  }
+  .verdict.is-success .verdict-main {
+    color: var(--prism, var(--accent));
+    text-shadow: 0 0 22px color-mix(in srgb, var(--prism, var(--accent)) 40%, transparent);
+  }
+  .verdict.is-fail .verdict-main {
+    color: var(--muted);
+  }
+  /* Retournement (réussite en risqué) : éclatant. */
+  .verdict.is-crit-success .verdict-main {
+    color: #fbe6a6;
+    text-shadow:
+      0 0 12px var(--prism, var(--accent)),
+      0 0 36px color-mix(in srgb, var(--prism, var(--accent)) 70%, transparent);
+    animation: crit-glow 1.1s ease-out both;
+  }
+  .verdict.is-crit-success .verdict-sub {
+    color: var(--prism, var(--accent));
+  }
+  /* Excès de confiance (échec en confiant) : cuisant. */
+  .verdict.is-crit-failure .verdict-main {
+    color: var(--accent-2);
+    text-shadow: 0 0 18px color-mix(in srgb, var(--accent-2) 55%, transparent);
+    animation: crit-shake 0.5s ease-in-out both;
+  }
+  .verdict.is-crit-failure .verdict-sub {
+    color: color-mix(in srgb, var(--accent-2) 65%, var(--muted));
+  }
+  @keyframes crit-glow {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+      filter: brightness(2);
+    }
+    55% {
+      transform: scale(1.12);
+      filter: brightness(1.5);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+      filter: none;
+    }
+  }
+  @keyframes crit-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-7px);
+    }
+    40% {
+      transform: translateX(6px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+    80% {
+      transform: translateX(2px);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -418,6 +567,10 @@ const slots = [0, 1, 2];
     .cface,
     .pcard-in {
       transition: none;
+    }
+    .verdict.is-crit-success .verdict-main,
+    .verdict.is-crit-failure .verdict-main {
+      animation: none;
     }
   }
 </style>
