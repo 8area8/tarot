@@ -17,6 +17,19 @@ const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
 const path = Astro.url.pathname;
 const otherPath = path.replace(/^\/(fr|en)(\/|$)/, `/${otherLocale}$2`);
 
+// Accès direct aux pages, groupés par partie (séparateurs entre groupes).
+type NavEntry = { href: string; label: string } | 'sep';
+const subnav: NavEntry[] = [
+  { href: `/${locale}/personnage/`, label: t(locale, 'profil.heading') },
+  'sep',
+  { href: `/${locale}/agir/action/`, label: t(locale, 'agir.heading') },
+  { href: `/${locale}/agir/confrontation/`, label: t(locale, 'confront.heading') },
+  'sep',
+  { href: `/${locale}/oracles/tarot/`, label: t(locale, 'nav.tarot') },
+  { href: `/${locale}/oracles/coin/`, label: t(locale, 'nav.coin') },
+];
+const isActive = (href: string) => path === href || path.startsWith(href);
+
 // Polices auto-hébergées en `font-display: optional` + préchargées : la police
 // arrive avant le premier rendu et ne « swappe » jamais après coup (pas de glitch).
 const fontFace = `
@@ -51,14 +64,29 @@ const fontFace = `
         <span class="brand-mark" aria-hidden="true">✦</span>
         <span>{t(locale, 'site.title')}</span>
       </a>
-      <nav>
-        <a class="nav-link" href={`/${locale}/personnage/`}>{t(locale, 'nav.personnage')}</a>
-        <a class="nav-link" href={`/${locale}/agir/`}>{t(locale, 'nav.agir')}</a>
-        <a class="nav-link" href={`/${locale}/oracles/`}>{t(locale, 'nav.oracles')}</a>
+      <nav class="header-utils">
         <a class="nav-link" href={`/${locale}/credits/`}>{t(locale, 'nav.credits')}</a>
         <LangToggle locale={locale} />
       </nav>
     </header>
+
+    <nav class="subnav" aria-label={t(locale, 'site.title')}>
+      {
+        subnav.map((entry) =>
+          entry === 'sep' ? (
+            <span class="subnav-sep" aria-hidden="true"></span>
+          ) : (
+            <a
+              class="subnav-link"
+              href={entry.href}
+              aria-current={isActive(entry.href) ? 'page' : undefined}
+            >
+              {entry.label}
+            </a>
+          ),
+        )
+      }
+    </nav>
 
     <main>
       <slot />
@@ -141,11 +169,45 @@ const fontFace = `
         margin: 0 auto;
         padding: 1.25rem 1.5rem;
       }
-      .site-header nav {
+      .header-utils {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.75rem 1.25rem;
+      }
+      .subnav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem 1.1rem;
+        max-width: var(--maxw);
+        width: 100%;
+        margin: 0 auto;
+        padding: 0.15rem 1.5rem 1rem;
+        border-bottom: 1px solid var(--line);
+      }
+      .subnav-link {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        text-decoration: none;
+        color: var(--muted);
+        padding-bottom: 0.15rem;
+        border-bottom: 1px solid transparent;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+      .subnav-link:hover {
+        color: var(--text);
+      }
+      .subnav-link[aria-current='page'] {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .subnav-sep {
+        width: 1px;
+        height: 0.9rem;
+        background: var(--line);
       }
       .brand {
         display: inline-flex;
