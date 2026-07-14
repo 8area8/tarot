@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
+import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
+import type { Suit } from '../../lib/types';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -8,6 +10,16 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const base = import.meta.env.BASE_URL;
+
+// Galerie : groupes ordonnés (majeurs, puis les 4 enseignes).
+const SUIT_ORDER: Suit[] = ['wands', 'cups', 'swords', 'pentacles'];
+const galleryGroups = [
+  { heading: t(locale, 'gallery.majors'), cards: cards.filter((c) => c.arcana === 'major') },
+  ...SUIT_ORDER.map((suit) => ({
+    heading: `${SUIT_NAMES[suit][locale]} · ${SUIT_ELEMENTS[suit][locale]}`,
+    cards: cards.filter((c) => c.suit === suit),
+  })),
+];
 ---
 
 <Base locale={locale}>
@@ -21,6 +33,7 @@ const base = import.meta.env.BASE_URL;
       <div class="deck-select" role="radiogroup" aria-label={t(locale, 'deck.label')}>
         <label class="seg"><input type="radio" name="deck" value="major" checked /><span>{t(locale, 'deck.major')}</span></label>
         <label class="seg"><input type="radio" name="deck" value="minor" /><span>{t(locale, 'deck.minor')}</span></label>
+        <label class="seg"><input type="radio" name="deck" value="full" /><span>{t(locale, 'deck.full')}</span></label>
       </div>
 
       <label class="switch">
@@ -31,6 +44,8 @@ const base = import.meta.env.BASE_URL;
 
       <button type="submit" class="btn-draw" id="btn-draw">{t(locale, 'action.draw')}</button>
     </form>
+
+    <p class="hint">{t(locale, 'action.hint')}</p>
 
     <div class="result">
       <div class="card-slot">
@@ -57,13 +72,34 @@ const base = import.meta.env.BASE_URL;
         </div>
       </article>
     </div>
+
+    <div class="gallery-toggle">
+      <button type="button" class="btn-gallery" id="btn-gallery" aria-expanded="false" aria-controls="gallery">
+        {t(locale, 'gallery.show')}
+      </button>
+    </div>
+
+    <section class="gallery" id="gallery" aria-label={t(locale, 'gallery.heading')} hidden>
+      {galleryGroups.map((group) => (
+        <div class="gallery-group">
+          <h3>{group.heading}</h3>
+          <div class="gallery-grid">
+            {group.cards.map((card) => (
+              <button type="button" class="gallery-card" data-card-id={card.id} title={card.name[locale]}>
+                <img src={`${base}cards/${card.image}`} alt={card.name[locale]} width="110" height="192" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
   </section>
 </Base>
 
 <script>
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, type DeckMode } from '../../lib/deck';
-  import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE } from '../../data/cards';
+  import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -71,7 +107,9 @@ const base = import.meta.env.BASE_URL;
   const T = ui[locale];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const FLIP_MS = 700;
+  const FLIP_MS = 430;
+
+  const cardById = new Map(cards.map((c) => [c.id, c]));
 
   const form = document.querySelector<HTMLFormElement>('#controls')!;
   const btnDraw = document.querySelector<HTMLButtonElement>('#btn-draw')!;
@@ -85,6 +123,9 @@ const base = import.meta.env.BASE_URL;
   const keywordsEl = document.querySelector<HTMLElement>('#keywords')!;
   const meaningEl = document.querySelector<HTMLElement>('#meaning')!;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
+  const result = document.querySelector<HTMLElement>('.result')!;
+  const btnGallery = document.querySelector<HTMLButtonElement>('#btn-gallery')!;
+  const gallery = document.querySelector<HTMLElement>('#gallery')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
@@ -189,6 +230,45 @@ const base = import.meta.env.BASE_URL;
     if (!current) return;
     view = view === 'upright' ? 'reversed' : 'upright';
     renderReading(current, view);
+  });
+
+  // Accès direct à une carte depuis la galerie : affichage instantané, sans choréo de pioche.
+  function selectCard(card: Card, orientation: Orientation) {
+    current = card;
+    view = orientation;
+    flip.classList.add('no-anim');
+    renderReading(card, orientation);
+    flip.classList.add('is-flipped');
+    void flip.offsetWidth; // force le rendu avant de réactiver la transition
+    flip.classList.remove('no-anim');
+    btnDraw.textContent = T['action.again'];
+    result.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    nameEl.focus({ preventScroll: true });
+  }
+
+  gallery.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.gallery-card');
+    if (!btn) return;
+    const card = cardById.get(btn.dataset.cardId!);
+    if (card) selectCard(card, 'upright');
+  });
+
+  // Déplier / replier la galerie.
+  btnGallery.addEventListener('click', () => {
+    const willShow = gallery.hasAttribute('hidden');
+    gallery.toggleAttribute('hidden', !willShow);
+    btnGallery.textContent = willShow ? T['gallery.hide'] : T['gallery.show'];
+    btnGallery.setAttribute('aria-expanded', String(willShow));
+    if (willShow) gallery.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  // Entrée = nouvelle pioche (sauf si le focus est sur un contrôle qui gère lui-même Entrée).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.repeat) return;
+    const el = e.target as HTMLElement | null;
+    if (el && ['INPUT', 'BUTTON', 'A', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return;
+    e.preventDefault();
+    form.requestSubmit();
   });
 </script>
 
@@ -349,10 +429,13 @@ const base = import.meta.env.BASE_URL;
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transition: transform 0.7s cubic-bezier(0.4, 0.15, 0.2, 1);
+    transition: transform 0.43s cubic-bezier(0.4, 0.15, 0.2, 1);
   }
   .flip.is-flipped {
     transform: rotateY(180deg);
+  }
+  .flip.no-anim {
+    transition: none;
   }
   .face {
     position: absolute;
@@ -374,7 +457,7 @@ const base = import.meta.env.BASE_URL;
     transform: rotateY(180deg);
   }
   .face-front img {
-    transition: transform 0.5s cubic-bezier(0.4, 0.15, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.4, 0.15, 0.2, 1);
   }
   .face-front img.is-reversed {
     transform: rotate(180deg);
@@ -455,6 +538,95 @@ const base = import.meta.env.BASE_URL;
   .btn-orient:hover {
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.08);
+  }
+
+  /* ---- Astuce clavier ---- */
+  .hint {
+    margin: -0.75rem 0 0;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  /* ---- Galerie ---- */
+  .gallery-toggle {
+    display: flex;
+    justify-content: center;
+  }
+  .btn-gallery {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 0.6rem 1.4rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+  .btn-gallery:hover {
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.08);
+    color: var(--text);
+  }
+  .btn-gallery:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .gallery {
+    display: grid;
+    gap: 2rem;
+  }
+  .gallery[hidden] {
+    display: none;
+  }
+  .gallery-group h3 {
+    margin: 0 0 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 0.75rem;
+  }
+  .gallery-card {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    line-height: 0;
+    box-shadow: 0 0 0 1px var(--line);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .gallery-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1100 / 1920;
+    object-fit: cover;
+  }
+  .gallery-card:hover,
+  .gallery-card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent),
+      0 0 18px rgba(201, 164, 76, 0.25);
+    outline: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-card {
+      transition: none;
+    }
   }
 
   @media (max-width: 46rem) {

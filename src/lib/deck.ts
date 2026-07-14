@@ -1,13 +1,13 @@
 import { cards } from '../data/cards';
 import type { Card, Orientation } from './types';
 
-export type DeckMode = 'major' | 'minor';
+export type DeckMode = 'major' | 'minor' | 'full';
 
 /** Sous-ensemble de cartes selon le mode de jeu choisi. */
 export function getDeck(mode: DeckMode): Card[] {
-  return mode === 'minor'
-    ? cards.filter((c) => c.arcana === 'minor')
-    : cards.filter((c) => c.arcana === 'major');
+  if (mode === 'major') return cards.filter((c) => c.arcana === 'major');
+  if (mode === 'minor') return cards.filter((c) => c.arcana === 'minor');
+  return cards; // 'full' : les 78 cartes
 }
 
 export interface Draw {
@@ -34,4 +34,4 @@ export function hasContent(card: Card): boolean {
   return card.content !== null;
 }
 
-export const DECK_MODES: DeckMode[] = ['major', 'minor'];
+export const DECK_MODES: DeckMode[] = ['major', 'minor', 'full'];
