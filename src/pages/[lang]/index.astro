@@ -63,7 +63,7 @@ const base = import.meta.env.BASE_URL;
 <script>
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, type DeckMode } from '../../lib/deck';
-  import { SUIT_NAMES } from '../../data/cards';
+  import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE } from '../../data/cards';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -94,10 +94,16 @@ const base = import.meta.env.BASE_URL;
   let view: Orientation = 'upright';
 
   function metaLabel(card: Card): string {
+    // Ligne « coordonnées ésotériques » : type · (enseigne · élément · rang) ou (numéro · correspondance).
     if (card.arcana === 'major') {
-      return card.number > 0 ? `${T['meta.major']} · ${ROMAN[card.number]}` : T['meta.major'];
+      const num = card.number > 0 ? ROMAN[card.number] : '0';
+      const corr = MAJOR_CORRESPONDENCE[card.number]?.[locale];
+      const parts = [T['meta.major'], num];
+      if (corr) parts.push(corr);
+      return parts.join(' · ');
     }
-    return `${T['meta.minor']} · ${SUIT_NAMES[card.suit!][locale]}`;
+    const suit = card.suit!;
+    return [T['meta.minor'], SUIT_NAMES[suit][locale], SUIT_ELEMENTS[suit][locale]].join(' · ');
   }
 
   function renderReading(card: Card, orientation: Orientation) {
