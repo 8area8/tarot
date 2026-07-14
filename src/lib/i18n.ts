@@ -32,6 +32,8 @@ export const ui = {
     'card.placeholder': 'Concentrez-vous, puis retournez la carte.',
     'card.seeUpright': 'Voir à l’endroit',
     'card.seeReversed': 'Voir inversée',
+    'card.copy': 'Copier la lecture',
+    'card.copied': 'Copié !',
     'meta.major': 'Arcane majeur',
     'meta.minor': 'Arcane mineur',
     'footer.credit':
@@ -62,6 +64,8 @@ export const ui = {
     'card.placeholder': 'Focus, then turn the card over.',
     'card.seeUpright': 'See upright',
     'card.seeReversed': 'See reversed',
+    'card.copy': 'Copy reading',
+    'card.copied': 'Copied!',
     'meta.major': 'Major Arcana',
     'meta.minor': 'Minor Arcana',
     'footer.credit':

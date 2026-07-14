@@ -68,7 +68,10 @@ const galleryGroups = [
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
-          <button type="button" class="btn-orient" id="btn-orient"></button>
+          <div class="reading-actions">
+            <button type="button" class="btn-orient" id="btn-orient"></button>
+            <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
+          </div>
         </div>
       </article>
     </div>
@@ -87,6 +90,7 @@ const galleryGroups = [
             {group.cards.map((card) => (
               <button type="button" class="gallery-card" data-card-id={card.id} title={card.name[locale]}>
                 <img src={`${base}cards/${card.image}`} alt={card.name[locale]} width="110" height="192" loading="lazy" />
+                <span class="gallery-name">{card.name[locale]}</span>
               </button>
             ))}
           </div>
@@ -123,6 +127,7 @@ const galleryGroups = [
   const keywordsEl = document.querySelector<HTMLElement>('#keywords')!;
   const meaningEl = document.querySelector<HTMLElement>('#meaning')!;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
+  const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnGallery = document.querySelector<HTMLButtonElement>('#btn-gallery')!;
   const gallery = document.querySelector<HTMLElement>('#gallery')!;
@@ -130,21 +135,70 @@ const galleryGroups = [
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
 
+  // Glyphes ésotériques. Éléments (triangles alchimiques) par enseigne ;
+  // correspondance des majeurs (planète / signe / élément) par numéro d'arcane.
+  const ELEMENT_GLYPH: Record<string, string> = { wands: '🜂', cups: '🜄', swords: '🜁', pentacles: '🜃' };
+  const MAJOR_GLYPH: Record<number, string> = {
+    0: '🜁', 1: '☿', 2: '☽', 3: '♀', 4: '♈', 5: '♉', 6: '♊', 7: '♋', 8: '♌', 9: '♍', 10: '♃',
+    11: '♎', 12: '🜄', 13: '♏', 14: '♐', 15: '♑', 16: '♂', 17: '♒', 18: '♓', 19: '☉', 20: '🜂', 21: '♄',
+  };
+
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
 
-  function metaLabel(card: Card): string {
-    // Ligne « coordonnées ésotériques » : type · (enseigne · élément · rang) ou (numéro · correspondance).
+  // Renseigne la ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
+  function setMeta(card: Card) {
+    metaEl.replaceChildren();
+    const push = (text: string) => metaEl.append(document.createTextNode(text));
+    const pushGlyph = (g: string) => {
+      const span = document.createElement('span');
+      span.className = 'glyph';
+      span.textContent = g;
+      metaEl.appendChild(span);
+    };
     if (card.arcana === 'major') {
       const num = card.number > 0 ? ROMAN[card.number] : '0';
       const corr = MAJOR_CORRESPONDENCE[card.number]?.[locale];
-      const parts = [T['meta.major'], num];
-      if (corr) parts.push(corr);
-      return parts.join(' · ');
+      push(`${T['meta.major']} · ${num}`);
+      if (corr) {
+        push(' · ');
+        pushGlyph(MAJOR_GLYPH[card.number]);
+        push(` ${corr}`);
+      }
+    } else {
+      const suit = card.suit!;
+      push(`${T['meta.minor']} · ${SUIT_NAMES[suit][locale]} · `);
+      pushGlyph(ELEMENT_GLYPH[suit]);
+      push(` ${SUIT_ELEMENTS[suit][locale]}`);
     }
-    const suit = card.suit!;
-    return [T['meta.minor'], SUIT_NAMES[suit][locale], SUIT_ELEMENTS[suit][locale]].join(' · ');
+  }
+
+  // Rejoue le fondu échelonné de la lecture (canalisation du message).
+  function playStagger() {
+    if (reduceMotion) return;
+    body.classList.remove('is-revealing');
+    void body.offsetWidth;
+    body.classList.add('is-revealing');
+  }
+
+  // Met en évidence la carte active dans la galerie.
+  function markActive(id: string) {
+    for (const el of gallery.querySelectorAll('.gallery-card.is-active')) {
+      el.classList.remove('is-active');
+      el.removeAttribute('aria-current');
+    }
+    const el = gallery.querySelector<HTMLElement>(`.gallery-card[data-card-id="${id}"]`);
+    if (el) {
+      el.classList.add('is-active');
+      el.setAttribute('aria-current', 'true');
+    }
+  }
+
+  // Reflète la carte + orientation dans l'URL (permalien partageable / bookmarkable).
+  function syncHash(card: Card, orientation: Orientation) {
+    const hash = `#${card.id}${orientation === 'reversed' ? '-reversed' : ''}`;
+    history.replaceState(null, '', hash);
   }
 
   function renderReading(card: Card, orientation: Orientation) {
@@ -153,7 +207,7 @@ const galleryGroups = [
     cardImg.alt = card.name[locale];
     cardImg.classList.toggle('is-reversed', reversed);
 
-    metaEl.textContent = metaLabel(card);
+    setMeta(card);
     nameEl.textContent = card.name[locale];
     orientationEl.textContent = reversed ? T['card.reversed'] : T['card.upright'];
     orientationEl.classList.toggle('is-reversed', reversed);
@@ -177,6 +231,9 @@ const galleryGroups = [
 
     placeholder.hidden = true;
     body.hidden = false;
+    markActive(card.id);
+    syncHash(card, orientation);
+    playStagger();
   }
 
   function preload(src: string): Promise<void> {
@@ -199,11 +256,13 @@ const galleryGroups = [
     view = draw.orientation;
 
     btnDraw.disabled = true;
+    btnDraw.classList.add('is-loading');
     await preload(`${BASE}cards/${draw.card.image}`);
 
     const reveal = () => {
       renderReading(draw.card, draw.orientation);
       btnDraw.disabled = false;
+      btnDraw.classList.remove('is-loading');
       btnDraw.textContent = T['action.again'];
       nameEl.focus();
     };
@@ -270,6 +329,77 @@ const galleryGroups = [
     e.preventDefault();
     form.requestSubmit();
   });
+
+  // Copier la lecture (pour le journal de partie).
+  btnCopy.addEventListener('click', async () => {
+    if (!current) return;
+    const key = view === 'reversed' ? 'reversed' : 'upright';
+    const orient = view === 'reversed' ? T['card.reversed'] : T['card.upright'];
+    const meaning = current.content ? current.content.meaning[key][locale] : T['card.noContent'];
+    const text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      btnCopy.textContent = T['card.copied'];
+      btnCopy.classList.add('is-copied');
+      window.setTimeout(() => {
+        btnCopy.textContent = T['card.copy'];
+        btnCopy.classList.remove('is-copied');
+      }, 1600);
+    } catch {
+      /* presse-papiers indisponible (contexte non sécurisé) */
+    }
+  });
+
+  // Mémoriser les préférences (mode de jeu + inversées) entre les visites.
+  const PREF_DECK = 'tarot.deck';
+  const PREF_REVERSED = 'tarot.reversed';
+  form.addEventListener('change', () => {
+    try {
+      const data = new FormData(form);
+      localStorage.setItem(PREF_DECK, String(data.get('deck') ?? 'major'));
+      localStorage.setItem(PREF_REVERSED, data.get('reversed') === 'on' ? '1' : '0');
+    } catch {
+      /* stockage indisponible */
+    }
+  });
+  (function restorePrefs() {
+    try {
+      const deck = localStorage.getItem(PREF_DECK);
+      if (deck) {
+        const radio = form.querySelector<HTMLInputElement>(`input[name="deck"][value="${deck}"]`);
+        if (radio) radio.checked = true;
+      }
+      const rev = localStorage.getItem(PREF_REVERSED);
+      if (rev !== null) {
+        const check = form.querySelector<HTMLInputElement>('input[name="reversed"]');
+        if (check) check.checked = rev === '1';
+      }
+    } catch {
+      /* stockage indisponible */
+    }
+  })();
+
+  // Permalien : afficher la carte encodée dans l'URL au chargement (#id ou #id-reversed).
+  (function initFromHash() {
+    const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if (!raw) return;
+    let id = raw;
+    let orientation: Orientation = 'upright';
+    if (raw.endsWith('-reversed')) {
+      id = raw.slice(0, -'-reversed'.length);
+      orientation = 'reversed';
+    }
+    const card = cardById.get(id);
+    if (!card) return;
+    current = card;
+    view = orientation;
+    flip.classList.add('no-anim');
+    renderReading(card, orientation);
+    flip.classList.add('is-flipped');
+    void flip.offsetWidth;
+    flip.classList.remove('no-anim');
+    btnDraw.textContent = T['action.again'];
+  })();
 </script>
 
 <style>
@@ -409,6 +539,34 @@ const galleryGroups = [
     opacity: 0.6;
     cursor: default;
   }
+  /* Chargement (préchargement de l'illustration) : un reflet doré balaie le bouton. */
+  .btn-draw.is-loading {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-draw.is-loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    animation: draw-sheen 0.9s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-draw.is-loading::after {
+      animation: none;
+    }
+  }
+  @keyframes draw-sheen {
+    to {
+      transform: translateX(100%);
+    }
+  }
 
   /* ---- Résultat ---- */
   .result {
@@ -467,6 +625,26 @@ const galleryGroups = [
       transition: none;
     }
   }
+  /* Respiration du dos de carte à l'état initial : le halo pulse pour inviter au tirage. */
+  .flip:not(.is-flipped) .face-back {
+    animation: back-breathe 3.4s ease-in-out infinite;
+  }
+  @keyframes back-breathe {
+    0%,
+    100% {
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--line),
+        0 0 34px rgba(201, 164, 76, 0.16);
+    }
+    50% {
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 164, 76, 0.5),
+        0 0 62px rgba(201, 164, 76, 0.36);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flip:not(.is-flipped) .face-back {
+      animation: none;
+    }
+  }
 
   .reading {
     max-width: 30rem;
@@ -480,12 +658,43 @@ const galleryGroups = [
     display: grid;
     gap: 0.85rem;
   }
+  /* Fondu échelonné : le message se « canalise » élément par élément. */
+  .reading-body.is-revealing > * {
+    animation: reading-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .reading-body.is-revealing > :nth-child(1) { animation-delay: 0s; }
+  .reading-body.is-revealing > :nth-child(2) { animation-delay: 0.06s; }
+  .reading-body.is-revealing > :nth-child(3) { animation-delay: 0.12s; }
+  .reading-body.is-revealing > :nth-child(4) { animation-delay: 0.18s; }
+  .reading-body.is-revealing > :nth-child(5) { animation-delay: 0.24s; }
+  .reading-body.is-revealing > :nth-child(6) { animation-delay: 0.3s; }
+  @keyframes reading-in {
+    from {
+      opacity: 0;
+      transform: translateY(7px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading-body.is-revealing > * {
+      animation: none;
+    }
+  }
   .meta {
     margin: 0;
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     color: var(--accent);
+  }
+  .meta .glyph {
+    font-size: 1.05em;
+    letter-spacing: 0;
+    /* Les glyphes ésotériques rendent mieux dans une police système à symboles. */
+    font-family: 'Apple Symbols', 'Segoe UI Symbol', 'Noto Sans Symbols2', var(--font-body);
   }
   .reading-body h2 {
     margin: 0;
@@ -520,9 +729,14 @@ const galleryGroups = [
     font-size: 1.12rem;
     line-height: 1.75;
   }
-  .btn-orient {
-    justify-self: start;
+  .reading-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
     margin-top: 0.35rem;
+  }
+  .btn-orient,
+  .btn-copy {
     font-family: var(--font-body);
     font-size: 0.78rem;
     text-transform: uppercase;
@@ -533,11 +747,17 @@ const galleryGroups = [
     border: 1px solid var(--line);
     border-radius: 999px;
     cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   }
-  .btn-orient:hover {
+  .btn-orient:hover,
+  .btn-copy:hover {
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.08);
+  }
+  .btn-copy.is-copied {
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.18);
+    color: var(--text);
   }
 
   /* ---- Astuce clavier ---- */
@@ -599,6 +819,7 @@ const galleryGroups = [
     gap: 0.75rem;
   }
   .gallery-card {
+    position: relative;
     padding: 0;
     border: 0;
     background: none;
@@ -616,6 +837,24 @@ const galleryGroups = [
     aspect-ratio: 1100 / 1920;
     object-fit: cover;
   }
+  /* Légende au survol / focus. */
+  .gallery-name {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 1.4rem 0.4rem 0.4rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--text);
+    background: linear-gradient(to top, rgba(21, 16, 30, 0.95), transparent);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+  }
+  .gallery-card:hover .gallery-name,
+  .gallery-card:focus-visible .gallery-name {
+    opacity: 1;
+  }
   .gallery-card:hover,
   .gallery-card:focus-visible {
     transform: translateY(-3px);
@@ -623,8 +862,13 @@ const galleryGroups = [
       0 0 18px rgba(201, 164, 76, 0.25);
     outline: none;
   }
+  /* Carte actuellement affichée dans la zone de lecture. */
+  .gallery-card.is-active {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 20px rgba(201, 164, 76, 0.35);
+  }
   @media (prefers-reduced-motion: reduce) {
-    .gallery-card {
+    .gallery-card,
+    .gallery-name {
       transition: none;
     }
   }
@@ -641,8 +885,8 @@ const galleryGroups = [
     .keywords {
       justify-content: center;
     }
-    .btn-orient {
-      justify-self: center;
+    .reading-actions {
+      justify-content: center;
     }
     /* Le sélecteur de deck débordait : 3 segments pleine largeur qui peuvent replier le texte. */
     .controls {
