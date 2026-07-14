@@ -1,71 +1,55 @@
-# Les Terres Libres — Document de stratégie
+# Tirage Tarot — Document de stratégie
 
-> Hub frontend statique bilingue **FR/EN**, bâti sur **Astro**.
-> Le projet a démarré comme un tirage de tarot (RWS, domaine public) puis est
-> devenu un hub à plusieurs univers. Ce document conserve la stratégie tarot
-> d'origine (sections 1+) ; la section 0 ci-dessous décrit **l'état actuel**.
+> Site statique bilingue **FR/EN**, bâti sur **Astro**, sans backend.
+> Ce document retrace la stratégie du projet et son état livré. Pour les détails
+> opérationnels, voir `CLAUDE.md` (conventions, pièges, commandes) et `README.md`
+> (structure des fichiers, déploiement).
 
 ---
 
-## 0. État actuel (V4)
+## 0. État actuel (livré)
 
-**Les Terres Libres** — un hub organisé en trois parties, thème « nuit mystique »
+**Tirage Tarot** — une **seule page** de tirage, thème « nuit mystique »
 (sombre indigo-aubergine + or, serifs Cormorant/EB Garamond), i18n par routes
 `/fr` et `/en`.
 
 ```
-/{lang}                    Hub — listing groupé par partie (accès direct à toutes
-                           les pages : Profil, Action, Confrontation, Tarot, Pièce)
-├─ /{lang}/personnage      Profil : nom + arcane fondatrice (majeure tirée) +
-│                          5 prismes (équilibre chacun), auto-save localStorage,
-│                          visuel de prisme réfractant
-├─ /{lang}/monde           Landing — Acteurs · Questions suspendues
-│  ├─ /{lang}/monde/acteurs      Tirage de cartes → acteurs nommés/décrits
-│  └─ /{lang}/monde/questions    Liste de questions/fils narratifs
-│                          (les deux en localStorage : lib/world.ts)
-├─ /{lang}/agir            Landing — Action · Confrontation
-│  ├─ /{lang}/agir/action        Tenter une action portée par un prisme
-│  │                             (lancers de pièce selon l'équilibre, issues critiques)
-│  └─ /{lang}/agir/confrontation Duel à deux jauges (Victoire à 5 / Échec à 3)
-├─ /{lang}/oracles         Landing — Tarot · Pièce
-│  ├─ /{lang}/oracles/tarot  Tirage RWS (jeu complet / majeurs / mineurs, inversé)
-│  └─ /{lang}/oracles/coin   Pile ou Face (Soleil / Lune), lancer 3D
-└─ /{lang}/credits         Provenance & domaine public
+/                          Redirection → /fr/
+/{lang}                    Page de tirage : contrôles + carte + lecture + galerie
 ```
 
-**Concepts transverses**
-- **Prismes** (5) : instinct, concentration, éloquence, créativité, persévérance.
-  Ordre d'affichage = spectre (rouge→jaune→vert→bleu→violet). Chacun a une
-  **phrase** (sens JDR) et un **équilibre** : confiant / équilibré / risqué.
-- **Pièce** : Face = Soleil (réussite), Pile = Lune. Réutilisée dans Agir.
-- **Agir** : l'équilibre fixe le nombre de lancers (risqué 1 · équilibré 2 ·
-  confiant 3) ; on s'arrête à la 1ʳᵉ Face (réussite), sinon échec. Issues
-  critiques : réussite en risqué = *Retournement* ; échec en confiant =
-  *Excès de confiance*.
-- **Confrontation** : on enchaîne des actions sur deux jauges asymétriques
-  (segments face à face, **Victoire à 5 · Échec à 3**). Réussite +1 côté Victoire,
-  échec +1 côté Échec ; réussite en risqué ou échec en confiant valent **+2**.
-  L'asymétrie 6/3 compense le fait que chaque action favorise la réussite.
+**Ce que fait la page** :
+- Choix du **jeu** : arcanes majeurs (défaut), mineurs, ou jeu complet (78 cartes).
+- Interrupteur **cartes inversées** (activé par défaut).
+- **Tirage** d'une carte : dos → révélation (flip) → illustration (éventuellement
+  pivotée à 180°) + nom.
+- **Lecture** : mots-clés + signification correspondant à l'orientation, rédigés
+  dans un cadre **JDR solo** (ambiance / piste narrative, le négatif assumé).
+- **Explorer l'autre orientation** sans re-tirer.
+- **Permalien** vers un tirage précis + **copie** de la lecture.
+- **Galerie** des 78 cartes, groupées par arcane / couleur.
 
-**Détails techniques importants** : voir `CLAUDE.md` (conventions, pièges,
-commandes) et `README.md` (structure des fichiers, déploiement).
+Détails techniques : voir `CLAUDE.md` et `README.md`.
 
 ---
 
-## 1. Objectif & périmètre <span>(stratégie tarot d'origine — historique)</span>
+## 1. Objectif & périmètre
 
-Un site statique (déployable sur n'importe quel hébergeur de fichiers : GitHub Pages, Netlify, Cloudflare Pages…) qui permet :
+Un site statique (déployable sur n'importe quel hébergeur de fichiers : GitHub
+Pages, Netlify, Cloudflare Pages…) qui permet :
 
-- **Tirage d'une seule carte** (v1) sur l'un des trois decks :
+- **Tirage d'une seule carte** sur l'un des trois decks :
   - deck **complet** (78 cartes) ;
   - **arcanes majeurs** uniquement (22 cartes) ;
   - **arcanes mineurs** uniquement (56 cartes).
 - Révélation de la carte : **illustration + nom**.
 - **Texte explicatif** avec **mots-clés** et signification.
-- Option **carte inversée** (tirage à l'envers) avec un texte de signification *inversée* distinct.
+- Option **carte inversée** (tirage à l'envers) avec un texte de signification
+  *inversée* distinct.
 - **Bilingue FR / EN**, bascule de langue.
 
-**Hors périmètre v1** (candidats v2, voir §9) : tirages multi-cartes (croix celtique, 3 cartes…), historique de tirages, partage, comptes utilisateur, PWA/offline.
+**Hors périmètre** (backlog éventuel) : tirages multi-cartes (croix celtique,
+3 cartes…), historique de tirages, comptes utilisateur, PWA/offline.
 
 ---
 
@@ -78,7 +62,7 @@ Point vérifié car il conditionne tout le projet.
 - **Domaine public au Royaume-Uni et dans l'UE** : la règle « vie de l'autrice + 70 ans » place l'œuvre dans le domaine public **depuis le 1ᵉʳ janvier 2022** (Colman Smith † 1951).
 - ⚠️ **Attention** : les **versions colorisées / « enhanced » modernes** (ex. l'édition U.S. Games 1971, ou les retouches récentes vendues en ligne) portent un **copyright sur le nouveau matériel ajouté**. Un litige récent (Siren Imports vs VHNS, 2022+) confirme que seule **l'œuvre originale de 1909** est libre.
 
-**Conclusion** : on n'utilise **que les scans de l'édition originale 1909** (ou des re-numérisations explicitement CC0/PD), jamais une édition colorisée moderne. On ajoute une page **crédits / mentions** documentant la provenance et le statut PD.
+**Conclusion** : on n'utilise **que les scans de l'édition originale 1909** (ou des re-numérisations explicitement CC0/PD), jamais une édition colorisée moderne. Les **crédits** (provenance et statut PD) figurent dans le pied de page du site.
 
 ---
 
@@ -89,19 +73,18 @@ Point vérifié car il conditionne tout le projet.
 | Source | Contenu | Licence | Remarque |
 |---|---|---|---|
 | **metabismuth/tarot-json** (GitHub) | 78 scans RWS `350×600px`, ~7 Mo total + JSON structurel | MIT (code) / images PD-US | Nommage propre `m00.jpg`, `w01.jpg`… idéal pour automatiser |
-| **luciellaes — RWS Cards CC0** (itch.io) | Re-numérisation propre, déclarée **CC0** | CC0 | Zéro contrainte d'attribution — **candidat privilégié** |
-| **Wikimedia Commons** — *Category:Rider-Waite tarot deck* | Scans haute résolution | PD | Fallback / haute déf |
+| **luciellaes — RWS Cards CC0** (itch.io) | Re-numérisation propre, déclarée **CC0** | CC0 | Zéro contrainte d'attribution |
+| **Wikimedia Commons** — *Category:Rider-Waite tarot deck* | Scans haute résolution | PD | **Source retenue** (haute déf) |
 | **sacred-texts.com /tarot** | Scans + textes de Waite | PD | Source historique de référence |
 
 **Décision (priorité = meilleure résolution)** : source primaire **Wikimedia Commons** (*Category:Rider-Waite tarot deck*), qui offre les scans **haute résolution** de l'édition 1909. Fallback **CC0 (luciellaes)** puis **metabismuth** (350×600) si une carte manque en haute déf. Vérifier que chaque scan est bien **l'édition originale 1909** (et non une colorisation moderne sous copyright).
 
-Traitement : **héberger localement** (`public/cards/`), **pas** de hotlink externe ; **renommer** selon `id` (`major-00.webp`…) ; **optimiser en WebP** (garder l'original haute déf pour d'éventuels zooms). Prévoir un **dos de carte** (card back).
+Traitement : **héberger localement** (`public/cards/`), **pas** de hotlink externe ; **renommer** selon `id` (`major-00.webp`…) ; **optimiser en WebP** ; prévoir un **dos de carte** (card back).
 
-**✅ Fait (étape 2)** — Les 78 cartes ont été récupérées depuis Wikimedia Commons via `scripts/fetch-cards.mjs` (résolvable/reprenable, retry+backoff, User-Agent poli) :
-- Source : scans **édition 1909**, tous marqués **« Public domain »**, résolution ~1100×1920.
-- Sortie : `public/cards/<id>.webp` (qualité 82, ~37 Mo au total) + **`public/cards/manifest.json`** (provenance : source Commons, URL originale, dimensions, licence — alimentera la page crédits).
+**✅ Fait** — Les 78 cartes ont été récupérées depuis Wikimedia Commons via `scripts/fetch-cards.mjs` (résolvable/reprenable, retry+backoff, User-Agent poli) :
+- Source : scans **édition 1909**, tous marqués **« Public domain »**.
+- Sortie : `public/cards/<id>.webp` + **`public/cards/manifest.json`** (provenance : source Commons, URL originale, dimensions, licence — alimente les crédits).
 - Dos de carte : **`public/cards/back.svg`** (dessin original, aucun problème de droits).
-- ⚠️ *Optimisation d'affichage à prévoir (étape UI)* : ces WebP sont la **source haute déf**. Pour l'affichage courant, générer des variantes plus petites (srcset responsive) — soit en déplaçant les images vers `src/assets/` + composant `<Image>` d'Astro, soit via une seconde passe `cwebp` à largeur réduite.
 
 ### 3.2 Textes (mots-clés + significations droit / inversé)
 
@@ -112,121 +95,145 @@ La source **canonique et intégralement domaine public** est :
 Ce livre contient, pour **chacune des 78 cartes**, une section *« Divinatory Meanings »* **et** *« Reversed »*. C'est littéralement le texte de référence du deck.
 
 - Disponible sur **Project Gutenberg** et **sacred-texts.com** (texte brut réutilisable).
-- **Anglais** : extraction directe → mots-clés + sens droit + sens inversé.
-- **Ton retenu (décidé)** : **version contemporaine et accessible**, pas la reprise littérale du texte de Waite (souvent ésotérique et daté). Waite 1911 sert de **socle de référence** (structure droit/inversé, mots-clés, esprit de chaque carte), mais les significations sont **reformulées dans un langage moderne** — clair, concret, applicable à la vie quotidienne (relations, travail, état d'esprit).
+- **Ton retenu** : rédaction **originale contemporaine** en cadre **JDR solo** (ambiance / piste narrative), pas la reprise littérale du texte de Waite. Waite 1911 sert de **socle de référence** (structure droit/inversé, mots-clés, esprit de chaque carte).
 
-**Français** : rédaction moderne originale FR, cohérente avec la version EN (pas une traduction mot-à-mot). Les deux langues sont écrites en parallèle pour un ton naturel dans chacune.
+**Français & anglais** écrits en parallèle pour un ton naturel dans chaque langue (pas une traduction mot-à-mot).
 
-**Décision** : construire notre **propre dataset JSON bilingue** (voir §4), rédigé en interne (contenu original, ton contemporain) en s'appuyant sur Waite 1911 (domaine public) comme référence — plutôt que dépendre d'une API externe. Un site statique doit embarquer ses données.
+**Décision** : construire notre **propre dataset TS bilingue** (voir §4), rédigé en interne (contenu original) en s'appuyant sur Waite 1911 comme référence — un site statique embarque ses données, pas d'API externe.
 
 ---
 
 ## 4. Modèle de données
 
-Un **fichier de données unique et versionné** dans le repo, source de vérité. Format proposé : un JSON (ou TS typé) par carte, structure bilingue.
+Source de vérité versionnée dans le repo, en **TypeScript typé** (et non JSON) pour
+bénéficier de la vérification de types (`astro check`) :
 
-```jsonc
-// src/data/cards.json  (extrait pour une carte)
+- `src/data/cards.ts` — les 78 cartes : structure (`id`, `arcana`, `suit`,
+  `number`, image) + contenu rédigé des **22 majeurs** ; `SUIT_NAMES`.
+- `src/data/minor-content.ts` — significations bilingues des **56 mineurs**.
+- `src/lib/types.ts` — types `Card`, `CardContent`, `Orientation`.
+
+Structure logique d'une carte :
+
+```ts
 {
-  "id": "major-00",           // identifiant stable, indépendant de la langue
-  "arcana": "major",          // "major" | "minor"
-  "suit": null,               // null | "wands" | "cups" | "swords" | "pentacles"
-  "number": 0,                // rang : 0-21 (majeurs) ou 1-14 (mineurs, 11-14 = figures)
-  "image": "major-00.webp",   // fichier dans public/cards/
-  "name": { "fr": "Le Mat", "en": "The Fool" },
-  "keywords": {
-    "upright":  { "fr": ["spontanéité", "renouveau", "liberté"], "en": ["spontaneity", "new beginnings", "freedom"] },
-    "reversed": { "fr": ["imprudence", "naïveté", "risque"],      "en": ["recklessness", "naivety", "risk"] }
+  id: 'major-00',            // identifiant stable, indépendant de la langue
+  arcana: 'major',           // 'major' | 'minor'
+  suit: null,                // null | 'wands' | 'cups' | 'swords' | 'pentacles'
+  number: 0,                 // 0–21 (majeurs) ou 1–14 (mineurs, 11–14 = figures)
+  image: 'major-00.webp',    // fichier dans public/cards/
+  name: { fr: 'Le Mat', en: 'The Fool' },
+  content: {                 // null si non rédigé
+    keywords: { upright: { fr: [...], en: [...] }, reversed: { fr: [...], en: [...] } },
+    meaning:  { upright: { fr: '…', en: '…' },     reversed: { fr: '…', en: '…' } },
   },
-  "meaning": {
-    "upright":  { "fr": "…", "en": "…" },   // texte long, adapté de Waite 1911
-    "reversed": { "fr": "…", "en": "…" }
-  }
 }
 ```
 
 **Principes** :
-- **`id` stable et neutre en langue** → sert de clé pour les images et les URLs.
-- Toutes les chaînes visibles sont des **objets `{ fr, en }`** → i18n centralisé dans la donnée.
-- Les 3 modes de deck sont de **simples filtres** sur `arcana` : complet = tout ; majeurs = `arcana === "major"` ; mineurs = `arcana === "minor"`.
-- Génération/validation possible via un **schéma** (Zod, ou `astro:content` collections + schéma) pour garantir que les 78 cartes sont complètes et bien formées.
+- **`id` stable et neutre en langue** → sert de clé pour les images et le permalien.
+- Toutes les chaînes visibles sont des **objets `{ fr, en }`** → i18n dans la donnée.
+- Les 3 modes de deck sont de **simples filtres** sur `arcana` (`getDeck` dans
+  `src/lib/deck.ts`) : complet = tout ; majeurs = `arcana === 'major'` ;
+  mineurs = `arcana === 'minor'`.
 
 ---
 
 ## 5. Architecture Astro & i18n
 
-- **Astro** en mode statique (`output: 'static'`), build → dossier `dist/` déployable tel quel.
-- **i18n (décidé)** : **routes localisées** via le routing intégré d'Astro — `/fr/…` et `/en/…`, langue par défaut **FR**, + un toggle de bascule dans le header. Meilleur SEO et URLs partageables par langue.
-- **Logique de tirage** = un petit **script client** (îlot / `<script>`) : tirer une carte = choisir un index aléatoire dans le sous-ensemble filtré, + un booléen aléatoire pour l'inversion (si l'option est activée). Aucune donnée serveur, tout est en statique.
-- **Rendu de la carte** : composant `Card.astro` recevant `id + orientation + lang`. L'inversion visuelle = rotation CSS `transform: rotate(180deg)`.
-- **Animations** (optionnel v1.1) : flip de carte au tirage (CSS `transform`), léger et sans dépendance.
+- **Astro** en mode statique (`output: 'static'`), build → `dist/` déployable tel quel.
+- **i18n** : **routes localisées** via le routing intégré d'Astro — `/fr/…` et
+  `/en/…`, défaut **FR** (`prefixDefaultLocale: true`), + un toggle dans le header.
+  La racine `/` redirige vers `/fr/` (`src/pages/index.astro`).
+- **Logique de tirage** = `src/lib/deck.ts` : `getDeck(mode)` filtre le sous-ensemble,
+  `drawCard(mode, allowReversed)` tire un index aléatoire + un booléen d'inversion.
+  Aucune donnée serveur.
+- **Rendu** : tout est **inline** dans `src/pages/[lang]/index.astro` (contrôles,
+  carte, lecture, galerie) — pas de composants `Card`/`DeckSelector` séparés.
+  L'inversion visuelle = rotation CSS `transform: rotate(180deg)`.
+- **Animations** : flip de carte au tirage (CSS `transform`), avec repli
+  `@media (prefers-reduced-motion: reduce)`.
+- **Polices** : `@font-face` maison en `font-display: optional` + `preload` dans
+  `Base.astro` (voir `CLAUDE.md`).
 
 ---
 
 ## 6. Fonctionnalités & UX
 
 **Écran principal** :
-1. Choix du **deck** (complet / majeurs / mineurs) — segmented control.
-2. Interrupteur **« autoriser les cartes inversées »**.
+1. Choix du **deck** (majeurs / mineurs / complet) — segmented control.
+2. Interrupteur **« autoriser les cartes inversées »** (activé par défaut).
 3. Bouton **« Tirer une carte »**.
-4. Zone de révélation : dos de carte → flip → illustration (éventuellement pivotée) + nom.
-5. Sous la carte : **mots-clés** (badges) + **texte** de signification correspondant à l'orientation.
-6. Bouton **« Nouveau tirage »**.
-7. **Toggle FR/EN** en header ; **lien crédits/mentions**.
+4. Zone de révélation : dos de carte → flip → illustration (éventuellement
+   pivotée) + nom.
+5. Sous la carte : **mots-clés** (badges) + **texte** de signification selon
+   l'orientation ; bouton **explorer l'autre orientation** ; **permalien** + **copie**.
+6. **Galerie** des 78 cartes, groupées par arcane / couleur.
+7. **Toggle FR/EN** en header ; **crédits** en pied de page.
 
-**Accessibilité** : contraste, `alt` descriptif sur l'illustration, orientation annoncée textuellement (« inversée »), focus clavier sur le bouton de tirage.
+**Accessibilité** : contraste, `alt` descriptif, orientation annoncée textuellement
+(« inversée »), focus clavier ; validation par `Entrée`.
 
 ---
 
-## 7. Arborescence projet (cible)
+## 7. Arborescence projet (livrée)
 
 ```
 tarot/
 ├─ docs/
 │  └─ STRATEGIE.md            ← ce document
 ├─ public/
-│  └─ cards/                  ← 78 images + dos de carte (local, PD/CC0)
+│  ├─ cards/                  ← 78 WebP + back.svg + manifest.json (provenance PD)
+│  └─ favicon.svg
 ├─ src/
 │  ├─ data/
-│  │  └─ cards.json           ← source de vérité bilingue (78 cartes)
+│  │  ├─ cards.ts             ← 78 cartes (structure + contenu des majeurs)
+│  │  └─ minor-content.ts     ← significations des 56 mineurs
 │  ├─ lib/
-│  │  ├─ deck.ts              ← filtres deck + tirage aléatoire
-│  │  └─ i18n.ts              ← libellés d'UI (boutons, titres)
+│  │  ├─ deck.ts              ← filtres deck + tirage (getDeck, drawCard)
+│  │  ├─ i18n.ts              ← libellés d'UI FR/EN
+│  │  └─ types.ts             ← types Card / CardContent / Orientation
 │  ├─ components/
-│  │  ├─ Card.astro
-│  │  ├─ DeckSelector.astro
 │  │  └─ LangToggle.astro
 │  ├─ pages/
-│  │  ├─ [lang]/index.astro   ← page de tirage (fr/en)
-│  │  └─ [lang]/credits.astro
-│  └─ layouts/Base.astro
+│  │  ├─ index.astro          ← redirection / → /fr/
+│  │  └─ [lang]/index.astro   ← page de tirage (fr/en)
+│  ├─ layouts/Base.astro      ← <head>, header, crédits en pied de page
+│  └─ env.d.ts
 ├─ scripts/
-│  └─ build-cards.mjs         ← (optionnel) génère cards.json depuis Waite 1911
+│  └─ fetch-cards.mjs         ← récupère/convertit les 78 illustrations
+├─ .github/workflows/deploy.yml
 ├─ astro.config.mjs
 └─ package.json
 ```
 
 ---
 
-## 8. Plan de mise en œuvre (étapes)
+## 8. Plan de mise en œuvre (historique — livré)
 
-1. **Init Astro** + config i18n + layout de base + déploiement à blanc (CI facultative).
-2. **Assets images** : récupérer le jeu PD/CC0, renommer selon `id`, optimiser en WebP, poser le dos de carte dans `public/cards/`.
-3. **Dataset** : construire `cards.json` — structure + les **22 majeurs** d'abord (EN depuis Waite, FR adapté), valider par schéma.
-4. **Moteur de tirage** (`lib/deck.ts`) : filtres deck, aléatoire, inversion. Tests unitaires légers.
-5. **UI** : sélecteur de deck, bouton tirer, composant carte, affichage mots-clés + texte, toggle langue.
-6. **Compléter le contenu** : les **56 mineurs** (EN + FR).
-7. **Finitions** : animation flip, accessibilité, page crédits/mentions PD, responsive mobile.
-8. **v2** (backlog) : tirages multi-cartes, historique, PWA offline, partage.
+1. ✅ **Init Astro** + config i18n + layout de base + déploiement.
+2. ✅ **Assets images** : récupération PD (Wikimedia), renommage `id`, WebP, dos de carte.
+3. ✅ **Dataset** : `cards.ts` — structure + les **22 majeurs**.
+4. ✅ **Moteur de tirage** (`lib/deck.ts`) : filtres deck, aléatoire, inversion (`rng` injectable).
+5. ✅ **UI** : sélecteur de deck, bouton tirer, carte, mots-clés + texte, toggle langue.
+6. ✅ **Contenu** : les **56 mineurs** (EN + FR).
+7. ✅ **Finitions** : flip, accessibilité, crédits PD (pied de page), révélation,
+   permalien, copie, galerie, responsive.
+8. **Backlog** : tirages multi-cartes, historique, PWA offline, partage.
 
 ---
 
-## 9. Décisions ouvertes / à confirmer
+## 9. Décisions actées
 
-- [x] **i18n** : ✅ routes localisées `/fr` `/en` (défaut FR + toggle).
-- [x] **Ton du contenu** : ✅ version contemporaine/accessible, socle Waite 1911 reformulé.
-- [x] **Images** : ✅ Wikimedia Commons haute résolution (priorité qualité), fallback CC0/metabismuth.
-- [x] **Hébergement** : ✅ **Cloudflare Pages** — gratuit, très fiable, déploiement Git en 1 clic, CDN mondial, HTTPS auto, **pas de contrainte de `base` URL** (déploie à la racine du domaine, contrairement à GitHub Pages en sous-chemin). Alternative équivalente : Netlify.
+- [x] **i18n** : routes localisées `/fr` `/en` (défaut FR + toggle).
+- [x] **Ton du contenu** : rédaction originale contemporaine, cadre JDR solo, socle Waite 1911.
+- [x] **Images** : Wikimedia Commons haute résolution (priorité qualité), fallback CC0/metabismuth.
+- [x] **Hébergement** : **GitHub Pages** — déploiement automatique via GitHub Actions
+  (`.github/workflows/deploy.yml`) à chaque push sur `main`. Le site est publié sous
+  le **sous-chemin du dépôt** (`8area8.github.io/tarot/`) : `astro.config.mjs` définit
+  `site` + `base: '/tarot/'`, et tous les liens internes passent par
+  `import.meta.env.BASE_URL`. Pour un déploiement à la racine (Cloudflare Pages,
+  Netlify), retirer `base`.
 
 ---
 
@@ -239,3 +246,4 @@ tarot/
 - [Rider-Waite Smith Tarot Cards (CC0) — luciellaes / itch.io](https://luciellaes.itch.io/rider-waite-smith-tarot-cards-cc0)
 - [Category:Rider-Waite tarot deck — Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck)
 - [A. E. Waite — The Pictorial Key to the Tarot (sacred-texts.com)](https://sacred-texts.com/tarot/pkt/index.htm)
+</content>

@@ -1,54 +1,43 @@
-# Les Terres Libres
+# Tirage Tarot
 
-Hub statique bilingue **FR / EN**, organisé en deux parties :
+Site statique **Astro**, **une seule page**, bilingue **FR / EN**, sans backend.
+On tire une carte de tarot **Rider-Waite-Smith** : arcanes majeurs, mineurs, ou
+jeu complet, cartes inversées optionnelles. Thème « nuit mystique »
+(indigo-aubergine + or).
 
-- **Personnage** → **Profil** : un nom, une **arcane fondatrice** (arcane majeure
-  tirée, qui représente le personnage) et 5 prismes (instinct, concentration,
-  éloquence, créativité, persévérance), chacun réglé sur un équilibre
-  (confiant / équilibré / risqué). Sauvegarde automatique en localStorage,
-  avec un visuel de prisme réfractant qui réagit à la configuration.
-- **Monde** :
-  - **Acteurs** : tire une carte de tarot non encore assignée pour incarner un
-    acteur, puis nomme-le et décris-le ; suppression possible.
-  - **Questions suspendues** : une liste de questions/fils narratifs, ajout,
-    édition et suppression. (Tout en localStorage.)
-- **Agir** :
-  - **Action** : tente une action incertaine portée par un prisme. L'équilibre
-    fixe le nombre de lancers de pièce (risqué 1, équilibré 2, confiant 3) ; on
-    s'arrête à la première Face (réussite), sinon échec. Issues critiques
-    (retournement / excès de confiance).
-  - **Confrontation** : enchaîne les actions sur deux jauges asymétriques
-    (Victoire à 5, Échec à 3) ; première pleine l'emporte. Réussite en risqué
-    ou échec en confiant valent 2 points. L'asymétrie compense le fait que les
-    actions favorisent la réussite (~50–83 % de victoire selon le prisme joué).
-- **Oracles** :
-  - **Tarot** — tirage d'une carte Rider-Waite-Smith (jeu complet, majeurs ou
-    mineurs), option inversée. Textes en cadre **JDR solo** : majeure = un acteur
-    marquant (personne, lieu, événement), mineure = un événement/une ambiance de
-    scène ; le négatif est assumé. Illustrations **domaine public**.
-  - **Pièce** — pile ou face (Soleil / Lune), lancer 3D.
+Les textes de lecture sont rédigés dans un cadre **JDR solo** : chaque carte
+propose une ambiance / une piste narrative plutôt qu'une prédiction. Le négatif
+est assumé.
 
-Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes `/fr` `/en`.
+Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes
+`/fr` et `/en`.
 
-Routes : `/{lang}` (hub) · `/{lang}/personnage` · `/{lang}/monde`
-(· `/monde/acteurs` · `/monde/questions`) · `/{lang}/agir`
-(· `/agir/action` · `/agir/confrontation`) · `/{lang}/oracles`
-(· `/oracles/tarot` · `/oracles/coin`) · `/{lang}/credits`.
+## Fonctionnalités
+
+- Choix du **jeu** : arcanes majeurs (défaut), mineurs, ou jeu complet (78 cartes).
+- **Inversées** activables : rotation 180° + texte de lecture dédié.
+- **Révélation** de la carte au clic, avec animation (respecte
+  `prefers-reduced-motion`).
+- Bouton pour **explorer l'autre orientation** sans re-tirer.
+- **Permalien** vers un tirage précis et **copie** de la lecture.
+- **Galerie** des 78 cartes, groupées par arcane / couleur.
 
 ## Développement
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321
+npm run dev        # http://localhost:4321/tarot/
 ```
 
 | Commande | Effet |
 |---|---|
-| `npm run dev` | Serveur de développement |
+| `npm run dev` | Serveur de développement (souvent déjà lancé en tâche de fond) |
 | `npm run build` | Build de production dans `dist/` |
 | `npm run preview` | Prévisualise le build |
-| `npx astro check` | Vérification de types |
+| `npx astro check` | Vérification de types (viser 0 erreur / warning / hint) |
 | `npx astro dev stop` | Arrête le serveur de dev détaché |
+
+Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 
 ## Structure
 
@@ -58,23 +47,23 @@ src/
     cards.ts           # 78 cartes : structure + contenu des majeurs
     minor-content.ts   # significations des 56 mineurs
   lib/
-    types.ts           # types Card / CardContent
-    deck.ts            # filtres de jeu + tirage (drawCard)
-    coin.ts            # lancer de pièce (flipCoin)
-    profile.ts         # personnage : prismes + load/save localStorage
-    world.ts           # monde : acteurs + questions + load/save localStorage
-    i18n.ts            # libellés d'UI FR/EN
-  layouts/Base.astro   # layout, header (nav), hreflang
-  components/           # LangToggle, …
-  pages/[lang]/
-    index.astro        # hub (Personnage / Agir / Oracles)
-    personnage.astro   # profil (nom + arcane + prismes)
-    credits.astro
-    monde/             # index (Acteurs / Questions) + acteurs + questions
-    agir/              # index (Action / Confrontation) + action + confrontation
-    oracles/           # index (Tarot / Pièce) + tarot + coin
-public/cards/           # 78 illustrations WebP + back.svg + manifest.json
-scripts/fetch-cards.mjs # (re)télécharge et convertit les illustrations
+    types.ts           # types Card / CardContent / Orientation
+    deck.ts            # getDeck(mode) + tirage drawCard(mode, allowReversed)
+    i18n.ts            # libellés d'UI FR/EN ; t(), ui, LOCALES, types Locale/UIKey
+  layouts/
+    Base.astro         # layout : <head>, header (marque + LangToggle), crédits, tokens CSS
+  components/
+    LangToggle.astro   # bascule FR/EN (lien vers /${autre}/)
+  pages/
+    index.astro        # redirection racine / → /fr/
+    [lang]/index.astro # la page : contrôles + carte + lecture + galerie
+public/
+  cards/               # 78 illustrations WebP + back.svg + manifest.json (provenance)
+  favicon.svg
+scripts/
+  fetch-cards.mjs      # (re)télécharge et convertit les 78 illustrations
+docs/
+  STRATEGIE.md
 ```
 
 ## Illustrations
@@ -89,19 +78,22 @@ node scripts/fetch-cards.mjs
 Le script est reprenable (retry/backoff, saute les fichiers déjà présents) et
 écrit `public/cards/manifest.json` (provenance et licence par carte).
 
-## Déploiement — Cloudflare Pages
+## Déploiement — GitHub Pages
 
-Site 100 % statique déployé à la racine du domaine (pas de `base` à configurer).
+Site 100 % statique, déployé automatiquement via GitHub Actions
+(`.github/workflows/deploy.yml`) à chaque push sur `main`.
 
-- **Build command** : `npm run build`
-- **Build output directory** : `dist`
-- **Node version** : 20+
+Le site est publié sous le **sous-chemin du dépôt** (`8area8.github.io/tarot/`) :
+`astro.config.mjs` définit `site` et `base: '/tarot/'`, et tous les liens
+internes passent par `import.meta.env.BASE_URL`.
 
-Netlify / GitHub Pages fonctionnent aussi (pour GitHub Pages en sous-chemin,
-définir `base` dans `astro.config.mjs`).
+Pour un déploiement à la racine d'un domaine (Cloudflare Pages, Netlify…),
+retirer `base` de `astro.config.mjs`.
 
 ## Licence & crédits
 
 Illustrations : domaine public (Pamela Colman Smith, 1909). Significations :
 textes originaux contemporains inspirés de *The Pictorial Key to the Tarot*
-(A. E. Waite, 1911, domaine public). Voir la page **Crédits** du site.
+(A. E. Waite, 1911, domaine public). Voir le pied de page du site.
+</content>
+</invoke>

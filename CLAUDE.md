@@ -2,13 +2,13 @@
 
 Site statique **Astro**, **une seule page**, bilingue **FR/EN**, sans backend.
 Thème « nuit mystique » (sombre indigo-aubergine + or). La page tire une carte de
-tarot (Rider-Waite-Smith) : arcanes majeurs ou mineurs, cartes inversées optionnelles.
+tarot (Rider-Waite-Smith) : arcanes majeurs, mineurs, ou jeu complet ; cartes inversées optionnelles.
 Voir `README.md` pour la structure des fichiers.
 
 ## Commandes
 
 ```bash
-npm run dev            # serveur de dev (http://localhost:4321, souvent déjà lancé en tâche de fond)
+npm run dev            # serveur de dev (http://localhost:4321/tarot/, souvent déjà lancé en tâche de fond)
 npm run build          # build statique → dist/
 npx astro check        # vérification de types (viser 0 erreur / 0 warning / 0 hint avant commit)
 npx astro dev stop     # arrête le serveur de dev détaché
@@ -48,7 +48,7 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 | `src/pages/index.astro` | redirection racine `/` → `/fr/` |
 | `src/lib/i18n.ts` | libellés d'UI ; `t()`, `ui`, `LOCALES`, types `Locale`/`UIKey` |
 | `src/lib/types.ts` | types des cartes (`Card`, `CardContent`, `Orientation`) |
-| `src/lib/deck.ts` | `getDeck(mode)`, `drawCard(mode, allowReversed)` ; `DeckMode = 'major' \| 'minor'` |
+| `src/lib/deck.ts` | `getDeck(mode)`, `drawCard(mode, allowReversed)` ; `DeckMode = 'major' \| 'minor' \| 'full'` |
 | `src/components/LangToggle.astro` | bascule FR/EN (site d'une page → lien vers `/${autre}/`) |
 | `src/data/cards.ts` | 78 cartes (22 majeurs rédigés + 56 mineurs), `SUIT_NAMES` |
 | `src/data/minor-content.ts` | significations des 56 mineurs |
@@ -68,11 +68,16 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 
 ## Mécaniques (règles métier)
 
-- **Tarot** : `drawCard(mode, allowReversed)` ; modes `major`/`minor` (le jeu complet
-  a été retiré) ; inversé = rotation 180° + texte `reversed`. Défaut : arcanes majeurs,
-  inversées autorisées. Un bouton permet d'explorer l'autre orientation sans re-tirer.
+- **Tarot** : `drawCard(mode, allowReversed)` ; modes `major`/`minor`/`full`
+  (arcanes majeurs, mineurs, ou jeu complet des 78 cartes) ; inversé = rotation
+  180° + texte `reversed`. Défaut : arcanes majeurs, inversées autorisées. Un
+  bouton permet d'explorer l'autre orientation sans re-tirer.
 
 ## Déploiement
 
-**Cloudflare Pages** — build `npm run build`, output `dist`, déployé à la racine
-du domaine (pas de `base` à configurer). Alternative : Netlify.
+**GitHub Pages** — déploiement automatique via GitHub Actions
+(`.github/workflows/deploy.yml`, action `withastro/action@v3`, Node 22) à chaque
+push sur `main`. Publié sous le **sous-chemin du dépôt** (`8area8.github.io/tarot/`) :
+`astro.config.mjs` définit `site` + `base: '/tarot/'`, et **tous les liens internes
+doivent passer par `import.meta.env.BASE_URL`**. Pour un déploiement à la racine
+d'un domaine (Cloudflare Pages, Netlify…), retirer `base`.
