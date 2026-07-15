@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import type { Draw } from './deck';
 import type { Card, Suit } from './types';
-import { SPREAD_POSITIONS } from '../data/spread';
+import type { SpreadPosition } from '../data/spread';
 
 /**
  * Dignités élémentaires (tradition Golden Dawn) : une carte ne se lit jamais
@@ -59,9 +59,9 @@ const ELEMENT_LABEL: Record<Element, Bi> = {
 };
 
 /** Dignité d'une paire adjacente, lue dans le sens du flux (a → b). */
-function pairLine(a: number, b: number, els: Element[]): Bi {
-  const A = SPREAD_POSITIONS[a].label;
-  const B = SPREAD_POSITIONS[b].label;
+function pairLine(a: number, b: number, els: Element[], positions: SpreadPosition[]): Bi {
+  const A = positions[a].label;
+  const B = positions[b].label;
   const eA = ELEMENT_LABEL[els[a]];
   const eB = ELEMENT_LABEL[els[b]];
   switch (dignity(els[a], els[b])) {
@@ -89,12 +89,12 @@ function pairLine(a: number, b: number, els: Element[]): Bi {
 }
 
 /** La carte centrale (l'Action), modifiée par ses deux flancs — cœur du système. */
-function centerLine(els: Element[]): Bi | null {
+function centerLine(els: Element[], positions: SpreadPosition[]): Bi | null {
   if (els.length !== 3) return null;
   const supportive = (d: Dignity) => d === 'same' || d === 'friend';
   const left = dignity(els[1], els[0]);
   const right = dignity(els[1], els[2]);
-  const C = SPREAD_POSITIONS[1].label;
+  const C = positions[1].label;
   if (supportive(left) && supportive(right)) {
     return {
       fr: `« ${C.fr} » est soutenue de part et d'autre : le geste épouse la scène.`,
@@ -111,12 +111,12 @@ function centerLine(els: Element[]): Bi | null {
 }
 
 /** Lignes de dignité d'un tirage (paires adjacentes + carte centrale). */
-export function buildDignities(draws: Draw[], locale: Locale): string[] {
+export function buildDignities(draws: Draw[], positions: SpreadPosition[], locale: Locale): string[] {
   if (draws.length < 2) return [];
   const els = draws.map((d) => cardElement(d.card));
   const lines: Bi[] = [];
-  for (let i = 0; i < draws.length - 1; i++) lines.push(pairLine(i, i + 1, els));
-  const center = centerLine(els);
+  for (let i = 0; i < draws.length - 1; i++) lines.push(pairLine(i, i + 1, els, positions));
+  const center = centerLine(els, positions);
   if (center) lines.push(center);
   return lines.map((l) => l[locale]);
 }

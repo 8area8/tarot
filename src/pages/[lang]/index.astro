@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
-import { SPREAD_POSITIONS } from '../../data/spread';
+import { MAX_SPREAD_COLS } from '../../data/spread';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -30,6 +30,7 @@ const base = import.meta.env.BASE_URL;
           <p class="opt-caption">{t(locale, 'spread.label')}</p>
           <div class="spread-select" role="radiogroup" aria-label={t(locale, 'spread.label')}>
             <label class="seg"><input type="radio" name="spread" value="single" checked /><span>{t(locale, 'spread.single')}</span></label>
+            <label class="seg"><input type="radio" name="spread" value="two" /><span>{t(locale, 'spread.two')}</span></label>
             <label class="seg"><input type="radio" name="spread" value="three" /><span>{t(locale, 'spread.three')}</span></label>
           </div>
 
@@ -92,11 +93,11 @@ const base = import.meta.env.BASE_URL;
 
     <div class="spread" id="spread" hidden>
       <div class="spread-cols" id="spread-cols">
-        {SPREAD_POSITIONS.map((pos, i) => (
+        {Array.from({ length: MAX_SPREAD_COLS }).map((_, i) => (
           <div class="spread-col" data-pos={i}>
             <p class="spread-pos">
-              <span class="spread-pos-label">{pos.label[locale]}</span>
-              <span class="spread-pos-gloss">{pos.gloss[locale]}</span>
+              <span class="spread-pos-label" data-pos-label></span>
+              <span class="spread-pos-gloss" data-pos-gloss></span>
             </p>
             <div class="card-slot small">
               <div class="flip" data-flip>
@@ -149,7 +150,7 @@ const base = import.meta.env.BASE_URL;
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
-  import { SPREAD_POSITIONS } from '../../data/spread';
+  import { SPREADS, type SpreadType } from '../../data/spread';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -211,18 +212,23 @@ const base = import.meta.env.BASE_URL;
   let view: Orientation = 'upright';
   let study = false; // « Étudier la carte » : panneau image + formule sous la carte
 
-  // État du tirage « trois temps ».
+  // État du tirage multi-cartes.
   let currentSpread: Draw[] | null = null;
-  let currentSpreadMode: DeckMode = 'major';
+  let currentSpreadMode: DeckMode = 'major'; // mode de jeu (pour les signaux des majeurs)
+  let currentSpreadType: SpreadType = 'three'; // positions actives (deux / trois)
   let hasDrawn = false; // au moins un tirage effectué (fige le libellé du bouton sur « Nouveau tirage »)
 
-  const getSpreadMode = (): 'single' | 'three' =>
-    (new FormData(form).get('spread') === 'three' ? 'three' : 'single');
+  const getSpreadMode = (): 'single' | SpreadType => {
+    const v = new FormData(form).get('spread');
+    return v === 'two' || v === 'three' ? v : 'single';
+  };
 
   // Avant le 1er tirage, le bouton reflète le type de tirage choisi.
   function updateDrawLabel() {
     if (hasDrawn) return;
-    btnDraw.textContent = getSpreadMode() === 'three' ? T['action.drawThree'] : T['action.draw'];
+    const v = getSpreadMode();
+    btnDraw.textContent =
+      v === 'three' ? T['action.drawThree'] : v === 'two' ? T['action.drawTwo'] : T['action.draw'];
   }
 
   // Reflète l'état « Étudier la carte » sur son bouton (libellé + aria-pressed).
@@ -450,10 +456,12 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  // Remplit une colonne du spread (carte + lecture) pour un tirage donné.
-  function fillSpreadColumn(col: HTMLElement, draw: Draw) {
+  // Remplit une colonne du spread (position + carte + lecture) pour un tirage donné.
+  function fillSpreadColumn(col: HTMLElement, draw: Draw, position: (typeof SPREADS)[SpreadType][number]) {
     const { card, orientation } = draw;
     const reversed = orientation === 'reversed';
+    col.querySelector<HTMLElement>('[data-pos-label]')!.textContent = position.label[locale];
+    col.querySelector<HTMLElement>('[data-pos-gloss]')!.textContent = position.gloss[locale];
     const img = col.querySelector<HTMLImageElement>('[data-card-img]')!;
     img.src = `${BASE}cards/${card.image}`;
     img.alt = card.name[locale];
@@ -485,9 +493,10 @@ const base = import.meta.env.BASE_URL;
   }
 
   // Synthèse du spread : dignités (relationnel) + signaux (additif) + quintessence (thème).
-  function renderSynthesis(draws: Draw[], mode: DeckMode) {
-    const digs = buildDignities(draws, locale);
-    const sigs = buildSignals(draws, mode, locale);
+  function renderSynthesis(draws: Draw[], mode: DeckMode, type: SpreadType) {
+    const positions = SPREADS[type];
+    const digs = buildDignities(draws, positions, locale);
+    const sigs = buildSignals(draws, mode, positions, locale);
     const q = quintessence(draws);
     const quintItems = q ? [`${q.name[locale]} · ${majorRoman(q.number)}`] : [];
     fillList(dignitiesEl, digs);
@@ -506,15 +515,28 @@ const base = import.meta.env.BASE_URL;
   }
 
   // Peuple et révèle le spread (avec ou sans animation selon les préférences).
-  function paintSpread(draws: Draw[], mode: DeckMode, animate: boolean) {
+  // Ne montre que les colonnes utiles (2 ou 3) ; masque le surplus.
+  function paintSpread(draws: Draw[], mode: DeckMode, type: SpreadType, animate: boolean) {
     currentSpread = draws;
     currentSpreadMode = mode;
+    currentSpreadType = type;
+    const positions = SPREADS[type];
     const cols = [...spreadCols.querySelectorAll<HTMLElement>('.spread-col')];
-    cols.forEach((col, i) => fillSpreadColumn(col, draws[i]));
-    renderSynthesis(draws, mode);
+    spreadCols.dataset.count = String(draws.length);
+    cols.forEach((col, i) => {
+      const f = col.querySelector<HTMLElement>('[data-flip]')!;
+      if (i >= draws.length) {
+        col.hidden = true;
+        f.classList.remove('is-flipped');
+        return;
+      }
+      col.hidden = false;
+      fillSpreadColumn(col, draws[i], positions[i]);
+    });
+    renderSynthesis(draws, mode, type);
     result.hidden = true;
     spreadEl.hidden = false;
-    cols.forEach((col, i) => {
+    cols.slice(0, draws.length).forEach((col, i) => {
       const f = col.querySelector<HTMLElement>('[data-flip]')!;
       if (!animate || reduceMotion) {
         f.classList.add('no-anim');
@@ -528,8 +550,9 @@ const base = import.meta.env.BASE_URL;
     syncHashSpread(draws);
   }
 
-  async function doSpread(mode: DeckMode, allowReversed: boolean) {
-    const draws = drawSpread(mode, allowReversed, 3);
+  async function doSpread(mode: DeckMode, allowReversed: boolean, type: SpreadType) {
+    const count = SPREADS[type].length;
+    const draws = drawSpread(mode, allowReversed, count);
 
     btnDraw.disabled = true;
     btnDraw.classList.add('is-loading');
@@ -539,7 +562,7 @@ const base = import.meta.env.BASE_URL;
     const wasFlipped = cols.some((c) => c.querySelector('[data-flip]')!.classList.contains('is-flipped'));
 
     const reveal = () => {
-      paintSpread(draws, mode, true);
+      paintSpread(draws, mode, type, true);
       finishDraw();
       cols[0]?.querySelector<HTMLElement>('[data-name]')?.focus({ preventScroll: true });
     };
@@ -557,8 +580,9 @@ const base = import.meta.env.BASE_URL;
     const data = new FormData(form);
     const mode = (data.get('deck') as DeckMode) ?? 'major';
     const allowReversed = data.get('reversed') === 'on';
-    if (data.get('spread') === 'three') {
-      await doSpread(mode, allowReversed);
+    const spread = data.get('spread');
+    if (spread === 'two' || spread === 'three') {
+      await doSpread(mode, allowReversed, spread);
     } else {
       await doSingle(mode, allowReversed);
     }
@@ -647,8 +671,9 @@ const base = import.meta.env.BASE_URL;
   // Copier le spread entier (positions + significations + signaux) pour le journal.
   btnCopySpread.addEventListener('click', async () => {
     if (!currentSpread) return;
+    const positions = SPREADS[currentSpreadType];
     const blocks = currentSpread.map((d, i) => {
-      const pos = SPREAD_POSITIONS[i];
+      const pos = positions[i];
       const orient = d.orientation === 'reversed' ? T['card.reversed'] : T['card.upright'];
       const meaning = d.card.content
         ? d.card.content.meaning[d.orientation][locale]
@@ -656,11 +681,11 @@ const base = import.meta.env.BASE_URL;
       return `${pos.label[locale]} — ${d.card.name[locale]} (${orient})\n${meaning}`;
     });
     let text = blocks.join('\n\n');
-    const dignities = buildDignities(currentSpread, locale);
+    const dignities = buildDignities(currentSpread, positions, locale);
     if (dignities.length) {
       text += `\n\n${T['spread.dignities']} :\n` + dignities.map((s) => `- ${s}`).join('\n');
     }
-    const signals = buildSignals(currentSpread, currentSpreadMode, locale);
+    const signals = buildSignals(currentSpread, currentSpreadMode, positions, locale);
     if (signals.length) {
       text += `\n\n${T['spread.signals']} :\n` + signals.map((s) => `- ${s}`).join('\n');
     }
@@ -744,10 +769,12 @@ const base = import.meta.env.BASE_URL;
         if (!card) return;
         draws.push({ card, orientation: rev ? 'reversed' : 'upright' });
       }
-      if (draws.length !== SPREAD_POSITIONS.length) return;
-      const radio = form.querySelector<HTMLInputElement>('input[name="spread"][value="three"]');
+      // Le nombre de cartes détermine le type de tirage.
+      const type: SpreadType | null = draws.length === 2 ? 'two' : draws.length === 3 ? 'three' : null;
+      if (!type) return;
+      const radio = form.querySelector<HTMLInputElement>(`input[name="spread"][value="${type}"]`);
       if (radio) radio.checked = true;
-      paintSpread(draws, inferMode(draws), false);
+      paintSpread(draws, inferMode(draws), type, false);
       hasDrawn = true;
       btnDraw.textContent = T['action.again'];
       return;
@@ -901,7 +928,7 @@ const base = import.meta.env.BASE_URL;
   }
   .spread-select {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.25rem;
   }
   .deck-select {
@@ -1334,6 +1361,12 @@ const base = import.meta.env.BASE_URL;
     grid-template-rows: repeat(7, auto);
     column-gap: 1.75rem;
     row-gap: 0.7rem;
+  }
+  /* Tirage à deux cartes : deux colonnes centrées, plus resserrées. */
+  .spread-cols[data-count='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 34rem;
+    margin-inline: auto;
   }
   .spread-col {
     display: grid;

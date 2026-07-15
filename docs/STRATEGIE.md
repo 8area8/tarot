@@ -26,8 +26,9 @@
 - Interrupteur **cartes inversées** (activé par défaut).
 - **Tirage** d'une carte : dos → révélation (flip) → illustration (éventuellement
   pivotée à 180°) + nom.
-- Tirage **« trois temps »** (Situation · Action · Conséquence) : dignités
-  élémentaires, signaux, quintessence.
+- Tirages **multi-cartes** : « deux cartes » (Situation · Conseil) et « trois
+  temps » (Situation · Action · Conséquence) : dignités élémentaires, signaux,
+  quintessence.
 - **Lecture** : mots-clés + signification correspondant à l'orientation, rédigés
   dans un cadre **JDR solo** (ambiance / piste narrative, le négatif assumé).
 - **« Étudier la carte »** : l'image (symboles RWS) + la formule (élément × nombre).
@@ -197,7 +198,7 @@ tarot/
 │  │  ├─ cards.ts             ← 78 cartes (structure + contenu des majeurs)
 │  │  ├─ minor-content.ts     ← significations des 56 mineurs
 │  │  ├─ grammar.ts           ← grammaire (éléments, nombres, cour, voyage, dignités)
-│  │  ├─ spread.ts            ← positions du tirage « trois temps »
+│  │  ├─ spread.ts            ← positions des tirages (deux / trois cartes)
 │  │  ├─ method.ts            ← étapes « comment lire »
 │  │  └─ symbols.ts           ← « lire l'image » : symboles RWS des 78 cartes
 │  ├─ lib/

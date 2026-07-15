@@ -23,7 +23,8 @@ Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes
   `prefers-reduced-motion`).
 - Bouton pour **explorer l'autre orientation** sans re-tirer.
 - **Permalien** vers un tirage précis et **copie** de la lecture.
-- Tirage **« trois temps »** (Situation · Action · Conséquence) avec synthèse :
+- Tirages **multi-cartes** : « deux cartes » (Situation · Conseil) et
+  « trois temps » (Situation · Action · Conséquence), avec synthèse :
   dignités élémentaires, signaux, quintessence.
 - **« Étudier la carte »** : l'image (symboles RWS repérables) + la formule
   (élément × nombre / voyage).

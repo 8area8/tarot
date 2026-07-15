@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import type { Draw, DeckMode } from './deck';
 import { ELEMENTS, JOURNEY } from '../data/grammar';
-import { SPREAD_POSITIONS } from '../data/spread';
+import type { SpreadPosition } from '../data/spread';
 import type { Suit } from './types';
 
 /**
@@ -42,12 +42,12 @@ function elementSignal(draws: Draw[]): Bi | null {
 }
 
 /** Poids des arcanes majeurs (ignoré en mode « majeurs », où c'est trivial). */
-function majorSignal(draws: Draw[], mode: DeckMode): Bi | null {
+function majorSignal(draws: Draw[], mode: DeckMode, positions: SpreadPosition[]): Bi | null {
   if (mode === 'major') return null;
   const majorIdx = draws.map((d, i) => (d.card.arcana === 'major' ? i : -1)).filter((i) => i >= 0);
   if (majorIdx.length === 0) return null;
   if (majorIdx.length === 1) {
-    const pos = SPREAD_POSITIONS[majorIdx[0]];
+    const pos = positions[majorIdx[0]];
     return {
       fr: `Un arcane majeur en « ${pos.label.fr} » : le destin s'en mêle sur ce point.`,
       en: `A major arcanum at “${pos.label.en}”: fate has a hand here.`,
@@ -96,7 +96,7 @@ function courtSignal(draws: Draw[]): Bi | null {
 }
 
 /** Balance des orientations sur l'ensemble du spread. */
-function orientationSignal(draws: Draw[]): Bi | null {
+function orientationSignal(draws: Draw[], positions: SpreadPosition[]): Bi | null {
   const reversedIdx = draws.map((d, i) => (d.orientation === 'reversed' ? i : -1)).filter((i) => i >= 0);
   if (reversedIdx.length === 0) {
     return {
@@ -110,7 +110,7 @@ function orientationSignal(draws: Draw[]): Bi | null {
       en: 'All reversed: nothing shows its face plainly.',
     };
   }
-  const names = reversedIdx.map((i) => SPREAD_POSITIONS[i].label);
+  const names = reversedIdx.map((i) => positions[i].label);
   const fr = names.map((n) => `« ${n.fr} »`).join(' et ');
   const en = names.map((n) => `“${n.en}”`).join(' and ');
   const plural = names.length > 1;
@@ -121,13 +121,18 @@ function orientationSignal(draws: Draw[]): Bi | null {
 }
 
 /** Assemble les signaux pertinents d'un tirage, dans la langue demandée. */
-export function buildSignals(draws: Draw[], mode: DeckMode, locale: Locale): string[] {
+export function buildSignals(
+  draws: Draw[],
+  mode: DeckMode,
+  positions: SpreadPosition[],
+  locale: Locale,
+): string[] {
   const signals = [
     elementSignal(draws),
-    majorSignal(draws, mode),
+    majorSignal(draws, mode, positions),
     journeySignal(draws),
     courtSignal(draws),
-    orientationSignal(draws),
+    orientationSignal(draws, positions),
   ];
   return signals.filter((s): s is Bi => s !== null).map((s) => s[locale]);
 }
