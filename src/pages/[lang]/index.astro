@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
 import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
+import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
 import type { Suit } from '../../lib/types';
 
 export function getStaticPaths() {
@@ -13,6 +14,10 @@ const base = import.meta.env.BASE_URL;
 
 // Galerie : groupes ordonnés (majeurs, puis les 4 enseignes).
 const SUIT_ORDER: Suit[] = ['wands', 'cups', 'swords', 'pentacles'];
+
+// Grammaire : entrées ordonnées pour la section pédagogique.
+const numberEntries = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ key: String(n), ...NUMBERS[n] }));
+const courtEntries = [11, 12, 13, 14].map((n) => COURT[n]);
 const galleryGroups = [
   { heading: t(locale, 'gallery.majors'), cards: cards.filter((c) => c.arcana === 'major') },
   ...SUIT_ORDER.map((suit) => ({
@@ -42,6 +47,12 @@ const galleryGroups = [
         <span class="switch-text">{t(locale, 'option.reversed')}</span>
       </label>
 
+      <label class="switch">
+        <input type="checkbox" name="learn" />
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-text">{t(locale, 'option.learn')}</span>
+      </label>
+
       <button type="submit" class="btn-draw" id="btn-draw">{t(locale, 'action.draw')}</button>
     </form>
 
@@ -68,6 +79,10 @@ const galleryGroups = [
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
+          <div class="decompose" id="decompose" hidden>
+            <p class="decompose-title" id="decompose-title"></p>
+            <div class="bricks" id="bricks"></div>
+          </div>
           <div class="reading-actions">
             <button type="button" class="btn-orient" id="btn-orient"></button>
             <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
@@ -97,6 +112,63 @@ const galleryGroups = [
         </div>
       ))}
     </section>
+
+    <div class="grammar-toggle">
+      <button type="button" class="btn-gallery" id="btn-grammar" aria-expanded="false" aria-controls="grammar">
+        {t(locale, 'grammar.show')}
+      </button>
+    </div>
+
+    <section class="grammar" id="grammar" aria-label={t(locale, 'grammar.heading')} hidden>
+      <div class="grammar-group">
+        <h3>{t(locale, 'grammar.elements')}</h3>
+        <ul class="grammar-list">
+          {SUIT_ORDER.map((suit) => (
+            <li>
+              <p class="g-term"><span class="g-glyph">{ELEMENTS[suit].glyph}</span>{ELEMENTS[suit].label[locale]} <span class="g-gloss">{ELEMENTS[suit].gloss[locale]}</span></p>
+              <p class="g-text">{ELEMENTS[suit].text[locale]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="grammar-group">
+        <h3>{t(locale, 'grammar.numbers')}</h3>
+        <ul class="grammar-list">
+          {numberEntries.map((e) => (
+            <li>
+              <p class="g-term"><span class="g-key">{e.key}</span>{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+              <p class="g-text">{e.text[locale]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="grammar-group">
+        <h3>{t(locale, 'grammar.court')}</h3>
+        <ul class="grammar-list">
+          {courtEntries.map((e) => (
+            <li>
+              <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+              <p class="g-text">{e.text[locale]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="grammar-group">
+        <h3>{t(locale, 'grammar.journey')}</h3>
+        <p class="grammar-intro">{JOURNEY_INTRO[locale]}</p>
+        <ul class="grammar-list">
+          {JOURNEY.map((s) => (
+            <li>
+              <p class="g-term"><span class="g-key">{s.range}</span>{s.label[locale]}</p>
+              <p class="g-text">{s.text[locale]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   </section>
 </Base>
 
@@ -104,6 +176,7 @@ const galleryGroups = [
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, type DeckMode } from '../../lib/deck';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
+  import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -131,6 +204,12 @@ const galleryGroups = [
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnGallery = document.querySelector<HTMLButtonElement>('#btn-gallery')!;
   const gallery = document.querySelector<HTMLElement>('#gallery')!;
+  const learnCheck = form.querySelector<HTMLInputElement>('input[name="learn"]')!;
+  const decomposeEl = document.querySelector<HTMLElement>('#decompose')!;
+  const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
+  const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
+  const btnGrammar = document.querySelector<HTMLButtonElement>('#btn-grammar')!;
+  const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
@@ -146,6 +225,64 @@ const galleryGroups = [
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
+  let learn = false; // mode apprentissage : affiche la décomposition sous la carte
+
+  // Une « brique » de lecture, dépliable (élément, nombre, figure ou étape du voyage).
+  function makeBrick(key: string, label: string, gloss: string, text: string): HTMLElement {
+    const d = document.createElement('details');
+    d.className = 'brick';
+    const s = document.createElement('summary');
+    if (key) {
+      const k = document.createElement('span');
+      k.className = 'brick-key';
+      k.textContent = key;
+      s.appendChild(k);
+    }
+    const l = document.createElement('span');
+    l.className = 'brick-term';
+    l.textContent = label;
+    s.appendChild(l);
+    if (gloss) {
+      const g = document.createElement('span');
+      g.className = 'brick-gloss';
+      g.textContent = gloss;
+      s.appendChild(g);
+    }
+    d.appendChild(s);
+    const p = document.createElement('p');
+    p.className = 'brick-text';
+    p.textContent = text;
+    d.appendChild(p);
+    return d;
+  }
+
+  // Décompose la carte en sa « formule » (élément × nombre/figure, ou étape du voyage).
+  function updateDecompose(card: Card | null) {
+    if (!card || !learn) {
+      decomposeEl.hidden = true;
+      return;
+    }
+    bricksEl.replaceChildren();
+    if (card.arcana === 'minor') {
+      const suit = card.suit!;
+      const el = ELEMENTS[suit];
+      const rank = card.number <= 10 ? NUMBERS[card.number] : COURT[card.number];
+      const rankKey = card.number <= 10 ? String(card.number) : '';
+      decomposeTitle.textContent = `${el.glyph} ${el.label[locale]} × ${rank.label[locale]}`;
+      bricksEl.appendChild(makeBrick(el.glyph, el.label[locale], el.gloss[locale], el.text[locale]));
+      bricksEl.appendChild(makeBrick(rankKey, rank.label[locale], rank.gloss[locale], rank.text[locale]));
+    } else if (card.number === 0) {
+      decomposeTitle.textContent = T['meta.major'];
+      bricksEl.appendChild(makeBrick('0', card.name[locale], '', JOURNEY_INTRO[locale]));
+    } else {
+      const stage = JOURNEY.find((s) => s.cards.includes(card.number));
+      if (stage) {
+        decomposeTitle.textContent = `${T['meta.major']} · ${stage.range}`;
+        bricksEl.appendChild(makeBrick(stage.range, stage.label[locale], '', stage.text[locale]));
+      }
+    }
+    decomposeEl.hidden = false;
+  }
 
   // Renseigne la ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
   function setMeta(card: Card) {
@@ -228,6 +365,8 @@ const galleryGroups = [
       meaningEl.textContent = T['card.noContent'];
       btnOrient.hidden = true;
     }
+
+    updateDecompose(card);
 
     placeholder.hidden = true;
     body.hidden = false;
@@ -312,6 +451,15 @@ const galleryGroups = [
     if (card) selectCard(card, 'upright');
   });
 
+  // Déplier / replier la « grammaire du tarot » (section pédagogique).
+  btnGrammar.addEventListener('click', () => {
+    const willShow = grammarSection.hasAttribute('hidden');
+    grammarSection.toggleAttribute('hidden', !willShow);
+    btnGrammar.textContent = willShow ? T['grammar.hide'] : T['grammar.show'];
+    btnGrammar.setAttribute('aria-expanded', String(willShow));
+    if (willShow) grammarSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
   // Déplier / replier la galerie.
   btnGallery.addEventListener('click', () => {
     const willShow = gallery.hasAttribute('hidden');
@@ -350,17 +498,22 @@ const galleryGroups = [
     }
   });
 
-  // Mémoriser les préférences (mode de jeu + inversées) entre les visites.
+  // Mémoriser les préférences (mode de jeu + inversées + apprentissage) entre les visites.
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
+  const PREF_LEARN = 'tarot.learn';
   form.addEventListener('change', () => {
     try {
       const data = new FormData(form);
       localStorage.setItem(PREF_DECK, String(data.get('deck') ?? 'major'));
       localStorage.setItem(PREF_REVERSED, data.get('reversed') === 'on' ? '1' : '0');
+      localStorage.setItem(PREF_LEARN, learnCheck.checked ? '1' : '0');
     } catch {
       /* stockage indisponible */
     }
+    // Refléter le mode apprentissage sur la carte affichée sans re-tirer.
+    learn = learnCheck.checked;
+    updateDecompose(current);
   });
   (function restorePrefs() {
     try {
@@ -374,9 +527,11 @@ const galleryGroups = [
         const check = form.querySelector<HTMLInputElement>('input[name="reversed"]');
         if (check) check.checked = rev === '1';
       }
+      learnCheck.checked = localStorage.getItem(PREF_LEARN) === '1';
     } catch {
       /* stockage indisponible */
     }
+    learn = learnCheck.checked;
   })();
 
   // Permalien : afficher la carte encodée dans l'URL au chargement (#id ou #id-reversed).
@@ -668,6 +823,7 @@ const galleryGroups = [
   .reading-body.is-revealing > :nth-child(4) { animation-delay: 0.18s; }
   .reading-body.is-revealing > :nth-child(5) { animation-delay: 0.24s; }
   .reading-body.is-revealing > :nth-child(6) { animation-delay: 0.3s; }
+  .reading-body.is-revealing > :nth-child(7) { animation-delay: 0.36s; }
   @keyframes reading-in {
     from {
       opacity: 0;
@@ -758,6 +914,83 @@ const galleryGroups = [
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.18);
     color: var(--text);
+  }
+
+  /* ---- Décomposition (mode apprentissage) ---- */
+  .decompose {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(201, 164, 76, 0.05);
+  }
+  .decompose[hidden] {
+    display: none;
+  }
+  .decompose-title {
+    margin: 0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+  }
+  .bricks {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .brick {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+  }
+  .brick > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .brick > summary::-webkit-details-marker {
+    display: none;
+  }
+  .brick > summary::after {
+    content: '+';
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 1.1em;
+    line-height: 1;
+  }
+  .brick[open] > summary::after {
+    content: '–';
+  }
+  .brick-key {
+    min-width: 1.4rem;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-family: 'Apple Symbols', 'Segoe UI Symbol', 'Noto Sans Symbols2', var(--font-body);
+  }
+  .brick-term {
+    color: var(--text);
+  }
+  .brick-gloss {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+  .brick-text {
+    margin: 0 0.65rem 0.55rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .brick > summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    border-radius: 8px;
   }
 
   /* ---- Astuce clavier ---- */
@@ -871,6 +1104,70 @@ const galleryGroups = [
     .gallery-name {
       transition: none;
     }
+  }
+
+  /* ---- Grammaire du tarot (section pédagogique) ---- */
+  .grammar-toggle {
+    display: flex;
+    justify-content: center;
+  }
+  .grammar {
+    display: grid;
+    gap: 2rem;
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+  .grammar[hidden] {
+    display: none;
+  }
+  .grammar-group h3 {
+    margin: 0 0 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+  .grammar-intro {
+    margin: -0.3rem 0 1rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .grammar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .grammar-list .g-term {
+    margin: 0 0 0.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: var(--text);
+  }
+  .g-glyph {
+    font-size: 1.15em;
+  }
+  .g-key {
+    min-width: 2.4rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+  .g-gloss {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+  .grammar-list .g-text {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.65;
   }
 
   @media (max-width: 46rem) {
