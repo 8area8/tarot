@@ -162,6 +162,7 @@ const base = import.meta.env.BASE_URL;
   import { SYMBOLS } from '../../data/symbols';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREADS, type SpreadType } from '../../data/spread';
+  import { pushHistory, type SpreadKind } from '../../lib/history';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -455,6 +456,16 @@ const base = import.meta.env.BASE_URL;
     });
   }
 
+  // Consigne le tirage dans l'historique local (relu par la page « Historique »).
+  // Uniquement sur un vrai tirage : ni la bascule d'orientation, ni une restauration.
+  function recordDraw(kind: SpreadKind, draws: Draw[]) {
+    pushHistory({
+      at: Date.now(),
+      kind,
+      cards: draws.map((d) => ({ id: d.card.id, reversed: d.orientation === 'reversed' })),
+    });
+  }
+
   // Marque la fin d'un tirage : bouton réactivé, libellé figé sur « Nouveau tirage ».
   function finishDraw() {
     btnDraw.disabled = false;
@@ -467,6 +478,7 @@ const base = import.meta.env.BASE_URL;
     const draw = drawCard(mode, allowReversed);
     current = draw.card;
     view = draw.orientation;
+    recordDraw(askMode ? 'yesno' : 'single', [draw]);
 
     btnDraw.disabled = true;
     btnDraw.classList.add('is-loading');
@@ -594,6 +606,7 @@ const base = import.meta.env.BASE_URL;
   async function doSpread(mode: DeckMode, allowReversed: boolean, type: SpreadType) {
     const count = SPREADS[type].length;
     const draws = drawSpread(mode, allowReversed, count);
+    recordDraw(type, draws);
 
     btnDraw.disabled = true;
     btnDraw.classList.add('is-loading');
