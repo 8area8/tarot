@@ -221,3 +221,48 @@ export const JOURNEY: JourneyStage[] = [
     },
   },
 ];
+
+/**
+ * Dignités élémentaires : comment les cartes voisines d'un tirage s'influencent
+ * selon leurs éléments. La clé de lecture d'un spread — voir lib/dignities.ts
+ * pour le calcul appliqué au tirage « trois temps ».
+ */
+export const DIGNITIES_INTRO: Bi = {
+  fr: 'Une carte ne se lit jamais seule : ses voisines la renforcent ou l’affaiblissent selon leurs éléments. C’est la clé d’un tirage à plusieurs cartes.',
+  en: 'A card is never read alone: its neighbours strengthen or weaken it by their elements. This is the key to any multi-card spread.',
+};
+
+export const DIGNITIES: GrammarEntry[] = [
+  {
+    label: { fr: 'Même élément', en: 'Same element' },
+    gloss: { fr: 'amplification', en: 'amplification' },
+    text: {
+      fr: 'Deux cartes du même élément parlent d’une seule voix, plus forte : l’énergie se concentre au lieu de se disperser.',
+      en: 'Two cards of the same element speak with one louder voice: the energy concentrates instead of scattering.',
+    },
+  },
+  {
+    label: { fr: 'Amis — Feu & Air, Eau & Terre', en: 'Friends — Fire & Air, Water & Earth' },
+    gloss: { fr: 'renforcement', en: 'reinforcement' },
+    text: {
+      fr: 'L’actif attise l’actif, le passif porte le passif : ces éléments s’entendent et se prêtent main-forte.',
+      en: 'Active kindles active, passive carries passive: these elements agree and lend each other strength.',
+    },
+  },
+  {
+    label: { fr: 'Contraires — Feu & Eau, Air & Terre', en: 'Contraries — Fire & Water, Air & Earth' },
+    gloss: { fr: 'affaiblissement', en: 'weakening' },
+    text: {
+      fr: 'L’un éteint ou étouffe l’autre : les cartes se contredisent, la tension monte, l’élan se dilue.',
+      en: 'One douses or smothers the other: the cards contradict, tension rises, momentum thins.',
+    },
+  },
+  {
+    label: { fr: 'Neutres — Feu & Terre, Air & Eau', en: 'Neutral — Fire & Earth, Air & Water' },
+    gloss: { fr: 'coexistence', en: 'coexistence' },
+    text: {
+      fr: 'Ni alliés ni rivaux : ils coexistent, chacun colore la scène sans la dominer.',
+      en: 'Neither allies nor rivals: they coexist, each colouring the scene without ruling it.',
+    },
+  },
+];

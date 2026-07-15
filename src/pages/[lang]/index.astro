@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
 import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
-import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
+import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO, DIGNITIES, DIGNITIES_INTRO } from '../../data/grammar';
 import { SPREAD_POSITIONS } from '../../data/spread';
 import type { Suit } from '../../lib/types';
 
@@ -128,8 +128,14 @@ const galleryGroups = [
       </div>
 
       <div class="spread-synthesis" id="spread-synthesis" hidden>
-        <p class="spread-signals-title">{t(locale, 'spread.signals')}</p>
-        <ul class="signals" id="signals"></ul>
+        <div class="synth-group" id="dignities-group" hidden>
+          <p class="spread-signals-title">{t(locale, 'spread.dignities')}</p>
+          <ul class="signals" id="dignities"></ul>
+        </div>
+        <div class="synth-group" id="signals-group" hidden>
+          <p class="spread-signals-title">{t(locale, 'spread.signals')}</p>
+          <ul class="signals" id="signals"></ul>
+        </div>
       </div>
 
       <div class="spread-actions">
@@ -215,6 +221,19 @@ const galleryGroups = [
           ))}
         </ul>
       </div>
+
+      <div class="grammar-group">
+        <h3>{t(locale, 'grammar.dignities')}</h3>
+        <p class="grammar-intro">{DIGNITIES_INTRO[locale]}</p>
+        <ul class="grammar-list">
+          {DIGNITIES.map((e) => (
+            <li>
+              <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+              <p class="g-text">{e.text[locale]}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   </section>
 </Base>
@@ -223,6 +242,7 @@ const galleryGroups = [
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
   import { buildSignals } from '../../lib/signals';
+  import { buildDignities } from '../../lib/dignities';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREAD_POSITIONS } from '../../data/spread';
@@ -265,6 +285,9 @@ const galleryGroups = [
   const spreadCols = document.querySelector<HTMLElement>('#spread-cols')!;
   const synthEl = document.querySelector<HTMLElement>('#spread-synthesis')!;
   const signalsEl = document.querySelector<HTMLElement>('#signals')!;
+  const signalsGroup = document.querySelector<HTMLElement>('#signals-group')!;
+  const dignitiesEl = document.querySelector<HTMLElement>('#dignities')!;
+  const dignitiesGroup = document.querySelector<HTMLElement>('#dignities-group')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
@@ -533,16 +556,24 @@ const galleryGroups = [
       : T['card.noContent'];
   }
 
-  // Affiche les « signaux » (synthèse honnête du spread).
-  function renderSignals(draws: Draw[], mode: DeckMode) {
-    const list = buildSignals(draws, mode, locale);
-    signalsEl.replaceChildren();
-    for (const s of list) {
+  function fillList(el: HTMLElement, items: string[]) {
+    el.replaceChildren();
+    for (const s of items) {
       const li = document.createElement('li');
       li.textContent = s;
-      signalsEl.appendChild(li);
+      el.appendChild(li);
     }
-    synthEl.hidden = list.length === 0;
+  }
+
+  // Synthèse du spread : dignités élémentaires (relationnel) + signaux (additif).
+  function renderSynthesis(draws: Draw[], mode: DeckMode) {
+    const digs = buildDignities(draws, locale);
+    const sigs = buildSignals(draws, mode, locale);
+    fillList(dignitiesEl, digs);
+    dignitiesGroup.hidden = digs.length === 0;
+    fillList(signalsEl, sigs);
+    signalsGroup.hidden = sigs.length === 0;
+    synthEl.hidden = digs.length === 0 && sigs.length === 0;
   }
 
   // Reflète le spread dans l'URL : #spread=<id>[.r],<id>[.r],<id>[.r]
@@ -557,7 +588,7 @@ const galleryGroups = [
     currentSpreadMode = mode;
     const cols = [...spreadCols.querySelectorAll<HTMLElement>('.spread-col')];
     cols.forEach((col, i) => fillSpreadColumn(col, draws[i]));
-    renderSignals(draws, mode);
+    renderSynthesis(draws, mode);
     result.hidden = true;
     spreadEl.hidden = false;
     cols.forEach((col, i) => {
@@ -743,6 +774,10 @@ const galleryGroups = [
       return `${pos.label[locale]} — ${d.card.name[locale]} (${orient})\n${meaning}`;
     });
     let text = blocks.join('\n\n');
+    const dignities = buildDignities(currentSpread, locale);
+    if (dignities.length) {
+      text += `\n\n${T['spread.dignities']} :\n` + dignities.map((s) => `- ${s}`).join('\n');
+    }
     const signals = buildSignals(currentSpread, currentSpreadMode, locale);
     if (signals.length) {
       text += `\n\n${T['spread.signals']} :\n` + signals.map((s) => `- ${s}`).join('\n');
@@ -1437,13 +1472,22 @@ const galleryGroups = [
     font-size: 0.98rem;
     line-height: 1.65;
   }
-  /* Synthèse : les « signaux » du tirage, centrés sous les trois cartes. */
+  /* Synthèse : dignités (relationnel) + signaux (additif), sous les trois cartes. */
   .spread-synthesis {
     max-width: 44rem;
     margin: 0 auto;
     text-align: center;
+    display: grid;
+    gap: 1.5rem;
   }
   .spread-synthesis[hidden] {
+    display: none;
+  }
+  .synth-group {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .synth-group[hidden] {
     display: none;
   }
   .spread-signals-title {
