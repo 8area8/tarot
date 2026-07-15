@@ -412,13 +412,15 @@ const minorCards: Card[] = SUIT_ORDER.flatMap((suit) =>
     const rank = i + 1;
     const r = RANK_NAMES[rank];
     const s = SUIT_NAMES[suit];
+    // Élision devant voyelle : « Roi d’Épées », mais « As de Bâtons ».
+    const de = /^[aeiouyàâäéèêëîïôöûü]/i.test(s.fr) ? 'd’' : 'de ';
     return {
       id: `${suit}-${pad2(rank)}`,
       arcana: 'minor' as const,
       suit,
       number: rank,
       image: `${suit}-${pad2(rank)}.webp`,
-      name: { fr: `${r.fr} de ${s.fr}`, en: `${r.en} of ${s.en}` },
+      name: { fr: `${r.fr} ${de}${s.fr}`, en: `${r.en} of ${s.en}` },
       content: MINOR_CONTENT[`${suit}-${pad2(rank)}`] ?? null,
     };
   }),

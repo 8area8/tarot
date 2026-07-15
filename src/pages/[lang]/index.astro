@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
 import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
 import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
+import { SPREAD_POSITIONS } from '../../data/spread';
 import type { Suit } from '../../lib/types';
 
 export function getStaticPaths() {
@@ -43,6 +44,13 @@ const galleryGroups = [
         </button>
 
         <div class="options" id="options-panel" role="group" aria-label={t(locale, 'option.trigger')} hidden>
+          <p class="opt-caption">{t(locale, 'spread.label')}</p>
+          <div class="spread-select" role="radiogroup" aria-label={t(locale, 'spread.label')}>
+            <label class="seg"><input type="radio" name="spread" value="single" checked /><span>{t(locale, 'spread.single')}</span></label>
+            <label class="seg"><input type="radio" name="spread" value="three" /><span>{t(locale, 'spread.three')}</span></label>
+          </div>
+
+          <p class="opt-caption">{t(locale, 'deck.label')}</p>
           <div class="deck-select" role="radiogroup" aria-label={t(locale, 'deck.label')}>
             <label class="seg"><input type="radio" name="deck" value="major" checked /><span>{t(locale, 'deck.major')}</span></label>
             <label class="seg"><input type="radio" name="deck" value="minor" /><span>{t(locale, 'deck.minor')}</span></label>
@@ -90,6 +98,43 @@ const galleryGroups = [
           </div>
         </div>
       </article>
+    </div>
+
+    <div class="spread" id="spread" hidden>
+      <div class="spread-cols" id="spread-cols">
+        {SPREAD_POSITIONS.map((pos, i) => (
+          <div class="spread-col" data-pos={i}>
+            <p class="spread-pos">
+              <span class="spread-pos-label">{pos.label[locale]}</span>
+              <span class="spread-pos-gloss">{pos.gloss[locale]}</span>
+            </p>
+            <div class="card-slot small">
+              <div class="flip" data-flip>
+                <div class="face face-back">
+                  <img src={`${base}cards/back.svg`} alt="" width="300" height="524" />
+                </div>
+                <div class="face face-front">
+                  <img data-card-img alt="" width="300" height="524" />
+                </div>
+              </div>
+            </div>
+            <p class="meta" data-meta></p>
+            <h3 class="spread-name" data-name tabindex="-1"></h3>
+            <p class="orientation" data-orientation></p>
+            <div class="keywords" data-keywords></div>
+            <p class="meaning" data-meaning></p>
+          </div>
+        ))}
+      </div>
+
+      <div class="spread-synthesis" id="spread-synthesis" hidden>
+        <p class="spread-signals-title">{t(locale, 'spread.signals')}</p>
+        <ul class="signals" id="signals"></ul>
+      </div>
+
+      <div class="spread-actions">
+        <button type="button" class="btn-copy" id="btn-copy-spread">{t(locale, 'card.copy')}</button>
+      </div>
     </div>
     </div>
 
@@ -176,9 +221,11 @@ const galleryGroups = [
 
 <script>
   import { ui, type Locale } from '../../lib/i18n';
-  import { drawCard, type DeckMode } from '../../lib/deck';
+  import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
+  import { buildSignals } from '../../lib/signals';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
+  import { SPREAD_POSITIONS } from '../../data/spread';
   import type { Card, Orientation } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
@@ -214,6 +261,11 @@ const galleryGroups = [
   const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
   const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
+  const spreadEl = document.querySelector<HTMLElement>('#spread')!;
+  const spreadCols = document.querySelector<HTMLElement>('#spread-cols')!;
+  const synthEl = document.querySelector<HTMLElement>('#spread-synthesis')!;
+  const signalsEl = document.querySelector<HTMLElement>('#signals')!;
+  const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
@@ -230,6 +282,20 @@ const galleryGroups = [
   let current: Card | null = null;
   let view: Orientation = 'upright';
   let learn = false; // « décoder » : affiche la décomposition sous la carte
+
+  // État du tirage « trois temps ».
+  let currentSpread: Draw[] | null = null;
+  let currentSpreadMode: DeckMode = 'major';
+  let hasDrawn = false; // au moins un tirage effectué (fige le libellé du bouton sur « Nouveau tirage »)
+
+  const getSpreadMode = (): 'single' | 'three' =>
+    (new FormData(form).get('spread') === 'three' ? 'three' : 'single');
+
+  // Avant le 1er tirage, le bouton reflète le type de tirage choisi.
+  function updateDrawLabel() {
+    if (hasDrawn) return;
+    btnDraw.textContent = getSpreadMode() === 'three' ? T['action.drawThree'] : T['action.draw'];
+  }
 
   // Reflète l'état « décoder » sur son bouton (libellé + aria-pressed).
   function syncDecodeBtn() {
@@ -299,15 +365,15 @@ const galleryGroups = [
     decomposeEl.hidden = false;
   }
 
-  // Renseigne la ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
-  function setMeta(card: Card) {
-    metaEl.replaceChildren();
-    const push = (text: string) => metaEl.append(document.createTextNode(text));
+  // Renseigne une ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
+  function fillMeta(target: HTMLElement, card: Card) {
+    target.replaceChildren();
+    const push = (text: string) => target.append(document.createTextNode(text));
     const pushGlyph = (g: string) => {
       const span = document.createElement('span');
       span.className = 'glyph';
       span.textContent = g;
-      metaEl.appendChild(span);
+      target.appendChild(span);
     };
     if (card.arcana === 'major') {
       const num = card.number > 0 ? ROMAN[card.number] : '0';
@@ -323,6 +389,18 @@ const galleryGroups = [
       push(`${T['meta.minor']} · ${SUIT_NAMES[suit][locale]} · `);
       pushGlyph(ELEMENT_GLYPH[suit]);
       push(` ${SUIT_ELEMENTS[suit][locale]}`);
+    }
+  }
+
+  // Remplit une zone de mots-clés (chips) pour l'orientation donnée.
+  function fillKeywords(target: HTMLElement, card: Card, orientation: Orientation) {
+    target.replaceChildren();
+    if (!card.content) return;
+    for (const word of card.content.keywords[orientation][locale]) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = word;
+      target.appendChild(chip);
     }
   }
 
@@ -359,20 +437,14 @@ const galleryGroups = [
     cardImg.alt = card.name[locale];
     cardImg.classList.toggle('is-reversed', reversed);
 
-    setMeta(card);
+    fillMeta(metaEl, card);
     nameEl.textContent = card.name[locale];
     orientationEl.textContent = reversed ? T['card.reversed'] : T['card.upright'];
     orientationEl.classList.toggle('is-reversed', reversed);
 
-    keywordsEl.replaceChildren();
+    fillKeywords(keywordsEl, card, orientation);
     if (card.content) {
       const key = reversed ? 'reversed' : 'upright';
-      for (const word of card.content.keywords[key][locale]) {
-        const chip = document.createElement('span');
-        chip.className = 'chip';
-        chip.textContent = word;
-        keywordsEl.appendChild(chip);
-      }
       meaningEl.textContent = card.content.meaning[key][locale];
       btnOrient.hidden = false;
       btnOrient.textContent = reversed ? T['card.seeUpright'] : T['card.seeReversed'];
@@ -399,12 +471,15 @@ const galleryGroups = [
     });
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = new FormData(form);
-    const mode = (data.get('deck') as DeckMode) ?? 'major';
-    const allowReversed = data.get('reversed') === 'on';
+  // Marque la fin d'un tirage : bouton réactivé, libellé figé sur « Nouveau tirage ».
+  function finishDraw() {
+    btnDraw.disabled = false;
+    btnDraw.classList.remove('is-loading');
+    btnDraw.textContent = T['action.again'];
+    hasDrawn = true;
+  }
 
+  async function doSingle(mode: DeckMode, allowReversed: boolean) {
     const draw = drawCard(mode, allowReversed);
     current = draw.card;
     view = draw.orientation;
@@ -414,10 +489,10 @@ const galleryGroups = [
     await preload(`${BASE}cards/${draw.card.image}`);
 
     const reveal = () => {
+      spreadEl.hidden = true;
+      result.hidden = false;
       renderReading(draw.card, draw.orientation);
-      btnDraw.disabled = false;
-      btnDraw.classList.remove('is-loading');
-      btnDraw.textContent = T['action.again'];
+      finishDraw();
       nameEl.focus();
     };
 
@@ -435,6 +510,103 @@ const galleryGroups = [
     } else {
       reveal();
       requestAnimationFrame(() => flip.classList.add('is-flipped'));
+    }
+  }
+
+  // Remplit une colonne du spread (carte + lecture) pour un tirage donné.
+  function fillSpreadColumn(col: HTMLElement, draw: Draw) {
+    const { card, orientation } = draw;
+    const reversed = orientation === 'reversed';
+    const img = col.querySelector<HTMLImageElement>('[data-card-img]')!;
+    img.src = `${BASE}cards/${card.image}`;
+    img.alt = card.name[locale];
+    img.classList.toggle('is-reversed', reversed);
+
+    fillMeta(col.querySelector<HTMLElement>('[data-meta]')!, card);
+    col.querySelector<HTMLElement>('[data-name]')!.textContent = card.name[locale];
+    const or = col.querySelector<HTMLElement>('[data-orientation]')!;
+    or.textContent = reversed ? T['card.reversed'] : T['card.upright'];
+    or.classList.toggle('is-reversed', reversed);
+    fillKeywords(col.querySelector<HTMLElement>('[data-keywords]')!, card, orientation);
+    col.querySelector<HTMLElement>('[data-meaning]')!.textContent = card.content
+      ? card.content.meaning[orientation][locale]
+      : T['card.noContent'];
+  }
+
+  // Affiche les « signaux » (synthèse honnête du spread).
+  function renderSignals(draws: Draw[], mode: DeckMode) {
+    const list = buildSignals(draws, mode, locale);
+    signalsEl.replaceChildren();
+    for (const s of list) {
+      const li = document.createElement('li');
+      li.textContent = s;
+      signalsEl.appendChild(li);
+    }
+    synthEl.hidden = list.length === 0;
+  }
+
+  // Reflète le spread dans l'URL : #spread=<id>[.r],<id>[.r],<id>[.r]
+  function syncHashSpread(draws: Draw[]) {
+    const parts = draws.map((d) => d.card.id + (d.orientation === 'reversed' ? '.r' : ''));
+    history.replaceState(null, '', `#spread=${parts.join(',')}`);
+  }
+
+  // Peuple et révèle le spread (avec ou sans animation selon les préférences).
+  function paintSpread(draws: Draw[], mode: DeckMode, animate: boolean) {
+    currentSpread = draws;
+    currentSpreadMode = mode;
+    const cols = [...spreadCols.querySelectorAll<HTMLElement>('.spread-col')];
+    cols.forEach((col, i) => fillSpreadColumn(col, draws[i]));
+    renderSignals(draws, mode);
+    result.hidden = true;
+    spreadEl.hidden = false;
+    cols.forEach((col, i) => {
+      const f = col.querySelector<HTMLElement>('[data-flip]')!;
+      if (!animate || reduceMotion) {
+        f.classList.add('no-anim');
+        f.classList.add('is-flipped');
+        void f.offsetWidth;
+        f.classList.remove('no-anim');
+      } else {
+        window.setTimeout(() => f.classList.add('is-flipped'), i * 120);
+      }
+    });
+    syncHashSpread(draws);
+  }
+
+  async function doSpread(mode: DeckMode, allowReversed: boolean) {
+    const draws = drawSpread(mode, allowReversed, 3);
+
+    btnDraw.disabled = true;
+    btnDraw.classList.add('is-loading');
+    await Promise.all(draws.map((d) => preload(`${BASE}cards/${d.card.image}`)));
+
+    const cols = [...spreadCols.querySelectorAll<HTMLElement>('.spread-col')];
+    const wasFlipped = cols.some((c) => c.querySelector('[data-flip]')!.classList.contains('is-flipped'));
+
+    const reveal = () => {
+      paintSpread(draws, mode, true);
+      finishDraw();
+      cols[0]?.querySelector<HTMLElement>('[data-name]')?.focus({ preventScroll: true });
+    };
+
+    if (!reduceMotion && wasFlipped) {
+      cols.forEach((c) => c.querySelector('[data-flip]')!.classList.remove('is-flipped'));
+      window.setTimeout(reveal, FLIP_MS);
+    } else {
+      reveal();
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const mode = (data.get('deck') as DeckMode) ?? 'major';
+    const allowReversed = data.get('reversed') === 'on';
+    if (data.get('spread') === 'three') {
+      await doSpread(mode, allowReversed);
+    } else {
+      await doSingle(mode, allowReversed);
     }
   });
 
@@ -461,6 +633,8 @@ const galleryGroups = [
   function selectCard(card: Card, orientation: Orientation) {
     current = card;
     view = orientation;
+    spreadEl.hidden = true;
+    result.hidden = false;
     flip.classList.add('no-anim');
     renderReading(card, orientation);
     flip.classList.add('is-flipped');
@@ -557,18 +731,50 @@ const galleryGroups = [
     }
   });
 
-  // Mémoriser les préférences (mode de jeu + inversées + apprentissage) entre les visites.
+  // Copier le spread entier (positions + significations + signaux) pour le journal.
+  btnCopySpread.addEventListener('click', async () => {
+    if (!currentSpread) return;
+    const blocks = currentSpread.map((d, i) => {
+      const pos = SPREAD_POSITIONS[i];
+      const orient = d.orientation === 'reversed' ? T['card.reversed'] : T['card.upright'];
+      const meaning = d.card.content
+        ? d.card.content.meaning[d.orientation][locale]
+        : T['card.noContent'];
+      return `${pos.label[locale]} — ${d.card.name[locale]} (${orient})\n${meaning}`;
+    });
+    let text = blocks.join('\n\n');
+    const signals = buildSignals(currentSpread, currentSpreadMode, locale);
+    if (signals.length) {
+      text += `\n\n${T['spread.signals']} :\n` + signals.map((s) => `- ${s}`).join('\n');
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      btnCopySpread.textContent = T['card.copied'];
+      btnCopySpread.classList.add('is-copied');
+      window.setTimeout(() => {
+        btnCopySpread.textContent = T['card.copy'];
+        btnCopySpread.classList.remove('is-copied');
+      }, 1600);
+    } catch {
+      /* presse-papiers indisponible (contexte non sécurisé) */
+    }
+  });
+
+  // Mémoriser les préférences (mode de jeu + inversées + apprentissage + tirage) entre les visites.
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
   const PREF_LEARN = 'tarot.learn';
+  const PREF_SPREAD = 'tarot.spread';
   form.addEventListener('change', () => {
     try {
       const data = new FormData(form);
       localStorage.setItem(PREF_DECK, String(data.get('deck') ?? 'major'));
       localStorage.setItem(PREF_REVERSED, data.get('reversed') === 'on' ? '1' : '0');
+      localStorage.setItem(PREF_SPREAD, getSpreadMode());
     } catch {
       /* stockage indisponible */
     }
+    updateDrawLabel();
   });
   (function restorePrefs() {
     try {
@@ -582,17 +788,50 @@ const galleryGroups = [
         const check = form.querySelector<HTMLInputElement>('input[name="reversed"]');
         if (check) check.checked = rev === '1';
       }
+      const spread = localStorage.getItem(PREF_SPREAD);
+      if (spread) {
+        const radio = form.querySelector<HTMLInputElement>(`input[name="spread"][value="${spread}"]`);
+        if (radio) radio.checked = true;
+      }
       learn = localStorage.getItem(PREF_LEARN) === '1';
     } catch {
       /* stockage indisponible */
     }
     syncDecodeBtn();
+    updateDrawLabel();
   })();
 
   // Permalien : afficher la carte encodée dans l'URL au chargement (#id ou #id-reversed).
+  // Devine le mode de jeu d'un spread partagé (le permalien ne l'encode pas) :
+  // sert uniquement à ajuster les signaux (majeurs triviaux si tout est majeur).
+  function inferMode(draws: Draw[]): DeckMode {
+    if (draws.every((d) => d.card.arcana === 'major')) return 'major';
+    if (draws.every((d) => d.card.arcana === 'minor')) return 'minor';
+    return 'full';
+  }
+
   (function initFromHash() {
     const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
     if (!raw) return;
+
+    if (raw.startsWith('spread=')) {
+      const parts = raw.slice('spread='.length).split(',').filter(Boolean);
+      const draws: Draw[] = [];
+      for (const part of parts) {
+        const rev = part.endsWith('.r');
+        const card = cardById.get(rev ? part.slice(0, -2) : part);
+        if (!card) return;
+        draws.push({ card, orientation: rev ? 'reversed' : 'upright' });
+      }
+      if (draws.length !== SPREAD_POSITIONS.length) return;
+      const radio = form.querySelector<HTMLInputElement>('input[name="spread"][value="three"]');
+      if (radio) radio.checked = true;
+      paintSpread(draws, inferMode(draws), false);
+      hasDrawn = true;
+      btnDraw.textContent = T['action.again'];
+      return;
+    }
+
     let id = raw;
     let orientation: Orientation = 'upright';
     if (raw.endsWith('-reversed')) {
@@ -731,6 +970,18 @@ const galleryGroups = [
     .options {
       animation: none;
     }
+  }
+  .opt-caption {
+    margin: 0 0 -0.35rem;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+  }
+  .spread-select {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.25rem;
   }
   .deck-select {
     display: grid;
@@ -875,6 +1126,9 @@ const galleryGroups = [
     gap: 2.5rem;
     align-items: center;
     justify-content: center;
+  }
+  .result[hidden] {
+    display: none;
   }
   .card-slot {
     perspective: 1400px;
@@ -1122,6 +1376,114 @@ const galleryGroups = [
     font-size: 0.95rem;
     line-height: 1.6;
     color: var(--muted);
+  }
+
+  /* ---- Tirage « trois temps » (spread) ---- */
+  .spread {
+    display: grid;
+    gap: 2.25rem;
+  }
+  .spread[hidden] {
+    display: none;
+  }
+  /* Les 3 colonnes partagent la même grille de lignes (subgrid) : chaque
+     élément (en-tête, carte, meta, nom, orientation, mots-clés, texte) s'aligne
+     horizontalement d'une colonne à l'autre, quelle que soit sa hauteur. */
+  .spread-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(7, auto);
+    column-gap: 1.75rem;
+    row-gap: 0.7rem;
+  }
+  .spread-col {
+    display: grid;
+    grid-row: 1 / span 7;
+    grid-template-rows: subgrid;
+    justify-items: center;
+    align-items: start;
+    text-align: center;
+  }
+  .spread-pos {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .spread-pos-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+  }
+  .spread-pos-gloss {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+  /* Cartes du spread : plus compactes que le tirage mono-carte. */
+  .card-slot.small {
+    width: min(200px, 60vw);
+  }
+  .spread-name {
+    margin: 0;
+    font-size: 1.4rem;
+    outline: none;
+  }
+  .spread-col .keywords {
+    justify-content: center;
+  }
+  .spread-col .meaning {
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+  /* Synthèse : les « signaux » du tirage, centrés sous les trois cartes. */
+  .spread-synthesis {
+    max-width: 44rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .spread-synthesis[hidden] {
+    display: none;
+  }
+  .spread-signals-title {
+    margin: 0 0 0.6rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+  }
+  .signals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .signals li {
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .spread-actions {
+    display: flex;
+    justify-content: center;
+  }
+  @media (max-width: 46rem) {
+    /* En pile (une colonne) : plus de partage de lignes, chaque tirage coule
+       normalement les uns sous les autres. */
+    .spread-cols {
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+      row-gap: 2.5rem;
+    }
+    .spread-col {
+      grid-row: auto;
+      grid-template-rows: none;
+      row-gap: 0.6rem;
+    }
+    .card-slot.small {
+      width: min(240px, 68vw);
+    }
   }
 
   /* ---- Galerie ---- */
