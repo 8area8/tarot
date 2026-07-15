@@ -65,7 +65,7 @@ const fontFace = `
         <span class="brand-mark" aria-hidden="true">✦</span>
         <span>{t(locale, 'site.title')}</span>
       </a>
-      <nav class="site-nav" aria-label={t(locale, 'nav.label')}>
+      <nav id="site-nav" class="site-nav" aria-label={t(locale, 'nav.label')}>
         {NAV.map((item) => (
           <a
             href={`${base}${locale}/${item.slug}`}
@@ -78,6 +78,15 @@ const fontFace = `
       </nav>
       <div class="header-utils">
         <LangToggle locale={locale} />
+        <button
+          type="button"
+          class="nav-toggle"
+          aria-controls="site-nav"
+          aria-expanded="false"
+          aria-label={t(locale, 'nav.menu')}
+        >
+          <span class="nav-toggle-bars" aria-hidden="true"></span>
+        </button>
       </div>
     </header>
 
@@ -227,6 +236,97 @@ const fontFace = `
         color: var(--accent);
         border-bottom-color: var(--accent);
       }
+      /* Bouton hamburger : masqué sur desktop, révélé sous le breakpoint mobile. */
+      .nav-toggle {
+        display: none;
+        appearance: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 1px solid var(--line);
+        border-radius: 0.45rem;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .nav-toggle-bars,
+      .nav-toggle-bars::before,
+      .nav-toggle-bars::after {
+        content: '';
+        display: block;
+        width: 1.15rem;
+        height: 2px;
+        border-radius: 2px;
+        background: currentColor;
+        transition:
+          transform 0.25s ease,
+          opacity 0.2s ease;
+      }
+      .nav-toggle-bars {
+        position: relative;
+      }
+      .nav-toggle-bars::before {
+        position: absolute;
+        left: 0;
+        top: -6px;
+      }
+      .nav-toggle-bars::after {
+        position: absolute;
+        left: 0;
+        top: 6px;
+      }
+      /* État ouvert : les barres se croisent en « ✕ ». */
+      .site-header.is-open .nav-toggle-bars {
+        background: transparent;
+      }
+      .site-header.is-open .nav-toggle-bars::before {
+        transform: translateY(6px) rotate(45deg);
+      }
+      .site-header.is-open .nav-toggle-bars::after {
+        transform: translateY(-6px) rotate(-45deg);
+      }
+      @media (max-width: 40rem) {
+        .nav-toggle {
+          display: inline-flex;
+        }
+        /* La nav passe en panneau déroulant, sur sa propre ligne pleine largeur. */
+        .site-nav {
+          order: 3;
+          flex-basis: 100%;
+          flex-direction: column;
+          gap: 0;
+          overflow: hidden;
+          max-height: 0;
+          opacity: 0;
+          visibility: hidden;
+          transition:
+            max-height 0.28s ease,
+            opacity 0.2s ease,
+            visibility 0.28s;
+        }
+        .site-header.is-open .site-nav {
+          max-height: 22rem;
+          opacity: 1;
+          visibility: visible;
+        }
+        .site-nav .nav-link {
+          padding: 0.7rem 0.15rem;
+          border-bottom: 1px solid var(--line);
+        }
+        .site-nav .nav-link:last-child {
+          border-bottom: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .nav-toggle-bars,
+        .nav-toggle-bars::before,
+        .nav-toggle-bars::after,
+        .site-nav {
+          transition: none;
+        }
+      }
       main {
         flex: 1;
         max-width: var(--maxw);
@@ -324,5 +424,43 @@ const fontFace = `
         line-height: 1.65;
       }
     </style>
+
+    <script>
+      // Menu hamburger (mobile) : ouvre/ferme le panneau de navigation.
+      const header = document.querySelector<HTMLElement>('.site-header');
+      const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+      const nav = document.getElementById('site-nav');
+
+      if (header && toggle && nav) {
+        const setOpen = (open: boolean) => {
+          header.classList.toggle('is-open', open);
+          toggle.setAttribute('aria-expanded', String(open));
+        };
+
+        toggle.addEventListener('click', () => {
+          setOpen(!header.classList.contains('is-open'));
+        });
+
+        // Fermer sur clic d'un lien de la nav.
+        nav.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('.nav-link')) setOpen(false);
+        });
+
+        // Fermer sur Échap (et redonner le focus au bouton).
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && header.classList.contains('is-open')) {
+            setOpen(false);
+            toggle.focus();
+          }
+        });
+
+        // Fermer sur clic en dehors de l'en-tête.
+        document.addEventListener('click', (e) => {
+          if (header.classList.contains('is-open') && !header.contains(e.target as Node)) {
+            setOpen(false);
+          }
+        });
+      }
+    </script>
   </body>
 </html>
