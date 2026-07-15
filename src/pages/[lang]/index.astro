@@ -85,22 +85,25 @@ const base = import.meta.env.BASE_URL;
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
-          <div class="symbolism" id="symbolism" hidden>
-            <p class="study-title">{t(locale, 'study.image')}</p>
-            <div class="bricks" id="sym-bricks"></div>
-          </div>
-          <div class="study" id="study" hidden>
-            <p class="study-title">{t(locale, 'study.formula')}</p>
-            <p class="study-sub" id="decompose-title"></p>
-            <div class="bricks" id="bricks"></div>
-          </div>
-          <div class="reading-actions">
-            <button type="button" class="btn-decode" id="btn-study" aria-pressed="false" aria-controls="study">{t(locale, 'action.study')}</button>
-            <button type="button" class="btn-orient" id="btn-orient"></button>
-            <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
-          </div>
         </div>
       </article>
+
+      <div class="reading-full" id="reading-full" hidden>
+        <div class="symbolism" id="symbolism" hidden>
+          <p class="study-title">{t(locale, 'study.image')}</p>
+          <div class="bricks" id="sym-bricks"></div>
+        </div>
+        <div class="study" id="study" hidden>
+          <p class="study-title">{t(locale, 'study.formula')}</p>
+          <p class="study-sub" id="decompose-title"></p>
+          <div class="bricks" id="bricks"></div>
+        </div>
+        <div class="reading-actions">
+          <button type="button" class="btn-decode" id="btn-study" aria-pressed="false" aria-controls="study">{t(locale, 'action.study')}</button>
+          <button type="button" class="btn-orient" id="btn-orient"></button>
+          <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
+        </div>
+      </div>
     </div>
 
     <div class="spread" id="spread" hidden>
@@ -189,6 +192,7 @@ const base = import.meta.env.BASE_URL;
   const cardImg = document.querySelector<HTMLImageElement>('#card-img')!;
   const placeholder = document.querySelector<HTMLElement>('#placeholder')!;
   const body = document.querySelector<HTMLElement>('#reading-body')!;
+  const readingFull = document.querySelector<HTMLElement>('#reading-full')!;
   const metaEl = document.querySelector<HTMLElement>('#card-meta')!;
   const nameEl = document.querySelector<HTMLHeadingElement>('#reading-name')!;
   const orientationEl = document.querySelector<HTMLElement>('#orientation')!;
@@ -473,6 +477,7 @@ const base = import.meta.env.BASE_URL;
 
     placeholder.hidden = true;
     body.hidden = false;
+    readingFull.hidden = false;
     syncHash(card, orientation);
     playStagger();
   }
@@ -1168,19 +1173,26 @@ const base = import.meta.env.BASE_URL;
   }
 
   /* ---- Résultat ---- */
+  /* Mise en page « journal » : carte en haut à gauche, titre + interprétation à
+     droite, puis la symbolique pleine largeur sous la carte. */
   .result {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 2.5rem;
-    align-items: center;
+    grid-template-areas:
+      'card head'
+      'full full';
+    column-gap: 2.5rem;
+    row-gap: 1.4rem;
+    align-items: start;
     justify-content: center;
   }
   .result[hidden] {
     display: none;
   }
   .card-slot {
+    grid-area: card;
     perspective: 1400px;
-    width: min(280px, 70vw);
+    width: min(240px, 62vw);
     aspect-ratio: 1100 / 1920;
     justify-self: center;
   }
@@ -1249,7 +1261,17 @@ const base = import.meta.env.BASE_URL;
   }
 
   .reading {
+    grid-area: head;
     max-width: 34rem;
+  }
+  /* Zone pleine largeur sous la carte : symbolique + formule + actions. */
+  .reading-full {
+    grid-area: full;
+    display: grid;
+    gap: 1.2rem;
+  }
+  .reading-full[hidden] {
+    display: none;
   }
   .placeholder {
     color: var(--muted);
@@ -1560,10 +1582,11 @@ const base = import.meta.env.BASE_URL;
      le détail reste toujours déplié (tête non cliquable, chevron masqué),
      et la carte reste collante pendant qu'on parcourt la lecture. */
   @media (min-width: 46rem) {
-    /* Deux colonnes séparées par un filet doré vertical. */
+    /* Symbolique pleine largeur : colonnes auto (2-3 selon la place) séparées
+       par un filet doré vertical. */
     .symbolism .bricks {
-      column-count: 2;
-      column-gap: 2.2rem;
+      column-width: 16rem;
+      column-gap: 2.4rem;
       column-rule: 1px solid var(--line);
     }
     .symbolism :global(.brick) {
@@ -1589,13 +1612,6 @@ const base = import.meta.env.BASE_URL;
     }
     .symbolism .bricks :global(details.brick > summary::after) {
       display: none;
-    }
-    .result {
-      align-items: start;
-    }
-    .result .card-slot {
-      position: sticky;
-      top: 1.5rem;
     }
   }
 
@@ -1725,7 +1741,11 @@ const base = import.meta.env.BASE_URL;
   @media (max-width: 46rem) {
     .result {
       grid-template-columns: 1fr;
-      gap: 1.75rem;
+      grid-template-areas:
+        'card'
+        'head'
+        'full';
+      row-gap: 1.75rem;
     }
     .reading {
       max-width: none;
