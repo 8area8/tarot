@@ -35,21 +35,27 @@ const galleryGroups = [
     </div>
 
     <form class="controls" id="controls">
-      <div class="options">
-        <div class="deck-select" role="radiogroup" aria-label={t(locale, 'deck.label')}>
-          <label class="seg"><input type="radio" name="deck" value="major" checked /><span>{t(locale, 'deck.major')}</span></label>
-          <label class="seg"><input type="radio" name="deck" value="minor" /><span>{t(locale, 'deck.minor')}</span></label>
-          <label class="seg"><input type="radio" name="deck" value="full" /><span>{t(locale, 'deck.full')}</span></label>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" name="reversed" checked />
-          <span class="switch-track"><span class="switch-thumb"></span></span>
-          <span class="switch-text">{t(locale, 'option.reversed')}</span>
-        </label>
-      </div>
-
       <button type="submit" class="btn-draw" id="btn-draw">{t(locale, 'action.draw')}</button>
+
+      <div class="options-disclosure">
+        <button type="button" class="btn-options" id="btn-options" aria-expanded="false" aria-controls="options-panel">
+          <span class="btn-options-gear" aria-hidden="true">⚙</span>{t(locale, 'option.trigger')}
+        </button>
+
+        <div class="options" id="options-panel" role="group" aria-label={t(locale, 'option.trigger')} hidden>
+          <div class="deck-select" role="radiogroup" aria-label={t(locale, 'deck.label')}>
+            <label class="seg"><input type="radio" name="deck" value="major" checked /><span>{t(locale, 'deck.major')}</span></label>
+            <label class="seg"><input type="radio" name="deck" value="minor" /><span>{t(locale, 'deck.minor')}</span></label>
+            <label class="seg"><input type="radio" name="deck" value="full" /><span>{t(locale, 'deck.full')}</span></label>
+          </div>
+
+          <label class="switch">
+            <input type="checkbox" name="reversed" checked />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+            <span class="switch-text">{t(locale, 'option.reversed')}</span>
+          </label>
+        </div>
+      </div>
     </form>
 
     <div class="result">
@@ -206,6 +212,8 @@ const galleryGroups = [
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const btnGrammar = document.querySelector<HTMLButtonElement>('#btn-grammar')!;
   const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
+  const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
+  const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
@@ -488,6 +496,38 @@ const galleryGroups = [
     if (willShow) gallery.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   });
 
+  // Popover d'options : révélé à la demande pour garder le hero épuré.
+  // Les réglages étant persistés, la plupart des sessions ne l'ouvrent jamais.
+  function setOptionsOpen(open: boolean) {
+    optionsPanel.toggleAttribute('hidden', !open);
+    btnOptions.setAttribute('aria-expanded', String(open));
+    btnOptions.classList.toggle('is-on', open);
+  }
+
+  btnOptions.addEventListener('click', () => {
+    setOptionsOpen(optionsPanel.hasAttribute('hidden'));
+  });
+  // Active les transitions après le 1er rendu (voir .btn-options.ready) pour
+  // éviter le flash au chargement.
+  requestAnimationFrame(() => btnOptions.classList.add('ready'));
+
+  // Fermer au clic extérieur.
+  document.addEventListener('click', (e) => {
+    if (optionsPanel.hasAttribute('hidden')) return;
+    const target = e.target as Node;
+    if (!optionsPanel.contains(target) && !btnOptions.contains(target)) {
+      setOptionsOpen(false);
+    }
+  });
+
+  // Fermer à Échap (et rendre le focus au déclencheur).
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !optionsPanel.hasAttribute('hidden')) {
+      setOptionsOpen(false);
+      btnOptions.focus();
+    }
+  });
+
   // Entrée = nouvelle pioche (sauf si le focus est sur un contrôle qui gère lui-même Entrée).
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.repeat) return;
@@ -599,31 +639,103 @@ const galleryGroups = [
   }
 
   /* ---- Contrôles ---- */
-  /* Options de tirage regroupées dans un panneau calme ; le CTA doré reste seul
-     en dessous pour dominer la hiérarchie. */
+  /* Le CTA doré domine la hiérarchie ; les réglages sont repliés derrière un
+     déclencheur discret (popover), pour garder le hero centré sur le rituel. */
   .controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.4rem;
+    gap: 1.1rem;
   }
-  /* Encadré d'options discret, à la largeur du contenu ; boutons au même rounded
-     que la box (pas de pilules), pour ne pas rivaliser avec la carte/le CTA. */
-  .options {
+
+  /* Déclencheur discret + panneau flottant ancré dessous. */
+  .options-disclosure {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn-options {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.8rem 1.5rem;
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    gap: 0.45rem;
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.4rem 0.9rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  /* Transitions activées seulement après le 1er rendu (classe posée en JS) :
+     évite le flash « comme un appui » au chargement (fond/bordure transparents
+     qui s'estompent depuis le style par défaut du navigateur). */
+  .btn-options.ready {
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .btn-options:hover {
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .btn-options.is-on {
+    color: var(--text);
+    border-color: var(--line);
     background: var(--panel);
   }
+  .btn-options:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-options-gear {
+    font-size: 1.05em;
+  }
+
+  /* Panneau : flotte sous le déclencheur, centré, au-dessus du contenu. */
+  .options {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: min(20rem, 90vw);
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    /* Popover flottant : fond opaque obligatoire (le token --panel est quasi
+       transparent et deviendrait illisible par-dessus l'illustration de la carte).
+       On empile la teinte --panel sur --ground opaque → même rendu que les
+       encadrés inline, sans le violet saturé de --ground-2. */
+    background: linear-gradient(var(--panel), var(--panel)), var(--ground);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--line);
+    animation: options-in 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .options[hidden] {
+    display: none;
+  }
+  @keyframes options-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -6px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .options {
+      animation: none;
+    }
+  }
   .deck-select {
-    display: inline-flex;
-    gap: 0.2rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
   }
   .seg {
     cursor: pointer;
@@ -635,13 +747,13 @@ const galleryGroups = [
   }
   .seg span {
     display: block;
-    padding: 0.4rem 0.85rem;
+    padding: 0.45rem 0.4rem;
     border-radius: 9px;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--muted);
-    white-space: nowrap;
+    text-align: center;
     transition: color 0.2s ease, background-color 0.2s ease;
   }
   .seg:hover span {
@@ -1195,25 +1307,6 @@ const galleryGroups = [
     }
     .reading-actions {
       justify-content: center;
-    }
-    /* Le sélecteur de deck débordait : 3 segments pleine largeur qui peuvent replier le texte. */
-    .controls {
-      gap: 1.1rem;
-    }
-    .options {
-      width: 100%;
-    }
-    .deck-select {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      width: 100%;
-    }
-    .seg span {
-      padding: 0.45rem 0.4rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      white-space: normal;
-      text-align: center;
     }
   }
   @media (prefers-reduced-motion: reduce) {
