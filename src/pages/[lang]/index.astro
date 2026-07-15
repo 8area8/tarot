@@ -88,17 +88,19 @@ const galleryGroups = [
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
-          <div class="decompose" id="decompose" hidden>
-            <p class="decompose-title" id="decompose-title"></p>
-            <div class="bricks" id="bricks"></div>
-          </div>
-          <div class="symbols" id="symbols" hidden>
-            <p class="decompose-title" id="symbols-title"></p>
-            <div class="bricks" id="sym-bricks"></div>
+          <div class="study" id="study" hidden>
+            <div class="study-part" id="study-image" hidden>
+              <p class="study-title">{t(locale, 'study.image')}</p>
+              <div class="bricks" id="sym-bricks"></div>
+            </div>
+            <div class="study-part" id="study-formula" hidden>
+              <p class="study-title">{t(locale, 'study.formula')}</p>
+              <p class="study-sub" id="decompose-title"></p>
+              <div class="bricks" id="bricks"></div>
+            </div>
           </div>
           <div class="reading-actions">
-            <button type="button" class="btn-decode" id="btn-decode" aria-pressed="false" aria-controls="decompose">{t(locale, 'action.decode')}</button>
-            <button type="button" class="btn-decode" id="btn-image" aria-pressed="false" aria-controls="symbols">{t(locale, 'action.image')}</button>
+            <button type="button" class="btn-decode" id="btn-study" aria-pressed="false" aria-controls="study">{t(locale, 'action.study')}</button>
             <button type="button" class="btn-orient" id="btn-orient"></button>
             <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
           </div>
@@ -306,13 +308,12 @@ const galleryGroups = [
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnGallery = document.querySelector<HTMLButtonElement>('#btn-gallery')!;
   const gallery = document.querySelector<HTMLElement>('#gallery')!;
-  const btnDecode = document.querySelector<HTMLButtonElement>('#btn-decode')!;
-  const decomposeEl = document.querySelector<HTMLElement>('#decompose')!;
+  const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
+  const studyEl = document.querySelector<HTMLElement>('#study')!;
+  const studyImage = document.querySelector<HTMLElement>('#study-image')!;
+  const studyFormula = document.querySelector<HTMLElement>('#study-formula')!;
   const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
-  const btnImage = document.querySelector<HTMLButtonElement>('#btn-image')!;
-  const symbolsEl = document.querySelector<HTMLElement>('#symbols')!;
-  const symbolsTitle = document.querySelector<HTMLElement>('#symbols-title')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
   const btnGrammar = document.querySelector<HTMLButtonElement>('#btn-grammar')!;
   const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
@@ -345,8 +346,7 @@ const galleryGroups = [
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
-  let learn = false; // « décoder » : affiche la décomposition sous la carte
-  let image = false; // « lire l'image » : affiche les symboles de l'illustration
+  let study = false; // « Étudier la carte » : panneau image + formule sous la carte
 
   // État du tirage « trois temps ».
   let currentSpread: Draw[] | null = null;
@@ -362,22 +362,15 @@ const galleryGroups = [
     btnDraw.textContent = getSpreadMode() === 'three' ? T['action.drawThree'] : T['action.draw'];
   }
 
-  // Reflète l'état « décoder » sur son bouton (libellé + aria-pressed).
-  function syncDecodeBtn() {
-    btnDecode.textContent = learn ? T['action.decodeHide'] : T['action.decode'];
-    btnDecode.setAttribute('aria-pressed', String(learn));
-    btnDecode.classList.toggle('is-on', learn);
+  // Reflète l'état « Étudier la carte » sur son bouton (libellé + aria-pressed).
+  function syncStudyBtn() {
+    btnStudy.textContent = study ? T['action.studyHide'] : T['action.study'];
+    btnStudy.setAttribute('aria-pressed', String(study));
+    btnStudy.classList.toggle('is-on', study);
   }
 
-  // Reflète l'état « lire l'image » sur son bouton (libellé + aria-pressed).
-  function syncImageBtn() {
-    btnImage.textContent = image ? T['action.imageHide'] : T['action.image'];
-    btnImage.setAttribute('aria-pressed', String(image));
-    btnImage.classList.toggle('is-on', image);
-  }
-
-  // Une « brique » de lecture (élément, nombre, figure ou étape du voyage).
-  // Texte toujours visible : « Décoder » est déjà un choix explicite.
+  // Une « brique » de lecture (symbole, élément, nombre, figure ou étape du voyage).
+  // Texte toujours visible : « Étudier la carte » est déjà un choix explicite.
   function makeBrick(key: string, label: string, gloss: string, text: string): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'brick';
@@ -409,12 +402,8 @@ const galleryGroups = [
     return wrap;
   }
 
-  // Décompose la carte en sa « formule » (élément × nombre/figure, ou étape du voyage).
-  function updateDecompose(card: Card | null) {
-    if (!card || !learn) {
-      decomposeEl.hidden = true;
-      return;
-    }
+  // « La formule » : décompose la carte (élément × nombre/figure, ou étape du voyage).
+  function fillFormula(card: Card): boolean {
     bricksEl.replaceChildren();
     if (card.arcana === 'minor') {
       const suit = card.suit!;
@@ -424,32 +413,44 @@ const galleryGroups = [
       decomposeTitle.textContent = `${el.glyph} ${el.label[locale]} × ${rank.label[locale]}`;
       bricksEl.appendChild(makeBrick(el.glyph, el.label[locale], el.gloss[locale], el.text[locale]));
       bricksEl.appendChild(makeBrick(rankKey, rank.label[locale], rank.gloss[locale], rank.text[locale]));
-    } else if (card.number === 0) {
+      return true;
+    }
+    if (card.number === 0) {
       decomposeTitle.textContent = T['meta.major'];
       bricksEl.appendChild(makeBrick('0', card.name[locale], '', JOURNEY_INTRO[locale]));
-    } else {
-      const stage = JOURNEY.find((s) => s.cards.includes(card.number));
-      if (stage) {
-        decomposeTitle.textContent = `${T['meta.major']} · ${stage.range}`;
-        bricksEl.appendChild(makeBrick(stage.range, stage.label[locale], '', stage.text[locale]));
-      }
+      return true;
     }
-    decomposeEl.hidden = false;
+    const stage = JOURNEY.find((s) => s.cards.includes(card.number));
+    if (stage) {
+      decomposeTitle.textContent = `${T['meta.major']} · ${stage.range}`;
+      bricksEl.appendChild(makeBrick(stage.range, stage.label[locale], '', stage.text[locale]));
+      return true;
+    }
+    return false;
   }
 
-  // « Lire l'image » : liste les symboles repérables de l'illustration RWS.
-  function updateSymbols(card: Card | null) {
-    const syms = card ? SYMBOLS[card.id] : undefined;
-    if (!card || !image || !syms || !syms.length) {
-      symbolsEl.hidden = true;
-      return;
-    }
+  // « L'image » : liste les symboles repérables de l'illustration RWS.
+  function fillSymbols(card: Card): boolean {
+    const syms = SYMBOLS[card.id];
+    if (!syms || !syms.length) return false;
     symBricksEl.replaceChildren();
-    symbolsTitle.textContent = T['action.image'];
     for (const s of syms) {
       symBricksEl.appendChild(makeBrick('', s.label[locale], '', s.text[locale]));
     }
-    symbolsEl.hidden = false;
+    return true;
+  }
+
+  // « Étudier la carte » : panneau unifié (l'image + la formule).
+  function updateStudy(card: Card | null) {
+    if (!card || !study) {
+      studyEl.hidden = true;
+      return;
+    }
+    const hasImg = fillSymbols(card);
+    studyImage.hidden = !hasImg;
+    const hasFormula = fillFormula(card);
+    studyFormula.hidden = !hasFormula;
+    studyEl.hidden = !(hasImg || hasFormula);
   }
 
   // Renseigne une ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
@@ -540,9 +541,7 @@ const galleryGroups = [
       btnOrient.hidden = true;
     }
 
-    updateDecompose(card);
-    btnImage.hidden = !SYMBOLS[card.id]?.length;
-    updateSymbols(card);
+    updateStudy(card);
 
     placeholder.hidden = true;
     body.hidden = false;
@@ -723,28 +722,16 @@ const galleryGroups = [
     renderReading(current, view);
   });
 
-  // Décoder / masquer les clés de lecture (élément × nombre, étape du voyage).
-  btnDecode.addEventListener('click', () => {
-    learn = !learn;
+  // Étudier / fermer le panneau (l'image + la formule) sous la carte.
+  btnStudy.addEventListener('click', () => {
+    study = !study;
     try {
-      localStorage.setItem(PREF_LEARN, learn ? '1' : '0');
+      localStorage.setItem(PREF_STUDY, study ? '1' : '0');
     } catch {
       /* stockage indisponible */
     }
-    syncDecodeBtn();
-    updateDecompose(current);
-  });
-
-  // Lire l'image / masquer les symboles de l'illustration.
-  btnImage.addEventListener('click', () => {
-    image = !image;
-    try {
-      localStorage.setItem(PREF_IMAGE, image ? '1' : '0');
-    } catch {
-      /* stockage indisponible */
-    }
-    syncImageBtn();
-    updateSymbols(current);
+    syncStudyBtn();
+    updateStudy(current);
   });
 
   // Accès direct à une carte depuis la galerie : affichage instantané, sans choréo de pioche.
@@ -898,8 +885,7 @@ const galleryGroups = [
   // Mémoriser les préférences (mode de jeu + inversées + apprentissage + tirage) entre les visites.
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
-  const PREF_LEARN = 'tarot.learn';
-  const PREF_IMAGE = 'tarot.image';
+  const PREF_STUDY = 'tarot.study';
   const PREF_SPREAD = 'tarot.spread';
   form.addEventListener('change', () => {
     try {
@@ -929,13 +915,11 @@ const galleryGroups = [
         const radio = form.querySelector<HTMLInputElement>(`input[name="spread"][value="${spread}"]`);
         if (radio) radio.checked = true;
       }
-      learn = localStorage.getItem(PREF_LEARN) === '1';
-      image = localStorage.getItem(PREF_IMAGE) === '1';
+      study = localStorage.getItem(PREF_STUDY) === '1';
     } catch {
       /* stockage indisponible */
     }
-    syncDecodeBtn();
-    syncImageBtn();
+    syncStudyBtn();
     updateDrawLabel();
   })();
 
@@ -1458,26 +1442,42 @@ const galleryGroups = [
     color: var(--text);
   }
 
-  /* ---- Décomposition (« décoder ») & symboles (« lire l'image ») ---- */
-  .decompose,
-  .symbols {
+  /* ---- « Étudier la carte » : panneau unifié (l'image + la formule) ---- */
+  .study {
     display: grid;
-    gap: 0.5rem;
+    gap: 1.15rem;
     padding: 0.9rem 1rem;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: rgba(201, 164, 76, 0.05);
   }
-  .decompose[hidden],
-  .symbols[hidden] {
+  .study[hidden] {
     display: none;
   }
-  .decompose-title {
+  .study-part {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .study-part[hidden] {
+    display: none;
+  }
+  /* Séparateur discret entre les deux sections. */
+  .study-part + .study-part {
+    border-top: 1px solid var(--line);
+    padding-top: 1.05rem;
+  }
+  .study-title {
     margin: 0;
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--accent);
+  }
+  /* Ligne « formule » (ex. « 🜄 Eau × Reine »), sous le titre de section. */
+  .study-sub {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--muted);
   }
   .bricks {
     display: grid;
