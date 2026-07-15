@@ -1,13 +1,12 @@
 import type { Locale } from '../lib/i18n';
 
 /**
- * « Lire l'image » : les symboles repérables dans l'illustration Rider-Waite-Smith
- * de chaque carte. Le cœur de l'apprentissage RWS — apprendre à lire la scène
- * plutôt qu'à mémoriser des mots-clés. Chaque entrée nomme un élément visuel réel
- * de la carte et dit comment le lire. FR+EN, ton cohérent avec le reste du jeu.
+ * « L'image » : la symbolique des éléments visuels de l'illustration Rider-Waite-Smith
+ * de chaque carte. Le cœur de la lecture RWS — non pas décrire la scène, mais dire
+ * ce que chaque élément SIGNIFIE (sens ésotérique, couleur, position, charge
+ * archétypale). Affichée par défaut sous la carte. FR+EN, ton « nuit mystique ».
  *
  * Couverture : les 78 cartes (22 majeurs + 56 mineurs).
- * Une carte absente de SYMBOLS n’affiche simplement pas le bouton « Lire l’image ».
  */
 
 type Bi = Record<Locale, string>;
@@ -15,1299 +14,562 @@ type Bi = Record<Locale, string>;
 export interface CardSymbol {
   /** Le détail visuel, nommé (ex. « Le petit chien blanc »). */
   label: Bi;
-  /** Comment le lire. */
+  /** Sa lecture symbolique. */
   text: Bi;
 }
 
 export const SYMBOLS: Record<string, CardSymbol[]> = {
-  'major-00': [
-    {
-      label: { fr: 'La falaise', en: 'The cliff' },
-      text: {
-        fr: 'Le bord vers lequel il avance en riant : le saut dans l’inconnu, insouciant du danger.',
-        en: 'The edge he steps toward, laughing: the leap into the unknown, heedless of danger.',
-      },
-    },
-    {
-      label: { fr: 'Le petit chien blanc', en: 'The little white dog' },
-      text: {
-        fr: 'À ses talons, l’instinct qui l’avertit — ou qui le pousse à bondir.',
-        en: 'At his heels, the instinct that warns him — or urges him to leap.',
-      },
-    },
-    {
-      label: { fr: 'La rose blanche', en: 'The white rose' },
-      text: {
-        fr: 'Tenue à la main : la pureté de l’intention, l’innocence de celui qui part sans arrière-pensée.',
-        en: 'Held in his hand: purity of intent, the innocence of one who sets off with no hidden agenda.',
-      },
-    },
-  ],
-  'major-01': [
-    {
-      label: { fr: 'Le lemniscate (∞)', en: 'The lemniscate (∞)' },
-      text: {
-        fr: 'Au-dessus de sa tête : le potentiel infini, la maîtrise de forces qui ne s’épuisent pas.',
-        en: 'Above his head: infinite potential, mastery of forces that never run dry.',
-      },
-    },
-    {
-      label: { fr: 'Une main au ciel, l’autre à la terre', en: 'One hand to the sky, one to the earth' },
-      text: {
-        fr: 'Il canalise : « ce qui est en haut est comme ce qui est en bas », le passage de l’idée à l’acte.',
-        en: 'He channels: “as above, so below” — the passage from idea to act.',
-      },
-    },
-    {
-      label: { fr: 'Les quatre outils sur la table', en: 'The four tools on the table' },
-      text: {
-        fr: 'Bâton, coupe, épée, denier : les quatre éléments réunis sous sa main, tout est à disposition.',
-        en: 'Wand, cup, sword, pentacle: the four elements gathered under his hand — all at his disposal.',
-      },
-    },
-  ],
-  'major-02': [
-    {
-      label: { fr: 'Les deux piliers, noir et blanc (Boaz & Jachin)', en: 'The two pillars, black and white (Boaz & Jachin)' },
-      text: {
-        fr: 'Le seuil du mystère : elle siège entre les contraires, gardienne de ce qui ne se dit pas.',
-        en: 'The threshold of mystery: she sits between the opposites, guardian of what goes unspoken.',
-      },
-    },
-    {
-      label: { fr: 'Le voile aux grenades', en: 'The pomegranate veil' },
-      text: {
-        fr: 'Derrière elle, ce qui reste caché : le savoir voilé, l’inconscient qu’on ne force pas.',
-        en: 'Behind her, what stays hidden: veiled knowledge, the unconscious one does not force.',
-      },
-    },
-    {
-      label: { fr: 'Le croissant de lune à ses pieds', en: 'The crescent moon at her feet' },
-      text: {
-        fr: 'L’intuition et les marées de l’invisible, sous sa maîtrise tranquille.',
-        en: 'Intuition and the tides of the unseen, under her quiet command.',
-      },
-    },
-  ],
-  'major-03': [
-    {
-      label: { fr: 'Le champ de blé mûr', en: 'The field of ripe wheat' },
-      text: {
-        fr: 'L’abondance qui déborde : fécondité, récolte, ce qui pousse sans qu’on ait à forcer.',
-        en: 'Overflowing abundance: fertility, harvest, what grows without forcing.',
-      },
-    },
-    {
-      label: { fr: 'La couronne de douze étoiles', en: 'The crown of twelve stars' },
-      text: {
-        fr: 'Son règne sur les cycles naturels — les mois, le zodiaque, le rythme du vivant.',
-        en: 'Her reign over the natural cycles — the months, the zodiac, the rhythm of the living.',
-      },
-    },
-    {
-      label: { fr: 'Le ruisseau et la forêt', en: 'The stream and the forest' },
-      text: {
-        fr: 'La vie qui coule autour d’elle : la nature généreuse, sensuelle, inépuisable.',
-        en: 'Life flowing around her: nature generous, sensual, inexhaustible.',
-      },
-    },
-  ],
-  'major-04': [
-    {
-      label: { fr: 'Les têtes de bélier du trône', en: 'The ram heads on the throne' },
-      text: {
-        fr: 'Le Bélier, Mars : l’autorité, la volonté qui fonce et impose son ordre.',
-        en: 'Aries, Mars: authority, the will that charges and imposes its order.',
-      },
-    },
-    {
-      label: { fr: 'Les montagnes arides', en: 'The barren mountains' },
-      text: {
-        fr: 'Derrière lui, la structure dure et nue du pouvoir — rien n’y pousse, tout y tient.',
-        en: 'Behind him, the hard bare structure of power — nothing grows there, everything holds.',
-      },
-    },
-    {
-      label: { fr: 'L’armure sous la robe', en: 'The armour beneath the robe' },
-      text: {
-        fr: 'Le souverain jamais en repos, prêt à défendre ce qu’il a bâti.',
-        en: 'The ruler never at rest, ready to defend what he has built.',
-      },
-    },
-  ],
-  'major-05': [
-    {
-      label: { fr: 'La triple tiare et le geste de bénédiction', en: 'The triple tiara and the blessing gesture' },
-      text: {
-        fr: 'L’autorité spirituelle, l’enseignement sanctionné qu’on transmet d’en haut.',
-        en: 'Spiritual authority, the sanctioned teaching handed down from above.',
-      },
-    },
-    {
-      label: { fr: 'Les deux clés croisées', en: 'The two crossed keys' },
-      text: {
-        fr: 'Les clés des mystères : ce qui ouvre le ciel et ce qui lie la terre.',
-        en: 'The keys to the mysteries: what opens heaven and what binds earth.',
-      },
-    },
-    {
-      label: { fr: 'Les deux acolytes', en: 'The two acolytes' },
-      text: {
-        fr: 'La transmission : le savoir passe au sein d’une institution, du maître aux disciples.',
-        en: 'Transmission: knowledge passes within an institution, master to disciples.',
-      },
-    },
-  ],
-  'major-06': [
-    {
-      label: { fr: 'L’ange au-dessus (Raphaël)', en: 'The angel above (Raphael)' },
-      text: {
-        fr: 'La bénédiction d’en haut sur l’union — ou sur le choix qui engage.',
-        en: 'The blessing from above upon the union — or upon the choice that commits.',
-      },
-    },
-    {
-      label: { fr: 'L’arbre et le serpent, derrière la femme', en: 'The tree and serpent, behind the woman' },
-      text: {
-        fr: 'L’arbre de la connaissance : la tentation, l’éveil, le prix du savoir.',
-        en: 'The tree of knowledge: temptation, awakening, the price of knowing.',
-      },
-    },
-    {
-      label: { fr: 'L’arbre en flammes, derrière l’homme', en: 'The flaming tree, behind the man' },
-      text: {
-        fr: 'La passion, le désir qui brûle — la part ardente de l’union.',
-        en: 'Passion, burning desire — the ardent side of the union.',
-      },
-    },
-  ],
-  'major-07': [
-    {
-      label: { fr: 'Les deux sphinx, noir et blanc', en: 'The two sphinxes, black and white' },
-      text: {
-        fr: 'Les forces contraires qu’il doit mener d’un seul vouloir — sans rênes, par la seule volonté.',
-        en: 'The opposing forces he must drive as one — no reins, by will alone.',
-      },
-    },
-    {
-      label: { fr: 'Le dais étoilé', en: 'The starry canopy' },
-      text: {
-        fr: 'Le ciel qui le guide : la conduite juste vient d’en haut, pas du seul effort.',
-        en: 'The sky that guides him: right conduct comes from above, not from effort alone.',
-      },
-    },
-    {
-      label: { fr: 'La cité, derrière lui', en: 'The city, behind him' },
-      text: {
-        fr: 'Ce qu’il quitte pour vaincre : la victoire au prix du départ, du confort laissé.',
-        en: 'What he leaves to conquer: victory at the cost of departure, of comfort left behind.',
-      },
-    },
-  ],
-  'major-08': [
-    {
-      label: { fr: 'La femme qui referme la gueule du lion', en: 'The woman closing the lion’s jaws' },
-      text: {
-        fr: 'La maîtrise par la douceur, non par la brute : la vraie force est tranquille.',
-        en: 'Mastery through gentleness, not brute strength: true force is calm.',
-      },
-    },
-    {
-      label: { fr: 'Le lion', en: 'The lion' },
-      text: {
-        fr: 'L’instinct brut, la passion animale — apprivoisé par l’amour, pas soumis par la peur.',
-        en: 'Raw instinct, animal passion — tamed by love, not subdued by fear.',
-      },
-    },
-    {
-      label: { fr: 'Le lemniscate (∞)', en: 'The lemniscate (∞)' },
-      text: {
-        fr: 'La même puissance infinie que le Magicien, mais tournée vers le dedans.',
-        en: 'The same infinite power as the Magician, here turned inward.',
-      },
-    },
-  ],
-  'major-09': [
-    {
-      label: { fr: 'La lanterne à l’étoile', en: 'The star-lantern' },
-      text: {
-        fr: 'Le Sceau de Salomon en son cœur : la lumière intérieure qu’il tend pour guider.',
-        en: 'The Seal of Solomon at its heart: the inner light he holds out to guide.',
-      },
-    },
-    {
-      label: { fr: 'Le sommet enneigé', en: 'The snowy peak' },
-      text: {
-        fr: 'La hauteur d’une quête solitaire : il s’est retiré du monde pour voir clair.',
-        en: 'The height of a solitary quest: he withdrew from the world to see clearly.',
-      },
-    },
-    {
-      label: { fr: 'Le bâton', en: 'The staff' },
-      text: {
-        fr: 'Le soutien et la volonté qui le portent, pas à pas, sur le chemin.',
-        en: 'The support and the will that carry him, step by step, along the path.',
-      },
-    },
-  ],
-  'major-10': [
-    {
-      label: { fr: 'La roue (ROTA / TARO)', en: 'The wheel (ROTA / TARO)' },
-      text: {
-        fr: 'Le tour du sort : les cycles, la montée et la chute, ce qui revient toujours.',
-        en: 'The turn of fate: the cycles, the rise and the fall, what always comes round.',
-      },
-    },
-    {
-      label: { fr: 'Le sphinx au sommet, l’épée en main', en: 'The sphinx atop, sword in hand' },
-      text: {
-        fr: 'L’équilibre au-dessus du mouvement : rester stable quand tout tourne.',
-        en: 'Balance above the movement: staying steady while all turns.',
-      },
-    },
-    {
-      label: { fr: 'Le serpent qui descend, Anubis qui monte', en: 'The snake descending, Anubis rising' },
-      text: {
-        fr: 'Ce qui chute et ce qui s’élève à chaque tour — rien n’est acquis.',
-        en: 'What falls and what rises with each turn — nothing is fixed.',
-      },
-    },
-  ],
-  'major-11': [
-    {
-      label: { fr: 'L’épée dressée', en: 'The upright sword' },
-      text: {
-        fr: 'La décision claire, impartiale : le tranchant de la vérité qui coupe net.',
-        en: 'The clear, impartial decision: the edge of truth that cuts clean.',
-      },
-    },
-    {
-      label: { fr: 'La balance', en: 'The scales' },
-      text: {
-        fr: 'Le poids des actes et de leurs suites : cause et effet mis en regard.',
-        en: 'The weight of deeds and their consequences: cause and effect held up together.',
-      },
-    },
-    {
-      label: { fr: 'Le pied qui dépasse du voile', en: 'The foot stepping past the veil' },
-      text: {
-        fr: 'Prête à agir sur son verdict — la justice ne reste pas assise.',
-        en: 'Ready to act on her verdict — justice does not stay seated.',
-      },
-    },
-  ],
-  'major-12': [
-    {
-      label: { fr: 'La suspension tête en bas', en: 'Hanging head-down' },
-      text: {
-        fr: 'Le point de vue renversé : lâcher prise pour voir enfin autrement.',
-        en: 'The reversed viewpoint: letting go to see, at last, differently.',
-      },
-    },
-    {
-      label: { fr: 'L’auréole autour de la tête', en: 'The halo around the head' },
-      text: {
-        fr: 'L’illumination gagnée dans l’abandon : la pause éclaire.',
-        en: 'Illumination won through surrender: the pause enlightens.',
-      },
-    },
-    {
-      label: { fr: 'La jambe croisée en 4, l’arbre vivant', en: 'The leg crossed in a 4, the living tree' },
-      text: {
-        fr: 'Le sacrifice choisi, non subi — et l’arbre verdoyant : cette attente est féconde.',
-        en: 'Sacrifice chosen, not imposed — and the green tree: this waiting is fertile.',
-      },
-    },
-  ],
-  'major-13': [
-    {
-      label: { fr: 'Le squelette en armure sur le cheval blanc', en: 'The armoured skeleton on the white horse' },
-      text: {
-        fr: 'L’inévitable en marche, que nul rang n’arrête : la transformation avance.',
-        en: 'The inevitable on the march, that no rank halts: transformation advances.',
-      },
-    },
-    {
-      label: { fr: 'La bannière à la rose blanche', en: 'The banner with the white rose' },
-      text: {
-        fr: 'La mort comme renouveau : ce qui finit ouvre à une vie plus pure.',
-        en: 'Death as renewal: what ends opens onto a purer life.',
-      },
-    },
-    {
-      label: { fr: 'Le soleil entre deux tours, à l’horizon', en: 'The sun between two towers, on the horizon' },
-      text: {
-        fr: 'Au loin, la renaissance qui se lève au-delà du passage.',
-        en: 'Far off, the rebirth rising beyond the passage.',
-      },
-    },
-  ],
-  'major-14': [
-    {
-      label: { fr: 'L’eau versée d’une coupe à l’autre', en: 'Water poured from cup to cup' },
-      text: {
-        fr: 'Le mélange sans fin : l’équilibre en mouvement, la juste mesure.',
-        en: 'The endless blending: balance in motion, the right measure.',
-      },
-    },
-    {
-      label: { fr: 'Un pied sur terre, un pied dans l’eau', en: 'One foot on land, one in the water' },
-      text: {
-        fr: 'Le pont entre le conscient et l’inconscient, la matière et le sentiment.',
-        en: 'The bridge between conscious and unconscious, matter and feeling.',
-      },
-    },
-    {
-      label: { fr: 'Le sentier vers les montagnes, la couronne au loin', en: 'The path to the mountains, the crown afar' },
-      text: {
-        fr: 'Le long chemin vers le but plus haut : la patience de l’alchimiste.',
-        en: 'The long road toward the higher goal: the alchemist’s patience.',
-      },
-    },
-  ],
-  'major-15': [
-    {
-      label: { fr: 'Les chaînes lâches autour du cou', en: 'The loose chains around the neck' },
-      text: {
-        fr: 'La servitude qu’on pourrait défaire : le piège est consenti.',
-        en: 'Bondage that could be slipped: the trap is consented to.',
-      },
-    },
-    {
-      label: { fr: 'Le pentagramme inversé', en: 'The inverted pentagram' },
-      text: {
-        fr: 'L’appétit qui règne sur l’esprit : les valeurs retournées, la matière au-dessus.',
-        en: 'Appetite ruling over spirit: values upended, matter placed above.',
-      },
-    },
-    {
-      label: { fr: 'La torche renversée', en: 'The reversed torch' },
-      text: {
-        fr: 'Le feu détourné : le désir qui consume au lieu d’éclairer.',
-        en: 'The misused fire: desire that consumes instead of lighting the way.',
-      },
-    },
-  ],
-  'major-16': [
-    {
-      label: { fr: 'La foudre qui frappe', en: 'The striking lightning' },
-      text: {
-        fr: 'Le trait soudain venu du dehors : la vérité ou le désastre qui fracasse tout.',
-        en: 'The sudden bolt from outside: the truth or disaster that shatters everything.',
-      },
-    },
-    {
-      label: { fr: 'La couronne soufflée du sommet', en: 'The crown blown off the top' },
-      text: {
-        fr: 'Les fausses structures renversées : ce qui était bâti sur le mensonge tombe.',
-        en: 'False structures toppled: what was built on a lie comes down.',
-      },
-    },
-    {
-      label: { fr: 'Les deux figures qui chutent', en: 'The two figures falling' },
-      text: {
-        fr: 'La chute que nul n’a vue venir, jeté hors de ses certitudes.',
-        en: 'The fall no one saw coming, thrown out of one’s certainties.',
-      },
-    },
-  ],
-  'major-17': [
-    {
-      label: { fr: 'La grande étoile à huit branches', en: 'The great eight-pointed star' },
-      text: {
-        fr: 'L’espérance et le guide : la lumière douce après la nuit de la Tour.',
-        en: 'Hope and guidance: the soft light after the Tower’s night.',
-      },
-    },
-    {
-      label: { fr: 'Les deux cruches versées (eau et terre)', en: 'The two jugs poured (water and earth)' },
-      text: {
-        fr: 'Le renouveau rendu au monde et aux profondeurs, sans rien retenir.',
-        en: 'Renewal returned to the world and to the depths, holding nothing back.',
-      },
-    },
-    {
-      label: { fr: 'La femme nue', en: 'The naked woman' },
-      text: {
-        fr: 'La vérité mise à nu : plus rien à cacher, la vulnérabilité assumée.',
-        en: 'Truth laid bare: nothing left to hide, vulnerability owned.',
-      },
-    },
-  ],
-  'major-18': [
-    {
-      label: { fr: 'La lune aux gouttes', en: 'The moon shedding drops' },
-      text: {
-        fr: 'L’illusion : la lumière qui déforme, les rêves et les peurs mêlés.',
-        en: 'Illusion: the light that distorts, dreams and fears entangled.',
-      },
-    },
-    {
-      label: { fr: 'Le chien et le loup qui hurlent', en: 'The dog and the wolf howling' },
-      text: {
-        fr: 'L’esprit apprivoisé et l’esprit sauvage, tous deux troublés par la nuit.',
-        en: 'The tamed mind and the wild mind, both unsettled by the night.',
-      },
-    },
-    {
-      label: { fr: 'L’écrevisse qui sort de l’eau', en: 'The crayfish emerging from the water' },
-      text: {
-        fr: 'Les peurs enfouies qui remontent des profondeurs vers la surface.',
-        en: 'Buried fears crawling up from the depths toward the surface.',
-      },
-    },
-  ],
-  'major-19': [
-    {
-      label: { fr: 'Le soleil rayonnant', en: 'The radiant sun' },
-      text: {
-        fr: 'La clarté, la vitalité, la vérité en pleine lumière — la joie sans ombre.',
-        en: 'Clarity, vitality, truth in full light — joy without shadow.',
-      },
-    },
-    {
-      label: { fr: 'L’enfant nu sur le cheval blanc', en: 'The naked child on the white horse' },
-      text: {
-        fr: 'La joie innocente, rien de caché, la liberté d’être pleinement soi.',
-        en: 'Innocent joy, nothing hidden, the freedom to be fully oneself.',
-      },
-    },
-    {
-      label: { fr: 'Les tournesols et le mur', en: 'The sunflowers and the wall' },
-      text: {
-        fr: 'Ce qui se tourne vers la lumière — et le jardin clos qu’on laisse derrière.',
-        en: 'What turns toward the light — and the walled garden left behind.',
-      },
-    },
-  ],
-  'major-20': [
-    {
-      label: { fr: 'L’ange à la trompette', en: 'The angel with the trumpet' },
-      text: {
-        fr: 'L’appel qui réveille : la sommation qu’on ne peut ignorer.',
-        en: 'The call that awakens: the summons that cannot be ignored.',
-      },
-    },
-    {
-      label: { fr: 'Les morts qui se lèvent des tombes', en: 'The dead rising from the graves' },
-      text: {
-        fr: 'La renaissance : le passé soldé, on se relève renouvelé.',
-        en: 'Rebirth: the past settled, one rises renewed.',
-      },
-    },
-    {
-      label: { fr: 'Les bras ouverts des ressuscités', en: 'The open arms of the risen' },
-      text: {
-        fr: 'L’acceptation du grand bilan, prêt à répondre de tout.',
-        en: 'Acceptance of the great reckoning, ready to answer for all.',
-      },
-    },
-  ],
-  'major-21': [
-    {
-      label: { fr: 'La couronne de laurier (la mandorle)', en: 'The laurel wreath (the mandorla)' },
-      text: {
-        fr: 'L’achèvement : le cycle bouclé, l’œuvre accomplie.',
-        en: 'Completion: the cycle closed, the work fulfilled.',
-      },
-    },
-    {
-      label: { fr: 'La figure qui danse', en: 'The dancing figure' },
-      text: {
-        fr: 'La liberté trouvée au cœur du tour complet : l’harmonie enfin.',
-        en: 'Freedom found at the heart of the full round: harmony at last.',
-      },
-    },
-    {
-      label: { fr: 'Les quatre vivants aux coins', en: 'The four creatures at the corners' },
-      text: {
-        fr: 'Les quatre éléments réunis : la plénitude du monde entier.',
-        en: 'The four elements gathered: the fullness of the whole world.',
-      },
-    },
-  ],
-  'wands-01': [
-    {
-      label: { fr: 'La main jaillie du nuage', en: 'The hand from the cloud' },
-      text: { fr: 'Sortie d’un nuage gris à droite, elle empoigne fermement le bâton à pleine main : l’occasion t’est déjà donnée, saisie à bras-le-corps.', en: 'Emerging from a grey cloud on the right, it grips the wand firmly in a closed fist: the opportunity is already yours, seized in full.' },
-    },
-    {
-      label: { fr: 'Les feuilles neuves qui tombent', en: 'The falling new leaves' },
-      text: { fr: 'Le bâton bourgeonne encore et sème ses jeunes feuilles vertes dans l’air — signe que la sève monte vraiment, que ce début est vivant et déjà en croissance.', en: 'The wand is still budding and scatters its young green leaves through the air — a sign the sap is truly rising, that this beginning is alive and already growing.' },
-    },
-    {
-      label: { fr: 'Le château sur la colline', en: 'The castle on the hill' },
-      text: { fr: 'Petit et lointain, il se dresse sur sa hauteur à gauche du paysage : la destination existe déjà, il ne manque que le premier pas pour t’y porter.', en: 'Small and distant, it stands on its height at the left of the landscape: the destination already exists, only the first step is missing to carry you there.' },
-    },
-  ],
-  'wands-02': [
-    {
-      label: { fr: 'Le globe dans sa main droite', en: 'The globe in his right hand' },
-      text: { fr: 'L’homme tient le monde entier au creux de la paume : ton projet est déjà vaste, reste à décider où le porter.', en: 'The man cradles the whole world in his palm: your project is already vast, now you must decide where to carry it.' },
-    },
-    {
-      label: { fr: 'Le second bâton fixé au mur', en: 'The second wand fixed to the wall' },
-      text: { fr: 'Le second bâton reste arrimé à la pierre derrière lui : une partie de toi s’accroche encore au connu tandis que l’autre veut partir.', en: 'The second wand stays fastened to the stone behind him: part of you still clings to the known while the other wants to leave.' },
-    },
-    {
-      label: { fr: 'La rose et le lys croisés', en: 'The crossed rose and lily' },
-      text: { fr: 'Dans le coin du muret, une rose rouge et un lys blanc gravés se croisent : ton désir brûlant et ton besoin de pureté te tirent chacun de leur côté.', en: 'In the corner of the ledge, an engraved red rose and white lily cross: your burning desire and your need for purity each pull you their own way.' },
-    },
-  ],
-  'wands-03': [
-    {
-      label: { fr: 'La figure vue de dos', en: 'The figure seen from behind' },
-      text: { fr: 'Il te tourne le dos, campé sur la hauteur : ton attention est déjà tournée vers le large, plus vers ce que tu quittes.', en: 'He turns his back to you, planted on the height: your attention is already turned toward open water, no longer toward what you are leaving.' },
-    },
-    {
-      label: { fr: 'Les navires au loin sur la mer', en: 'The ships far out on the sea' },
-      text: { fr: 'De petites voiles glissent à l’horizon : tes envois sont partis, et ce qui revient reviendra plus vaste que ce que tu as lancé.', en: 'Small sails glide on the horizon: your ventures have set out, and what returns will come back larger than what you sent.' },
-    },
-    {
-      label: { fr: 'Le bâton qu’il tient en main', en: 'The staff he holds in hand' },
-      text: { fr: 'Des trois bâtons dressés autour de lui, sa main en saisit un seul : l’engagement concret d’une entreprise déjà en marche, gardée à portée.', en: 'Of the three staves standing around him, his hand grips a single one: the concrete commitment to a venture already under way, kept within reach.' },
-    },
-  ],
-  'wands-04': [
-    {
-      label: { fr: 'Les quatre bâtons dressés', en: 'The four upright staves' },
-      text: { fr: 'Plantés bien droits et fleuris à leur sommet, ils forment un portique : les fondations solides sur lesquelles ta quête peut enfin se poser et célébrer.', en: 'Standing straight and crowned with blossoms at their tips, they form a portal: the solid foundations on which your quest can at last settle and celebrate.' },
-    },
-    {
-      label: { fr: 'La guirlande fleurie en feston', en: 'The flowered garland festooned' },
-      text: { fr: 'Tendue en swag entre les sommets des bâtons, lourde de feuilles et de fruits, elle transforme le seuil en fête : la récolte et la joie partagée après l’effort.', en: 'Draped as a swag between the tops of the staves, heavy with leaves and fruit, it turns the threshold into a feast: the harvest and shared joy after the effort.' },
-    },
-    {
-      label: { fr: 'Les deux silhouettes aux bouquets levés', en: 'The two figures with raised bouquets' },
-      text: { fr: 'Devant le château, elles brandissent des bouquets vers le ciel : ceux qui t’accueillent au foyer et te disent que tu as trouvé ta place.', en: 'Before the castle, they raise bouquets toward the sky: those who welcome you home and tell you that you have found your place.' },
-    },
-  ],
-  'wands-05': [
-    {
-      label: { fr: 'Les cinq bâtons entrecroisés', en: 'The five crossed staves' },
-      text: { fr: 'Levés et se croisant en un enchevêtrement désordonné, ils ne convergent vers rien : la mêlée où chaque voix veut couvrir les autres.', en: 'Raised and crossing in a disordered tangle, they converge on nothing: the melee where every voice tries to drown out the rest.' },
-    },
-    {
-      label: { fr: 'Les cinq jeunes gens', en: 'The five young men' },
-      text: { fr: 'Ils s’affrontent tête nue, sans armure ni sang : une rivalité de bravade plus qu’une vraie guerre, un chahut qui peut se dénouer.', en: 'They clash bareheaded, without armor or blood: a rivalry of bravado more than real war, a scuffle that can still be undone.' },
-    },
-    {
-      label: { fr: 'Les tuniques dépareillées', en: 'The mismatched tunics' },
-      text: { fr: 'Vertes, rouges, jaunes, chacun vêtu différemment : cinq visions qui refusent de s’accorder.', en: 'Green, red, yellow, each dressed differently: five outlooks that refuse to fall into agreement.' },
-    },
-  ],
-  'wands-06': [
-    {
-      label: { fr: 'La couronne de laurier', en: 'The laurel crown' },
-      text: { fr: 'Posée sur sa tête, la victoire déjà proclamée : tu rentres acclamé, la reconnaissance t’attend au tournant.', en: 'Set upon his head, victory already proclaimed: you return to cheers, recognition waiting round the bend.' },
-    },
-    {
-      label: { fr: 'Le cheval blanc caparaçonné', en: 'The draped white horse' },
-      text: { fr: 'Sa monture blanche couverte d’un drap, portée haut au milieu de la foule : ton triomphe s’affiche, il ne se cache plus.', en: 'His white mount covered in a cloth, borne high through the crowd: your triumph is on display, hidden no longer.' },
-    },
-    {
-      label: { fr: 'Les six bâtons dressés', en: 'The six raised staves' },
-      text: { fr: 'Le sien couronné d’une guirlande, cinq autres levés par ceux qui l’escortent : tu ne gagnes pas seul, on marche derrière toi.', en: 'His own crowned with a garland, five more raised by those escorting him: you do not win alone, they march behind you.' },
-    },
-  ],
-  'wands-07': [
-    {
-      label: { fr: 'Les six bâtons d’en bas', en: 'The six wands below' },
-      text: { fr: 'Six hampes montent depuis le bord inférieur du cadre pour l’assaillir : tu tiens seul, en hauteur, contre une opposition venue d’en dessous.', en: 'Six staves rise from the lower edge of the frame to challenge him: you hold your ground alone, above, against opposition coming from below.' },
-    },
-    {
-      label: { fr: 'Les deux chaussures dépareillées', en: 'The two mismatched shoes' },
-      text: { fr: 'Il porte une botte montante à un pied et une chaussure basse à l’autre : tu défends ta position sans avoir eu le temps de te préparer.', en: 'He wears a high boot on one foot and a low shoe on the other: you defend your position without having had time to get ready.' },
-    },
-    {
-      label: { fr: 'Le seul bâton brandi', en: 'The single raised wand' },
-      text: { fr: 'Il empoigne des deux mains son unique bâton, tenu en travers au-dessus des autres : garde le terrain conquis, ton avantage tient à ta hauteur.', en: 'He grips his single wand with both hands, held crosswise above the others: keep the ground you’ve won, your advantage lies in your higher stance.' },
-    },
-  ],
-  'wands-08': [
-    {
-      label: { fr: 'Les huit bâtons en plein vol', en: 'The eight wands in flight' },
-      text: { fr: 'Aucune main ne les tient : les huit bâtons feuillus filent en biais dans les airs, tous parallèles et dans le même sens — ce que tu as lancé fonce déjà vers sa cible.', en: 'No hand holds them: the eight leafy wands streak diagonally through the air, all parallel and pointing the same way — what you set loose is already racing toward its mark.' },
-    },
-    {
-      label: { fr: 'Le ciel clair et dégagé', en: 'The clear open sky' },
-      text: { fr: 'Pas un nuage pour ralentir la course : le ciel est d’un bleu uni, la voie est libre, l’instant est celui de la vitesse et non de l’attente.', en: 'Not a cloud to slow the course: the sky is plain blue, the way is open, and the moment is one of speed rather than waiting.' },
-    },
-    {
-      label: { fr: 'La rivière et la maison au loin', en: 'The river and the distant house' },
-      text: { fr: 'En contrebas serpente un cours d’eau à travers la campagne verte, avec une petite maison sur la rive lointaine : une terre paisible au sol tandis que tout se précipite au-dessus.', en: 'Below, a stream winds through the green country with a small house on the far bank: a peaceful land at ground level while everything rushes overhead.' },
-    },
-  ],
-  'wands-09': [
-    {
-      label: { fr: 'Le bandage autour du front', en: 'The bandage around his head' },
-      text: { fr: 'Un linge enroulé autour de sa tête : tu portes encore les blessures des combats passés, mais tu es toujours debout.', en: 'A cloth wound around his head: you still bear the wounds of past battles, yet you are still standing.' },
-    },
-    {
-      label: { fr: 'Les huit bâtons dressés derrière', en: 'The eight staves standing behind' },
-      text: { fr: 'Alignés en palissade dans son dos : tout ce que tu as déjà défendu, la dernière ligne à ne pas laisser tomber.', en: 'Lined up like a stockade at his back: everything you have already defended, the last line you refuse to give up.' },
-    },
-    {
-      label: { fr: 'Le bâton tenu des deux mains', en: 'The staff held in both hands' },
-      text: { fr: 'Il s’y appuie et l’agrippe, le regard tourné de côté : tu montes la garde, méfiant, prêt à l’ultime assaut.', en: 'He leans on it and grips it, his gaze turned aside: you stand guard, wary, braced for the final assault.' },
-    },
-  ],
-  'wands-10': [
-    {
-      label: { fr: 'Les dix bâtons en brassée', en: 'Ten staves in one armful' },
-      text: { fr: 'Les dix bâtons serrés d’un seul coup entre ses bras penchés en avant : tu as tout pris sur toi, et maintenant la charge te plie.', en: 'All ten staves clutched at once in his forward-bent arms: you took everything on yourself, and now the load bends you double.' },
-    },
-    {
-      label: { fr: 'Le dos courbé, le visage baissé', en: 'Bent back, lowered face' },
-      text: { fr: 'Ployé en avant derrière la brassée, tu ne regardes plus que le sol devant tes pas — l’effort t’absorbe au point d’en oublier pourquoi tu marches.', en: 'Hunched forward behind the bundle, you see only the ground before your feet — the effort so absorbs you that you forget why you walk.' },
-    },
-    {
-      label: { fr: 'Le village au loin', en: 'The village in the distance' },
-      text: { fr: 'Les toits d’un hameau se dessinent à droite, un toit rouge en tête : le but est presque là, tiens encore quelques pas avant de tout poser.', en: 'The roofs of a hamlet take shape to the right, a red roof leading: the goal is nearly there — hold a few more steps before you set it all down.' },
-    },
-  ],
-  'wands-11': [
-    {
-      label: { fr: 'Les salamandres sur sa tunique', en: 'The salamanders on his tunic' },
-      text: { fr: 'Sa tunique est semée de petites salamandres noires, ces bêtes du feu qui traversent les flammes sans brûler : elles disent l’énergie qui bouillonne en toi avant même que tu saches quoi en faire.', en: 'His tunic is strewn with little black salamanders, those fire creatures that pass through flames unburnt: they name the energy bubbling up in you before you even know what to do with it.' },
-    },
-    {
-      label: { fr: 'Le long bâton bourgeonnant', en: 'The long budding staff' },
-      text: { fr: 'Il tient un unique bâton plus grand que lui, d’où pointent de jeunes feuilles vertes ; regarde-le comme lui : une idée neuve pousse, encore verte, prête à être portée.', en: 'He holds a single staff taller than himself, with young green leaves sprouting from it; look at it as he does: a new idea is growing, still green, ready to be carried.' },
-    },
-    {
-      label: { fr: 'Les trois pyramides au loin', en: 'The three pyramids in the distance' },
-      text: { fr: 'Derrière lui, un désert nu et trois pyramides à l’horizon : le voyage n’est pas commencé, tout l’espace reste à traverser, et c’est là que ton élan doit se dépenser.', en: 'Behind him, a bare desert and three pyramids on the horizon: the journey hasn’t begun, all that space remains to be crossed, and that is where your drive must be spent.' },
-    },
-  ],
-  'wands-12': [
-    {
-      label: { fr: 'Le cheval cabré, jambes en l’air', en: 'The rearing horse, legs in the air' },
-      text: { fr: 'Sa monture rousse se cabre d’un bond, sabots avant levés : tu pars au galop avant même d’avoir réfléchi.', en: 'His chestnut mount rears in a single bound, forelegs lifted: you charge off before you’ve even had time to think.' },
-    },
-    {
-      label: { fr: 'Les trois pyramides au loin', en: 'The three pyramids in the distance' },
-      text: { fr: 'Derrière lui, le désert nu et ses trois pyramides : la terre aride qu’il traverse sans s’arrêter, tout à sa quête.', en: 'Behind him, the bare desert and its three pyramids: the arid land he crosses without pausing, wholly given to his quest.' },
-    },
-    {
-      label: { fr: 'Les salamandres sur son surcot', en: 'The salamanders on his surcoat' },
-      text: { fr: 'Son surcot jaune est semé de salamandres, créatures du feu : l’ardeur qui te brûle, mais dont la queue reste inachevée, encore mal maîtrisée.', en: 'His yellow surcoat is strewn with salamanders, creatures of fire: the ardour that burns in you, yet whose tail stays unfinished, not yet mastered.' },
-    },
-  ],
-  'wands-13': [
-    {
-      label: { fr: 'Le chat noir à ses pieds', en: 'The black cat at her feet' },
-      text: { fr: 'Assis bien droit face à toi, l’animal veille : ton instinct farouche, l’allié qui garde tes arrières autant qu’il flaire le danger.', en: 'Sitting bolt upright and facing you, the creature keeps watch: your fierce instinct, the ally who guards your back as keenly as it scents danger.' },
-    },
-    {
-      label: { fr: 'Le tournesol qu’elle tient', en: 'The sunflower she holds' },
-      text: { fr: 'Une seule fleur dressée dans sa main gauche, tournée vers la lumière : mets ta chaleur là où la vie pousse, pas là où elle s’éteint.', en: 'A single bloom held up in her left hand, turned toward the light: put your warmth where life grows, not where it dies out.' },
-    },
-    {
-      label: { fr: 'Les lions sculptés du trône', en: 'The carved lions of the throne' },
-      text: { fr: 'Deux têtes de fauve en pierre encadrent son siège : l’autorité assumée, une force de feu que tu n’as plus à prouver, seulement à tenir.', en: 'Two carved lion heads flank her seat: authority owned, a force of fire you no longer have to prove, only to hold.' },
-    },
-  ],
-  'wands-14': [
-    {
-      label: { fr: 'Les salamandres du trône', en: 'The salamanders on the throne' },
-      text: { fr: 'Des lézards ardents ornent le dossier de son trône : ta volonté se nourrit du feu, brûlante et vivace.', en: 'Fiery lizards adorn the back of his throne: your will feeds on fire, burning and alive.' },
-    },
-    {
-      label: { fr: 'Le long bâton verdoyant', en: 'The long budding staff' },
-      text: { fr: 'Il empoigne fermement un bâton qui bourgeonne encore de feuilles : une initiative bien vivante attend ton élan.', en: 'He firmly grips a staff still budding with leaves: a living initiative awaits your momentum.' },
-    },
-    {
-      label: { fr: 'Le petit lézard à ses pieds', en: 'The little lizard at his feet' },
-      text: { fr: 'Une salamandre posée sur le sol, la queue presque en boucle : ose la boucler pour mener ton projet jusqu’au bout.', en: 'A salamander on the ground, its tail nearly forming a loop: dare to close the loop and see your project through.' },
-    },
-  ],
-  'cups-01': [
-    {
-      label: { fr: 'Les cinq filets d’eau', en: 'The five streams of water' },
-      text: { fr: 'Débordant du calice, ils retombent sans fin sur l’étang : ta source intérieure est trop pleine pour se retenir, laisse-la couler.', en: 'Overflowing the chalice, they fall endlessly onto the pond: your inner spring is too full to hold back, let it pour.' },
-    },
-    {
-      label: { fr: 'La colombe et l’hostie', en: 'The dove and the wafer' },
-      text: { fr: 'Elle descend déposer dans la coupe un disque marqué d’une croix : un don venu d’en haut qui bénit l’instant, accueille-le sans le mériter d’abord.', en: 'It descends to lay a disc marked with a cross into the cup: a gift from above that blesses the moment, receive it without first earning it.' },
-    },
-    {
-      label: { fr: 'L’étang couvert de lys', en: 'The pond covered with lilies' },
-      text: { fr: 'Sous la coupe qui déborde, les fleurs flottent sur l’eau calme : le cœur qui s’ouvre à fleur d’eau, offert et vulnérable — penche-toi pour y boire.', en: 'Beneath the overflowing cup, the flowers float on the still water: the heart opening at the water’s edge, offered and vulnerable — lean in to drink.' },
-    },
-  ],
-  'cups-02': [
-    {
-      label: { fr: 'Les deux coupes échangées', en: 'The two exchanged cups' },
-      text: { fr: 'Un homme et une femme se font face, chacun tenant sa coupe d’or et la tendant vers l’autre : un pacte scellé, un serment que tu ne peux jurer seul.', en: 'A man and a woman face each other, each holding a golden cup and offering it toward the other: a pact sealed, an oath you cannot swear alone.' },
-    },
-    {
-      label: { fr: 'Le caducée au lion ailé', en: 'The winged lion caduceus' },
-      text: { fr: 'Deux serpents enlacés sur un bâton, surmontés d’une tête de lion rouge aux ailes déployées, flottant entre eux : le désir brut apprivoisé, la passion qui guérit au lieu de blesser.', en: 'Two serpents entwined on a staff, crowned by a red lion’s head with wings spread wide, floating between them: raw desire tamed, the passion that heals instead of wounding.' },
-    },
-    {
-      label: { fr: 'La maison au toit rouge sur la colline', en: 'The red-roofed house on the hill' },
-      text: { fr: 'Au loin, une petite maison au toit rouge posée sur une butte verte : ce lien pourrait devenir un foyer, si tu choisis d’y bâtir.', en: 'Far off, a small house with a red roof set on a green mound: this bond could become a home, if you choose to build there.' },
-    },
-  ],
-  'cups-03': [
-    {
-      label: { fr: 'Les trois coupes levées', en: 'The three raised cups' },
-      text: { fr: 'Les trois femmes brandissent chacune leur coupe d’or vers le centre, où elles se rejoignent : un toast, une alliance scellée, un cercle qui te tend la main.', en: 'The three women each raise their gold cup toward the center, where they meet: a toast, a sealed bond, a circle reaching out to you.' },
-    },
-    {
-      label: { fr: 'La danseuse de dos en robe rouge', en: 'The red-robed woman, seen from behind' },
-      text: { fr: 'Au centre, une femme te tourne le dos, drapée d’une ample robe rouge : la joie n’exclut personne, mais elle attend que tu fasses le pas pour la rejoindre.', en: 'At the center a woman turns her back to you, wrapped in a flowing red robe: the joy shuts no one out, but it waits for you to step in and join it.' },
-    },
-    {
-      label: { fr: 'Les fruits et la citrouille au sol', en: 'The fruit and pumpkin on the ground' },
-      text: { fr: 'À leurs pieds s’étalent la récolte et une grosse citrouille : l’abondance a mûri, c’est l’heure de célébrer ce que l’effort commun a fait pousser.', en: 'At their feet lie the harvest and a large pumpkin: abundance has ripened, it’s time to celebrate what shared effort has grown.' },
-    },
-  ],
-  'cups-04': [
-    {
-      label: { fr: 'Les bras croisés', en: 'The folded arms' },
-      text: { fr: 'Le jeune homme assis sous l’arbre, bras croisés sur la poitrine : le repli boudeur, la porte fermée à ce qu’on t’offre.', en: 'The young man seated beneath the tree, arms folded across his chest: the sullen withdrawal, the door closed to what you’re offered.' },
-    },
-    {
-      label: { fr: 'Les trois coupes posées', en: 'The three standing cups' },
-      text: { fr: 'Devant lui, trois coupes dressées sur l’herbe sur lesquelles son regard reste fixé : le bien déjà là, ressassé par lassitude.', en: 'Before him, three cups stand upright on the grass, and his gaze stays fixed on them: the good already at hand, brooded over out of weariness.' },
-    },
-    {
-      label: { fr: 'La coupe dans la nuée', en: 'The cup from the cloud' },
-      text: { fr: 'Une main sort d’un nuage gris et tend une quatrième coupe : l’offre inattendue que ton indifférence risque de laisser passer.', en: 'A hand reaches from a grey cloud, holding out a fourth cup: the unexpected offer your indifference risks letting slip by.' },
-    },
-  ],
-  'cups-05': [
-    {
-      label: { fr: 'Les trois coupes renversées', en: 'The three toppled cups' },
-      text: { fr: 'Devant la figure au long manteau noir, trois coupes gisent renversées, leur contenu répandu sur le sol : tu fixes ce qui est perdu.', en: 'Before the figure in the long black cloak, three cups lie toppled, their contents spilled across the ground: you stare at what is lost.' },
-    },
-    {
-      label: { fr: 'Les deux coupes debout', en: 'The two upright cups' },
-      text: { fr: 'Derrière son dos, deux coupes tiennent encore debout : le deuil t’aveugle sur ce qu’il te reste, retourne-toi.', en: 'Behind its back, two cups still stand upright: grief blinds you to what remains, turn around.' },
-    },
-    {
-      label: { fr: 'Le pont vers le château', en: 'The bridge toward the castle' },
-      text: { fr: 'Au loin, une rivière franchie par un petit pont mène à un château : le chemin du retour existe, quand tu voudras le prendre.', en: 'In the distance, a river crossed by a small bridge leads to a castle: the way back exists, whenever you choose to take it.' },
-    },
-  ],
-  'cups-06': [
-    {
-      label: { fr: 'La coupe de fleurs tendue', en: 'The offered flower-cup' },
-      text: { fr: 'L’enfant le plus grand la tend au plus petit : un présent d’enfance, offert sans arrière-pensée — accepte-le, quelqu’un te veut du bien.', en: 'The taller child holds it out to the smaller one: a childhood gift, given with no ulterior motive — take it, someone means you well.' },
-    },
-    {
-      label: { fr: 'Les six coupes fleuries', en: 'The six blossoming cups' },
-      text: { fr: 'Chacune emplie d’une grande fleur blanche à cinq pointes : six douceurs alignées, autant de souvenirs adoucis qui remontent tout ensemble.', en: 'Each brimming with a large five-pointed white bloom: six sweetnesses in a row, as many softened memories rising all at once.' },
-    },
-    {
-      label: { fr: 'La silhouette qui s’éloigne', en: 'The figure walking away' },
-      text: { fr: 'Au fond, un gardien pique à l’épaule quitte la cour, dos tourné : le monde des grands s’écarte pour te laisser cet instant tendre et protégé.', en: 'In the background, a guard with a pike on his shoulder leaves the courtyard, his back turned: the grown-up world steps aside to leave you this tender, sheltered moment.' },
-    },
-  ],
-  'cups-07': [
-    {
-      label: { fr: 'La silhouette de dos, dans l’ombre', en: 'The dark figure seen from behind' },
-      text: { fr: 'Face aux visions, tu contemples sans choisir : c’est toi, silhouette sombre hypnotisée par tout ce que tu pourrais désirer.', en: 'Facing the visions, you gaze without choosing: it’s you, a dark shape mesmerised by all you might desire.' },
-    },
-    {
-      label: { fr: 'Les sept coupes sur la nuée', en: 'The seven cups upon the cloud' },
-      text: { fr: 'Elles flottent sur un nuage gris, sans sol ni poids : sept possibles séduisants qui ne tiennent qu’à la fumée.', en: 'They float on a grey cloud, without ground or weight: seven seductive possibilities held up by nothing but smoke.' },
-    },
-    {
-      label: { fr: 'La figure voilée qui rayonne', en: 'The veiled figure that glows' },
-      text: { fr: 'Dans l’une des coupes, une silhouette drapée d’un voile irradie de lumière : le mirage le plus pur, celui qu’on n’ose pas regarder en face.', en: 'In one of the cups, a shrouded figure blazes with light: the purest mirage, the one you dare not look at directly.' },
-    },
-  ],
-  'cups-08': [
-    {
-      label: { fr: 'Les huit coupes en rangées', en: 'The eight cups in rows' },
-      text: { fr: 'Cinq coupes dressées en bas, trois posées au-dessus, mais un vide laisse un trou : ce que tu as bâti reste debout, et pourtant il y manque quelque chose.', en: 'Five cups standing below, three set above, yet a gap leaves a hole: what you built still stands, and something in it is missing all the same.' },
-    },
-    {
-      label: { fr: 'L’homme de dos qui s’éloigne', en: 'The figure walking away' },
-      text: { fr: 'Bâton en main, drapé de rouge, il tourne le dos à ses coupes et gravit les hauteurs rocheuses : tu choisis de partir vers l’inconnu plutôt que de rester.', en: 'Staff in hand, draped in red, he turns his back on his cups and climbs the rocky heights: you choose to leave for the unknown rather than stay.' },
-    },
-    {
-      label: { fr: 'La lune éclipsée dans le ciel', en: 'The eclipsed moon in the sky' },
-      text: { fr: 'Un croissant enlaçant un disque plein, tout en haut : le voyage se fait de nuit, guidé par un pressentiment plus que par la clarté.', en: 'A crescent embracing a full disc, high above: the journey unfolds by night, guided by a hunch more than by any light.' },
-    },
-  ],
-  'cups-09': [
-    {
-      label: { fr: 'Les neuf coupes en arc de cercle', en: 'The nine cups in an arc' },
-      text: { fr: 'Disposées en arc de cercle sur l’étoffe bleue derrière lui, ta collection au complet : le vœu déjà exaucé, tout ce que tu voulais posé bien en vue.', en: 'Ranged in a curved arc on the blue cloth behind him, your whole collection: the wish already granted, everything you wanted set out in plain sight.' },
-    },
-    {
-      label: { fr: 'Les bras croisés du festin', en: 'The banquet’s folded arms' },
-      text: { fr: 'L’homme trône, bras repliés sur son ventre plein : le contentement satisfait de soi — savoure, mais prends garde à la suffisance.', en: 'The man sits enthroned, arms folded over his full belly: self-satisfied contentment — savour it, but beware of smugness.' },
-    },
-    {
-      label: { fr: 'Le grand chapeau rouge', en: 'The big red hat' },
-      text: { fr: 'Coiffé de rouge vif, il s’affiche en hôte prospère : ton plaisir se montre, quitte à masquer ce que la rangée pleine ne comble pas.', en: 'Crowned in bright red, he flaunts the prosperous host: your pleasure shows itself, even masking what the full row leaves unfilled.' },
-    },
-  ],
-  'cups-10': [
-    {
-      label: { fr: 'Les dix coupes dans l’arc-en-ciel', en: 'The ten cups in the rainbow' },
-      text: { fr: 'Alignées dans le grand arc coloré du ciel : la promesse rêvée enfin comblée, une félicité que tu n’as plus qu’à contempler.', en: 'Ranged across the great coloured arc in the sky: the dreamed-of promise fulfilled at last, a bliss you need only behold.' },
-    },
-    {
-      label: { fr: 'Le couple, bras levés', en: 'The couple, arms raised' },
-      text: { fr: 'Enlacés, l’homme et la femme tendent leur bras libre vers l’arc-en-ciel : l’amour partagé qui déborde et s’offre au monde plutôt que de se garder.', en: 'Arm in arm, the man and woman lift their free arm toward the rainbow: shared love that overflows and offers itself to the world rather than hoarding itself.' },
-    },
-    {
-      label: { fr: 'Les deux enfants qui dansent', en: 'The two dancing children' },
-      text: { fr: 'Main dans la main, bras levés, ils tournent au bord de la rivière : le bonheur si évident qu’on l’habite sans même y penser.', en: 'Hand in hand, arms lifted, they whirl by the riverside: happiness so plain you simply live in it without a thought.' },
-    },
-  ],
-  'cups-11': [
-    {
-      label: { fr: 'Le petit poisson dans la coupe', en: 'The little fish in the cup' },
-      text: { fr: 'Un poisson bleu surgit de la coupe qu’il tient et le regarde droit dans les yeux : le message inattendu de l’inconscient, une intuition qui te parle si tu daignes l’écouter.', en: 'A blue fish pops out of the cup he is holding and looks him right in the eye: the unexpected message from the unconscious, an intuition that speaks to you if you deign to listen.' },
-    },
-    {
-      label: { fr: 'La tunique aux fleurs roses', en: 'The tunic of pink blossoms' },
-      text: { fr: 'Sa courte tunique parsemée de fleurs roses : une âme fleurie, sensible et rêveuse, plus à l’aise dans l’imaginaire que dans l’action brute.', en: 'His short tunic scattered with pink blossoms: a flowering soul, sensitive and dreamy, more at ease in imagination than in raw action.' },
-    },
-    {
-      label: { fr: 'Le couvre-chef bleu à pan retombant', en: 'The blue cap with trailing fold' },
-      text: { fr: 'Sa coiffe bleue prolongée d’un long pan d’étoffe qui retombe sur le côté : une jeunesse un peu théâtrale, prête à jouer, à créer, à ne pas se prendre au sérieux.', en: 'His blue cap extended by a long fold of cloth trailing down the side: a slightly theatrical youth, ready to play, to create, to not take himself too seriously.' },
-    },
-  ],
-  'cups-12': [
-    {
-      label: { fr: 'L’unique coupe tendue', en: 'The single outstretched cup' },
-      text: { fr: 'Il n’en porte qu’une, calmement offerte devant lui : une proposition qui vient à toi, un cœur tendu comme une invitation à laquelle tu choisis de répondre.', en: 'He carries only one, calmly held out before him: an offer that comes to you, a heart extended like an invitation you get to answer.' },
-    },
-    {
-      label: { fr: 'Le cheval au pas lent', en: 'The horse at a slow walk' },
-      text: { fr: 'Sa monture claire avance au pas, sans galoper : ce messager ne fonce pas, il approche doucement — laisse-toi le temps de sentir avant d’agir.', en: 'His pale horse steps forward at a walk, never galloping: this messenger does not charge, he approaches gently — give yourself time to feel before you act.' },
-    },
-    {
-      label: { fr: 'Les poissons du surcot', en: 'The fish on his surcoat' },
-      text: { fr: 'Des poissons rouges ornent son surcot : l’élément Eau brodé à même lui, signe que tout, ici, se joue au fil des émotions et de l’imaginaire.', en: 'Red fish adorn his surcoat: the Water element stitched onto him, a sign that everything here plays out through feeling and imagination.' },
-    },
-  ],
-  'cups-13': [
-    {
-      label: { fr: 'La coupe couverte à anses', en: 'The covered cup with handles' },
-      text: { fr: 'Seule coupe fermée de tout le jeu, sa coupe à couvercle et à deux anses est surmontée d’une croix : ton monde intérieur est si riche qu’il en devient un secret que nul ne voit.', en: 'The only closed cup in the whole deck, her lidded two-handled chalice is crowned with a cross: your inner world is so rich it becomes a secret no one else sees.' },
-    },
-    {
-      label: { fr: 'Le regard fixé sur la coupe', en: 'Her gaze fixed on the cup' },
-      text: { fr: 'Elle contemple la coupe tenue dans ses mains sans la lâcher des yeux : écoute ce que ton cœur te souffle avant de décider quoi que ce soit.', en: 'She contemplates the cup held in her hands, never taking her eyes off it: listen to what your heart whispers before deciding anything.' },
-    },
-    {
-      label: { fr: 'Le trône au bord de l’eau', en: 'The throne at the water’s edge' },
-      text: { fr: 'Son trône de pierre repose sur la grève rocheuse, là où les vagues viennent effleurer le rivage : tu sièges à la lisière du conscient et du rêve.', en: 'Her stone throne rests on the rocky shore, where the waves come brushing against the strand: you sit at the border of the conscious and the dream.' },
-    },
-  ],
-  'cups-14': [
-    {
-      label: { fr: 'Le trône sur la mer houleuse', en: 'The throne on the heaving sea' },
-      text: { fr: 'Son trône de pierre repose au milieu de flots agités : tu gardes ton calme là où d’autres se noieraient dans l’émotion.', en: 'His stone throne rests amid the churning waves: you keep your calm where others would drown in emotion.' },
-    },
-    {
-      label: { fr: 'Le poisson au bout du collier', en: 'The fish on the necklace' },
-      text: { fr: 'Un pendentif en forme de poisson pend à sa chaîne sur sa poitrine : l’inconscient et l’imaginaire qu’il porte ouvertement, sans en avoir peur.', en: 'A fish-shaped pendant hangs from the chain on his chest: the unconscious and the imagination he wears openly, unafraid.' },
-    },
-    {
-      label: { fr: 'Le navire à l’arrière-plan', en: 'The ship in the background' },
-      text: { fr: 'Derrière lui, un navire vogue sur la même mer : le commerce et le voyage restent possibles quand tu maîtrises tes courants intérieurs.', en: 'Behind him, a ship sails the same sea: trade and travel stay possible when you master your inner currents.' },
-    },
-  ],
-  'swords-01': [
-    {
-      label: { fr: 'La main jaillie du nuage', en: 'The hand from the cloud' },
-      text: { fr: 'Une seule main surgit d’un nuage gris et empoigne fermement la garde : une vérité te tombe dessus, brute et sans détour, à toi de la saisir.', en: 'A single hand thrusts from a grey cloud and grips the hilt firmly: a truth lands on you, raw and unqualified, and it is yours to seize.' },
-    },
-    {
-      label: { fr: 'La couronne au bout de la lame', en: 'The crown at the blade’s tip' },
-      text: { fr: 'La pointe transperce une couronne d’or d’où pendent une palme et une guirlande : ta clarté franchit l’obstacle et couronne la percée.', en: 'The tip pierces a golden crown hung with a palm and a garland: your clarity cuts through and crowns the breakthrough.' },
-    },
-    {
-      label: { fr: 'Les six yods flottants', en: 'The six floating yods' },
-      text: { fr: 'Six petites flammèches jaunes dérivent de part et d’autre de la lame : des étincelles d’esprit qui accompagnent la percée, prêtes à être saisies.', en: 'Six small yellow flame-shapes drift on either side of the blade: sparks of mind attending the breakthrough, there for the taking.' },
-    },
-  ],
-  'swords-02': [
-    {
-      label: { fr: 'Les bras croisés sur la poitrine', en: 'Arms crossed over the chest' },
-      text: { fr: 'Elle serre une épée dans chaque main, les bras croisés contre elle, et les deux longues lames s’élèvent en V vers le ciel — deux forces tenues en équilibre par une posture verrouillée plutôt que tranchée.', en: 'She grips a sword in each hand, arms crossed against her, the two long blades rising in a V toward the sky — two forces held in balance by a locked posture rather than settled.' },
-    },
-    {
-      label: { fr: 'Le bandeau sur les yeux', en: 'The blindfold over the eyes' },
-      text: { fr: 'Il t’empêche de regarder ce que tu tiens : la décision est repoussée en refusant de voir clairement l’enjeu.', en: 'It keeps you from looking at what you hold: the decision is put off by refusing to see the stakes clearly.' },
-    },
-    {
-      label: { fr: 'Le mince croissant de lune', en: 'The thin crescent moon' },
-      text: { fr: 'Suspendu en haut à droite du ciel, ce fin croissant baigne la scène d’une lumière trompeuse — intuition voilée, réponses encore dans l’ombre.', en: 'Hung high in the sky to her right, this thin crescent bathes the scene in a deceptive light — veiled intuition, answers still in shadow.' },
-    },
-  ],
-  'swords-03': [
-    {
-      label: { fr: 'Les trois épées croisées', en: 'The three crossing swords' },
-      text: { fr: 'Elles transpercent le cœur de part en part, entrant par des angles différents : la blessure vient de plusieurs côtés à la fois, et rien ne la voile.', en: 'They pierce the heart clean through, entering from different angles: the wound comes from several sides at once, and nothing veils it.' },
-    },
-    {
-      label: { fr: 'Le cœur rouge suspendu', en: 'The red heart, floating' },
-      text: { fr: 'Seul au centre, sans corps ni visage : ce que tu ressens est mis à nu, offert cru à qui regarde ton tirage.', en: 'Alone at the center, no body, no face: what you feel is laid bare, offered raw to whoever reads your draw.' },
-    },
-    {
-      label: { fr: 'Le ciel gris de pluie', en: 'The grey rainy sky' },
-      text: { fr: 'Les nuages lourds pleurent en traits obliques derrière le cœur : l’orage lave la scène mais ne console pas — laisse-le passer.', en: 'Heavy clouds weep in slanting streaks behind the heart: the storm washes the scene but brings no comfort — let it pass.' },
-    },
-  ],
-  'swords-04': [
-    {
-      label: { fr: 'Le gisant aux mains jointes', en: 'The recumbent effigy, hands joined' },
-      text: { fr: 'Une effigie couchée sur un tombeau, mains jointes en prière : ce n’est pas la mort mais la trêve — pose les armes, tu as le droit de te retirer.', en: 'An effigy lying atop a tomb, hands joined in prayer: this is not death but a truce — lay down your arms, you have the right to withdraw.' },
-    },
-    {
-      label: { fr: 'Les trois épées au mur', en: 'The three swords on the wall' },
-      text: { fr: 'Suspendues au-dessus de lui, pointes vers le bas, elles restent hors de portée : les combats en suspens attendront que tu aies repris des forces.', en: 'Hung above him, points downward, they stay out of reach: the fights left pending will wait until you have regained your strength.' },
-    },
-    {
-      label: { fr: 'La quatrième épée sous le gisant', en: 'The fourth sword beneath the effigy' },
-      text: { fr: 'Couchée le long du flanc du tombeau, à plat sous le corps, celle-là ne menace plus : l’arme que tu portes encore peut enfin reposer, sans être brandie.', en: 'Lying along the side of the tomb, flat beneath the body, that one no longer threatens: the weapon you still carry can rest at last, unbrandished.' },
-    },
-  ],
-  'swords-05': [
-    {
-      label: { fr: 'Le regard narquois par-dessus l’épaule', en: 'The smirk over the shoulder' },
-      text: { fr: 'L’homme rassemble trois épées — deux calées sur l’épaule, une pointée vers le sol — et jette un regard narquois en arrière : la victoire arrachée sans gloire, ce que tu gagnes en écrasant l’autre.', en: 'The man gathers three swords — two resting on his shoulder, one pointing down — and glances back with a smirk: victory seized without glory, what you gain by crushing the other.' },
-    },
-    {
-      label: { fr: 'Les deux silhouettes qui s’éloignent', en: 'The two figures walking away' },
-      text: { fr: 'Dos courbé au bord de l’eau, deux vaincus s’en vont tête basse : le prix de ton triomphe, ceux que tu laisses derrière toi.', en: 'Backs bent at the water’s edge, two defeated figures walk off with heads bowed: the price of your triumph, those you leave behind.' },
-    },
-    {
-      label: { fr: 'Le ciel aux nuages déchiquetés', en: 'The sky of jagged clouds' },
-      text: { fr: 'Au-dessus de la scène, de longues nuées grises lacérées : la tension d’après-conflit, l’air vicié qui reste quand les mots ont blessé.', en: 'Above the scene, long grey clouds torn to shreds: the tension after conflict, the tainted air that lingers when words have wounded.' },
-    },
-  ],
-  'swords-06': [
-    {
-      label: { fr: 'Les six épées dressées', en: 'The six upright swords' },
-      text: { fr: 'Fichées bien droites dans le fond de la barque, elles voyagent avec toi : tu pars, mais tu n’abandonnes rien du poids que tu emportes.', en: 'Planted upright in the floor of the boat, they travel with you: you leave, yet you abandon nothing of the weight you carry.' },
-    },
-    {
-      label: { fr: 'Le passeur à la perche', en: 'The ferryman with the pole' },
-      text: { fr: 'Debout à une extrémité, il pousse la barque avec sa longue perche : quelqu’un te mène vers l’autre rive, sans hâte, sans un mot.', en: 'Standing at one end, he pushes the boat along with his long pole: someone carries you toward the far bank, unhurried, without a word.' },
-    },
-    {
-      label: { fr: 'La femme voilée et l’enfant', en: 'The veiled woman and the child' },
-      text: { fr: 'Assis et recroquevillés sous une étoffe, ils tournent le dos au départ : tu emmènes ce que tu protèges vers un lieu plus calme.', en: 'Seated and huddled beneath a cloth, they turn their backs on what is left behind: you carry what you protect toward a calmer place.' },
-    },
-  ],
-  'swords-07': [
-    {
-      label: { fr: 'Les cinq épées emportées', en: 'The five swords carried off' },
-      text: { fr: 'Serrées maladroitement contre lui, il en emporte cinq d’un coup, tenues par les lames : ce qu’on rafle en vitesse menace de vous entailler les mains.', en: 'Clutched awkwardly against him, he carries off five at once, held by the blades: what you snatch in haste threatens to cut your hands.' },
-    },
-    {
-      label: { fr: 'Les deux épées laissées plantées', en: 'The two swords left standing' },
-      text: { fr: 'Derrière lui, deux lames restent fichées droit dans le sol : ce qu’on abandonne pour filer plus léger, mais qui demeure en évidence.', en: 'Behind him, two blades stay staked upright in the ground: what you leave behind to slip away lighter, yet that stays in plain view.' },
-    },
-    {
-      label: { fr: 'Le regard tourné en arrière', en: 'The glance over the shoulder' },
-      text: { fr: 'Sur la pointe des pieds, il jette un coup d’œil vers le campement de tentes qu’il quitte : ruse et fuite, l’œil craignant déjà d’être surpris.', en: 'On tiptoe, he glances back at the tented camp he is leaving: cunning and flight, the eye already fearing to be caught.' },
-    },
-  ],
-  'swords-08': [
-    {
-      label: { fr: 'Les huit épées plantées', en: 'The eight planted swords' },
-      text: { fr: 'Huit lames fichées en terre autour d’elle, espacées et non refermées : la cage que tu crois close laisse, entre deux fers, un passage devant elle que personne ne garde.', en: 'Eight blades stuck upright in the ground around her, spaced and never closed: the cage you think is shut leaves, between two irons, an open way before her that no one guards.' },
-    },
-    {
-      label: { fr: 'Le bandeau sur ses yeux', en: 'The blindfold over her eyes' },
-      text: { fr: 'Le linge pâle qui l’aveugle : tu n’es pas retenu par le monde mais par ce que tu refuses de regarder, et l’étoffe glisserait si tu tournais la tête.', en: 'The pale cloth that blinds her: you are held not by the world but by what you refuse to look at, and the fabric would slip the moment you turned your head.' },
-    },
-    {
-      label: { fr: 'Les liens qui l’enserrent', en: 'The bindings around her body' },
-      text: { fr: 'L’étoffe grise enroulée autour de ses bras et de son buste, nouée sans mordre : desserrée, presque défaite — un pas suffirait à t’en dégager si tu cessais de la croire serrée.', en: 'The grey cloth wound around her arms and torso, tied without biting: loose, almost undone — one step would free you if you stopped believing it tight.' },
-    },
-  ],
-  'swords-09': [
-    {
-      label: { fr: 'Le visage dans les mains', en: 'The face buried in the hands' },
-      text: { fr: 'Redressée dans le noir, la silhouette se cache les yeux des deux mains : l’ennemi ne vient pas de dehors, il veille sous ton propre crâne.', en: 'Sitting up in the dark, the figure hides their eyes behind both hands: the enemy doesn’t come from outside, it keeps watch beneath your own skull.' },
-    },
-    {
-      label: { fr: 'Les neuf épées empilées', en: 'The nine stacked swords' },
-      text: { fr: 'Alignées à l’horizontale sur le fond noir, elles ne frappent personne : ce sont tes pensées qui s’empilent et refusent de te laisser dormir.', en: 'Laid out horizontally against the black background, they strike no one: it’s your thoughts stacking up, refusing to let you sleep.' },
-    },
-    {
-      label: { fr: 'La courtepointe aux roses et signes', en: 'The quilt of roses and signs' },
-      text: { fr: 'Le couvre-lit en damier de roses rouges et de signes du zodiaque rappelle que la nuit, aussi lourde soit-elle, s’inscrit dans un cycle qui finira par tourner.', en: 'The chequered coverlet of red roses and zodiac signs reminds you that the night, however heavy, belongs to a cycle that will eventually turn.' },
-    },
-  ],
-  'swords-10': [
-    {
-      label: { fr: 'Les dix épées dans le dos', en: 'Ten swords in the back' },
-      text: { fr: 'Plantées côte à côte le long de l’échine de l’homme couché face contre terre : l’acharnement de trop, la défaite si totale qu’elle ne peut plus empirer.', en: 'Driven side by side down the spine of the man lying face-down: one blow too many, a defeat so total it can sink no lower.' },
-    },
-    {
-      label: { fr: 'Le ciel noir, l’aube jaune', en: 'Black sky, yellow dawn' },
-      text: { fr: 'La nuit la plus épaisse déjà fendue d’une lueur dorée au ras de l’horizon : le pire est passé, la lumière revient.', en: 'The thickest night already split by a golden glow along the horizon: the worst has passed, the light returns.' },
-    },
-    {
-      label: { fr: 'La main droite en bénédiction', en: 'The right hand in blessing' },
-      text: { fr: 'Deux doigts repliés malgré tout, un dernier geste de paix : même à terre, tu gardes le pouvoir de lâcher prise.', en: 'Two fingers curled even so, a last gesture of peace: even brought low, you keep the power to let go.' },
-    },
-  ],
-  'swords-11': [
-    {
-      label: { fr: 'L’épée tenue à deux mains', en: 'The sword held in both hands' },
-      text: { fr: 'Il empoigne la lame droite et haute de ses deux mains, prêt à en découdre : la pensée dégainée, vive et tranchante, qui cherche déjà à qui parler.', en: 'He grips the upright blade high in both hands, ready for a fight: thought unsheathed, quick and cutting, already looking for someone to challenge.' },
-    },
-    {
-      label: { fr: 'Le regard tourné en arrière', en: 'The gaze turned backward' },
-      text: { fr: 'Le visage guette par-dessus l’épaule, à rebours de son corps : la vigilance de l’espion, l’oeil qui surveille autant qu’il défie.', en: 'The face peers back over the shoulder, against the turn of the body: the watchfulness of a spy, an eye that surveys as much as it defies.' },
-    },
-    {
-      label: { fr: 'Les arbres pliés par le vent', en: 'The trees bent by the wind' },
-      text: { fr: 'Nuées bousculées et arbres courbés sur la butte : l’air agité de la carte, ces idées et rumeurs qui filent trop vite pour se poser.', en: 'Scudding clouds and trees bowing on the ridge: the card’s restless air, those ideas and rumours that race by too fast to settle.' },
-    },
-  ],
-  'swords-12': [
-    {
-      label: { fr: 'L’épée brandie vers le ciel', en: 'The sword raised to the sky' },
-      text: { fr: 'Levée bien haut au bout de son bras tendu, elle tranche l’air avant même de savoir où frapper : tu fonces, mû par une idée qui ne souffre aucun délai.', en: 'Raised high at the end of his outstretched arm, it slices the air before he even knows where to strike: you charge on, driven by an idea that brooks no delay.' },
-    },
-    {
-      label: { fr: 'Le cheval blanc au galop', en: 'The white horse at full gallop' },
-      text: { fr: 'Lancé à pleine course, crinière et jambes tendues, il t’emporte plus vite que ta prudence — élan grisant, mais nul ne tient vraiment les rênes.', en: 'Launched at full speed, mane and legs flung out, it carries you faster than your caution — a heady rush, yet no one truly holds the reins.' },
-    },
-    {
-      label: { fr: 'Le ciel aux nuages striés', en: 'The sky of streaked clouds' },
-      text: { fr: 'Derrière lui, les nuées filent en longues stries et deux arbres grêles ploient sous le vent : l’air est en tempête, et ta hâte souffle droit dans l’orage.', en: 'Behind him the clouds race in long streaks and two spindly trees bend in the wind: the air is a storm, and your haste blows straight into it.' },
-    },
-  ],
-  'swords-13': [
-    {
-      label: { fr: 'L’épée dressée, main droite', en: 'The upright sword, right hand' },
-      text: { fr: 'Elle la tient bien droite, légèrement inclinée : le tranchant de l’esprit qui ne s’excuse pas — tu vois clair, tu tranches, quitte à blesser.', en: 'She holds it upright, tilted slightly: the blade of a mind that never apologizes — you see clearly, you cut, even if it wounds.' },
-    },
-    {
-      label: { fr: 'Les papillons de sa couronne', en: 'The butterflies on her crown' },
-      text: { fr: 'Sculptés au sommet de sa couronne d’or : la pensée transformée par le deuil, l’âme qui a mué et n’est plus dupe de rien.', en: 'Carved atop her golden crown: thought transformed by grief, a soul that has molted and is fooled by nothing now.' },
-    },
-    {
-      label: { fr: 'La main gauche tendue', en: 'The extended left hand' },
-      text: { fr: 'Ouverte, paume levée vers l’avant : elle t’invite à approcher mais garde ses distances — accueil lucide, sans tendresse aveugle.', en: 'Open, palm raised forward: she invites you closer yet keeps her distance — a clear-eyed welcome, no blind tenderness.' },
-    },
-  ],
-  'swords-14': [
-    {
-      label: { fr: 'L’épée droite, inclinée vers la droite', en: 'The upright sword, tilted to the right' },
-      text: { fr: 'Levée dans sa main droite, la lame penche légèrement : ta décision est prise, mais elle vacille encore d’un cheveu — ose trancher pour de bon.', en: 'Raised in his right hand, the blade leans just slightly: your decision is made, yet it still wavers by a hair — dare to cut clean for good.' },
-    },
-    {
-      label: { fr: 'Le papillon sculpté sur le trône', en: 'The butterfly carved on the throne' },
-      text: { fr: 'Gravé au sommet de son trône de pierre, il rappelle l’air et la pensée : laisse ton jugement s’élever au-dessus de la mêlée avant de parler.', en: 'Carved at the top of his stone throne, it recalls air and thought: let your judgment rise above the fray before you speak.' },
-    },
-    {
-      label: { fr: 'Sa robe bleue sous la cape violette', en: 'His blue robe beneath the purple cape' },
-      text: { fr: 'Le bleu de la clarté sous le violet de l’autorité : dans cette scène, tu es celui qui sait autant qu’il commande — sers-toi des deux.', en: 'The blue of clarity beneath the purple of authority: in this scene, you are the one who knows as much as he commands — use both.' },
-    },
-  ],
-  'pentacles-01': [
-    {
-      label: { fr: 'La main sortie du nuage', en: 'The hand from the cloud' },
-      text: { fr: 'Une paume ouverte jaillit d’un nuage gris et te présente un unique denier : une offre concrète te tombe entre les mains, saisis-la.', en: 'An open palm bursts from a grey cloud, presenting a single coin: a tangible offer lands in your hands, take it.' },
-    },
-    {
-      label: { fr: 'Le pentacle gravé', en: 'The engraved pentacle' },
-      text: { fr: 'L’étoile à cinq branches inscrite dans la grande pièce d’or : la promesse de prospérité n’est pas rêvée, elle a déjà une forme et un poids.', en: 'The five-pointed star set inside the large gold coin: the promise of prosperity isn’t dreamed, it already has shape and weight.' },
-    },
-    {
-      label: { fr: 'L’arche fleurie de la haie', en: 'The flowering hedge arch' },
-      text: { fr: 'En bas, une haie parsemée de roses rouges s’ouvre en arche sur un sentier vers des montagnes bleues : franchis le seuil vers un chemin plus vaste que le jardin.', en: 'Below, a hedge dotted with red roses opens into an arch over a path toward blue mountains: cross the threshold to a way wider than the garden.' },
-    },
-  ],
-  'pentacles-02': [
-    {
-      label: { fr: 'Le ruban vert en huit', en: 'The green ribbon in a figure-eight' },
-      text: { fr: 'Il enlace les deux deniers en un huit couché : tes deux affaires ne tiennent que par le mouvement, garde-les liées et jamais figées.', en: 'It loops the two pentacles into a lying figure-eight: your two concerns hold only through motion, so keep them linked and never frozen.' },
-    },
-    {
-      label: { fr: 'Les deux navires sur les vagues', en: 'The two ships on the waves' },
-      text: { fr: 'Derrière lui, deux bateaux montent et plongent sur une mer houleuse : les hauts et les bas te dépassent, à toi de danser avec le roulis.', en: 'Behind him, two ships rise and plunge on a swelling sea: the highs and lows are beyond you, so dance with the roll.' },
-    },
-    {
-      label: { fr: 'Le grand chapeau démesuré', en: 'The oversized towering hat' },
-      text: { fr: 'Coiffé d’un chapeau rouge démesurément haut, il jongle les jambes écartées : tu portes ta charge avec panache, en équilibre précaire.', en: 'Wearing a red hat towering far too tall, he juggles with legs splayed wide: you carry your load with flair, on precarious footing.' },
-    },
-  ],
-  'pentacles-03': [
-    {
-      label: { fr: 'Les trois deniers sculptés', en: 'The three carved pentacles' },
-      text: { fr: 'Gravés en haut de l’arche de pierre, ils forment un motif qui domine la scène : la preuve visible que ton travail a déjà pris forme et mérite qu’on s’y attarde.', en: 'Carved at the top of the stone arch, forming a pattern that crowns the scene: visible proof that your work has already taken shape and deserves attention.' },
-    },
-    {
-      label: { fr: 'L’artisan sur son banc', en: 'The craftsman on his bench' },
-      text: { fr: 'Juché sur un banc, outil en main, il se retourne vers les deux figures qui l’entourent : monte d’un cran, montre ton savoir-faire, laisse-toi conseiller.', en: 'Perched on a bench, tool in hand, he turns toward the two figures beside him: step up, show your craft, and let yourself be advised.' },
-    },
-    {
-      label: { fr: 'Le plan tenu par les visiteurs', en: 'The plan held by the visitors' },
-      text: { fr: 'Face à lui, l’une des deux figures déploie une feuille de plans qu’ils consultent ensemble : personne ne bâtit seul, écoute ceux qui apportent la vision.', en: 'Facing him, one of the two figures unfolds a sheet of plans they study together: no one builds alone, listen to those who bring the vision.' },
-    },
-  ],
-  'pentacles-04': [
-    {
-      label: { fr: 'Le denier en couronne sur sa tête', en: 'The coin crowning his head' },
-      text: { fr: 'Une pièce tient en équilibre au sommet de sa tête : ce que tu possèdes finit par coiffer et diriger tes pensées.', en: 'A coin balances on top of his head: what you own ends up crowning and ruling your thoughts.' },
-    },
-    {
-      label: { fr: 'Les deux deniers sous ses pieds', en: 'The two coins beneath his feet' },
-      text: { fr: 'Il presse deux pièces sous ses semelles pour ne rien laisser filer : cramponne-toi trop et tu ne bougeras plus.', en: 'He pins two coins beneath his feet so nothing slips away: hold on too tight and you’ll never move again.' },
-    },
-    {
-      label: { fr: 'La ville derrière lui', en: 'The city behind him' },
-      text: { fr: 'Toute une cité s’étend dans son dos, ignorée : à trop serrer ton trésor, tu tournes le dos au monde.', en: 'A whole city stretches behind his back, ignored: clutch your treasure too tightly and you turn your back on the world.' },
-    },
-  ],
-  'pentacles-05': [
-    {
-      label: { fr: 'Les cinq deniers du vitrail', en: 'The five coins in the window' },
-      text: { fr: 'Sur le vitrail illuminé de l’église, cinq pentacles dorés brillent tout près : le secours est là, à portée de main, mais tu passes dessous sans lever les yeux.', en: 'In the church’s glowing stained-glass window, five golden pentacles shine close by: help is right there, within reach, yet you pass beneath it without looking up.' },
-    },
-    {
-      label: { fr: 'Le mendiant et ses béquilles', en: 'The beggar on his crutches' },
-      text: { fr: 'L’homme avance péniblement sur deux béquilles, le pied bandé et les vêtements en loques : la blessure qui te ralentit et te tient à l’écart.', en: 'The man limps forward on two crutches, one foot bandaged and his clothes in rags: the wound that slows you down and keeps you shut out.' },
-    },
-    {
-      label: { fr: 'La neige et les deux exilés', en: 'The snow and the two outcasts' },
-      text: { fr: 'La neige tombe drue et couvre le sol tandis que les deux mendiants avancent dehors dans le froid : le dénuement à ciel ouvert que rien n’adoucit tant que tu restes dehors.', en: 'Snow falls thick and blankets the ground as the two beggars trudge outside in the cold: bare destitution that nothing eases while you stay out in the open.' },
-    },
-  ],
-  'pentacles-06': [
-    {
-      label: { fr: 'La balance dans sa main', en: 'The scales in his hand' },
-      text: { fr: 'Tenue en équilibre par le marchand : ce qui se donne est pesé, mesuré — as-tu la main juste, ou juges-tu qui mérite ?', en: 'Held level by the merchant: what is given is weighed and measured — is your hand fair, or are you judging who deserves?' },
-    },
-    {
-      label: { fr: 'Les deux pauvres agenouillés', en: 'The two kneeling poor' },
-      text: { fr: 'Un de chaque côté à ses pieds, seul celui de gauche tend la main vers les pièces : reçois-tu ta part, ou restes-tu à genoux plus longtemps qu’il ne le faut ?', en: 'One at each side at his feet, only the left one reaches for the coins: do you receive your share, or stay kneeling longer than you need to?' },
-    },
-    {
-      label: { fr: 'Les pièces qui tombent', en: 'The falling coins' },
-      text: { fr: 'Les deniers qu’il laisse glisser de sa main vers le pauvre agenouillé à gauche : le don circule vraiment — laisse passer ce qui doit passer par toi.', en: 'The coins he lets slip from his hand toward the poor man kneeling on the left: the gift truly flows — let pass through you what must pass.' },
-    },
-  ],
-  'pentacles-07': [
-    {
-      label: { fr: 'Les sept deniers sur la vigne', en: 'The seven pentacles on the vine' },
-      text: { fr: 'Les sept étoiles sont accrochées ensemble au feuillage vert d’un grand plant : rien n’est encore cueilli, ta récolte tient toute sur la tige.', en: 'All seven stars hang together in the green leaves of a tall plant: nothing is picked yet, your whole harvest still clings to the stem.' },
-    },
-    {
-      label: { fr: 'Les mains croisées sur la houe', en: 'Hands crossed on the hoe' },
-      text: { fr: 'Il s’appuie des deux mains sur le long manche planté dans la terre : la pause de celui qui a assez travaillé pour s’autoriser à souffler.', en: 'He leans both hands on the long handle planted in the earth: the pause of one who has worked enough to let himself breathe.' },
-    },
-    {
-      label: { fr: 'Le regard penché vers la plante', en: 'The gaze bent toward the plant' },
-      text: { fr: 'La tête inclinée, il contemple sa culture sans y toucher : le moment d’évaluer ce que tu as semé avant de décider si tu continues.', en: 'Head tilted, he contemplates his crop without touching it: the moment to weigh what you have sown before deciding whether to go on.' },
-    },
-  ],
-  'pentacles-08': [
-    {
-      label: { fr: 'Les six deniers accrochés', en: 'The six mounted coins' },
-      text: { fr: 'Six pentacles déjà gravés s’alignent en rangée sur le poteau dressé à ses côtés : chaque quête bouclée devient la preuve visible de ton savoir-faire.', en: 'Six finished pentacles line up in a row on the upright post beside him: each completed task becomes the visible proof of your craft.' },
-    },
-    {
-      label: { fr: 'Le maillet et le burin', en: 'The mallet and chisel' },
-      text: { fr: 'Penché sur son établi, il frappe le disque qu’il tient : reste concentré sur l’ouvrage en cours, coup après coup patient.', en: 'Bent over his bench, he strikes the disc he holds: stay focused on the work at hand, patient blow after patient blow.' },
-    },
-    {
-      label: { fr: 'La ville au loin', en: 'The town in the distance' },
-      text: { fr: 'Reliée à lui par un chemin doré, la cité rappelle qu’il s’est retiré à l’écart pour perfectionner son art avant d’y retourner.', en: 'Linked to him by a golden path, the town recalls that he withdrew apart to perfect his craft before returning to it.' },
-    },
-  ],
-  'pentacles-09': [
-    {
-      label: { fr: 'Le faucon encapuchonné au poignet', en: 'The hooded falcon on the wrist' },
-      text: { fr: 'Posé sur sa main gantée, le capuchon lui couvre les yeux : c’est ta pensée sauvage que tu as appris à discipliner par toi-même.', en: 'Perched on her gloved hand, the hood covering its eyes: it is your wild mind that you have learned to master on your own.' },
-    },
-    {
-      label: { fr: 'Les grappes de raisin mûres', en: 'The ripe clusters of grapes' },
-      text: { fr: 'La vigne lourde qui l’entoure de toutes parts : l’abondance que tu récoltes après avoir patiemment cultivé ton domaine.', en: 'The heavy vine that surrounds her on every side: the abundance you reap after patiently tending your own estate.' },
-    },
-    {
-      label: { fr: 'Le petit escargot au sol', en: 'The little snail on the ground' },
-      text: { fr: 'Il rampe près de sa robe, lent et à l’abri de sa coquille : savoure le luxe sans te presser, tu portes ta demeure avec toi.', en: 'It crawls near her gown, slow and sheltered in its shell: savour the luxury without hurrying, for you carry your home with you.' },
-    },
-  ],
-  'pentacles-10': [
-    {
-      label: { fr: 'Les dix deniers en arbre de vie', en: 'Ten pentacles as a Tree of Life' },
-      text: { fr: 'Les dix deniers sont disposés sur toute la scène selon le motif kabbalistique de l’arbre de vie, recouvrant familles et décor : la richesse enfin stable, transmise et partagée.', en: 'The ten pentacles are laid across the whole scene in the Kabbalistic Tree of Life pattern, covering family and setting alike: wealth at last stable, handed down and shared.' },
-    },
-    {
-      label: { fr: 'Le vieillard aux robes brodées', en: 'The old man in embroidered robes' },
-      text: { fr: 'Assis à l’écart au premier plan, drapé d’une robe couverte de pampres et de croissants, l’aïeul se tient parmi deux chiens blancs qui viennent à ses pieds.', en: 'Seated apart in the foreground, wrapped in a robe patterned with grapevines and crescents, the patriarch sits among two white dogs that come to his feet.' },
-    },
-    {
-      label: { fr: 'L’arche de pierre au blason', en: 'The stone arch with its coat of arms' },
-      text: { fr: 'Derrière les figures s’élève une arche gravée d’armoiries, seuil du domaine familial : la lignée et le nom qui perdurent.', en: 'Behind the figures rises an arch carved with a coat of arms, the threshold of the family estate: the lineage and the name that endure.' },
-    },
-  ],
-  'pentacles-11': [
-    {
-      label: { fr: 'L’unique pièce levée à deux mains', en: 'The single coin raised in both hands' },
-      text: { fr: 'Le jeune homme élève devant son visage un seul pentacle qu’il fixe avec émerveillement : une étude, un projet, une promesse que tu contemples avant même d’y toucher.', en: 'The young man lifts a single pentacle before his face and gazes at it in wonder: a study, a project, a promise you contemplate before ever laying a hand on it.' },
-    },
-    {
-      label: { fr: 'La prairie fleurie et le champ labouré', en: 'The flowering meadow and the ploughed field' },
-      text: { fr: 'À ses pieds s’étend une herbe verte piquée de petites fleurs, tandis qu’au loin s’ouvrent des sillons retournés : le terrain concret déjà préparé, prêt à recevoir ce que tu vas semer.', en: 'At his feet a green sward is dotted with little flowers, while furrowed strips lie ploughed in the distance: the concrete ground already prepared, ready to receive what you will sow.' },
-    },
-    {
-      label: { fr: 'Le bosquet vert à gauche de l’horizon', en: 'The green grove on the left horizon' },
-      text: { fr: 'Au fond, à gauche, un petit bouquet d’arbres feuillus se détache sur le ciel jaune : la croissance patiente qui t’attend au bout de l’effort, si tu restes fidèle à ce début studieux.', en: 'Far off to the left, a small clump of leafy trees stands against the yellow sky: the patient growth awaiting you at the end of the effort, if you stay true to this studious beginning.' },
-    },
-  ],
-  'pentacles-12': [
-    {
-      label: { fr: 'Le cheval noir immobile', en: 'The still black horse' },
-      text: { fr: 'Lourd et planté sur ses quatre sabots, il n’avance pas : ton allié patient, celui qui ne bondit jamais mais ne recule pas non plus.', en: 'Heavy and planted on all four hooves, it does not advance: your patient ally, the one that never leaps but never retreats either.' },
-    },
-    {
-      label: { fr: 'Le denier levé dans la paume', en: 'The coin raised in the palm' },
-      text: { fr: 'L’unique pentacle qu’il tient devant lui sur sa main ouverte et fixe du regard : la tâche concrète que tu examines sans hâte, décidé à la mener au bout.', en: 'The single pentacle he holds before him on his open palm and studies intently: the concrete task you examine without haste, resolved to see it through.' },
-    },
-    {
-      label: { fr: 'Le champ labouré au loin', en: 'The plowed field beyond' },
-      text: { fr: 'Les sillons bruns d’un labour déjà fait s’étendent jusqu’aux collines : le travail méthodique porte ses fruits, même quand rien ne semble bouger.', en: 'The brown furrows of a field already tilled stretch to the hills: methodical work bears fruit, even when nothing seems to move.' },
-    },
-  ],
-  'pentacles-13': [
-    {
-      label: { fr: 'Le disque d’or sur ses genoux', en: 'The golden disc on her lap' },
-      text: { fr: 'Elle tient à deux mains l’unique pentacle posé sur ses genoux, les yeux baissés sur lui : la richesse qu’on soigne, qu’on couve comme un enfant plutôt qu’on ne l’exhibe.', en: 'She holds the single pentacle on her lap with both hands, eyes lowered upon it: wealth one tends, cradled like a child rather than flaunted.' },
-    },
-    {
-      label: { fr: 'Le petit lapin dans l’herbe', en: 'The little rabbit in the grass' },
-      text: { fr: 'En bas à droite, un lapin bondit près de son trône : la fertilité et l’abondance du vivant, mais aussi la nervosité qui traverse ce coin de paradis.', en: 'In the lower right, a rabbit leaps near her throne: the fertility and abundance of living things, but also the skittishness that runs through this corner of paradise.' },
-    },
-    {
-      label: { fr: 'La treille de roses au-dessus', en: 'The rose bower overhead' },
-      text: { fr: 'Un arceau de roses rouges épanouies encadre sa tête : le foyer luxuriant qu’elle fait fleurir, sensuel et généreux, mais bordé d’épines.', en: 'An arch of full red roses frames her head: the lush home she brings to bloom, sensual and generous, yet edged with thorns.' },
-    },
-  ],
-  'pentacles-14': [
-    {
-      label: { fr: 'La robe brodée de grappes', en: 'The grape-laden robe' },
-      text: { fr: 'Feuilles de vigne et grappes de raisin couvrent tout son manteau : l’abondance patiemment cultivée, la richesse qui a mûri, pas celle qu’on rafle.', en: 'Vine leaves and clusters of grapes cover his whole robe: abundance patiently cultivated, wealth that has ripened, not wealth snatched.' },
-    },
-    {
-      label: { fr: 'Le deniers posé sur le genou', en: 'The pentacle on his knee' },
-      text: { fr: 'Un seul grand deniers d’or repose sur sa cuisse, sa main posée dessus sans crispation : maîtrise tranquille de tes ressources, tu possèdes sans être possédé.', en: 'A single large golden pentacle rests on his thigh, his hand laid on it without tension: quiet mastery of your resources, you own without being owned.' },
-    },
-    {
-      label: { fr: 'Les têtes de taureau du trône', en: 'The throne’s bull heads' },
-      text: { fr: 'Deux mufles de taureau sculptés couronnent son trône et rappellent l’élément Terre : ta force est têtue, stable, ancrée — rien ne te déloge sans raison.', en: 'Two carved bull heads crown his throne and recall the element Earth: your strength is stubborn, stable, rooted — nothing dislodges you without reason.' },
-    },
+  "major-00": [
+    { label: { fr: "Le précipice", en: "The precipice" }, text: { fr: "Le seuil entre le non-manifesté et l’existence : franchir ce bord, c’est consentir à l’incarnation, échanger l’infini du possible contre l’unique du réel. Il incarne l’acte de foi pur — non l’inconscience, mais la confiance qui parie que l’abîme est un chemin.", en: "The threshold between the unmanifest and existence: to cross this edge is to consent to incarnation, trading the infinity of the possible for the singular real. It embodies the pure act of faith — not obliviousness, but the trust that wagers the abyss is a road." } },
+    { label: { fr: "Le chien blanc", en: "The white dog" }, text: { fr: "L’instinct animal resté loyal : tour à tour garde-fou qui aboie le danger et pulsion qui presse de sauter. Blanc comme la rose, il dit un instinct encore innocent, non corrompu ; quelque chose en toi veille et t’accompagne même quand la raison s’absente.", en: "The animal instinct still loyal: by turns a guard that barks the danger and an urge that presses you to leap. White like the rose, it names an instinct still innocent, uncorrupted; something in you keeps watch and walks beside you even when reason is away." } },
+    { label: { fr: "La rose blanche", en: "The white rose" }, text: { fr: "Tenue avec légèreté, elle est la pureté du désir : une intention sans calcul ni arrière-pensée. Le blanc dit l’innocence première, le désir non encore alourdi par l’expérience. C’est la promesse fragile que ce départ naît d’un cœur clair, non d’une fuite.", en: "Held lightly, it is the purity of desire: an intention with no calculation, no hidden agenda. White speaks the first innocence, longing not yet weighed down by experience. It is the fragile promise that this departure springs from a clear heart, not from flight." } },
+    { label: { fr: "Le baluchon", en: "The bundle" }, text: { fr: "Tout l’avoir tient en ce maigre paquet noué à un bâton : les dons et mémoires inemployés qu’on emporte sans les avoir ouverts. Il dit un capital latent, un bagage d’âme porté sans être connu — la richesse qui attend d’être vécue plutôt que possédée.", en: "All one owns fits in this slim pack tied to a stick: unused gifts and memories carried without ever being opened. It names a latent capital, a soul-luggage borne without being known — wealth that waits to be lived rather than possessed." } },
+    { label: { fr: "Le soleil haut", en: "The high sun" }, text: { fr: "Il rayonne derrière lui, dans un ciel d’or pâle : la conscience d’où l’âme descend, la source qui éclaire sans dicter la route. Ni chaleur ni jugement, seulement une lumière d’origine — le regard bienveillant qui bénit le départ sans en garantir l’issue.", en: "It blazes behind him in a pale gold sky: the awareness from which the soul descends, the source that lights the way without dictating it. Neither warmth nor judgment, only a light of origin — the kindly gaze that blesses the departure without guaranteeing its end." } },
+    { label: { fr: "La plume rouge", en: "The red feather" }, text: { fr: "Dressée à son chapeau : l’étincelle de vie et de désir qui anime le pur esprit. Le rouge, seule ardeur dans une palette claire, dit la vitalité, la passion naissante — la volonté qui va bientôt colorer l’âme neutre et la lancer dans l’aventure du vivant.", en: "Upright on his cap: the spark of life and desire that animates pure spirit. Red, the one ardor in a pale palette, speaks vitality, nascent passion — the will about to color the neutral soul and fling it into the adventure of the living." } },
+  ],
+  "major-01": [
+    { label: { fr: "Le lemniscate ∞", en: "The lemniscate ∞" }, text: { fr: "Au-dessus du front, le signe de l’infini : l’énergie que rien n’épuise, la source ininterrompue où puise l’adepte. Il dit que la volonté du Magicien n’est pas sa force propre mais un courant éternel qu’il ose canaliser ; maîtriser, ici, c’est consentir à n’être qu’un passage.", en: "Above the brow, the sign of infinity: energy nothing exhausts, the unbroken source the adept draws from. It says the Magician’s will is not his own strength but an eternal current he dares to channel; to master, here, is to consent to being only a passage." } },
+    { label: { fr: "Les deux mains, ciel et terre", en: "The two hands, sky and earth" }, text: { fr: "Un bras dressé, l’autre baissé : « ce qui est en haut est comme ce qui est en bas ». Le geste incarne l’axe vertical de toute création — capter d’en haut pour verser en bas. Tu n’inventes rien à partir de rien ; tu fais descendre une force reçue jusque dans la matière.", en: "One arm raised, one lowered: as above, so below. The gesture embodies the vertical axis of all making — to draw from above and pour into below. You invent nothing from nothing; you bring a received force down into matter." } },
+    { label: { fr: "Les quatre outils sur la table", en: "The four tools on the table" }, text: { fr: "Bâton, coupe, épée, denier : les quatre éléments, les quatre suites du monde offertes d’un coup. Ils disent que tous les moyens sont déjà là, sous ta paume ; l’enjeu n’est pas d’acquérir mais de choisir, de composer. Tout arcane mineur se noue en cette table.", en: "Wand, cup, sword, pentacle: the four elements, the four suits of the world laid out at once. They say every means already lies under your hand; the task is not to acquire but to choose, to combine. The whole minor arcana knots itself on this table." } },
+    { label: { fr: "La robe blanche, le manteau rouge", en: "The white robe, the red cloak" }, text: { fr: "Blanc dessous, rouge dessus : la pureté d’intention gainée du désir qui agit. La volonté n’est féconde que si l’élan brûlant s’ordonne à un vouloir net. Sépare-les et tu obtiens le charlatan — flamme sans candeur, ou candeur sans feu pour la porter.", en: "White beneath, red above: purity of intention sheathed in the desire that acts. Will bears fruit only when burning drive is ordered by a clean intent. Split them and you get the charlatan — flame without candor, or candor with no fire to carry it." } },
+    { label: { fr: "La ceinture-serpent qui se mord la queue", en: "The serpent-belt biting its tail" }, text: { fr: "Nouée à sa taille, l’ouroboros : le renouvellement perpétuel, la sagesse qui se régénère d’elle-même. Ceint aux reins, il signe une puissance disciplinée, revenue à son commencement plus mûre. Le Magicien ne se consume pas dans son œuvre : il recommence, indéfiniment initié.", en: "Knotted at his waist, the ouroboros: perpetual renewal, wisdom regenerating from itself. Girding the loins, it marks a disciplined power that returns to its beginning riper. The Magician is not spent by his work: he begins again, endlessly initiated." } },
+    { label: { fr: "Roses rouges et lys blancs", en: "Red roses and white lilies" }, text: { fr: "À ses pieds, le jardin cultivé : lys de la pensée pure, roses du désir. Ils disent que la maîtrise s’enracine, qu’elle porte fleur — l’acte du Magicien n’est pas stérile virtuosité mais culture patiente où passion et clarté croissent ensemble sous une même main.", en: "At his feet, the tended garden: lilies of pure thought, roses of desire. They say mastery takes root and comes to bloom — the Magician’s act is no barren virtuosity but patient cultivation, where passion and clarity grow together under one hand." } },
+  ],
+  "major-02": [
+    { label: { fr: "Les deux piliers, Boaz et Jachin", en: "The two pillars, Boaz and Jachin" }, text: { fr: "Noir et blanc, sévérité et miséricorde : les colonnes du Temple de Salomon. Elle trône exactement à l’axe, ni l’un ni l’autre mais leur point d’équilibre. Le mystère n’est pas un camp à choisir, c’est le seuil que tu franchis en tenant les deux ensemble.", en: "Black and white, severity and mercy: the pillars of Solomon's Temple. She is enthroned on the very axis, neither pole but their balance point. Mystery is not a side to pick; it is the threshold you cross by holding both at once." } },
+    { label: { fr: "Le voile aux grenades", en: "The pomegranate veil" }, text: { fr: "Tendu entre les piliers, il sépare le su de l’insu. Les grenades, fruit de Perséphone et des Enfers, disent la connaissance qui se paie d’une descente : l’inconscient ne se force pas, il s’effeuille. Ce qui compte reste derrière — devine, n’arrache pas.", en: "Stretched between the pillars, it parts the known from the unknown. The pomegranates, fruit of Persephone and the underworld, name knowledge bought by descent: the unconscious is not forced, it is unpeeled. What matters stays behind — sense it, do not tear it open." } },
+    { label: { fr: "Le rouleau TORA", en: "The TORA scroll" }, text: { fr: "À demi caché sous la robe : la Loi, la mémoire secrète que tout n’est pas donné à lire. Ce qu’elle sait, elle ne le brandit pas ; le savoir véritable se garde autant qu’il se transmet. Anagramme de Torah et de Tarot, il te dit que la clé existe — mais voilée.", en: "Half-hidden in her robe: the Law, the secret memory that not all is given to be read. What she knows she does not brandish; true knowledge is kept as much as it is passed on. An anagram of Torah and Tarot, it tells you the key exists — but veiled." } },
+    { label: { fr: "Le croissant de lune à ses pieds", en: "The crescent moon at her feet" }, text: { fr: "La Lune, sa correspondance : intuition, cycles, marées de l’invisible. Placée sous ses pieds, non au front, elle dit une maîtrise tranquille de ce flux — elle le gouverne au lieu d’en être ballottée. Reçois tes pressentiments comme une eau qui monte, sans en avoir peur.", en: "The Moon, her correspondence: intuition, cycles, the tides of the unseen. Set beneath her feet, not at her brow, it shows quiet mastery of that flux — she governs it rather than being tossed by it. Take your hunches like a rising water, without fear." } },
+    { label: { fr: "La croix solaire sur sa poitrine", en: "The solar cross on her breast" }, text: { fr: "Croix aux bras égaux, sur le cœur : l’équilibre parfait des quatre éléments, l’esprit rayonnant au centre du silence. Elle contrebalance la Lune sous ses pieds — clarté solaire cachée au sein de la nuit. Une lumière veille en toi, même quand rien ne se dit.", en: "An equal-armed cross over the heart: the perfect balance of the four elements, spirit radiant at the center of silence. It counterweights the Moon at her feet — solar clarity hidden within the night. A light keeps watch in you, even when nothing is spoken." } },
+  ],
+  "major-03": [
+    { label: { fr: "Le glyphe de Vénus", en: "The Venus glyph" }, text: { fr: "La force qui régit la carte, gravée sur le bouclier en forme de cœur : l’amour, la beauté, l’attraction qui lie les êtres. C’est le principe créateur féminin, l’aimant du désir par lequel toute vie se conçoit et se perpétue.", en: "The force that rules the card, carved on the heart-shaped shield: love, beauty, the attraction that binds beings together. It is the feminine creative principle, the magnet of desire through which all life is conceived and carried on." } },
+    { label: { fr: "La couronne de douze étoiles", en: "The crown of twelve stars" }, text: { fr: "Le règne sur les douze signes et les douze mois : la loi des cycles, la roue des saisons. Sa fécondité n’est pas caprice mais rythme, patience du vivant qui sait que tout vient à son heure. Rien ne se force ; tout se laisse mûrir.", en: "Reign over the twelve signs and twelve months: the law of cycles, the turning wheel of seasons. Her fertility is not whim but rhythm, the patience of living things that know all comes in its hour. Nothing is forced; everything is let ripen." } },
+    { label: { fr: "Le sceptre surmonté d’un globe", en: "The scepter topped with an orb" }, text: { fr: "La souveraineté sur la matière tout entière : le corps, la chair, tout ce qui est incarné, tenu au creux de la main. Là où l’esprit règne ailleurs, elle règne sur le tangible — la sève, la terre que l’on peut toucher et faire fructifier.", en: "Sovereignty over the whole of matter: the body, the flesh, all that is incarnate, held in the palm of the hand. Where spirit rules elsewhere, she reigns over the tangible — the sap, the earth one can touch and make bear fruit." } },
+    { label: { fr: "Le champ de blé mûr", en: "The field of ripe wheat" }, text: { fr: "La promesse tenue : ce qui fut conçu est arrivé à terme. Le grain lourd dit la récolte, l’aboutissement, la générosité de ce qui rend au centuple. Ta création porte ses fruits ; il te reste à les cueillir sans crainte du manque.", en: "The promise kept: what was conceived has come to term. The heavy grain speaks of harvest, fulfillment, the generosity of what returns a hundredfold. Your creation bears fruit; it remains only to gather it without fear of scarcity." } },
+    { label: { fr: "La forêt et le ruisseau", en: "The forest and the stream" }, text: { fr: "L’émotion nourricière, la source inépuisable d’où jaillit la vie. Loin de la stérilité du désert, ici tout ruisselle et verdit : la nature sensuelle, féconde, qui donne sans se tarir et invite les sens plutôt que la raison.", en: "Nourishing emotion, the inexhaustible source from which life springs. Far from the desert's sterility, here all streams and greens: sensual, fertile nature, giving without drying up, courting the senses rather than reason." } },
+    { label: { fr: "Les coussins et la robe fleurie", en: "The cushions and flowered robe" }, text: { fr: "L’abandon au plaisir et la fertilité assumée : les grenades brodées sur l’étoffe disent l’aise dans le corps. Elle ne conquiert rien, elle accueille. C’est l’invitation à créer par la détente et la jouissance, non par l’effort ou la volonté crispée.", en: "Surrender to pleasure and fertility owned: the pomegranates embroidered on the cloth speak of ease within the body. She conquers nothing, she receives. This is the invitation to create through relaxation and delight, not through effort or clenched will." } },
+  ],
+  "major-04": [
+    { label: { fr: "Le trône de pierre", en: "The stone throne" }, text: { fr: "La pierre brute, non ornée, dit le pouvoir qui ne doit rien au charme ni à l’artifice : il repose sur sa seule masse. Assise plutôt que mouvement, elle incarne la stabilité conquise, l’ordre qui tient parce qu’il pèse et ne cède pas.", en: "Raw, unadorned stone speaks of power that owes nothing to charm or artifice: it rests on sheer mass. Seat rather than motion, it embodies stability won, an order that holds because it is heavy and does not yield." } },
+    { label: { fr: "Les têtes de bélier", en: "The ram heads" }, text: { fr: "Le Bélier, régi par Mars : l’élan cardinal qui initie, la volonté qui charge et impose sa direction. Feu conducteur plutôt que feu qui consume, il donne à l’autorité son mordant — décider, trancher, ouvrir la voie de front sans attendre la permission.", en: "Aries, ruled by Mars: the cardinal thrust that initiates, the will that charges and imposes its direction. A leading fire rather than a devouring one, it gives authority its bite — to decide, to cut through, to open the way head-on without waiting for leave." } },
+    { label: { fr: "Le sceptre en ankh", en: "The ankh-topped sceptre" }, text: { fr: "La croix ansée, clé de vie égyptienne, couronne le sceptre : le pouvoir n’est légitime que s’il engendre et féconde. L’Empereur ne domine pas pour dominer ; sa règle est vivante, ordonnée vers ce qu’elle protège et fait durer, non vers la seule contrainte.", en: "The ankh, Egyptian key of life, crowns the sceptre: power is legitimate only if it generates and gives life. The Emperor does not rule to rule; his law is a living one, ordered toward what it protects and makes endure, not toward mere constraint." } },
+    { label: { fr: "L’armure sous la robe", en: "The armour beneath the robe" }, text: { fr: "Sous la pourpre du souverain, le métal du guerrier : l’autorité n’a de repos que par vigilance. Le pouvoir acquis se défend sans cesse ; la paix qu’il offre est celle d’une garde tenue, non d’une innocence. Régner, c’est rester prêt au combat.", en: "Beneath the sovereign’s purple, the warrior’s steel: authority rests only through vigilance. Power once won must be endlessly defended; the peace it grants is that of a guard kept, not of innocence. To reign is to stay ready for battle." } },
+    { label: { fr: "Les montagnes arides", en: "The barren mountains" }, text: { fr: "Le décor minéral et stérile derrière lui n’est pas un manque mais une nature : le domaine de l’Empereur est celui de la forme et de la loi, non de la sève. Rien n’y pousse spontanément — tout y tient parce qu’une volonté l’a dressé et le maintient.", en: "The mineral, sterile backdrop is not a lack but a nature: the Emperor’s realm is that of form and law, not sap. Nothing grows there of itself — everything stands because a will has raised it and holds it in place." } },
+    { label: { fr: "Le fleuve étroit", en: "The narrow river" }, text: { fr: "Le mince filet d’eau au pied de la montagne : la vie, l’émotion, le flux qui persistent même sous le règne le plus dur. L’ordre canalise le sentiment sans le tarir tout à fait ; c’est le peu de courant que la structure laisse encore couler, promesse discrète de fécondité.", en: "The thin thread of water at the mountain’s foot: life, feeling, the flow that persists even under the harshest reign. Order channels emotion without wholly draining it; it is the little current the structure still lets run, a quiet promise of fertility." } },
+  ],
+  "major-05": [
+    { label: { fr: "La triple tiare", en: "The triple tiara" }, text: { fr: "Les trois mondes que l’autorité prétend gouverner : corps, âme, esprit. La coiffe dit un pouvoir non conquis mais reçu, sanctionné par une institution qui te dépasse. Elle promet l’accès aux mystères d’en haut, au prix de te soumettre à la règle qui les garde.", en: "The three worlds authority claims to govern: body, soul, spirit. The crown speaks of a power not won but received, sanctioned by an institution greater than you. It promises access to the mysteries above, at the price of bowing to the rule that guards them." } },
+    { label: { fr: "La main levée en bénédiction", en: "The raised hand of blessing" }, text: { fr: "Deux doigts vers le ciel, deux repliés : le geste qui relie le visible et le caché, le manifeste et l’occulté. Il ne commande pas, il consacre — il fait descendre un ordre supérieur dans le tien. Ta démarche reçoit ici un aval, une légitimité qui vient d’ailleurs que de toi.", en: "Two fingers to heaven, two folded down: the gesture linking seen and hidden, the manifest and the veiled. It does not command, it consecrates — drawing a higher order down into yours. Your path here receives an endorsement, a legitimacy sourced from beyond yourself." } },
+    { label: { fr: "Les deux clés croisées", en: "The two crossed keys" }, text: { fr: "Or et argent, soleil et lune : le pouvoir de lier et de délier, d’ouvrir le ciel et de sceller la terre. Croisées, elles disent que nul n’accède seul — le seuil est gardé, et l’on ne passe qu’avec l’assentiment de celui qui les tient. Savoir donné, jamais volé.", en: "Gold and silver, sun and moon: the power to bind and to loose, to open heaven and seal earth. Crossed, they say none enters alone — the threshold is kept, and one passes only with the consent of the one who holds them. Knowledge granted, never stolen." } },
+    { label: { fr: "Les deux acolytes agenouillés", en: "The two kneeling acolytes" }, text: { fr: "Le disciple double : celui qui reçoit fidèlement et celui qui questionnera un jour. Leur tonsure et leur soumission montrent la transmission comme chaîne vivante, le maître se prolongeant en eux. Mais leur nombre annonce déjà le choix — suivre la voie tracée, ou s’en écarter.", en: "The doubled disciple: the one who receives faithfully and the one who will one day question. Their tonsure and submission show transmission as a living chain, the master extended into them. Yet their number already hints at the choice — to follow the marked way, or to step off it." } },
+    { label: { fr: "Les colonnes grises", en: "The grey pillars" }, text: { fr: "L’écho durci des colonnes vivantes de la Papesse : ici la sagesse s’est faite pierre, temple, institution. Le gris dit la neutralité de la structure — ni bien ni mal en soi, mais un cadre qui porte autant qu’il enferme. Ce qui te soutient peut aussi te murer.", en: "The hardened echo of the High Priestess's living pillars: here wisdom has become stone, temple, institution. Grey speaks of the structure's neutrality — neither good nor ill in itself, but a frame that supports as much as it confines. What upholds you can also wall you in." } },
+    { label: { fr: "Les croix aux vêtements et aux souliers", en: "The crosses on robe and shoes" }, text: { fr: "Le sceau répété jusque sur les pieds : chaque pas est déjà consacré, chaque geste appartient à la doctrine. Rien du personnage n’échappe à la fonction — l’homme s’est effacé sous le rôle. Le signe rassure quand la foi est vive ; il devient masque dès qu’elle se vide.", en: "The seal repeated down to the feet: every step is already consecrated, every gesture belongs to the doctrine. Nothing of the man escapes the office — the person has dissolved into the role. The sign reassures while faith is alive; it turns to mask the moment it empties out." } },
+  ],
+  "major-06": [
+    { label: { fr: "L’ange Raphaël", en: "The angel Raphael" }, text: { fr: "Rayonnant d’un plan supérieur, il dit que l’amour n’est pas que affaire de corps mais un accord béni d’en haut. Raphaël, « guérison de Dieu », signe que l’union juste soigne et réconcilie. Il n’ordonne rien : il consacre le choix librement fait.", en: "Radiating from a higher plane, he says love is not merely of the body but a bond blessed from above. Raphael, 'the healing of God,' marks that a rightful union heals and reconciles. He commands nothing: he consecrates the choice made freely." } },
+    { label: { fr: "L’homme et la femme nus", en: "The naked man and woman" }, text: { fr: "La nudité dit l’innocence, l’être sans masque devant l’autre. Elle lève les yeux vers l’ange, lui la regarde : le désir passe par le lien humain pour atteindre le divin. Deux principes complémentaires cherchent leur unité — l’Éden avant la chute, l’alliance qui répare la division.", en: "Nakedness speaks of innocence, the self unmasked before the other. She lifts her eyes to the angel, he looks to her: desire passes through the human bond to reach the divine. Two complementary principles seek their union — Eden before the fall, the bond that mends division." } },
+    { label: { fr: "L’arbre de la connaissance et le serpent", en: "The tree of knowledge and the serpent" }, text: { fr: "Ses cinq fruits figurent les cinq sens : le désir tel qu’il s’éprouve dans la chair. Le serpent enroulé rappelle que tout choix d’amour éveille aussi la conscience du bien et du mal. Aimer, c’est risquer de savoir — accepter le prix de la lucidité.", en: "Its five fruits stand for the five senses: desire as it is felt in the flesh. The coiled serpent recalls that every choice of love also awakens knowledge of good and evil. To love is to risk knowing — to accept the price of clear sight." } },
+    { label: { fr: "L’arbre de vie aux flammes", en: "The tree of life in flames" }, text: { fr: "Ses douze flammes en guise de feuilles marquent le zodiaque : le désir à l’état pur, la puissance ardente derrière l’homme. C’est l’énergie qui pousse à l’union, indispensable mais aveugle si nul choix ne la dirige. La passion doit servir l’alliance, non la consumer.", en: "Its twelve flames for leaves mark the zodiac: desire in its pure state, the ardent power behind the man. It is the energy that drives toward union, essential yet blind unless a choice directs it. Passion must serve the bond, not consume it." } },
+    { label: { fr: "La montagne au centre", en: "The mountain at the center" }, text: { fr: "Dressée entre les deux êtres, elle figure l’élévation à atteindre ensemble : l’amour comme ascension, non comme repos. Unique et nette sur l’horizon, elle rappelle que l’union véritable exige un sommet commun, un effort partagé — pas seulement l’attirance, mais une direction.", en: "Rising between the two, it figures the height to be reached together: love as ascent, not repose. Single and sharp on the horizon, it recalls that true union demands a shared summit, a common effort — not attraction alone, but a direction." } },
+  ],
+  "major-07": [
+    { label: { fr: "Les deux sphinx, noir et blanc", en: "The two sphinxes, black and white" }, text: { fr: "Les forces antagonistes de la psyché — désir et refus, ombre et clarté — qu’aucun compromis n’a réconciliées. Le triomphe du Chariot n’est pas l’harmonie mais la contrainte : sa volonté seule les force à tirer ensemble. Qu’elle faiblisse, et chacun repart vers son propre pôle.", en: "The antagonistic forces of the psyche — desire and refusal, shadow and light — that no compromise has reconciled. The Chariot's triumph is not harmony but constraint: his will alone forces them to pull as one. Let it slacken, and each bolts back to its own pole." } },
+    { label: { fr: "L’absence de rênes", en: "The absence of reins" }, text: { fr: "La maîtrise s’exerce sans intermédiaire : rien ne relie le cocher à son attelage sinon la puissance de son intention. C’est la marque de la souveraineté intérieure — commander par la seule concentration de l’esprit. Mais rien non plus ne le rattrapera si cette tension lâche.", en: "Mastery works without intermediary: nothing links the driver to his team but the force of his intent. It marks inner sovereignty — to command by sheer concentration of mind. Yet nothing will catch him either, if that tension ever lets go." } },
+    { label: { fr: "L’armure et la cuirasse", en: "The armour and cuirass" }, text: { fr: "La volonté faite carapace : elle protège l’élan mais l’enferme aussi. Le cocher est cuirassé parce qu’avancer expose ; sa force est défensive autant qu’offensive. À l’endroit, elle garde une cause ; renversée, elle ne blinde plus qu’un ego qui refuse de sentir.", en: "Will turned into shell: it shields the drive but also seals it in. The driver is armoured because to advance is to expose oneself; his strength is as defensive as it is offensive. Upright it guards a cause; reversed it only plates an ego that refuses to feel." } },
+    { label: { fr: "Le dais étoilé", en: "The starry canopy" }, text: { fr: "Le ciel tendu au-dessus de lui : la direction juste ne vient pas de l’effort seul mais d’un ordre supérieur qui l’oriente. C’est le rappel que la volonté n’est féconde que reliée à plus grand qu’elle. Sans ce ciel, l’avancée n’a plus de nord.", en: "The sky stretched above him: right direction comes not from effort alone but from a higher order that orients him. It reminds you that will bears fruit only when tied to something greater than itself. Without this sky, the advance loses its north." } },
+    { label: { fr: "La cité, derrière lui", en: "The city, behind him" }, text: { fr: "Le connu, la sécurité, le confort déjà dépassés : toute conquête a un prix, et c’est le départ. Le Chariot dit qu’avancer, c’est laisser quelque chose — on ne triomphe pas sans quitter ce qui nous tenait. Regretter la cité, c’est ralentir la course.", en: "The known, the safety, the comfort already left behind: every conquest has a price, and it is departure. The Chariot says that to advance is to leave something — one does not triumph without quitting what held us. To pine for the city is to slow the charge." } },
+  ],
+  "major-08": [
+    { label: { fr: "Le lion", en: "The lion" }, text: { fr: "La part animale de l’âme — désir, rage, appétit de vivre. Placé sous le signe du Lion, il n’est pas l’ennemi à abattre mais l’énergie vitale à intégrer. Le nier, c’est se châtrer ; le dompter par amour, c’est le rendre allié.", en: "The animal part of the soul — desire, rage, hunger for life. Ruled by Leo, it is not an enemy to slay but the vital force to integrate. To deny it is to unman yourself; to tame it through love is to make it an ally." } },
+    { label: { fr: "Les mains sur la gueule", en: "The hands upon the jaws" }, text: { fr: "La maîtrise sans arme ni chaîne : nulle contrainte, seulement un contact patient. Le geste dit que la vraie autorité ne soumet pas, elle persuade. Fermer la gueule sans effort, c’est régner sur soi de l’intérieur, là où la violence n’a jamais tenu longtemps.", en: "Mastery without weapon or chain: no restraint, only patient contact. The gesture says true authority does not subdue, it persuades. To close the jaws without strain is to govern yourself from within, where violence has never held for long." } },
+    { label: { fr: "La couronne de fleurs", en: "The garland of flowers" }, text: { fr: "La force spirituelle se couronne du vivant, non de l’acier : fleurs pour diadème, guirlande nouée du front à la taille. Volonté et instinct tenus par la même chaîne fleurie — l’esprit et la bête accordés plutôt qu’en guerre, la maîtrise devenue floraison.", en: "Spiritual strength crowns itself with the living, not with steel: flowers for a diadem, a garland tied from brow to waist. Will and instinct held by one flowering chain — spirit and beast attuned rather than at war, mastery become a blossoming." } },
+    { label: { fr: "Le lemniscate (∞)", en: "The lemniscate (∞)" }, text: { fr: "Au-dessus du front, le huit couché : la puissance infinie déjà portée par le Magicien, mais ici tournée vers le dedans. Non plus créer le monde, mais se gouverner soi — signe que la vraie magie commence quand on cesse de dompter l’extérieur pour apaiser l’intérieur.", en: "Above her brow, the sideways eight: the infinite power the Magician also bore, but here turned inward. No longer to shape the world, but to rule oneself — sign that true magic begins when you stop taming the outside to quiet the inside." } },
+    { label: { fr: "La robe blanche", en: "The white robe" }, text: { fr: "Le blanc de sa robe dit la pureté d’intention : elle n’approche pas la bête pour la dominer ni la craindre, mais avec un cœur clair. Cette innocence est sa vraie armure — c’est parce qu’elle ne convoite pas le pouvoir du fauve qu’elle peut le tenir.", en: "The white of her robe speaks purity of intent: she comes to the beast neither to dominate nor to dread it, but with a clear heart. That innocence is her true armor — because she does not covet the beast's power, she is able to hold it." } },
+  ],
+  "major-09": [
+    { label: { fr: "La lanterne", en: "The lantern" }, text: { fr: "La lumière intérieure, non le savoir reçu. On la porte à hauteur d’homme pour la partager, sans jamais tout dévoiler : elle éclaire un pas, pas la route. Sagesse qui se transmet à qui monte la chercher.", en: "Inner light, not borrowed knowledge. Held at a person’s height to be shared yet never fully unveiled: it lights one step, not the road. Wisdom passed only to those who climb to seek it." } },
+    { label: { fr: "L’étoile à six branches", en: "The six-pointed star" }, text: { fr: "Le Sceau de Salomon au cœur de la flamme : union du haut et du bas, de l’esprit et de la matière. Six, nombre de l’équilibre et de l’épreuve, dit une clarté conquise par l’accord des contraires, non par la seule raison.", en: "The Seal of Solomon at the flame’s heart: union of above and below, spirit and matter. Six, the number of balance and trial, names a clarity won through the marriage of opposites, not by reason alone." } },
+    { label: { fr: "Le bâton", en: "The staff" }, text: { fr: "Tenu de la main gauche, celle du réceptif et de l’intuition : la volonté ne force pas, elle s’appuie. Axe qui relie le ciel et la terre, il soutient une marche lente et sûre, l’expérience faite point d’appui.", en: "Held in the left hand, the hand of the receptive and intuitive: the will does not force, it leans. An axis binding sky to earth, it steadies a slow, sure walk — experience turned into support." } },
+    { label: { fr: "La robe grise", en: "The grey cloak" }, text: { fr: "Le gris efface les couleurs de la persona : ni noir ni blanc, la neutralité de qui a dépassé les tranchés. Vêtement de cendre et d’humilité qui cache le corps pour ne laisser paraître que le regard baissé, tourné au-dedans.", en: "Grey erases the persona’s colours: neither black nor white, the neutrality of one past all clear divisions. A garment of ash and humility that hides the body, leaving only the lowered gaze, turned inward." } },
+    { label: { fr: "Le sommet", en: "The summit" }, text: { fr: "La hauteur atteinte seul, au terme d’une montée : le point de vue que la foule d’en bas n’a pas. Le froid et le vide disent le prix du retrait — on ne voit clair qu’en s’élevant au-dessus du vacarme.", en: "The height reached alone, at the end of a climb: the vantage the crowd below cannot have. Cold and emptiness name the cost of withdrawal — one sees clearly only by rising above the din." } },
+  ],
+  "major-10": [
+    { label: { fr: "La roue (ROTA / TARO)", en: "The wheel (ROTA / TARO)" }, text: { fr: "La loi du devenir : tout ce qui monte redescend, rien ne se fixe. Ses lettres brouillées épellent ROTA, TARO, ORAT, TORA — la roue, l’art, la prière, la loi : quatre mots pour dire que le hasard obéit à un ordre caché. Le sort n’est pas aveugle, il est cyclique.", en: "The law of becoming: all that rises falls, nothing holds. Its scrambled letters spell ROTA, TARO, ORAT, TORA — wheel, art, prayer, law: four words saying chance obeys a hidden order. Fate is not blind but cyclical." } },
+    { label: { fr: "Le sphinx au sommet, l’épée en main", en: "The sphinx atop, sword in hand" }, text: { fr: "L’axe immobile au cœur du vertige. Il ne monte ni ne chute : il incarne la conscience qui contemple le mouvement sans y être emportée. Son épée tranche l’énigme, discerne l’essentiel du passager. Trouve en toi ce point calme d’où tu peux regarder tourner ta propre fortune.", en: "The still axis at the heart of the vertigo. Neither rising nor falling, it embodies the awareness that watches the movement without being swept up. Its sword cuts the riddle, parting the essential from the fleeting. Find in yourself this calm point from which to watch your own fortune turn." } },
+    { label: { fr: "Le serpent qui descend, Typhon qui chute", en: "The descending serpent, Typhon falling" }, text: { fr: "La pente inévitable de tout apogée. Le serpent de Typhon — force de dissolution — glisse vers le bas : ce qui a triomphé se défait, non par punition mais par nature. Il te rappelle que le déclin n’est pas un échec, seulement l’autre versant du même souffle qui t’avait porté.", en: "The inevitable descent of every peak. Typhon's serpent — force of dissolution — slides downward: what triumphed comes undone, not as punishment but by nature. It reminds you that decline is no failure, merely the far slope of the same breath that once bore you up." } },
+    { label: { fr: "Hermanubis qui monte", en: "Hermanubis rising" }, text: { fr: "L’ascension patiente, guide des âmes à travers les seuils. Mi-Hermès mi-Anubis, il escorte ce qui remonte du bas de la roue vers la lumière. Il dit que toute chute prépare un retour, que le fond du cycle n’est jamais une fin : ce qui semblait perdu se réoriente déjà vers l’élévation.", en: "The patient ascent, guide of souls across thresholds. Half Hermes, half Anubis, he escorts what climbs from the wheel's low point back toward the light. He tells that every fall prepares a return, that the bottom of the cycle is never an end: what seemed lost already turns back toward rising." } },
+    { label: { fr: "Les quatre vivants ailés", en: "The four winged living creatures" }, text: { fr: "Aux angles, l’homme, l’aigle, le taureau et le lion — les signes fixes du zodiaque — lisent chacun un livre. Ils sont l’immuable qui encadre le changeant : les lois éternelles qui ne tournent pas. Tandis que ta fortune s’emballe, quelque chose de stable veille aux quatre coins de ton monde.", en: "At the corners, man, eagle, bull and lion — the fixed signs of the zodiac — each reads a book. They are the unchanging that frames the changing: eternal laws that do not turn. While your fortune races, something stable keeps watch at the four corners of your world." } },
+  ],
+  "major-11": [
+    { label: { fr: "La balance", en: "The scales" }, text: { fr: "Non la clémence, mais la mesure exacte : chaque acte pesé contre sa conséquence. Elle incarne le karma froid, la loi qui n’a ni ami ni ennemi. Tenue de la main gauche, celle du recevoir : ce qui te revient est déjà décidé par ce que tu as fait.", en: "Not clemency but exact measure: each act weighed against its consequence. It embodies cold karma, the law that has neither friend nor foe. Held in the left hand, the hand of receiving: what returns to you is already settled by what you did." } },
+    { label: { fr: "L’épée dressée", en: "The upright sword" }, text: { fr: "À double tranchant, la lame verticale est le discernement qui sépare le vrai du faux sans zone grise. Arme d’Air, elle pense avant de frapper. Dressée haut et droite, elle annonce que la décision, une fois rendue, s’exécute : la justice n’hésite pas.", en: "Double-edged, the vertical blade is the discernment that parts true from false with no grey zone. An Air weapon, it thinks before it strikes. Raised high and straight, it announces that the verdict, once given, is carried out: justice does not waver." } },
+    { label: { fr: "Les deux colonnes", en: "The two pillars" }, text: { fr: "Le seuil de l’équilibre : elles encadrent la figure comme le portique d’un temple où l’on entre pour être jugé. Rigueur et clémence, positif et négatif, entre lesquels la vérité se tient droite. Passer entre elles, c’est accepter d’être pesé sans échappatoire.", en: "The threshold of balance: they frame the figure like a temple gateway one enters to be judged. Severity and mercy, positive and negative, between which truth stands upright. To pass between them is to accept being weighed with no way out." } },
+    { label: { fr: "La couronne carrée", en: "The square crown" }, text: { fr: "L’autorité fondée sur la structure et la loi, non sur le caprice : le petit carré qui la marque dit l’ordre matériel, le fait établi, ce qui tient. Elle règne par la règle, pas par la faveur — son pouvoir ne vient d’aucune humeur, seulement de sa constance.", en: "Authority grounded in structure and law, not whim: the small square that marks it speaks of material order, the established fact, what holds firm. She rules by rule, not by favour — her power owes nothing to mood, only to her constancy." } },
+    { label: { fr: "Le voile pourpre", en: "The purple veil" }, text: { fr: "Le mystère du verdict : la loi que tu subis mais ne vois pas d’avance, tendue derrière elle comme un secret. Le pourpre dit la souveraineté et le sacré. Sous l’apparente froideur se tient une raison supérieure, un ordre qui te dépasse et que tu ne fléchiras pas.", en: "The mystery of the verdict: the law you undergo but cannot foresee, hung behind her like a secret. Purple speaks of sovereignty and the sacred. Beneath the apparent coldness stands a higher reason, an order that exceeds you and that you will not bend." } },
+    { label: { fr: "Le manteau rouge", en: "The red robe" }, text: { fr: "L’écarlate dit que ce jugement n’est pas glacé : il brûle d’une volonté agissante. La justice n’est pas contemplation passive mais force qui intervient, tranche, corrige. Sous la rigueur bat une passion pour l’ordre juste — elle veut que la vérité l’emporte.", en: "The scarlet reveals this judgement is not icy: it burns with an active will. Justice is no passive contemplation but a force that intervenes, cuts, corrects. Beneath the rigour beats a passion for right order — she wants truth to prevail." } },
+  ],
+  "major-12": [
+    { label: { fr: "La suspension tête en bas", en: "Hanging head-downward" }, text: { fr: "L’inversion volontaire du regard : renoncer à la posture debout de l’ego pour accéder à l’ordre inverse, celui de l’esprit. Cette intelligence retournée comprend enfin ce que la verticale du pouvoir masquait ; on ne conquiert plus, on se laisse traverser.", en: "The willed inversion of vision: abandoning the ego's upright stance to reach the reversed order, that of the spirit. This upturned intelligence finally grasps what the vertical of power kept hidden; you no longer conquer, you let yourself be crossed through." } },
+    { label: { fr: "L’auréole", en: "The halo" }, text: { fr: "La sérénité gagnée dans l’abandon, non l’extase mais une lucidité paisible. Elle signe que ce supplice apparent est en vérité une illumination : la souffrance consentie s’est muée en savoir intérieur, la contrainte en grâce. La peine n’est pas subie, elle éclaire.", en: "The serenity won in surrender, not ecstasy but a peaceful lucidity. It marks that this apparent torment is in truth an illumination: suffering consented becomes inner knowing, constraint becomes grace. The ordeal is not endured, it enlightens." } },
+    { label: { fr: "La jambe croisée en 4", en: "The leg crossed into a 4" }, text: { fr: "Le sacrifice est structuré, choisi, non subi : le chiffre 4 de la stabilité matérielle, mais renversé. Cette croix inversée dit que la maîtrise du monde s’atteint ici en s’y soumettant, non en le dominant — l’ordre du réel se plie quand on cesse de le forcer.", en: "The sacrifice is structured, chosen, not endured: the figure 4 of material stability, but inverted. This reversed cross tells that mastery of the world is reached here by yielding to it, not by dominating it — reality's order bends once you stop forcing it." } },
+    { label: { fr: "La potence vivante", en: "The living gallows" }, text: { fr: "L’instrument du supplice porte la vie : l’arbre encore vert enracine l’épreuve dans une croissance — arbre de vie, axe du monde entre ciel et terre. Ton attente n’est pas mort mais gestation : quelque chose mûrit dans cet arrêt même, à ton insu.", en: "The instrument of ordeal bears life: the tree still green roots the trial in growth — tree of life, world-axis between sky and earth. Your waiting is not death but gestation: something ripens within the very halt, unbeknownst to you." } },
+    { label: { fr: "Les mains liées derrière le dos", en: "Hands bound behind the back" }, text: { fr: "L’action rendue impossible, mais volontairement : renoncer au faire, c’est ouvrir l’être. Les bras noués sous la croix forment un triangle inversé, sceau de l’impuissance consentie. Tu cesses d’agir pour laisser œuvrer en toi une intelligence plus vaste que ta volonté.", en: "Doing rendered impossible, yet willingly: to renounce action is to open being. The bound arms beneath the cross form an inverted triangle, seal of consented powerlessness. You cease to act so a larger intelligence than your will may work within you." } },
+  ],
+  "major-13": [
+    { label: { fr: "Le squelette en armure", en: "The armoured skeleton" }, text: { fr: "L’os sous la chair, ce qui demeure quand tout le reste est tombé : l’irréductible. L’armure dit que la fin est invulnérable, insensible aux prières comme aux rangs. Le squelette n’est pas la ruine, mais la structure nue — ce en toi qui survit à chaque mue.", en: "Bone beneath flesh, what remains when all else has dropped away: the irreducible. The armour says the ending is invulnerable, deaf to prayers and to rank alike. The skeleton is not ruin but bare structure — the part of you that outlasts every molt." } },
+    { label: { fr: "Le cheval pâle", en: "The pale horse" }, text: { fr: "La monture d’une force impersonnelle : la fin ne hait personne, elle avance, c’est tout. Sa pâleur est celle de l’exsangue, la couleur du seuil entre les mondes. Elle porte la Mort au pas tranquille de l’inéluctable, sans hâte parce que rien ne peut la devancer.", en: "The mount of an impersonal force: the ending hates no one, it simply advances. Its pallor is that of the bloodless, the colour of the threshold between worlds. It bears Death at the calm walk of the inevitable, unhurried because nothing can outrun it." } },
+    { label: { fr: "La bannière à la rose blanche", en: "The white-rose banner" }, text: { fr: "L’étendard planté au cœur de la fin : la mort n’est pas néant mais purification. La rose blanche dit l’innocence retrouvée, l’essence lavée de ce qui l’encombrait. Que ce signe flotte au-dessus de la faux annonce qu’au bout de la perte attend une vie plus dépouillée, plus vraie.", en: "The standard raised at the heart of the ending: death is not nothingness but purification. The white rose speaks of innocence regained, the essence washed clean of its clutter. That this sign flies above the scythe promises that beyond loss waits a life stripped barer, and truer." } },
+    { label: { fr: "Les tombés sur son passage", en: "Those who fall in its path" }, text: { fr: "Roi, évêque, enfant, jeune fille : nul âge, nul pouvoir, nulle piété ne fléchit la fin. La couronne roule à terre comme le reste. C’est l’égalité absolue devant le passage — et l’avertissement que ce à quoi tu tiens le plus n’est pas exempté.", en: "King, bishop, child, maiden: no age, no power, no piety bends the ending. The crown rolls in the dust like all the rest. This is the absolute equality before the passage — and the warning that what you hold dearest is not exempt." } },
+    { label: { fr: "Le soleil entre les deux tours", en: "The sun between the two towers" }, text: { fr: "À l’horizon, le même astre qui s’était levé au commencement se lève à nouveau : la fin n’est qu’un tournant du cycle. Les deux tours dressent la porte étroite par où l’on doit passer. La lumière est là, mais loin — promesse, non consolation immédiate.", en: "On the horizon the same star that rose at the beginning rises once more: the ending is only a turn of the cycle. The two towers frame the narrow gate one must pass through. The light is there, but distant — a promise, not an immediate solace." } },
+  ],
+  "major-14": [
+    { label: { fr: "L’ange androgyne", en: "The androgynous angel" }, text: { fr: "Ni homme ni femme : la conjonction des opposés déjà accomplie en un seul être. Marqué au front du disque solaire, il incarne le principe médiateur qui réconcilie le haut et le bas. Sa présence dit que l’équilibre n’est pas un compromis, mais une nature supérieure.", en: "Neither man nor woman: the union of opposites already achieved in a single being. Marked on the brow with the solar disc, it embodies the mediating principle that reconciles above and below. Its presence says balance is no compromise but a higher nature." } },
+    { label: { fr: "L’eau qui passe entre les coupes", en: "The water passing between the cups" }, text: { fr: "Le flux impossible qui monte et descend à contre-courant : l’âme circulant sans perte entre conscient et inconscient. C’est la circulation alchimique, le va-et-vient qui affine la matière. Tempérer, c’est faire tourner sans cesse ce qui, immobile, croupirait.", en: "The impossible stream flowing up and down against nature: the soul circulating without loss between conscious and unconscious. This is the alchemical circulation, the back-and-forth that refines matter. To temper is to keep in motion what, left still, would stagnate." } },
+    { label: { fr: "Le triangle dans le carré, sur la poitrine", en: "The triangle within the square, on the breast" }, text: { fr: "L’esprit (triangle) enclos dans la matière (carré) : le divin logé au cœur de l’humain. Ce sceau marque l’ange comme œuvre accomplie, l’âme reliée au corps. Il rappelle que toute juste mesure part du centre, de ce foyer où l’en-haut habite l’en-bas.", en: "Spirit (triangle) enclosed in matter (square): the divine housed at the heart of the human. This seal marks the angel as finished work, soul bound to body. It reminds you that all true measure issues from the centre, the hearth where the above dwells in the below." } },
+    { label: { fr: "Un pied dans l’eau, un pied sur terre", en: "One foot in water, one on land" }, text: { fr: "L’ange se tient à la frontière des deux mondes sans choisir. Le pied liquide baigne l’émotion mouvante, le pied terrestre tient au réel : la tempérance vit précisément sur ce seuil. Refuser d’être tout entier d’un côté, voilà l’équilibre incarné.", en: "The angel stands at the border of two worlds without choosing. The watery foot bathes in shifting emotion, the earthly foot holds to the real: temperance lives precisely on this threshold. To refuse to belong wholly to one side — that is balance made flesh." } },
+    { label: { fr: "Le sentier vers la couronne solaire", en: "The path to the solar crown" }, text: { fr: "Le chemin qui grimpe entre les montagnes vers une couronne de lumière : le but lointain de l’œuvre, l’illumination au terme de la patience. Rien ici ne s’atteint d’un bond ; l’or promis se gagne pas à pas, par la lente rectification de soi.", en: "The road climbing between the mountains toward a crown of light: the distant goal of the work, illumination at patience's end. Nothing here is reached in a leap; the promised gold is won step by step, through the slow rectification of the self." } },
+  ],
+  "major-15": [
+    { label: { fr: "La figure de Baphomet", en: "The Baphomet figure" }, text: { fr: "Non le mal métaphysique, mais la part animale et matérielle que l’esprit refuse de reconnaître. Son corps mêlé — bouc, aile, humain — dit le désir laissé sans conscience : il ne règne que par ce que tu lui abandonnes, souverain d’un royaume que tu lui cèdes.", en: "Not metaphysical evil but the animal, material part the spirit refuses to own. Its mingled body — goat, wing, human — names desire left without awareness: it reigns only through what you surrender to it, sovereign of a realm you cede." } },
+    { label: { fr: "Le pentagramme inversé", en: "The inverted pentagram" }, text: { fr: "L’étoile à cinq branches retournée, pointe en bas : l’esprit soumis à la matière, la volonté renversée par l’appétit. Là où l’Étoile promet l’ordre céleste, ce blason dit la hiérarchie inversée — le corps qui dicte, la tête qui suit.", en: "The five-pointed star turned point-down: spirit subjected to matter, will overturned by appetite. Where the Star promises celestial order, this emblem declares the hierarchy reversed — the body dictating, the head obeying." } },
+    { label: { fr: "Les chaînes lâches", en: "The loose chains" }, text: { fr: "Le collier assez large pour glisser des têtes et jamais ôté : toute la carte tient dans ce détail. La servitude est consentie, l’habitude choisie. Ce qui t’enchaîne n’a de force que celle que tu lui prêtes — le geôlier attend ta permission.", en: "The collar wide enough to slip over the heads, yet never removed: the whole card rests on this detail. The bondage is consented to, the habit chosen. What chains you holds only the power you lend it — the jailer awaits your permission." } },
+    { label: { fr: "La torche renversée", en: "The downturned torch" }, text: { fr: "Le feu du savoir retourné vers le sol : la lumière détournée en fumée, la connaissance dévoyée en manipulation. C’est l’intelligence mise au service du plus bas — l’esprit vif qui rationalise sa propre chute au lieu d’éclairer une issue.", en: "The torch of knowledge turned toward the ground: light diverted into smoke, wisdom perverted into manipulation. It is intelligence pressed into the service of the lowest — the sharp mind rationalizing its own fall instead of lighting a way out." } },
+    { label: { fr: "Les queues des captifs", en: "The captives’ tails" }, text: { fr: "Grappe pour l’homme, flamme pour la femme : les deux amants d’après la faute, devenus à demi bêtes. La queue dit la régression, la part instinctuelle qui repousse quand la conscience se retire — tu deviens ce que tu cesses de gouverner.", en: "Grapes for the man, flame for the woman: the two lovers after the fault, grown half-beast. The tail marks regression, the instinctual part that sprouts back when awareness withdraws — you become whatever you stop governing." } },
+    { label: { fr: "Le trône cubique noir", en: "The black cubic seat" }, text: { fr: "Le demi-cube où pèse la figure : la matière brute, le monde réduit à sa densité, sans les faces cachées qui donnent sens. C’est la vie enfermée dans le seul mesurable — le poids, l’avoir, le solide — quand l’invisible est nié.", en: "The half-cube the figure weighs upon: raw matter, the world reduced to its density, stripped of the hidden faces that give meaning. It is life sealed inside the merely measurable — weight, having, the solid — while the invisible is denied." } },
+  ],
+  "major-16": [
+    { label: { fr: "La foudre", en: "The lightning bolt" }, text: { fr: "Le feu de Mars tombé du ciel : l’intervention qui ne se négocie pas. Elle figure la grâce brutale, la vérité qui frappe du dehors parce qu’aucune parole n’y serait entrée. Ce que tu ne voulais pas voir t’est imposé d’un seul trait, sans délai ni douceur.", en: "The fire of Mars fallen from the sky: the intervention that cannot be bargained with. It stands for brutal grace, the truth striking from outside because no words could have entered. What you refused to see is forced on you in a single stroke, without delay or gentleness." } },
+    { label: { fr: "La couronne renversée", en: "The toppling crown" }, text: { fr: "Le faux souverain déchu : l’ego, la doctrine, la certitude qui se croyait au sommet. Sa chute dit que ce qui régnait en toi n’était pas la vérité mais une construction humaine. Rien de sacré n’est détruit — seulement l’idole que tu prenais pour un socle.", en: "The false sovereign cast down: the ego, the doctrine, the certainty that thought itself crowned. Its fall says that what reigned in you was not truth but a human construct. Nothing sacred is destroyed — only the idol you mistook for a foundation." } },
+    { label: { fr: "Les deux figures qui tombent", en: "The two falling figures" }, text: { fr: "L’âme précipitée hors de ses murs, tête la première dans le vide. Deux figures : le couple des certitudes qu’on croyait indissociables de soi. Leur chute est un exil forcé, mais c’est aussi la première fois qu’elles touchent le sol réel plutôt que le plancher de l’illusion.", en: "The soul hurled beyond its walls, headlong into the void. Two figures: the pair of certainties one thought inseparable from oneself. Their fall is a forced exile, yet also the first time they touch real ground rather than the floor of illusion." } },
+    { label: { fr: "Les flammèches en forme de yod", en: "The yod-shaped flames" }, text: { fr: "Les gouttes de feu dessinées comme le yod hébraïque : l’étincelle divine dispersée dans le désastre. Elles disent que la destruction n’est pas pur néant — une semence de sens tombe avec les décombres. Ce qui brûle éclaire ; la perte sème, en pluie, de quoi reconstruire autrement.", en: "The drops of fire drawn like the Hebrew yod: the divine spark scattered through the disaster. They say the destruction is not sheer nothingness — a seed of meaning falls with the rubble. What burns gives light; the loss sows, in a rain, the makings of a different rebuilding." } },
+    { label: { fr: "Le roc au sommet", en: "The crag at the peak" }, text: { fr: "La tour bâtie sur un pic isolé : l’orgueil qui s’élève à part, coupé du monde et sans racines vivantes. La hauteur qui semblait force est en vérité fragilité, car rien ne l’ancre. Ce que tu construis loin du réel s’expose d’autant plus au premier éclair.", en: "The tower built on a lone spire of rock: pride that rises apart, cut off from the world and rootless. The height that seemed like strength is in truth fragility, for nothing anchors it. Whatever you build far from the real is all the more exposed to the first bolt." } },
+  ],
+  "major-17": [
+    { label: { fr: "La grande étoile à huit branches", en: "The great eight-pointed star" }, text: { fr: "L’octogramme dit la régénération, l’octave qui recommence au-delà du sept accompli. Elle n’éclaire pas comme le Soleil : elle guide de loin, promesse plus que certitude. C’est l’espérance nue, celle qui tient quand rien ne la garantit encore.", en: "The eight-pointed figure names regeneration, the octave beginning again beyond the completed seven. It does not blaze like the Sun: it guides from afar, promise more than proof. This is naked hope, the kind that holds when nothing yet guarantees it." } },
+    { label: { fr: "Les sept étoiles mineures", en: "The seven lesser stars" }, text: { fr: "Sept veilleuses autour de la grande : les chakras, les planètes anciennes, les degrés d’une ascension. Elles disent que ton espérance n’est pas solitaire mais orchestrée, reliée à un ordre. La guérison suit un chemin, une par une, sans brûler les étapes.", en: "Seven watch-lights around the great one: the chakras, the ancient planets, the rungs of an ascent. They say your hope is not solitary but orchestrated, tied to an order. Healing follows a path, one by one, without skipping its stages." } },
+    { label: { fr: "Les deux cruches versées", en: "The two poured jugs" }, text: { fr: "L’une nourrit l’étang, l’autre la terre : conscient et inconscient, esprit et matière abreuvés d’un même flux. Rien n’est retenu, rien n’est thésaurisé. C’est la loi du don qui régénère : tu ne te vides pas en donnant, tu te renouvelles à la source même.", en: "One feeds the pool, the other the earth: conscious and unconscious, spirit and matter watered by a single flow. Nothing is withheld, nothing hoarded. This is the law of the giving that regenerates: you do not empty yourself by giving, you renew at the source itself." } },
+    { label: { fr: "La nudité", en: "The nakedness" }, text: { fr: "Dépouillée de tout masque, elle est enfin sans défense et sans mensonge. Après la catastrophe, l’ego tombé ne se rhabille pas : il s’assume vulnérable. La vérité de soi mise à nu devient force, car il n’y a plus rien à protéger ni à feindre.", en: "Stripped of every mask, she is at last defenseless and beyond pretense. After the catastrophe, the fallen ego does not dress again: it owns its vulnerability. The self’s truth laid bare becomes strength, for there is nothing left to guard or to feign." } },
+    { label: { fr: "Le genou sur la terre, le pied sur l’eau", en: "Knee on land, foot on water" }, text: { fr: "Un appui ferme, un appui mouvant : elle tient à la fois le stable et le fluide, la volonté et l’intuition. La posture dit un équilibre entre agir et se laisser porter. On se régénère à cette jonction, ni tout maîtrise ni tout abandon.", en: "One firm footing, one shifting: she holds both the stable and the fluid, will and intuition. The posture names a balance between acting and being carried. Regeneration happens at this junction, neither all control nor all surrender." } },
+    { label: { fr: "L’ibis dans l’arbre", en: "The ibis in the tree" }, text: { fr: "Oiseau de Thot, dieu de la sagesse et de l’écriture, perché à l’arrière-plan. Il veille sur la pensée qui sait lire les signes du ciel. Sa présence discrète rappelle que l’espérance de l’Étoile n’est pas naïveté : elle s’accompagne d’un savoir patient.", en: "Bird of Thoth, god of wisdom and writing, perched in the background. It watches over the mind that can read the sky’s signs. Its quiet presence recalls that the Star’s hope is no naivety: it comes paired with a patient knowing." } },
+  ],
+  "major-18": [
+    { label: { fr: "La lune à double visage", en: "The moon's double face" }, text: { fr: "Astre sans lumière propre : il ne fait que réfléchir un soleil absent. Voilà l’inconscient — il ne montre rien de direct, seulement des reflets déformés de ce que tu portes. Le visage caché dans le disque plein dit que toute clarté nocturne dissimule sa propre part d’ombre.", en: "A body with no light of its own — it merely reflects an absent sun. This is the unconscious: it shows nothing directly, only distorted echoes of what you carry. The face hidden within the full disc says every nocturnal clarity conceals its own shadow." } },
+    { label: { fr: "Les gouttes de rosée", en: "The falling dewdrops" }, text: { fr: "Quinze gouttes en forme de yod hébraïque tombent vers la terre : l’étincelle divine qui descend jusque dans le règne animal et instinctif. Même la nuit la plus opaque reçoit une grâce qui, goutte à goutte, féconde l’obscur. Rien n’est abandonné du ciel, pas même la peur.", en: "Fifteen drops shaped like the Hebrew yod fall earthward: the divine spark descending even into the animal, instinctual realm. Even the thickest night receives a grace that fertilizes the dark drop by drop. Nothing is forsaken by heaven — not even fear." } },
+    { label: { fr: "Le chien et le loup", en: "The dog and the wolf" }, text: { fr: "La même nature en deux états : l’instinct domestiqué et l’instinct sauvage, hurlant côte à côte vers l’astre. Sous la lune, la frontière entre ce que tu as apprivoisé en toi et ce qui reste indompté s’efface. La civilisation vacille ; l’animal veille.", en: "One nature in two states: instinct tamed and instinct wild, howling side by side at the orb. Under the moon, the line between what you have domesticated in yourself and what stays untamed dissolves. Civilization wavers; the animal keeps watch." } },
+    { label: { fr: "L’écrevisse qui émerge", en: "The crayfish emerging" }, text: { fr: "Créature archaïque qui monte de l’eau noire vers la rive : le contenu le plus ancien et informe de la psyché, tentant l’ascension vers la conscience. Souvent il retombe — la peur enfouie affleure, se montre un instant, puis se dérobe avant d’être nommée et intégrée.", en: "An archaic creature rising from the black water toward the shore: the oldest, most formless content of the psyche attempting the climb toward consciousness. Often it sinks back — the buried fear surfaces, shows itself an instant, then slips away before it can be named and integrated." } },
+    { label: { fr: "Les deux tours", en: "The two towers" }, text: { fr: "Portes de pierre dressées de part et d’autre du sentier : le seuil à franchir pour aller au-delà du connu. Elles marquent la limite du rationnel, du rassurant. Passer entre elles, c’est accepter l’inconnu ; renversées, elles deviennent des murs qui enferment au lieu d’ouvrir.", en: "Stone gates set on either side of the path: the threshold to be crossed to move past the known. They mark the edge of the rational, of the reassuring. To pass between them is to accept the unknown; reversed, they become walls that imprison rather than open." } },
+    { label: { fr: "Le sentier vers l’horizon", en: "The path toward the horizon" }, text: { fr: "Chemin sinueux qui quitte l’eau, traverse les tours et se perd au loin dans les collines : la voie initiatique à travers l’inconscient, longue, incertaine, sans garantie d’arrivée. On ne le parcourt pas à vue mais à la foi ; sa courbe même dit qu’ici le droit chemin n’existe pas.", en: "A winding road that leaves the water, passes the towers, and fades into distant hills: the initiatory way through the unconscious — long, uncertain, with no guarantee of arrival. You travel it not by sight but by faith; its very curve says that here no straight road exists." } },
+  ],
+  "major-19": [
+    { label: { fr: "Le soleil au visage humain", en: "The sun with a human face" }, text: { fr: "Non pas l’astre, mais la conscience faite lumière : l’intelligence qui éclaire au lieu de brûler. Ses rayons alternent droits et ondulés, force et perception unies. C’est le point d’arrivée du chemin — le savoir enfin devenu chaleur, la vérité qui ne juge pas mais fait mûrir.", en: "Not the star, but consciousness made light: intelligence that illumines rather than scorches. Its rays alternate straight and wavy, force and perception joined. This is the path’s destination — knowing turned at last to warmth, a truth that ripens rather than judges." } },
+    { label: { fr: "L’enfant nu", en: "The naked child" }, text: { fr: "L’innocence reconquise, non celle du Fou qui ignore, mais celle qui a traversé et n’a plus rien à dissimuler. La nudité dit une âme sans masque, réintégrée. En toi, la part la plus vraie ose enfin paraître au grand jour, sans honte ni défense.", en: "Innocence regained — not the Fool’s unknowing, but the kind that has crossed through and has nothing left to hide. Nakedness signals a soul without mask, made whole. In you, the truest part dares at last to stand in full daylight, unashamed, undefended." } },
+    { label: { fr: "Le cheval blanc, monté sans selle", en: "The white horse, ridden bareback" }, text: { fr: "La force vitale domptée par la douceur, non par la bride. Blanc comme la pureté du solaire, il porte l’enfant sans harnais : l’instinct et l’esprit avancent d’un même mouvement. Ta puissance ne te contraint plus — elle t’obéit parce qu’elle te fait confiance.", en: "Vital force mastered by gentleness, not by the bit. White as solar purity, it bears the child without harness: instinct and spirit move as one. Your power no longer coerces you — it obeys because it trusts you." } },
+    { label: { fr: "La bannière rouge", en: "The red banner" }, text: { fr: "L’étendard levé de la vitalité victorieuse : rouge du sang, de l’action, du désir enfin assumé. Ce n’est pas la vantardise mais la joie proclamée sans peur. Tu peux dire qui tu es à voix haute — l’énergie du monde te répond au lieu de te contredire.", en: "The raised standard of victorious vitality: red of blood, of action, of desire finally owned. Not boastfulness but joy proclaimed without fear. You can say aloud who you are — and the world’s energy answers you rather than contradicts." } },
+    { label: { fr: "Les tournesols et le mur", en: "The sunflowers and the wall" }, text: { fr: "Quatre fleurs héliotropes, tournées vers la conscience comme l’âme vers sa source ; le nombre des éléments, du monde accompli. Le mur bas marque le seuil franchi : le jardin clos de l’enfance reste derrière, et tu passes de l’autre côté, en pleine lumière assumée.", en: "Four heliotrope flowers, turned toward consciousness as the soul toward its source; four, the number of the elements, of the world made complete. The low wall marks a threshold crossed: childhood’s walled garden stays behind as you step through, into fully owned daylight." } },
+  ],
+  "major-20": [
+    { label: { fr: "La trompette de l’ange", en: "The angel's trumpet" }, text: { fr: "La sommation d’en haut, qui perce le voile du quotidien. C’est l’instant où le sens t’est signifié sans que tu l’aies cherché : une évidence te traverse, irréversible. Y répondre n’est pas un choix mais une reconnaissance ; l’ignorer, la seule faute possible.", en: "The summons from above that pierces the veil of the everyday. It is the moment meaning is announced to you unbidden: a certainty passes through you, irreversible. To answer is not a choice but a recognition; to ignore it, the only real sin." } },
+    { label: { fr: "Les morts qui se dressent", en: "The dead rising" }, text: { fr: "Non des cadavres, mais tes vies antérieures, tes anciens toi enterrés. Ils remontent pour être intégrés, non reniés : la renaissance ici n’efface rien, elle rassemble. Ce que tu croyais mort en toi se révèle seulement endormi, et réclame sa place dans qui tu deviens.", en: "Not corpses but your former lives, the older selves you buried. They surface to be integrated, not disowned: rebirth here erases nothing, it gathers. What you thought dead in you proves only asleep, and demands its place in who you are becoming." } },
+    { label: { fr: "Les bras levés", en: "The upraised arms" }, text: { fr: "Le geste du oui total : plus de défense, plus de posture. Se tenir ainsi, c’est consentir à être vu entier, sans retrancher ses ombres. Cette vulnérabilité offerte est la condition même du passage — on ne renaît qu’à découvert, jamais retranché derrière ses justifications.", en: "The gesture of the total yes: no more defense, no more posture. To stand so is to consent to be seen whole, hiding none of your shadows. This offered vulnerability is the very price of passage — one is reborn only in the open, never behind one's excuses." } },
+    { label: { fr: "L’eau grise sous les cercueils", en: "The grey water beneath the coffins" }, text: { fr: "La mer de l’inconscient d’où toute forme émerge et vers quoi elle retourne. Les cercueils y flottent : ta renaissance repose sur un fond mouvant, insondable. Elle rappelle que le jugement ne vient pas d’un décret extérieur mais des profondeurs mêmes qui t’ont porté.", en: "The sea of the unconscious from which all forms emerge and to which they return. The coffins float upon it: your rebirth rests on shifting, fathomless ground. It reminds you the judgement issues not from some outward decree but from the very depths that bore you." } },
+    { label: { fr: "La bannière à croix rouge", en: "The banner with the red cross" }, text: { fr: "L’étendard blanc marqué de la croix : l’équilibre des forces retrouvé, la victoire non sur autrui mais sur soi. Le rouge sur blanc dit l’esprit et la matière réconciliés. Sous ce signe, l’appel n’est pas condamnation mais promesse tenue, un ordre nouveau enfin accepté.", en: "The white standard bearing the cross: the balance of forces restored, victory not over others but over oneself. Red upon white speaks of spirit and matter reconciled. Under this sign the call is no condemnation but a promise kept, a new order finally accepted." } },
+  ],
+  "major-21": [
+    { label: { fr: "La mandorle de laurier", en: "The laurel mandorla" }, text: { fr: "L’ovale qui enclôt la danseuse dit la totalité recomposée : le zéro du Fou devenu cercle plein. Le laurier n’est pas ornement mais victoire — l’œuvre menée à terme. Sa forme d’amande, jointure de deux mondes, marque le seuil où l’âme accomplie passe et demeure.", en: "The oval enclosing the dancer speaks wholeness recomposed: the Fool's zero become a full circle. The laurel is no ornament but victory — the work carried through. Its almond shape, joining two worlds, marks the threshold where the accomplished soul passes and abides." } },
+    { label: { fr: "La figure nue qui danse", en: "The dancing naked figure" }, text: { fr: "Nue parce que rien n’est plus à cacher : l’être enfin coïncide avec lui-même. Sa danse au centre du cercle est le mouvement libre retrouvé au cœur de la contrainte saturnienne. Souvent androgyne, elle réconcilie les opposés — l’intégration faite corps, ni tension ni fuite, mais accord.", en: "Naked because nothing remains to hide: the self at last coincides with itself. Its dance at the circle's center is free movement recovered within Saturn's constraint. Often androgynous, it reconciles opposites — integration made flesh, neither tension nor flight, but accord." } },
+    { label: { fr: "Les deux bâtons", en: "The two wands" }, text: { fr: "Un dans chaque main, comme le Magicien qui n’en tenait qu’un : la maîtrise est désormais équilibrée, le pouvoir tenu des deux côtés sans domination. Ils disent que l’énergie créatrice ne s’impose plus mais s’accorde — commencer et achever réunis dans le même geste.", en: "One in each hand, where the Magician held but one: mastery is now balanced, power held on both sides without domination. They tell that creative energy no longer imposes but harmonizes — beginning and ending gathered into the single gesture." } },
+    { label: { fr: "Les quatre vivants aux coins", en: "The four living creatures at the corners" }, text: { fr: "Ange, aigle, lion, taureau : les quatre éléments, les points cardinaux, les évangélistes — le fixe qui tient le cosmos. Ce sont les mêmes gardiens qu’à la Roue de Fortune, mais ici apaisés, ouvrant les yeux. Ils garantissent que l’accomplissement repose sur la totalité, non sur une part.", en: "Angel, eagle, lion, bull: the four elements, the cardinal points, the evangelists — the fixed that holds the cosmos. The same guardians as on the Wheel of Fortune, but here at peace, eyes opened. They warrant that fulfilment rests on the whole, not on a fragment." } },
+    { label: { fr: "L’écharpe pourpre", en: "The violet scarf" }, text: { fr: "Le seul voile qui reste, drapé en spirale : la marque du sacré et de la royauté, couleur de l’esprit uni à la matière. Il ne cache pas mais consacre. Sa courbe redit le mouvement giratoire de la danse — le cycle qui ne s’arrête pas mais se tient, souverain, dans son propre tour.", en: "The one remaining veil, draped in a spiral: the mark of the sacred and of royalty, colour of spirit wedded to matter. It does not conceal but consecrates. Its curve echoes the whirling of the dance — the cycle that does not halt but holds, sovereign, within its own turning." } },
+  ],
+  "wands-01": [
+    { label: { fr: "Le bâton bourgeonnant", en: "The sprouting wand" }, text: { fr: "Bois mort qui reverdit : la matière brute traversée par la vie. C’est le pôle créateur du Feu, la volonté à l’état natif, avant qu’elle ne se pense ou ne se maîtrise. Il dit que ton élan est fertile en soi — non pas une idée, mais une poussée de sève.", en: "Dead wood turned green again: raw matter run through with life. This is the creative pole of Fire, will in its native state, before it thinks or masters itself. It says your impulse is fertile in itself — not an idea, but a surge of sap." } },
+    { label: { fr: "La main issue du nuage", en: "The hand from the cloud" }, text: { fr: "Le poing offert par le voile signe une grâce, non un mérite : l’étincelle vient d’ailleurs, du fond obscur du possible. Fermement empoignée, elle marque l’instant du consentement — l’instinct qui referme ses doigts sur l’occasion avant même que la raison ne délibère.", en: "The fist offered by the veil marks a grace, not a merit: the spark comes from elsewhere, from the dark depth of the possible. Gripped firmly, it names the instant of assent — the instinct that closes its fingers on the chance before reason even deliberates." } },
+    { label: { fr: "Les yods qui se détachent", en: "The falling yods" }, text: { fr: "Les feuilles qui s’envolent ont la forme du yod, l’étincelle-semence du souffle divin. Le commencement se dépense déjà : toute création disperse une part d’elle-même pour advenir. Elles disent que l’énergie neuve est vouée à se répandre, non à se garder.", en: "The leaves taking flight are shaped like yods, the seed-sparks of the divine breath. The beginning already spends itself: all creation scatters part of itself to come into being. They say fresh energy is meant to be spread, not hoarded." } },
+    { label: { fr: "Le château lointain", en: "The distant castle" }, text: { fr: "Perché au bord du paysage, il incarne l’œuvre accomplie que l’élan n’a pas encore rejointe : la forme que le Feu prendra s’il persévère. Sa distance est un avertissement doux — l’étincelle n’est pas la maison ; entre le désir et le bâti s’étend tout le chemin.", en: "Perched at the edge of the land, it embodies the finished work the impulse has not yet reached: the shape Fire will take if it persists. Its distance is a gentle warning — the spark is not the house; between desire and edifice lies the whole road." } },
+    { label: { fr: "La colline et l’eau", en: "The hill and water" }, text: { fr: "Un tertre vert et un mince cours d’eau posent le Feu sur un sol nourricier : l’ardeur pure a besoin de terre pour s’enraciner et d’eau pour ne pas se consumer. Ils rappellent qu’un élan ne dure que tempéré, adossé à quelque chose de vivant hors de lui.", en: "A green mound and a thin stream set Fire upon nourishing ground: pure ardour needs earth to root in and water so it does not burn itself out. They recall that a surge only lasts when tempered, backed by something living beyond itself." } },
+  ],
+  "wands-02": [
+    { label: { fr: "Le globe dans la main droite", en: "The globe in the right hand" }, text: { fr: "Tenir le monde en réduction dans la main de l’action consciente, c’est posséder déjà la vision : l’esprit du Feu embrasse le tout avant d’en toucher une part. Mais l’orbe reste inerte tant qu’aucune main ne le lance ; il incarne la puissance encore virtuelle, un destin qu’il faut oser vouloir pour qu’il advienne.", en: "To hold the world in miniature in the hand of conscious action is to already possess the vision: the spirit of Fire grasps the whole before touching any part. Yet the orb stays inert while no hand casts it forth; it embodies power still virtual, a destiny you must dare to want before it can come to be." } },
+    { label: { fr: "Les deux bâtons", en: "The two staves" }, text: { fr: "L’un est scellé dans un anneau au mur, l’autre serré dans la main : l’œuvre accomplie et l’œuvre à venir se disputent le même corps. Le deux est le nombre de la tension féconde, du choix qui divise pour faire avancer. Rester entre les deux, c’est refuser de naître une seconde fois.", en: "One is sealed in an iron ring on the wall, the other gripped in hand: the work achieved and the work to come contend for the same body. Two is the number of fertile tension, of the choice that splits in order to move forward. To linger between them is to refuse to be born a second time." } },
+    { label: { fr: "Le rempart et la mer", en: "The rampart and the sea" }, text: { fr: "La pierre sous les pieds, c’est la sécurité conquise, la frontière du connu ; la mer et les terres lointaines, l’appel de ce qui n’a pas de nom. Se tenir sur le mur, c’est occuper le point exact où finit la certitude et où commence le risque : le seuil que rien ne franchit à ta place.", en: "The stone underfoot is security won, the border of the known; the sea and distant lands, the call of what has no name. To stand on the wall is to occupy the exact point where certainty ends and risk begins: the threshold no one can cross in your stead." } },
+    { label: { fr: "La rose et le lys croisés", en: "The crossed rose and lily" }, text: { fr: "Gravés sur le muret, la rose rouge du désir ardent et le lys blanc de la pensée pure s’entrelacent. Leur croix dit que l’élan véritable naît quand la passion épouse la clarté : ni pure fièvre, ni froide raison. Ton départ ne vaudra que s’il unit ce que tu convoites à ce que tu sais juste.", en: "Engraved on the ledge, the red rose of ardent desire and the white lily of pure thought interlace. Their crossing says true impulse is born when passion weds clarity: neither raw fever nor cold reason. Your departure will hold worth only if it unites what you covet with what you know to be right." } },
+  ],
+  "wands-03": [
+    { label: { fr: "L’horizon marin", en: "The sea horizon" }, text: { fr: "L’eau ouverte au-delà de la terre du Feu : la limite du connu où l’entreprise s’élargit hors de ta portée directe. Elle incarne la foi dans le lointain, l’instant où l’on cesse d’agir pour laisser venir. Toute la carte tient dans ce regard porté au-delà de soi.", en: "Open water beyond the land of Fire: the edge of the known where the venture widens past your direct reach. It embodies faith in the distance, the moment one stops acting to let things come. The whole card rests in this gaze cast beyond the self." } },
+    { label: { fr: "Les navires", en: "The ships" }, text: { fr: "La force du Feu confiée au monde et rendue en gains. Ils disent le commerce, l’échange, ce qui part de toi pour revenir multiplié. Leur silhouette lointaine marque le décalage propre au Trois : la graine a levé, mais la moisson mûrit encore ailleurs, hors de tes mains.", en: "The strength of Fire entrusted to the world and returned as gain. They speak of trade, exchange, what leaves you to come back multiplied. Their distant shape marks the lag proper to the Three: the seed has risen, but the harvest still ripens elsewhere, out of your hands." } },
+    { label: { fr: "Le nombre trois", en: "The number three" }, text: { fr: "L’aboutissement du premier élan : la volonté (as), la fondation (deux) et, ici, le premier fruit rendu concret. Trois est la stabilité dynamique, le triangle qui tient debout. Dans le Feu, il marque le passage du projet rêvé au projet en marche, déjà engagé au-dehors.", en: "The fulfillment of the first surge: will (ace), foundation (two) and here the first fruit made concrete. Three is dynamic stability, the triangle that stands upright. In Fire it marks the crossing from a dreamed venture to one in motion, already committed to the outside world." } },
+    { label: { fr: "La hauteur où il se tient", en: "The height he stands upon" }, text: { fr: "La position surélevée est la vue d’ensemble conquise : on ne juge plus l’œuvre de près, on l’embrasse. Elle incarne le recul stratégique, la vision qui anticipe le retour. Mais dominer ainsi implique d’attendre — le pouvoir de voir loin se paie d’une patience que l’inversé transforme en immobilité.", en: "The raised stance is the overview earned: no longer judging the work up close but taking it in whole. It embodies strategic distance, the vision that anticipates return. Yet to command thus is to wait — the power to see far is paid in a patience that the reversed card turns to stillness." } },
+    { label: { fr: "Les bâtons plantés", en: "The planted staves" }, text: { fr: "Fichés dans le sol, ils sont les jalons d’une entreprise qui tient sans qu’on la porte : les acquis solidifiés, le socle qui laisse les mains libres. Qu’une seule tige reste en main dit ton engagement gardé à portée. Ce feu est croissance, non consumation — une force qui bourgeonne.", en: "Driven into the ground, they are the markers of a venture that holds without being carried: gains made solid, a base that frees the hands. That a single one stays in your grip shows your commitment kept within reach. This fire is growth, not consuming — a force that buds." } },
+  ],
+  "wands-04": [
+    { label: { fr: "Le portique des quatre bâtons", en: "The portal of four wands" }, text: { fr: "Quatre est le nombre de la matière stabilisée, du carré posé sur ses angles. Les bâtons vivants du Feu, jusque-là brandis dans l’effort, se figent en architecture : l’énergie créatrice consent enfin à se donner une forme durable, un cadre qui abrite au lieu de brûler.", en: "Four is the number of stabilized matter, the square set on its corners. The living wands of Fire, until now brandished in effort, freeze into architecture: creative energy at last consents to a lasting form, a frame that shelters rather than burns." } },
+    { label: { fr: "La guirlande en feston", en: "The festooned garland" }, text: { fr: "Fleurs et fruits noués au sommet : la promesse de l’élan a mûri en récolte. Elle dit le passage de l’intention au résultat, l’instant où l’on suspend l’effort pour honorer ce qui a poussé. Sa courbe joyeuse fait du seuil un arc de triomphe intime.", en: "Flowers and fruit tied at the summit: the promise of the surge has ripened into harvest. It marks the passage from intention to result, the moment effort is suspended to honor what has grown. Its joyful curve turns the threshold into an intimate arch of triumph." } },
+    { label: { fr: "Les silhouettes qui lèvent leurs bouquets", en: "The figures raising bouquets" }, text: { fr: "Le Feu, ici, n’est plus solitaire : la volonté trouve sa récompense dans le regard d’autrui. Ces figures incarnent la reconnaissance de la communauté, l’appartenance méritée. Ce que tu accomplis n’a de sens plein que célébré à plusieurs, offert et reçu.", en: "Fire, here, is no longer solitary: will finds its reward in the eyes of others. These figures embody the recognition of community, belonging earned. What you accomplish gains its full meaning only when celebrated together, offered and received." } },
+    { label: { fr: "Le château à l’arrière-plan", en: "The castle beyond" }, text: { fr: "Sûr et lumineux, il figure le foyer atteint, la sécurité gagnée après la route. Il rappelle que cette fête n’est pas une fin mais un havre : un lieu fort d’où repartir. La stabilité du Quatre est une halte protégée, non une immobilité définitive.", en: "Secure and luminous, it figures the home reached, the safety earned after the road. It reminds you this feast is not an end but a haven: a stronghold from which to set out again. The Four's stability is a guarded halt, not a final stillness." } },
+    { label: { fr: "Le grand jour ouvert", en: "The open daylight" }, text: { fr: "Nulle ombre ne pèse : la lumière pleine signe la transparence de cette joie. Rien ne se cache, tout se montre au regard, car l’accomplissement du Feu se veut public, partagé, assumé. C’est la clarté d’une réussite qui n’a pas à rougir d’elle-même.", en: "No shadow weighs on it: the full light marks the transparency of this joy. Nothing hides, all is shown to sight, for Fire's fulfillment wants to be public, shared, owned. It is the clarity of a success that need not blush at itself." } },
+  ],
+  "wands-05": [
+    { label: { fr: "Le nombre cinq", en: "The number five" }, text: { fr: "Après le quatre stable, le cinq rompt l’équilibre : il introduit l’humain, le conflit, le mouvement. Chiffre de la lutte et de l’adaptation, il te dit que la friction n’est pas un accident mais le prix du vivant — la stagnation brisée pour que quelque chose avance.", en: "After the stable four, the five breaks equilibrium: it introduces the human, the conflict, the stir. Number of struggle and adaptation, it tells you friction is no accident but the cost of being alive — stillness shattered so that something may move forward." } },
+    { label: { fr: "Les bâtons brandis", en: "The raised staves" }, text: { fr: "Instruments du Feu, ils sont volonté, désir, initiative — non des armes. Levés sans se porter de coups, ils disent une énergie qui cherche à s’exprimer plus qu’à détruire. La violence est ici sportive : une joute qui teste l’ardeur sans verser le sang.", en: "Instruments of Fire, they are will, desire, initiative — not weapons. Lifted yet landing no blow, they mark an energy seeking to express itself rather than destroy. The violence here is sporting: a joust that tests ardour without spilling blood." } },
+    { label: { fr: "La mêlée sans blessure", en: "The bloodless fray" }, text: { fr: "Nul sang, nulle armure, nul vainqueur : le désordre lui-même est le message. Ce chaos apparent est fécond — c’est l’atelier bruyant où les idées se heurtent avant de se choisir. Tant que rien n’est décidé, tout reste possible ; l’issue dépend de ta manière d’y entrer.", en: "No blood, no armour, no victor: the disorder itself is the message. This seeming chaos is fertile — the noisy workshop where ideas collide before one is chosen. As long as nothing is decided, all remains possible; the outcome hinges on how you enter the fray." } },
+    { label: { fr: "Les vêtements dépareillés", en: "The mismatched garments" }, text: { fr: "Chaque combattant porte ses propres couleurs : cinq tempéraments, cinq visions qui ne veulent pas fondre en une seule voix. Elles disent la richesse et la difficulté du collectif — la diversité comme force, mais aussi comme cacophonie tant qu’aucun ordre commun ne l’ordonne.", en: "Each fighter wears his own colours: five temperaments, five visions unwilling to melt into one voice. They speak the richness and the difficulty of the collective — diversity as strength, yet also as cacophony while no common order shapes it." } },
+    { label: { fr: "Le sol dégagé", en: "The open ground" }, text: { fr: "Ni forteresse ni butin, seul un terrain vague : rien de vital n’est en jeu. L’espace ouvert dit que ce combat est un préambule, un échauffement avant l’œuvre réelle. Ce que tu traverses ici n’est pas la fin mais l’épreuve qui décide qui portera la suite.", en: "No fortress, no spoils, only open land: nothing vital is at stake. The clear ground says this contest is a prelude, a warm-up before the real work. What you cross here is not the end but the trial deciding who will carry what comes next." } },
+  ],
+  "wands-06": [
+    { label: { fr: "La couronne de laurier", en: "The laurel crown" }, text: { fr: "Héritée des triomphes romains, elle sacre le vainqueur par le regard d’autrui, non par sa seule main. Elle dit une victoire qui n’existe pleinement que proclamée : ta réussite cherche le témoin qui la scelle. Fragile aussi, car un laurier se fane et se reprend.", en: "Inherited from Roman triumphs, it crowns the victor through others' eyes, not his hand alone. It marks a victory made whole only when proclaimed: your success seeks the witness who seals it. Fragile too, for laurel wilts and can be taken back." } },
+    { label: { fr: "Le cheval blanc", en: "The white horse" }, text: { fr: "La monture élève le cavalier au-dessus de la foule : la force maîtrisée qui te hisse, l’ascension méritée. Blanc, il purifie le triomphe de toute violence — non la conquête brute, mais la victoire noble, l’énergie du Feu domptée et portée en cortège plutôt que déchaînée.", en: "The mount lifts the rider above the crowd: mastered strength that raises you, the earned ascent. White, it purifies triumph of all violence — not raw conquest but noble victory, the Fire's energy tamed and borne in procession rather than unleashed." } },
+    { label: { fr: "La guirlande couronnant le bâton", en: "The garland crowning the staff" }, text: { fr: "Le bâton de volonté, brut dans le reste de l’enseigne, se pare ici d’une couronne végétale : l’ambition a fleuri, l’élan a produit son fruit. Double couronnement — front et sceptre — qui redouble le sacre : ton désir et ton acte reçoivent ensemble leur récompense.", en: "The staff of will, raw elsewhere in the suit, here dons a wreath: ambition has flowered, the drive has borne its fruit. A twofold crowning — brow and scepter — that doubles the honour: your desire and your deed are rewarded together." } },
+    { label: { fr: "Les cinq bâtons levés par l’escorte", en: "The five staves raised by the escort" }, text: { fr: "Ils prolongent la lutte du Cinq, mais désormais alignés derrière un seul : le conflit résolu en ralliement. Nul triomphe solitaire — ta victoire fédère, on marche à ta suite. Mais elle repose sur ces mains qui te portent : retire-les, et le sacre s’effondre.", en: "They carry on the Five's struggle, now aligned behind one man: conflict resolved into rallying. No solitary triumph — your victory unites, others follow your lead. Yet it rests on the hands that bear you up: withdraw them, and the crowning collapses." } },
+    { label: { fr: "La foule qui acclame", en: "The acclaiming crowd" }, text: { fr: "Elle est le miroir sans qui le triomphe n’en est pas un : la reconnaissance vient du dehors, elle ne se décrète pas soi-même. Force et danger de la carte — être vu te grandit, mais te rend dépendant du regard. Le jour où la clameur se tait, que reste-t-il de ta valeur ?", en: "It is the mirror without which triumph is none: recognition comes from without, it cannot be self-decreed. The card's strength and peril — to be seen exalts you, yet binds you to the gaze. When the cheering falls silent, what remains of your worth?" } },
+  ],
+  "wands-07": [
+    { label: { fr: "La hauteur", en: "The high ground" }, text: { fr: "L’éminence n’est pas un décor mais la clé de la carte : l’avantage moral et positionnel de celui qui a déjà gagné sa place. Dominer la pente, c’est défendre depuis le mérite acquis. L’inversé retire ce sol sous les pieds — l’autorité qu’on ne se sent plus le droit d’occuper.", en: "The rise is not scenery but the card's key: the moral and positional edge of one who has already earned their place. To command the slope is to defend from merit already won. Reversed, it pulls that ground away — the standing one no longer feels entitled to hold." } },
+    { label: { fr: "Le nombre d’en bas", en: "The many below" }, text: { fr: "Six hampes contre une seule : le motif de l’individu face à la meute, la conviction dressée contre le consensus. Elles montent d’en dessous, sans visage — pressions, rivaux, objections. Leur multiplicité même trahit qu’aucune ne te vaut seule ; c’est l’usure, non la supériorité, qui menace.", en: "Six staves against one: the figure of the individual facing the pack, conviction set against consensus. They rise from below, faceless — pressures, rivals, objections. Their very number betrays that none matches you alone; it is attrition, not superiority, that threatens." } },
+    { label: { fr: "Le sept", en: "The seven" }, text: { fr: "Après le triomphe du Six, le Sept est l’épreuve qui teste ce qu’on a acquis. Nombre de la persévérance et du courage éprouvé sous le Feu, il dit que toute conquête réclame ensuite d’être défendue. La victoire n’a pas de repos : elle se paie en vigilance.", en: "After the Six's triumph, the Seven is the trial that tests what was gained. A number of perseverance and courage proven under Fire, it says every conquest must afterward be defended. Victory grants no rest: it is paid for in vigilance." } },
+    { label: { fr: "Les chaussures dépareillées", en: "The mismatched footing" }, text: { fr: "Une botte, une chaussure basse : le combattant pris de court, sommé de défendre avant d’être prêt. Détail d’inconfort qui humanise l’avantage — tu tiens sur un appui bancal, improvisant ton assise. L’inversé grossit cette instabilité jusqu’à la chute.", en: "One boot, one low shoe: the fighter caught off guard, forced to defend before being ready. A detail of discomfort that humanises the advantage — you hold on uneven footing, improvising your stance. Reversed, that instability swells until the fall." } },
+    { label: { fr: "Le bâton empoigné à deux mains", en: "The wand gripped in both hands" }, text: { fr: "Une seule arme, tenue en travers pour tout parer d’un coup : l’énergie du Feu ramassée en défense plutôt qu’en élan. Le corps engagé tout entier dit l’effort total et solitaire. Ce n’est plus créer ni conquérir, mais préserver — tenir la ligne avec ce qu’on a.", en: "A single weapon, held crosswise to parry all at once: the Fire's energy gathered into defence rather than thrust. The whole body committed speaks of total, solitary effort. This is no longer to create or conquer but to preserve — to hold the line with what you have." } },
+  ],
+  "wands-08": [
+    { label: { fr: "Les huit bâtons en vol", en: "The eight wands in flight" }, text: { fr: "Nul ne les tient : c’est le seul arcane des Bâtons sans figure humaine, le Feu libéré de la volonté. Huit — le nombre du mouvement rythmé, de l’énergie qui a trouvé son canal. Tout ce que tu as mis en branle vit maintenant de sa propre course.", en: "No one holds them: the only Wands card without a human figure, Fire freed of the will. Eight — the number of rhythmic motion, of energy that has found its channel. Everything you set in motion now lives by its own momentum." } },
+    { label: { fr: "La trajectoire oblique et parallèle", en: "The slanting parallel path" }, text: { fr: "Tous vont dans le même sens, sans se croiser : la charge s’est unifiée, plus de conflit intérieur. L’inclinaison dit la descente, la retombée proche — l’élan touche à son terme. La convergence est ta force ici : une seule direction, sans dispersion.", en: "All travel one way, never crossing: the charge has unified, no inner conflict left. The downward slant tells of descent, of landing near — the impulse nears its end. Convergence is your strength here: a single aim, no scattering." } },
+    { label: { fr: "Le feuillage vert des bâtons", en: "The green leaves on the wands" }, text: { fr: "Les bâtons bourgeonnent encore : cette vitesse n’est pas destruction mais vie en croissance, sève qui file. Le Feu des Bâtons reste créateur, fécond même dans la hâte. Ce qui court vers toi porte du neuf, non de la cendre.", en: "The wands still sprout: this speed is not destruction but growing life, sap in flight. The Fire of Wands stays creative, fertile even in haste. What races toward you carries something new, not ash." } },
+    { label: { fr: "Le ciel sans nuage", en: "The cloudless sky" }, text: { fr: "Aucun obstacle, aucune ombre : la voie est entièrement ouverte, l’instant sans entrave. Ce vide clair dit que le doute a cessé — rien ne s’interpose entre l’intention et la cible. Agis pendant que le passage est franc.", en: "No obstacle, no shadow: the way is wholly open, the moment unobstructed. This clear void says doubt has ceased — nothing stands between intent and target. Act while the passage is free." } },
+    { label: { fr: "La rivière et la maison au loin", en: "The distant river and house" }, text: { fr: "En contrebas, une rivière serpente vers une demeure paisible : le point d’arrivée, le foyer où tout converge. Le calme d’en bas contraste avec la course d’en haut — rappel que la vitesse a un but, un lieu où enfin se poser.", en: "Below, a river winds toward a peaceful dwelling: the point of arrival, the home toward which all converges. The stillness on the ground contrasts with the rush above — a reminder that speed has a purpose, a place where it must finally come to rest." } },
+  ],
+  "wands-09": [
+    { label: { fr: "Le bandage au front", en: "The bandage on his brow" }, text: { fr: "La cicatrice faite armure : l’expérience de la douleur, transformée en savoir. Tu ne te bats plus par naïveté mais par mémoire — chaque blessure ancienne te dit d’où viendra le prochain coup. C’est la sagesse durement acquise, qui protège et qui alourdit à la fois.", en: "The scar turned armor: pain lived through, converted into knowledge. You no longer fight from naivety but from memory — each old wound tells you where the next blow will come. This is hard-won wisdom, which shields you and weighs you down at once." } },
+    { label: { fr: "Les huit bâtons dressés", en: "The eight staves upright" }, text: { fr: "Le seuil du feu accompli : huit, c’est tout le chemin des Bâtons parcouru avant lui, l’acquis qu’il ne veut plus perdre. Ils forment moins une palissade qu’un rempart intérieur — la somme de tes victoires, devenue à la fois trésor à garder et prison qui t’assigne à résidence.", en: "The threshold of fire fulfilled: eight is the whole path of Wands walked before him, the gains he will not lose. They form less a fence than an inner rampart — the sum of your victories, become at once a treasure to guard and a prison that keeps you at your post." } },
+    { label: { fr: "Le neuvième bâton empoigné", en: "The ninth staff gripped" }, text: { fr: "La volonté ramassée sur elle-même : neuf clôt le cycle du Feu avant l’achèvement du dix. Il s’y appuie autant qu’il s’y accroche — c’est ta dernière réserve de force, l’appui qui te soutient et l’arme que tu n’as pas encore lâchée. Tout tient à ce seul point d’ancrage.", en: "Will gathered into itself: nine closes the cycle of Fire before the fulfillment of ten. He leans on it as much as he clings to it — this is your last reserve of strength, the prop that holds you and the weapon you have not yet set down. Everything rests on this single anchor." } },
+    { label: { fr: "Le regard tourné de côté", en: "The gaze turned aside" }, text: { fr: "La conscience assiégée : l’attention entière happée par un dehors perçu comme hostile. Ce n’est plus une vision qui s’ouvre mais un guet qui se ferme — tu ne vis plus le présent, tu anticipes l’assaut. La vigilance nécessaire y frôle sans cesse l’obsession de la menace.", en: "The besieged mind: attention wholly seized by an outside felt as hostile. This is no longer a vision opening but a watch closing in — you no longer live the present, you brace for the attack. Necessary vigilance forever borders here on an obsession with threat." } },
+    { label: { fr: "Les collines dénudées", en: "The bare hills" }, text: { fr: "L’aridité de la longue défense : le paysage vidé dit le prix de tenir si longtemps. Rien ne pousse plus autour de celui qui ne fait que résister — l’énergie du Feu, employée à ne pas tomber, ne crée plus. C’est le désert que laisse une posture entièrement tournée vers la survie.", en: "The barrenness of the long defense: the emptied landscape names the cost of holding so long. Nothing grows around one who does nothing but resist — the energy of Fire, spent on not falling, no longer creates. This is the desert left by a stance turned wholly toward survival." } },
+  ],
+  "wands-10": [
+    { label: { fr: "Les dix bâtons en brassée", en: "Ten wands in one armful" }, text: { fr: "Dix, le nombre qui clôt le cycle d’une suite — mais du Feu, il fait un fagot ingérable. Chaque bâton fut jadis une flamme d’élan ; réunis de force, ils cessent d’éclairer pour ne plus qu’alourdir. Le succès accumulé sans être ordonné devient sa propre entrave.", en: "Ten, the number that closes a suit's cycle — but of Fire, it makes an unmanageable bundle. Each wand was once a flame of initiative; forced together, they cease to light and merely weigh. Success amassed without being ordered becomes its own shackle." } },
+    { label: { fr: "Le dos courbé, le visage baissé", en: "Bent back, lowered face" }, text: { fr: "L’effort a mangé la conscience du but : ployé, tu n’es plus qu’endurance sans regard. Le Feu qui vise haut s’est éteint dans la fixation du sol. C’est l’âme du surmené — si absorbée par la peine qu’elle oublie le sens même de sa marche.", en: "Effort has devoured awareness of the goal: bent double, you are pure endurance without vision. The Fire that aims high has gone out in a fixation on the ground. This is the soul of the overworked — so absorbed in toil it forgets the very meaning of its walk." } },
+    { label: { fr: "Le village au loin", en: "The distant village" }, text: { fr: "Le refuge existe, tout proche : la délivrance n’est pas un rêve mais une distance franchissable. Il rappelle que le fardeau a une fin, un lieu où poser. Le drame n’est pas d’être presque arrivé, mais de porter encore alors qu’on pourrait déjà déposer.", en: "The refuge exists, close at hand: relief is no dream but a crossable distance. It insists the burden has an end, a place to set things down. The tragedy is not in having nearly arrived, but in still carrying when one could already lay it down." } },
+    { label: { fr: "Nul bras pour aider", en: "No hand to help" }, text: { fr: "Personne à ses côtés : il avance seul sous le faisceau, alors que dix bras l’allégeraient. La solitude n’est pas imposée, elle est portée comme les bâtons — le Feu qui refuse le partage se condamne à traîner sa réussite sans témoin ni relais.", en: "No one at his side: he moves alone under the bundle, though ten hands would lighten it. The solitude is not imposed, it is carried like the wands — the Fire that refuses to share condemns itself to drag its success with no witness and no relief." } },
+    { label: { fr: "Le champ et la route ouverte", en: "The field and open road" }, text: { fr: "Autour, l’espace reste dégagé, sans obstacle : rien ne t’oblige à ce fardeau sinon toi-même. Le terrain libre accuse le poids porté comme un choix, non une fatalité. Le Feu pourrait encore bifurquer, poser, respirer — la contrainte est intérieure.", en: "All around, the ground stays open, unobstructed: nothing compels this burden but yourself. The clear terrain frames the weight as a choice, not a fate. The Fire could still turn aside, set down, breathe — the constraint is inward." } },
+  ],
+  "wands-11": [
+    { label: { fr: "Le bâton bourgeonnant", en: "The budding staff" }, text: { fr: "Feuilles vertes jaillies du bois mort : la Force de Feu à son premier degré, la vie qui perce avant toute maîtrise. C’est le potentiel pur — une idée encore tendre, non éprouvée, dont la valeur tient dans sa promesse. Tu la regardes naître plus que tu ne la possèdes.", en: "Green leaves bursting from dead wood: the Fire-force at its first degree, life breaking through before any mastery. This is pure potential — an idea still tender and untested, its worth held in its promise. You watch it being born rather than possess it." } },
+    { label: { fr: "Les salamandres", en: "The salamanders" }, text: { fr: "Emblème alchimique du Feu, elles vivent dans la flamme sans brûler : l’énergie élémentaire de l’enseigne à l’état natif. Plus mythiques qu’animales, elles disent un désir instinctif, non domestiqué — cette chaleur qui bouillonne en toi avant même d’avoir un objet ou un but.", en: "The alchemical emblem of Fire, they live in flame unburnt: the suit's elemental energy in its native state. More mythic than animal, they name an instinctive, untamed desire — that heat welling up in you before it has any object or aim." } },
+    { label: { fr: "La plume rouge", en: "The red feather" }, text: { fr: "Panache du héraut, mais aussi élan qui monte à la tête : l’écarlate signe la passion et l’impétuosité de l’âge tendre. Sa légèreté avertit pourtant que cette flamme peut n’être que parade — un geste d’éclat, une nouvelle claironnée avant tout acte qui l’ancre.", en: "The herald's flourish, but also the impulse that rushes to the head: scarlet marks the passion and rashness of tender age. Its lightness warns, though, that this flame may be mere display — a showy gesture, news trumpeted before any deed anchors it." } },
+    { label: { fr: "Le désert et les pyramides", en: "The desert and the pyramids" }, text: { fr: "Étendue aride et sans obstacle : le pays du Feu, terrain vierge où rien n’a encore pris racine. Les trois pyramides lointaines figurent l’œuvre déjà accomplie par d’autres, un horizon d’ambition. Entre toi et elles, tout l’espace du voyage reste à franchir : ton élan n’a rien engagé.", en: "An arid, obstacle-free expanse: the land of Fire, virgin ground where nothing has yet taken root. The three distant pyramids figure work already accomplished by others, a horizon of ambition. Between you and them lies all the journey still to cross: your drive has committed to nothing." } },
+    { label: { fr: "Le bâton planté, non brandi", en: "The staff planted, not raised" }, text: { fr: "Fiché au sol plutôt que levé, il marque l’instant suspendu entre l’élan et le départ : le moment de la vision et de l’annonce, gros de tout ce qui pourrait suivre. Mais il prévient aussi — à l’inversé, le bâton reste planté et le voyage ne commence jamais.", en: "Set in the ground rather than raised, it marks the suspended instant between impulse and departure: the moment of vision and announcement, heavy with all that could follow. Yet it also warns — reversed, the staff stays planted and the journey never begins." } },
+  ],
+  "wands-12": [
+    { label: { fr: "Le cheval cabré", en: "The rearing horse" }, text: { fr: "La force vitale que le Cavalier ne dompte qu’à demi. Le cheval, c’est le désir animal, la puissance instinctive ; cabré, il incarne l’élan qui déborde le cavalier lui-même. Ici la volonté et la pulsion partent ensemble, sans savoir encore qui mène l’autre.", en: "The life-force the Knight only half masters. The horse is animal desire, instinctive power; rearing, it embodies the surge that overruns the rider himself. Here will and drive charge off together, neither yet certain which one commands the other." } },
+    { label: { fr: "Les salamandres du surcot", en: "The salamanders of the surcoat" }, text: { fr: "L’emblème alchimique du Feu, l’esprit qui vit dans les flammes sans se consumer. Semées sur le jaune solaire, elles disent une ardeur intérieure inextinguible. Mais leur queue reste ouverte, non refermée sur elle-même : le feu n’est pas encore accompli, la maîtrise reste à conquérir.", en: "The alchemical emblem of Fire, the spirit that lives in flame without being consumed. Strewn across solar yellow, they name an inextinguishable inner ardour. Yet their tails stay open, not closed upon themselves: the fire is not yet perfected, mastery still to be won." } },
+    { label: { fr: "Le bâton fleuri dressé", en: "The sprouting staff raised" }, text: { fr: "La volonté brandie comme une torche. Le bâton porte de jeunes feuilles : cette énergie est vivante, créatrice, fertile. Tenu droit, il proclame l’intention, l’engagement pris à voix haute. C’est le Feu qui veut non détruire mais entreprendre, planter sa quête dans le monde.", en: "Will brandished like a torch. The staff bears young leaves: this energy is living, creative, fertile. Held upright, it proclaims intention, a commitment declared aloud. This is Fire that seeks not to destroy but to begin, to plant its quest in the world." } },
+    { label: { fr: "Le désert aride", en: "The barren desert" }, text: { fr: "La terre sans obstacle ni refuge que traverse la fougue. Le désert est l’épreuve du Feu livré à lui-même : rien pour le tempérer, rien pour l’enraciner. Il dit la solitude du fonceur, l’horizon toujours fuyant, le risque de courir sans jamais arriver.", en: "The land without obstacle or shelter that the dash crosses. The desert is Fire’s trial left to itself: nothing to temper it, nothing to root it. It speaks of the charger’s solitude, the ever-receding horizon, the risk of running without ever arriving." } },
+    { label: { fr: "Les trois pyramides", en: "The three pyramids" }, text: { fr: "Les œuvres accomplies d’une volonté ancienne, dressées à l’horizon. Elles rappellent que le Feu peut bâtir des monuments — mais elles restent lointaines, derrière lui. Trois comme l’action qui prend forme : le but existe, encore faut-il que la fougue tienne assez pour l’atteindre.", en: "The finished works of an ancient will, standing on the horizon. They recall that Fire can raise monuments — yet they stay distant, behind him. Three, like action taking form: the goal exists, but the dash must hold long enough to reach it." } },
+  ],
+  "wands-13": [
+    { label: { fr: "Le chat noir", en: "The black cat" }, text: { fr: "Assis bien en vue devant le trône, il incarne l’instinct farouche et la part d’ombre que la Reine ne renie pas mais tient à distance. Familier des feux intérieurs, il flaire le danger et garde tes arrières : ta puissance a une face nocturne, assumée sans crainte.", en: "Seated plainly before the throne, it embodies fierce instinct and the shadow-self the Queen does not deny but keeps at hand. A familiar of inner fires, it scents danger and guards your back: your power has a nocturnal face, owned without fear." } },
+    { label: { fr: "Le tournesol", en: "The sunflower" }, text: { fr: "Fleur qui suit le soleil, elle dit un désir toujours orienté vers la source de vie : tu portes ta chaleur là où quelque chose peut croître. Or et solaire, elle marque la loyauté joyeuse du Feu à sa propre lumière, une générosité qui féconde plutôt qu’elle ne brûle.", en: "A bloom that turns with the sun, it names a desire forever aimed at the source of life: you carry your warmth where something can grow. Golden and solar, it marks Fire's joyous loyalty to its own light, a generosity that quickens rather than scorches." } },
+    { label: { fr: "Les lions du trône", en: "The lions of the throne" }, text: { fr: "Deux fauves sculptés flanquent son siège : le Lion, signe de feu royal, dit une autorité que tu n’as plus à prouver, seulement à porter. Force souveraine domestiquée en pierre, elle rappelle que régner, c’est tenir sa propre ardeur assez ferme pour n’avoir jamais à rugir.", en: "Two carved beasts flank her seat: the Lion, royal sign of fire, speaks of authority you no longer have to prove, only to bear. Sovereign force tamed into stone, it recalls that to reign is to hold your own ardour firmly enough to never need to roar." } },
+    { label: { fr: "Le bâton fleuri", en: "The flowering staff" }, text: { fr: "Sceptre vivant qui bourgeonne dans sa main : ta volonté n’est pas une arme mais une tige qui donne des feuilles. Le Feu de l’enseigne, ici, ne détruit pas — il pousse. Signe que ton pouvoir se mesure à ce qu’il fait éclore, non à ce qu’il soumet.", en: "A living sceptre that buds in her hand: your will is not a weapon but a stem that leafs out. The Fire of the suit, here, does not destroy — it grows. A sign that your power is measured by what it brings to bloom, not by what it subdues." } },
+    { label: { fr: "La robe et la couronne jaunes", en: "The yellow robe and crown" }, text: { fr: "Le jaune solaire l’enveloppe tout entière : couleur de l’intellect ardent et de la joie consciente, il dit une chaleur lucide, jamais aveugle. Sa couronne n’est pas conquise mais rayonnée — l’éclat vient du dedans, comme si le soleil lui-même l’avait choisie pour relais.", en: "Solar yellow clothes her wholly: colour of ardent intellect and conscious joy, it names a warmth that is lucid, never blind. Her crown is not seized but radiated — the brightness comes from within, as though the sun itself had chosen her as its relay." } },
+  ],
+  "wands-14": [
+    { label: { fr: "Le trône du Feu", en: "The throne of Fire" }, text: { fr: "Le siège d’un roi de l’élément Feu : l’autorité qui ne se subit pas mais s’exerce. Ce trône dit une puissance active, tournée vers la conquête et l’action au-dehors, non vers la contemplation. Tu règnes en bâtissant, non en trônant.", en: "The seat of a king of the element Fire: authority not endured but wielded. This throne speaks of active power, aimed at conquest and outward action rather than contemplation. You reign by building, not by merely sitting enthroned." } },
+    { label: { fr: "Les salamandres", en: "The salamanders" }, text: { fr: "Créatures qui vivent dans les flammes sans se consumer : l’esprit qui prospère dans l’épreuve ardente. Frappées sur le trône et le manteau, elles disent une volonté qui se nourrit du feu même. Ta force naît là où d’autres brûlent.", en: "Creatures said to live in flame unconsumed: the spirit that thrives amid the fiery trial. Stamped on throne and robe, they name a will that feeds on fire itself. Your strength is born where others are burned." } },
+    { label: { fr: "La salamandre qui se mord la queue", en: "The salamander biting its tail" }, text: { fr: "À ses pieds, une salamandre presque en boucle fermée : l’ouroboros du Feu, le cycle mené à terme. Là où le Chevalier ne clôt jamais rien, le Roi promet l’œuvre achevée. L’élan seul ne suffit pas ; il te faut fermer la boucle.", en: "At his feet, a salamander nearly closing into a loop: the ouroboros of Fire, the cycle brought to completion. Where the Knight never closes anything, the King promises the finished work. Drive alone is not enough; you must close the loop." } },
+    { label: { fr: "Le bâton bourgeonnant", en: "The budding staff" }, text: { fr: "Tenu ferme, il porte encore des feuilles vertes : l’autorité reste vivante, féconde, non pétrifiée. Le pouvoir qui garde la sève ne domine pas, il fait croître. Tant que ton bâton fleurit, ton commandement engendre au lieu d’écraser.", en: "Held firm, it still bears green leaves: authority that stays alive, fertile, not petrified. Power that keeps its sap does not dominate, it makes things grow. As long as your staff blooms, your command begets rather than crushes." } },
+    { label: { fr: "Le lion sur le manteau", en: "The lion on the robe" }, text: { fr: "Emblème du Lion, signe de Feu fixe : la volonté souveraine, la fierté qui ne plie pas. Il marque le courage royal — mais aussi l’orgueil qui, dévoyé, vire au despotisme. Toute la carte tient dans cette tension : régner ou dévorer.", en: "Emblem of Leo, the fixed sign of Fire: sovereign will, pride that will not bend. It marks royal courage — but also the pride that, gone astray, turns to despotism. The whole card rests in that tension: to reign, or to devour." } },
+  ],
+  "cups-01": [
+    { label: { fr: "La coupe qui déborde", en: "The overflowing cup" }, text: { fr: "Le calice est le cœur réceptacle, l’âme faite pour contenir le sentiment. Qu’il déborde dit l’essentiel de l’As : la vie affective ne se mesure pas, elle est donnée en surabondance. Tu ne peux la retenir sans la trahir ; sa vocation est de se répandre.", en: "The chalice is the heart as vessel, the soul made to hold feeling. Its overflow states the Ace’s essence: emotional life is not measured, it is given in excess. You cannot hoard it without betraying it; its vocation is to spill over." } },
+    { label: { fr: "La main dans la nuée", en: "The hand in the cloud" }, text: { fr: "Comme dans tous les As, ce don surgit de l’invisible : il n’est pas ton œuvre mais une offrande du divin ou de l’inconscient. L’émotion vraie arrive, elle ne se fabrique pas. Ta seule part est d’ouvrir les mains et d’accepter ce qui t’est tendu.", en: "As in every Ace, this gift emerges from the unseen: not your doing but an offering from the divine or the unconscious. True emotion arrives, it cannot be manufactured. Your only part is to open your hands and accept what is held out to you." } },
+    { label: { fr: "La colombe et l’hostie", en: "The dove and the wafer" }, text: { fr: "L’Esprit descend sanctifier l’émotion : l’amour humain touche ici au sacré. L’hostie marquée de la croix fait de l’affect une communion, non une simple pulsion. Le sentiment qui t’est offert porte une dimension spirituelle — reçois-le comme une bénédiction, pas comme un dû.", en: "The Spirit descends to sanctify emotion: human love here touches the sacred. The cross-marked wafer turns feeling into communion, not mere impulse. The emotion offered to you carries a spiritual weight — receive it as a blessing, not as something owed." } },
+    { label: { fr: "Les cinq filets d’eau", en: "The five streams of water" }, text: { fr: "L’Eau est l’élément des Coupes : psyché, désir, courant du sentiment. Cinq filets retombant sans fin disent un cycle vivant — donné, reçu, rendu. L’émotion saine circule et irrigue plutôt qu’elle ne s’accumule. Tarie ou stagnante, elle trahit un cœur qui a cessé de couler.", en: "Water is the element of Cups: psyche, desire, the current of feeling. Five endless streams speak of a living cycle — given, received, returned. Healthy emotion circulates and irrigates rather than piling up. Dried or stagnant, it betrays a heart that has stopped flowing." } },
+    { label: { fr: "Les lys sur l’étang", en: "The lilies on the pond" }, text: { fr: "Le lys dit la pureté du sentiment naissant, l’amour encore innocent, sans arrière-pensée. Flottant sur l’eau calme, il figure un cœur à fleur de surface, vulnérable et offert. Cette candeur est la force de l’As : aimer sans s’être encore protégé, tant que rien ne t’a blessé.", en: "The lily speaks of the purity of nascent feeling, love still innocent, free of ulterior motive. Floating on still water, it figures a heart at the surface, vulnerable and offered. This candor is the Ace’s strength: to love before you have armored yourself, while nothing has yet wounded you." } },
+  ],
+  "cups-02": [
+    { label: { fr: "Les deux coupes tendues", en: "The two offered cups" }, text: { fr: "La coupe est le cœur qui se donne, l’eau intime qu’on ne verse qu’à l’élu. Qu’elles soient deux, égales, tendues à mi-distance, énonce la loi du lien : rien ne se scelle sans consentement mutuel. Tu offres autant que tu reçois, ou tu n’offres rien.", en: "The cup is the heart that gives itself, the intimate water poured only for the chosen one. That there are two, equal, held at an even distance, states the law of the bond: nothing is sealed without mutual consent. You offer as much as you receive, or you offer nothing." } },
+    { label: { fr: "Le caducée aux serpents", en: "The serpent caduceus" }, text: { fr: "Deux serpents enlacés sur un même axe : forces opposées réconciliées, désir qui guérit au lieu de mordre. Emblème d’Hermès, il préside aux échanges et aux alliances ; il dit que ce lien tempère l’ardeur brute et transmue l’attirance en équilibre vivant.", en: "Two serpents entwined on a single staff: opposing forces reconciled, desire that heals rather than bites. Hermes' emblem, it presides over exchanges and alliances; it says this bond tempers raw ardor and transmutes attraction into a living equilibrium." } },
+    { label: { fr: "Le lion ailé", en: "The winged lion" }, text: { fr: "Tête léonine et rouge, couronnant le caducée : la passion animale portée à sa noblesse. Le lion est la force du cœur, la chaleur du sang ; ses ailes disent cette ardeur élevée, spiritualisée. Ici le désir ne dévore pas, il s’exalte et consacre l’union.", en: "A leonine head, red, crowning the caduceus: animal passion raised to nobility. The lion is the strength of the heart, the heat of blood; its wings speak that ardor lifted, made spiritual. Here desire does not devour, it exalts and consecrates the union." } },
+    { label: { fr: "Le vis-à-vis, homme et femme", en: "The face-to-face, man and woman" }, text: { fr: "Deux polarités qui se font face à égale hauteur : l’altérité comme condition de l’amour. Nul ne domine, nul ne se fond dans l’autre ; c’est dans l’écart maintenu que passe le courant. La rencontre suppose deux, distincts et consentants, jamais un miroir de soi.", en: "Two polarities facing each other at equal height: otherness as the condition of love. Neither dominates, neither dissolves into the other; the current passes through the gap that is kept open. Encounter requires two, distinct and consenting, never a mirror of oneself." } },
+    { label: { fr: "La maison au toit rouge", en: "The red-roofed house" }, text: { fr: "Posée sur la colline, à l’arrière-plan : l’avenir du lien, le foyer qu’il pourrait devenir. Elle rappelle qu’un pacte scellé aujourd’hui appelle une construction demain. Le toit rouge, couleur du feu domestiqué, dit la chaleur promise à qui choisit d’y bâtir.", en: "Set on the hill, in the background: the future of the bond, the home it might become. It recalls that a pact sealed today calls for a building tomorrow. The red roof, color of tamed fire, speaks the warmth promised to whoever chooses to build there." } },
+  ],
+  "cups-03": [
+    { label: { fr: "Le nombre trois", en: "The number three" }, text: { fr: "Trois est le premier nombre qui fait communauté : après le un solitaire et la tension du deux, il ouvre le cercle. Chez les Coupes, l’eau du sentiment cesse de circuler entre deux êtres pour devenir fête, alliance, débordement partagé. La joie n’existe pleinement que rendue à d’autres.", en: "Three is the first number that makes a community: past the solitary one and the tension of two, it opens the circle. In Cups, the water of feeling stops flowing between two beings to become festival, alliance, shared overflow. Joy is fully real only when given back to others." } },
+    { label: { fr: "Les coupes levées au centre", en: "The cups raised to the center" }, text: { fr: "L’or des coupes dit la valeur émotionnelle achevée, et leur élévation transforme le simple contenant en offrande. Portées vers un même point, elles scellent un serment tacite : on met en commun ce qu’on a de plus précieux. Le toast est un rite, pas un réflexe ; il consacre le lien.", en: "The gold of the cups speaks of emotional worth fulfilled, and their lifting turns mere vessels into offering. Brought toward a single point, they seal a wordless vow: we pool what is most precious to us. The toast is a rite, not a reflex; it consecrates the bond." } },
+    { label: { fr: "La ronde des trois femmes", en: "The ring of the three women" }, text: { fr: "La danse en cercle n’a ni hiérarchie ni fin : nul n’y est premier, l’énergie tourne et revient. Elle figure la réciprocité du sentiment heureux, où donner et recevoir se confondent. Mais un cercle a un dehors ; sa chaleur suppose qu’on ose y entrer.", en: "The circling dance has no hierarchy and no end: none stands first, the energy turns and returns. It embodies the reciprocity of happy feeling, where giving and receiving merge. Yet a circle has an outside; its warmth assumes you dare to step in." } },
+    { label: { fr: "La récolte et la citrouille", en: "The harvest and the pumpkin" }, text: { fr: "Les fruits mûrs marquent le moment juste : ni promesse verte ni pourriture, l’instant où l’effort a rendu son fruit. La citrouille, gorgée d’eau et lente à mûrir, incarne l’abondance patiente des Coupes. On ne célèbre pas dans le vide : cette joie a été semée, portée, méritée.", en: "The ripe fruit marks the right moment: neither green promise nor rot, the point where labor has yielded. The pumpkin, water-heavy and slow to ripen, embodies the patient abundance of Cups. This is no joy from nowhere: it was sown, carried, earned." } },
+    { label: { fr: "La robe rouge de la danseuse centrale", en: "The central dancer's red robe" }, text: { fr: "Le rouge est la couleur du désir incarné, du sang chaud qui anime la fête ; il empêche cette joie d’être éthérée. Placée dos à toi, elle rappelle que la célébration ne se contemple pas de loin : le rouge appelle le corps, le mouvement, l’engagement. Tu la rejoins ou tu restes spectateur.", en: "Red is the color of embodied desire, of the warm blood that quickens the feast; it keeps this joy from turning ethereal. Turned away from you, she reminds you that celebration is not watched from afar: red summons body, movement, commitment. You join her, or you stay a spectator." } },
+  ],
+  "cups-04": [
+    { label: { fr: "Les bras croisés", en: "The folded arms" }, text: { fr: "Le geste de fermeture émotionnelle : la poitrine barrée pour interdire tout échange avec le dehors. Ce n’est pas la colère mais le refus passif, l’âme qui se claquemure dans sa propre suffisance. Tant que les bras restent noués, aucune coupe ne peut entrer.", en: "The gesture of emotional closure: the chest barred to forbid all exchange with the outside. This is not anger but passive refusal, the soul walling itself into its own self-sufficiency. As long as the arms stay knotted, no cup can be let in." } },
+    { label: { fr: "Les trois coupes posées", en: "The three standing cups" }, text: { fr: "Le bien déjà acquis, la plénitude passée devenue banale. Trois, chiffre de la joie partagée qui précède : le plaisir autrefois vif que l’habitude a vidé de sa saveur. Elles disent la lassitude née non du manque mais de la possession trop connue.", en: "The good already gained, past plenty turned commonplace. Three, the number of shared joy that came before: pleasure once vivid, hollowed by habit. They speak of the weariness born not of lack but of a possession grown too familiar." } },
+    { label: { fr: "La coupe dans la nuée", en: "The cup from the cloud" }, text: { fr: "L’offre venue d’en haut, la main invisible qui tend une grâce non méritée. Le nuage marque son origine spirituelle, extérieure à ta volonté : c’est l’ouverture inespérée, l’occasion émotionnelle ou intuitive que ton indifférence menace de laisser filer. À toi de la voir.", en: "The offering from above, the unseen hand extending an unearned grace. The cloud marks its spiritual origin, beyond your own will: the unlooked-for opening, the emotional or intuitive chance your indifference threatens to let slip. It falls to you to see it." } },
+    { label: { fr: "L’arbre et la posture assise", en: "The tree and the seated pose" }, text: { fr: "L’enracinement devenu inertie. Assis sous l’arbre, jambes repliées, tu ne bouges plus : la stabilité s’est muée en stagnation. L’abri protège mais confine aussi, refuge qui tourne à la prison douce. C’est l’immobilité de qui n’attend plus rien, retiré du courant de la vie.", en: "Rootedness turned to inertia. Seated beneath the tree, legs drawn up, you no longer stir: stability has become stagnation. The shelter protects yet also confines, a refuge slipping into a gentle prison. It is the stillness of one who expects nothing more, withdrawn from the current of life." } },
+    { label: { fr: "L’herbe verte", en: "The green grass" }, text: { fr: "La vitalité intacte alentour, ignorée. Le vert dit la vie généreuse, la nature qui continue d’offrir quand le cœur, lui, s’est fermé. Le contraste est cruel : l’abondance environne le personnage, mais son regard buté n’en reçoit rien.", en: "Vitality intact all around, unnoticed. Green speaks of generous life, of a nature that keeps offering while the heart itself has shut. The contrast is cruel: abundance surrounds the figure, yet his sullen gaze takes nothing of it in." } },
+  ],
+  "cups-05": [
+    { label: { fr: "Le manteau noir", en: "The black cloak" }, text: { fr: "Le noir dit l’endeuillé qui s’enveloppe dans sa peine comme dans une seconde peau. La figure se dérobe au monde, choisit l’ombre : le deuil devient identité, un refuge qui isole autant qu’il protège. Tant que tu portes ce voile, la perte parle à ta place.", en: "Black marks the mourner who wraps himself in grief as in a second skin. The figure withdraws from the world, choosing shadow: mourning becomes identity, a refuge that isolates as much as it shelters. While you wear this veil, loss speaks in your stead." } },
+    { label: { fr: "Les trois coupes renversées", en: "The three toppled cups" }, text: { fr: "Le trois de l’eau, fécond et joyeux ailleurs, est ici brisé et répandu. Ces coupes fixent ce qui ne se rattrape plus : l’attachement au regret. Elles captent tout le regard, mesure de la perte que l’on choisit de contempler plutôt que ce qui demeure.", en: "The three of water, fertile and joyous elsewhere, lies here broken and poured out. These cups fix all attention on what can never be recovered: attachment to regret. They hold the whole gaze, the measure of loss one chooses to contemplate over what still stands." } },
+    { label: { fr: "Les deux coupes debout", en: "The two upright cups" }, text: { fr: "Deux, le nombre du lien et de l’échange, tient bon derrière le dos. Ces coupes intactes sont la part vivante que le chagrin escamote : ce qui reste à aimer, quand on cesse de compter seulement ce qui manque. Elles n’exigent qu’un demi-tour du regard.", en: "Two, the number of bond and exchange, holds firm behind the back. These unbroken cups are the living share that grief conceals: what remains to be loved, once you stop counting only what is missing. They ask nothing but a half-turn of the gaze." } },
+    { label: { fr: "Le pont et le château", en: "The bridge and the castle" }, text: { fr: "Au loin, la traversée est déjà bâtie : le pont dit que le retour au foyer, aux siens, n’attend que ta décision. Le château est la demeure des liens intacts, la vie qui continue hors du deuil. La voie existe ; elle ne se prend pas en fixant le sol.", en: "In the distance the crossing is already built: the bridge says the return home, to your own, awaits only your choice. The castle is the dwelling of unbroken bonds, the life going on beyond mourning. The way exists; it is not taken by staring at the ground." } },
+    { label: { fr: "La rivière sombre", en: "The dark river" }, text: { fr: "L’eau qui coule est l’émotion elle-même : elle sépare la figure du château, mais un pont l’enjambe. Le sentiment n’est pas l’ennemi — c’est de rester sur sa rive qui fige. Le courant rappelle que la peine, comme toute eau, est faite pour passer, non pour stagner.", en: "The flowing water is emotion itself: it divides the figure from the castle, yet a bridge spans it. Feeling is not the enemy — it is remaining on its bank that freezes you. The current recalls that sorrow, like all water, is made to move on, not to pool." } },
+  ],
+  "cups-06": [
+    { label: { fr: "Le don entre deux enfants", en: "The gift between two children" }, text: { fr: "Le geste de l’aîné vers le plus petit incarne la générosité pure de l’Eau des Coupes, sans calcul ni dette. C’est l’âme qui se transmet elle-même : ce que tu as reçu enfant, tu le rends ; ce que tu offres sans motif te revient adouci.", en: "The elder’s gesture toward the smaller child embodies the pure generosity of the Cups’ Water, no reckoning, no debt. It is the soul passing itself on: what you received as a child you give back, and what you offer without motive returns to you softened." } },
+    { label: { fr: "La fleur blanche à cinq pétales", en: "The five-petalled white flower" }, text: { fr: "Le blanc dit l’innocence non corrompue, le cinq l’humain accompli en miniature. Une coupe qui ne porte plus l’eau mais la fleur : l’émotion s’est faite mémoire, cristallisée, gardée intacte. C’est le sentiment qui a survécu au temps sans se ternir.", en: "White speaks of uncorrupted innocence, the five of a small completed humanity. A cup that no longer holds water but a bloom: emotion turned to memory, crystallised, kept intact. It is the feeling that outlived time without tarnishing." } },
+    { label: { fr: "Le nombre six des Coupes", en: "The six of Cups" }, text: { fr: "Le six est l’harmonie, l’équilibre atteint après les épreuves du cinq. En Eau, il apaise : la tempête émotionnelle retombe en douceur retrouvée. C’est la paix des retrouvailles, l’accord provisoire où le cœur, un instant, ne demande plus rien.", en: "Six is harmony, the balance reached after the trials of the five. In Water it soothes: the emotional storm settles into recovered gentleness. It is the peace of reunion, the provisional accord where the heart, for a moment, asks for nothing more." } },
+    { label: { fr: "La cour d’un autre âge", en: "The courtyard of another age" }, text: { fr: "Le décor ancien fait de la carte un seuil vers le passé, un lieu hors du temps présent. Il protège et enferme à la fois : refuge tant qu’on le visite, prison si l’on s’y installe. C’est la part de toi qui garde, et qui peut retenir.", en: "The old setting turns the card into a threshold to the past, a place set apart from the present. It shelters and confines at once: a refuge while you visit, a prison once you settle in. It is the part of you that keeps, and that can hold you back." } },
+    { label: { fr: "La silhouette qui s’éloigne", en: "The figure walking away" }, text: { fr: "Le monde adulte se retire, dos tourné, pour laisser place à l’instant tendre. Sa sortie signe une trêve : les responsabilités s’absentent un moment. Mais son départ prévient aussi — cette bulle ne dure pas, quelqu’un finira par te rappeler dehors.", en: "The adult world withdraws, its back turned, to make room for the tender moment. Its exit marks a truce: duties step away for a while. Yet the departure also warns — this bubble will not last, someone will call you back outside." } },
+  ],
+  "cups-07": [
+    { label: { fr: "Les sept coupes suspendues dans la nuée", en: "The seven cups floating in the cloud" }, text: { fr: "Sept est le nombre de Vénus et du désir foisonnant, mais sans terre sous les coupes : la valeur d’un choix n’est réelle que lorsqu’il touche le sol. Suspendues, elles disent des possibles qui n’engagent à rien tant qu’ils flottent hors du monde. L’abondance qui paralyse.", en: "Seven is the number of Venus and teeming desire, yet no earth lies beneath the cups: a choice becomes real only when it touches ground. Suspended, they name possibilities that bind you to nothing while they hover outside the world. Abundance that paralyses." } },
+    { label: { fr: "La nuée grise qui les porte", en: "The grey cloud that bears them" }, text: { fr: "Vapeur d’eau, l’élément des Coupes poussé à sa dérive : le sentiment devenu fumée. Tout ce qui apparaît naît de cette brume mentale et y retournera. Elle t’avertit que la scène entière est projection intérieure, non promesse du réel ; rien ici ne tient hors de ta propre imagination.", en: "Water turned to vapour, the suit of Cups drifting past itself: feeling become smoke. Everything that appears is born of this mental haze and will dissolve back into it. It warns you the whole scene is inner projection, not a promise of the real; nothing here stands outside your own imagining." } },
+    { label: { fr: "La figure voilée qui rayonne", en: "The veiled figure that glows" }, text: { fr: "Le désir le plus haut, celui qu’on n’ose nommer : idéal, âme sœur, salut. Le voile marque le sacré autant que l’inconnu, ce qui reste caché pour rester parfait. La regarder en face la ferait choir des autres mirages. Elle séduit précisément parce qu’elle demeure inatteignable.", en: "The highest longing, the one you dare not name: ideal, soulmate, salvation. The veil marks the sacred as much as the unknown, what stays hidden to stay perfect. To face it plainly would drag it down among the other mirages. It seduces precisely because it stays out of reach." } },
+    { label: { fr: "La couronne et les joyaux", en: "The crown and the jewels" }, text: { fr: "Le désir de pouvoir et de richesse, gloire et sécurité offertes sans effort. Ils brillent du même éclat que les autres coupes, ni plus ni moins réels : la carte refuse de hiérarchiser à ta place. Convoiter la couronne autant que le fantôme, c’est le piège même du Sept.", en: "The craving for power and wealth, glory and safety offered without labour. They shine with the same lustre as the other cups, no more nor less real: the card refuses to rank them for you. To covet the crown as much as the phantom is the very snare of the Seven." } },
+    { label: { fr: "Le dragon et le serpent", en: "The dragon and the serpent" }, text: { fr: "Sous les splendeurs, le versant sombre du désir : peur, tentation vénéneuse, appât qui mord. Toute coupe n’abrite pas un cadeau ; certaines nourrissent l’ombre plutôt que l’âme. Ils rappellent que ce que l’imagination pare de lumière peut cacher un poison, et que convoiter n’est pas discerner.", en: "Beneath the splendours, the shadow side of desire: fear, poisoned temptation, the lure that bites. Not every cup cradles a gift; some feed the shadow rather than the soul. They recall that what imagination gilds with light may hide a venom, and that to covet is not to discern." } },
+    { label: { fr: "La silhouette de dos, dans l’ombre", en: "The dark figure seen from behind" }, text: { fr: "Le rêveur réduit à une ombre : tant qu’il contemple sans choisir, il n’a pas plus de substance que ses visions. Vu de dos, il t’aspire dans sa place, spectateur de ton propre désir. Contempler sans jamais tendre la main vers une seule coupe, voilà l’envoûtement que la carte te demande de rompre.", en: "The dreamer reduced to a shadow: while he gazes without choosing, he has no more substance than his visions. Seen from behind, he draws you into his place, spectator of your own desire. To gaze on without ever reaching for a single cup is the spell the card asks you to break." } },
+  ],
+  "cups-08": [
+    { label: { fr: "Les huit coupes délaissées", en: "The eight abandoned cups" }, text: { fr: "Huit — nombre de l’accompli, de l’ordre construit. Rangées et pleines, elles disent une réussite affective réelle, non un échec. Leur agencement laisse pourtant une brèche : la plénitude matérielle ne comble pas le manque intérieur. On peut avoir tout et sentir qu’il manque l’essentiel.", en: "Eight — the number of the accomplished, of built order. Arranged and full, they signal a real emotional success, not a failure. Yet their layout leaves a breach: material fullness cannot fill the inner lack. One can have everything and still feel the essential is missing." } },
+    { label: { fr: "La figure qui tourne le dos", en: "The figure turning away" }, text: { fr: "Voir un pèlerin de dos, c’est renoncer au regard des autres pour suivre sa voie. Le rouge de son manteau porte le désir, le courage vital ; il n’abandonne pas par froideur mais par ferveur. Choisir de partir quand rien ne t’y force est l’acte spirituel le plus dur.", en: "To see a pilgrim from behind is to renounce others' gaze in order to follow one's own path. The red of his cloak carries desire, vital courage; he leaves not from coldness but from fervour. Choosing to go when nothing forces you is the hardest spiritual act." } },
+    { label: { fr: "La lune éclipsée", en: "The eclipsed moon" }, text: { fr: "Croissant enlacé d’un disque plein : la lune commande la nuit, les marées, l’âme obscure. Ici elle s’assombrit, comme voilée — la lumière rationnelle se retire et cède à l’intuition. Le vrai départ se décide dans la pénombre, sur un pressentiment plus sûr que toute clarté.", en: "A crescent embracing a full disc: the moon governs night, tides, the dark soul. Here it dims, as if veiled — rational light withdraws and yields to intuition. The true departure is decided in half-light, on a hunch surer than any clarity." } },
+    { label: { fr: "Le bâton du marcheur", en: "The wanderer's staff" }, text: { fr: "Attribut du pèlerin, il fait de la marche une quête et non une fuite. Point d’appui sur un sol incertain, il signe l’engagement du corps dans la traversée : on ne renonce pas en pensée, mais en avançant vraiment. Le voyage intérieur exige un pas concret.", en: "Mark of the pilgrim, it turns walking into a quest rather than a flight. A support on uncertain ground, it seals the body's commitment to the crossing: one renounces not in thought but by truly moving on. The inner journey demands a concrete step." } },
+    { label: { fr: "Le marécage et l’eau basse", en: "The marsh and low water" }, text: { fr: "L’eau, c’est l’émotion ; stagnante, elle devient marais où plus rien ne circule. Ce sol spongieux figure l’attachement devenu piège : ce qui berçait finit par engluer. Quitter le marécage, c’est refuser que le sentiment se fige en confort mort.", en: "Water is emotion; stagnant, it becomes a marsh where nothing flows. This spongy ground figures attachment turned trap: what once soothed ends up miring you. To leave the marsh is to refuse to let feeling harden into dead comfort." } },
+  ],
+  "cups-09": [
+    { label: { fr: "Les neuf coupes en arc", en: "The nine cups in an arc" }, text: { fr: "Le neuf, dernier chiffre avant l’accomplissement du dix, dit le désir porté à son comble : chaque coupe est un souhait réalisé. Alignées, elles trônent comme un butin exhibé — la satisfaction devient possession, l’émotion se fige en collection qu’on garde plus qu’on ne partage.", en: "Nine, the last figure before the ten's completion, marks desire brought to its peak: each cup a wish come true. Ranged in a row, they stand like displayed spoils — satisfaction turned possession, emotion frozen into a hoard kept rather than shared." } },
+    { label: { fr: "Les bras croisés", en: "The folded arms" }, text: { fr: "Geste de clôture autant que d’aisance : tu te tiens replié sur ton contentement, ouvert à personne. Le corps dit « tout est à moi, tout est là » — assurance heureuse qui, d’un rien, bascule en satisfaction de soi et refus tacite de laisser entrer l’autre.", en: "A gesture of closure as much as of ease: you sit turned in upon your contentment, open to no one. The body says 'all is mine, all is here' — a happy self-assurance that, at a hair's breadth, tips into self-satisfaction and a silent refusal to let another in." } },
+    { label: { fr: "La figure repue, bien assise", en: "The sated, well-seated figure" }, text: { fr: "Le corps calé sur son banc, ventre plein, incarne l’élément Eau devenu chair : le désir assouvi au plan sensible, la jouissance des sens. C’est l’abondance vécue, non rêvée — mais aussi le risque de s’alourdir dans le confort et de prendre le rassasiement pour le bonheur.", en: "The body settled on its bench, belly full, embodies the element of Water made flesh: desire quenched on the sensual plane, the enjoyment of the senses. This is abundance lived, not dreamed — yet also the risk of growing heavy in comfort, taking fullness for happiness." } },
+    { label: { fr: "Le chapeau rouge", en: "The red hat" }, text: { fr: "Le rouge coiffe la pensée de vitalité et de désir : la volonté qui a voulu, obtenu, et s’en pare. Il dit l’orgueil du satisfait, le plaisir qui tient à se montrer. Belle énergie tant qu’elle célèbre ; vaine dès qu’elle ne cherche plus qu’à paraître comblée.", en: "Red crowns the head with vitality and appetite: the will that wanted, got, and adorns itself with it. It speaks the pride of the satisfied, a pleasure that insists on being seen. A fine energy while it celebrates; vain the moment it seeks only to appear fulfilled." } },
+    { label: { fr: "L’étoffe bleue", en: "The blue cloth" }, text: { fr: "Le drap qui porte les coupes est bleu comme l’eau, comme l’émotion : socle sur lequel repose tout ce que tu as obtenu. Il rappelle que ce contentement est d’ordre affectif, non matériel — un bien du cœur, fragile s’il n’est fondé que sur l’avoir accumulé.", en: "The cloth bearing the cups is blue like water, like feeling: the ground on which all you have gained rests. It reminds you that this contentment is of the heart, not of matter — a good of the soul, fragile if founded on nothing but accumulated having." } },
+  ],
+  "cups-10": [
+    { label: { fr: "L’arc-en-ciel des dix coupes", en: "The rainbow of ten cups" }, text: { fr: "Le dix clôt l’enseigne : la coupe unique de l’As multipliée jusqu’à saturation, l’émotion parvenue à son terme. L’arc reprend l’alliance biblique après le déluge des Eaux — la promesse tenue, la paix accordée d’en haut. Rien à conquérir ici : seulement à recevoir.", en: "Ten closes the suit: the single cup of the Ace multiplied to fullness, emotion arrived at its term. The arc echoes the covenant after the flood of the Waters — the promise kept, peace granted from above. Nothing to win here: only to receive." } },
+    { label: { fr: "Le couple, bras ouverts", en: "The couple, arms open" }, text: { fr: "Enlacés, ils ne contemplent pas l’arc mais le désignent : le bonheur véritable ne se garde pas, il se montre et se rend. Là est le passage du Deux de Coupes, promesse à deux, à un amour qui déborde son cercle et devient foyer offert.", en: "Arm in arm, they do not gaze at the arc but point to it: true happiness is not hoarded, it is shown and given back. Here is the passage from the Two of Cups, a promise between two, to a love that overflows its circle and becomes a home held out." } },
+    { label: { fr: "Les deux enfants qui dansent", en: "The two dancing children" }, text: { fr: "À l’écart des adultes, ils incarnent l’innocence et l’avenir du lien : le bonheur reçu se transmet sans effort à ceux qui viennent. Leur ronde spontanée dit une joie devenue seconde nature, habitée sans y penser — la félicité qui se prolonge d’elle-même.", en: "Set apart from the adults, they embody innocence and the bond's future: happiness received passes effortlessly to those who come after. Their spontaneous circling speaks of a joy grown second nature, inhabited without thought — bliss that carries itself onward." } },
+    { label: { fr: "La maison sur la hauteur", en: "The house on the rise" }, text: { fr: "Bâtie et solide, elle ancre l’émotion dans le concret : l’eau des Coupes trouve enfin un toit, un lieu stable où reposer. C’est le sentiment devenu institution, la joie enracinée qui ne dépend plus de l’instant. Le rêve affectif a pris corps.", en: "Built and solid, it anchors emotion in the concrete: the water of Cups at last finds a roof, a settled place to rest. It is feeling become institution, joy grown roots so it no longer depends on the passing moment. The dream of the heart has taken body." } },
+    { label: { fr: "La rivière au premier plan", en: "The river in the foreground" }, text: { fr: "L’élément Eau de l’enseigne, rendu paisible et fécond : les émotions ne submergent plus, elles nourrissent et irriguent la vie. Son cours régulier dit un affect apaisé, qui coule au lieu de stagner ou de déborder. La sérénité intérieure enfin rendue au paysage.", en: "The suit's element Water, made peaceful and fertile: emotions no longer overwhelm, they nourish and irrigate life. Its steady course speaks of a settled affect that flows rather than stagnating or flooding. Inner serenity at last returned to the landscape." } },
+  ],
+  "cups-11": [
+    { label: { fr: "Le poisson surgi de la coupe", en: "The fish rising from the cup" }, text: { fr: "L’inconscient prend la parole là où l’on n’attendait que du calme. Le poisson est l’image même de l’inspiration qui remonte des eaux : une pensée qui n’a pas été fabriquée par la raison, une intuition venue d’en-dessous. Tu es invité à dialoguer avec ce qui monte en toi, sans t’en étonner.", en: "The unconscious speaks up where one expected only stillness. The fish is the very image of inspiration rising from the waters: a thought reason never manufactured, an intuition come from below. You are invited to converse with whatever rises within you, without taking fright." } },
+    { label: { fr: "La coupe tenue", en: "The held cup" }, text: { fr: "Réceptacle de l’élément Eau, la coupe est la matrice des sentiments et de l’imaginaire. Portée avec soin, elle dit une âme encore poreuse, capable de contenir sans savoir encore quoi. C’est le vase de l’émotion naissante : plein de promesse, mais fragile, prêt à déborder ou à se renverser.", en: "Vessel of the Water element, the cup is the womb of feeling and imagination. Borne with care, it speaks of a soul still porous, able to hold without yet knowing what. It is the vase of nascent emotion: brimming with promise, yet fragile, ready to overflow or spill." } },
+    { label: { fr: "La tunique fleurie de roses", en: "The rose-flowered tunic" }, text: { fr: "Les fleurs roses semées sur l’étoffe disent une affectivité en floraison, tendre et non défensive. Le rose, mêlant l’ardeur du rouge et l’innocence du blanc, marque un cœur qui s’ouvre sans arme. Cette âme préfère la beauté et la rêverie à la joute du monde : sa force est sa douceur.", en: "The pink blossoms strewn across the cloth speak of an affection in flower, tender and undefended. Pink, blending red’s ardor with white’s innocence, marks a heart opening without armor. This soul prefers beauty and reverie to the world’s combat: its strength is its gentleness." } },
+    { label: { fr: "La coiffe au long pan flottant", en: "The cap with its long trailing fold" }, text: { fr: "La coiffe bleue, prolongée d’un pan qui ondoie, couvre la tête — siège de la pensée — d’une étoffe couleur d’eau : l’intelligence est ici baignée d’émotion, tournée vers le rêve et le jeu plutôt que le calcul. Un tempérament artiste, un peu théâtral, qui pense en images et se prend rarement au sérieux.", en: "The blue cap, extended by a rippling fold, covers the head — seat of thought — in water-colored cloth: intellect here is steeped in emotion, turned toward dream and play rather than calculation. An artistic temperament, faintly theatrical, that thinks in images and rarely takes itself too seriously." } },
+    { label: { fr: "Le flot bleu à l’arrière-plan", en: "The blue sea beyond" }, text: { fr: "La mer légèrement ondulée derrière lui est l’élément Eau dans son entier : l’immense inconscient dont la coupe ne prélève qu’une gorgée. Elle rappelle que ce jeune messager se tient au bord d’un océan de sentiment, et que le petit poisson qu’il écoute vient de cette profondeur sans fond.", en: "The lightly rippling sea behind him is the Water element entire: the vast unconscious from which the cup draws but a mouthful. It reminds you that this young messenger stands at the edge of an ocean of feeling, and that the small fish he heeds came from that bottomless deep." } },
+  ],
+  "cups-12": [
+    { label: { fr: "La coupe tendue", en: "The offered cup" }, text: { fr: "L’unique coupe portée en avant : non pas bue mais donnée. Elle incarne le sentiment qui sort de soi pour se risquer chez l’autre — l’offrande du cœur. Toute la carte tient dans ce geste où l’émotion cesse d’être rêve intérieur pour devenir proposition concrète.", en: "The single cup carried forward: not drunk but given. It embodies feeling that leaves the self to risk itself in another — the heart’s offering. The whole card lives in this gesture, where emotion stops being inner reverie and becomes a concrete proposal." } },
+    { label: { fr: "Le cheval au pas", en: "The horse at a walk" }, text: { fr: "La monture avance sans galoper : l’eau tempère le feu du chevalier. C’est un désir qui se maîtrise, une ardeur conduite plutôt que subie. Le pas lent dit que l’émotion vraie n’a pas besoin de charger — elle sait attendre, sentir, s’approcher juste.", en: "The mount moves without galloping: water tempers the knight’s fire. This is desire under rein, ardour guided rather than endured. The slow gait says true feeling need not charge — it can wait, sense, and draw near at the right measure." } },
+    { label: { fr: "Les poissons du surcot", en: "The fish on the surcoat" }, text: { fr: "Poissons rouges brodés sur la tunique : l’élément Eau porté à même le corps. Ils signent l’appartenance du chevalier au monde des émotions et de l’inconscient, là où l’imaginaire nourrit l’âme. Ici tout se décide au fil du sentiment, non de la raison.", en: "Red fish stitched on the tunic: the element Water worn upon the body. They mark the knight’s belonging to the realm of emotion and the unconscious, where imagination feeds the soul. Here everything is decided by feeling, not by reason." } },
+    { label: { fr: "Les ailes du casque et des talons", en: "The winged helm and heels" }, text: { fr: "Casque et talons ailés évoquent Hermès, le messager : cette carte apporte une nouvelle du cœur. Les ailes disent l’inspiration, la pensée qui s’élève, mais aussi la légèreté qui peut manquer d’ancrage — un émissaire de l’âme, prompt à s’envoler comme à s’enflammer.", en: "Winged helm and heels evoke Hermes the messenger: this card brings tidings of the heart. The wings speak of inspiration, of thought taking flight — but also of a lightness that can lack anchoring, an envoy of the soul as quick to soar as to catch fire." } },
+    { label: { fr: "La rivière et le paysage aride", en: "The river and the barren land" }, text: { fr: "Un cours d’eau serpente à travers une terre nue : l’émotion irrigue un monde qui, sans elle, resterait stérile. La rivière est le chemin même du sentiment, ce qui fait fleurir l’aride. Elle rappelle que l’amour offert transforme le paysage qu’il traverse.", en: "A stream winds through bare ground: emotion irrigating a world that would stay barren without it. The river is the very path of feeling, what makes the arid bloom. It reminds you that love, once offered, transforms the landscape it flows across." } },
+  ],
+  "cups-13": [
+    { label: { fr: "La coupe couverte et sa croix", en: "The lidded cup and its cross" }, text: { fr: "Seule coupe fermée du jeu, close et surmontée d’une croix : le sentiment devenu sanctuaire. Ta vie intérieure est si riche qu’elle se scelle, secrète, sacrée. La croix dit un cœur ordonné par l’esprit — l’intuition n’est plus débordement mais foi intérieure gardée.", en: "The only closed cup in the deck, sealed and crowned with a cross: feeling made sanctuary. Your inner life is so rich it locks itself away, secret, sacred. The cross marks a heart ordered by spirit — intuition no longer overflow but an inward faith kept safe." } },
+    { label: { fr: "Le regard qui ne quitte pas la coupe", en: "The gaze that never leaves the cup" }, text: { fr: "Elle fixe la coupe comme on écoute une voix : la contemplation du visionnaire. Rien au-dehors ne compte tant que le message intérieur n’est pas lu. Cette absorption est sa puissance — elle sait ce que son cœur murmure avant que la raison n’ait parlé.", en: "She stares into the cup as one listens to a voice: the visionary’s contemplation. Nothing outside matters until the inner message is read. This absorption is her power — she knows what her heart whispers before reason has spoken a word." } },
+    { label: { fr: "Le trône à la lisière de l’eau", en: "The throne at the water’s edge" }, text: { fr: "Son trône de pierre pèse là où la vague touche la grève : le conscient posé sur le seuil de l’inconscient. Elle règne exactement à la frontière du rêve, ni engloutie ni coupée. C’est le siège de qui gouverne l’émotion depuis la rive, sans jamais s’y jeter.", en: "Her stone throne rests where the wave meets the strand: the conscious mind poised on the threshold of the unconscious. She reigns precisely at the border of dream, neither swallowed nor cut off. It is the seat of one who governs emotion from the shore, without ever plunging in." } },
+    { label: { fr: "Le trône sculpté d’enfants et de coquillages", en: "The throne carved with children and shells" }, text: { fr: "Des chérubins et des conques marines ornent la pierre : l’amour maternel et la fécondité des eaux gravés dans son autorité même. Sa souveraineté n’est pas froide — elle protège, nourrit, enfante. Le pouvoir de cette reine est celui du soin qui fait grandir.", en: "Cherubs and sea-shells adorn the stone: maternal love and the fertility of the waters carved into her very authority. Her sovereignty is not cold — it shelters, nourishes, brings forth life. This queen’s power is the power of care that makes things grow." } },
+    { label: { fr: "Le ciel et l’eau limpides", en: "The clear sky and water" }, text: { fr: "Nulle tempête : l’eau reste calme, le ciel serein. L’émotion souveraine ne s’agite pas, elle repose. Cette clarté dit une âme réconciliée, capable de recevoir la peine d’autrui sans que sa propre surface se trouble. À l’inversé, c’est cette limpidité qui se brouille.", en: "No storm: the water stays calm, the sky serene. Sovereign emotion does not thrash, it rests. This clarity marks a soul at peace, able to receive another’s grief without its own surface breaking. Reversed, it is this very limpidity that clouds over." } },
+  ],
+  "cups-14": [
+    { label: { fr: "Le trône dressé sur la mer", en: "The throne raised on the sea" }, text: { fr: "Trône de pierre planté au milieu des flots houleux : l’Eau, c’est l’émotion, et régner dessus sans terre ferme dit la vraie maturité affective. Tu ne fuis pas le sentiment ni ne t’y perds ; tu établis ta stabilité au cœur même de l’instable.", en: "A stone throne planted amid the heaving waves: Water is emotion, and to reign upon it with no firm ground names true emotional maturity. You neither flee feeling nor lose yourself in it; you build your steadiness at the very heart of the unstable." } },
+    { label: { fr: "La coupe et le sceptre", en: "The cup and the scepter" }, text: { fr: "Une main tient la coupe, l’autre le sceptre : le cœur et le pouvoir en équilibre. Le Roi ne renonce à aucun des deux. Sa force n’écrase pas le sentiment, son sentiment n’amollit pas sa force ; c’est l’autorité qui a intégré sa propre sensibilité au lieu de la nier.", en: "One hand holds the cup, the other the scepter: heart and power in balance. The King forsakes neither. His strength does not crush feeling, his feeling does not soften his strength; this is authority that has integrated its own sensitivity rather than denying it." } },
+    { label: { fr: "Le pendentif en poisson", en: "The fish pendant" }, text: { fr: "Un poisson pend à son collier : l’inconscient et l’intuition portés ouvertement sur la poitrine, non refoulés. Le poisson, créature des profondeurs, dit un accès assumé aux courants intérieurs. Tu ne caches pas ce qui remonte du fond ; tu le fais tien.", en: "A fish hangs at his necklace: the unconscious and intuition worn openly on the chest, not repressed. The fish, creature of the depths, names an owned access to inner currents. You do not hide what rises from below; you make it your own." } },
+    { label: { fr: "Le navire au loin", en: "The ship in the distance" }, text: { fr: "Un navire vogue sur la même mer houleuse : l’entreprise et l’échange restent possibles quand la maîtrise intérieure tient. Il rappelle que tes émotions gouvernées deviennent une force en mouvement, capable de porter, de commercer, de traverser au lieu de submerger.", en: "A ship sails the same heaving sea: enterprise and exchange stay possible when inner mastery holds. It recalls that your governed emotions become a moving force, able to carry, to trade, to cross over rather than submerge." } },
+    { label: { fr: "Le poisson bondissant", en: "The leaping fish" }, text: { fr: "À l’autre bord, un poisson jaillit hors des vagues : l’émotion qui trouve enfin sa juste expression. Il répond au poisson secret du collier : l’un dit l’intériorité portée en silence, l’autre le sentiment libéré, vivant, qui ose franchir la surface au grand jour.", en: "On the other side, a fish leaps clear of the waves: emotion that finds its right expression at last. It answers the secret fish at the necklace: one names inwardness carried in silence, the other feeling set free, alive, daring to break the surface into open air." } },
+  ],
+  "swords-01": [
+    { label: { fr: "L’épée dressée, unique", en: "The single upright sword" }, text: { fr: "L’intellect à l’état pur, avant toute nuance : la volonté de séparer, juger, décider. Dressée à la verticale, elle joint le ciel de la vérité et la terre où trancher fait mal. Une seule lame — un seul acte de discernement, sans détour ni compromis.", en: "Intellect in its pure state, before any nuance: the will to divide, judge, decide. Held vertical, it joins the sky of truth to the earth where cutting draws blood. One blade only — a single act of discernment, with no hedge and no compromise." } },
+    { label: { fr: "La main sortie du nuage", en: "The hand from the cloud" }, text: { fr: "Le don venu d’ailleurs que du moi : cette lucidité ne se fabrique pas, elle t’est tendue depuis l’inconnu. Le nuage voile la source — l’esprit reçoit avant de comprendre. Reste à saisir la garde : la vérité offerte n’oblige à rien tant que tu ne la prends pas en main.", en: "A gift from beyond the self: this lucidity is not manufactured, it is held out to you from the unknown. The cloud veils its source — mind receives before it grasps. The hilt still waits: an offered truth binds you to nothing until you take hold of it." } },
+    { label: { fr: "La couronne et ses rameaux", en: "The crown and its branches" }, text: { fr: "Le sommet que la pensée juste atteint : la couronne dit le triomphe de l’esprit, palme et olivier la victoire et la paix qui la suivent. Mais la pointe la transperce — la vraie clarté perce même les honneurs, ne s’arrête à aucun laurier, tranche jusque dans ce qu’elle a conquis.", en: "The summit right thought attains: the crown speaks the mind's triumph, palm and olive the victory and peace that follow. Yet the point pierces through it — true clarity cuts even honours, halts at no laurel, severs even into what it has won." } },
+    { label: { fr: "Les six yods", en: "The six yods" }, text: { fr: "Ces flammèches en forme de lettre hébraïque disent la grâce qui descend : chaque étincelle, une parcelle d’esprit détachée du haut. Six, le nombre de l’équilibre — la percée n’est pas brutalité seule, elle s’accompagne d’une pluie fine de sens, la vérité qui se donne par fragments à qui sait recueillir.", en: "These flame-shapes drawn as a Hebrew letter speak grace descending: each spark a shard of spirit loosed from above. Six, the number of balance — the breakthrough is not brute force alone but comes with a fine rain of meaning, truth given in fragments to whoever learns to gather it." } },
+    { label: { fr: "Les cimes lointaines", en: "The distant peaks" }, text: { fr: "À l’horizon, des montagnes âpres et dénudées : le pays de l’Air, où l’esprit s’élève mais où rien ne pousse. La vérité mène haut et loin, dans un froid solitaire ; la lucidité a ce prix, une altitude qui isole. Ce que tu vois clair, tu le vois souvent seul.", en: "On the horizon, harsh and barren mountains: the country of Air, where mind rises but nothing grows. Truth leads high and far, into a solitary cold; lucidity carries this price, an altitude that isolates. What you see clearly, you often see alone." } },
+  ],
+  "swords-02": [
+    { label: { fr: "Les deux épées croisées", en: "The two crossed swords" }, text: { fr: "L’Air, élément du mental, dédoublé en deux raisons opposées d’égale force. Croisées, elles ne combattent pas : elles se verrouillent. C’est l’impasse intellectuelle où penser davantage ne départage plus rien — l’intelligence retournée en paralysie.", en: "Air, the mind's element, split into two opposing reasons of equal weight. Crossed, they do not fight — they lock. This is the mental impasse where thinking harder settles nothing, intelligence turned back on itself into paralysis." } },
+    { label: { fr: "Le bandeau sur les yeux", en: "The blindfold" }, text: { fr: "Non pas la justice impartiale, mais le refus délibéré de voir. Tu te prives du regard pour ne pas avoir à choisir : l’aveuglement devient stratégie de survie. Tant que tu ne regardes pas l’enjeu, tu n’as pas à répondre de ta décision.", en: "Not impartial justice but a chosen refusal to see. You deny yourself sight so you need not choose: blindness becomes a survival tactic. As long as you don't look at the stakes, you owe no answer for the decision." } },
+    { label: { fr: "L’eau immobile derrière", en: "The still water behind" }, text: { fr: "La mer figée dit l’émotion tenue en suspens, ni traversée ni apaisée — seulement retenue. Ce calme n’est pas la sérénité mais la surface d’un refoulé. Les récifs affleurent : sous la trêve mentale, le sentiment attend, prêt à se soulever.", en: "The frozen sea is emotion held in suspense — neither crossed nor calmed, only withheld. This stillness is not serenity but the surface over something repressed. Rocks break through: beneath the mental truce, feeling waits, ready to rise." } },
+    { label: { fr: "Le croissant de lune", en: "The crescent moon" }, text: { fr: "L’intuition voilée, réduite à son plus mince éclat. La lune sait ce que le mental refuse — mais sa lumière est trop faible pour trancher. Elle rappelle qu’une réponse existe déjà en toi, dans l’ombre, sous le bruit des arguments.", en: "Veiled intuition, pared to its thinnest sliver. The moon knows what the mind refuses — but its light is too faint to decide by. It hints that an answer already lives in you, in shadow, beneath the noise of arguments." } },
+    { label: { fr: "La posture assise et verrouillée", en: "The seated, locked posture" }, text: { fr: "Assise, bras noués contre le cœur, la figure se fait sa propre forteresse. L’équilibre n’est pas repos mais tension maintenue par la volonté : rester immobile coûte une dépense constante. Tenir cette pose, c’est déjà avoir choisi — de ne pas bouger.", en: "Seated, arms bound across the heart, the figure becomes her own fortress. The balance is not rest but tension sustained by will: staying still costs constant effort. To hold this pose is already a choice — the choice not to move." } },
+  ],
+  "swords-03": [
+    { label: { fr: "Les trois lames", en: "The three blades" }, text: { fr: "Trois, le nombre qui fait naître : ici il enfante la douleur au lieu de la joie. Les Épées sont l’intellect, et une pensée devenue triple — ressassée, retournée, aiguisée — perce plus profond que tout objet. La souffrance mentale que tu t’infliges en comprenant trop bien.", en: "Three, the number that gives birth: here it births pain instead of joy. Swords are the intellect, and a thought turned threefold — rehearsed, replayed, honed — pierces deeper than any object. The mental suffering you inflict on yourself by understanding all too well." } },
+    { label: { fr: "Le cœur transpercé", en: "The pierced heart" }, text: { fr: "Le siège du sentiment livré à la lame de l’esprit : c’est le conflit même entre ce que tu sais et ce que tu ressens. Rouge et exposé, sans armure, il dit que la vérité entendue de front atteint là où l’on est le plus vivant. Aucun mensonge ne l’aurait blessé ainsi.", en: "The seat of feeling given over to the mind's blade: this is the very conflict between what you know and what you feel. Red and exposed, unarmored, it says that truth met head-on strikes where you are most alive. No lie could have wounded it this way." } },
+    { label: { fr: "L’orage et la pluie", en: "The storm and rain" }, text: { fr: "Élément de l’Air en crise : le ciel dit tout haut ce que le cœur endure. Mais l’orage est passager par nature — il purge, il vide, il finira. Sa pluie annonce déjà l’après : la crise émotionnelle n’est pas ton climat, seulement ta saison. Laisse-la pleurer jusqu’au bout.", en: "The element of Air in crisis: the sky speaks aloud what the heart endures. Yet a storm is transient by nature — it purges, it empties, it will end. Its rain already foretells the aftermath: emotional crisis is not your climate, only your season. Let it weep itself out." } },
+    { label: { fr: "La suspension à nu", en: "The bare suspension" }, text: { fr: "Ni corps, ni décor, ni témoin : la scène flotte hors du temps, comme figée à l’instant même de l’impact. Cet isolement dit l’honnêteté brutale de la carte — pas d’échappatoire, pas de contexte pour adoucir. Tu es seul face à ce qui est vrai, et c’est précisément ce qui doit être regardé.", en: "No body, no setting, no witness: the scene floats out of time, frozen at the very instant of impact. This isolation is the card's brutal honesty — no way out, no context to soften it. You stand alone before what is true, and that is exactly what must be looked at." } },
+  ],
+  "swords-04": [
+    { label: { fr: "Le gisant", en: "The recumbent figure" }, text: { fr: "Il ne meurt pas : il se retire volontairement du combat. Posture archétypale du chevalier au repos, elle affirme que déposer les armes de la pensée est un acte de sagesse, non de renoncement. La guérison exige d’abord l’immobilité consentie.", en: "He does not die: he willingly withdraws from the fight. An archetypal posture of the knight at rest, it declares that laying down the mind's weapons is wisdom, not surrender. Healing first demands a consented stillness." } },
+    { label: { fr: "Les mains jointes", en: "The joined hands" }, text: { fr: "Geste de prière et de reddition intérieure : le mental cesse d’argumenter pour se recueillir. C’est le point où l’Air, élément des Épées, s’apaise enfin ; la volonté se suspend afin qu’une réponse monte du silence plutôt que du combat.", en: "A gesture of prayer and inner surrender: the mind stops arguing to gather itself. Here Air, the suit's element, is finally stilled; the will suspends itself so an answer may rise from silence rather than from struggle." } },
+    { label: { fr: "Les trois épées suspendues", en: "The three hung swords" }, text: { fr: "Les conflits en suspens ne sont pas résolus, seulement mis hors de portée. Écho du Trois d’Épées qui précède, elles disent que la blessure demeure — mais on a cessé de la manier. Tes soucis attendront que tu sois d’aplomb.", en: "The pending conflicts are not resolved, only set out of reach. An echo of the preceding Three of Swords, they say the wound remains — but you have stopped wielding it. Your troubles will wait until you stand firm again." } },
+    { label: { fr: "La quatrième épée sous lui", en: "The fourth sword beneath him" }, text: { fr: "L’unique arme qu’on garde encore repose à plat, sans être brandie. Elle incarne le discernement tenu en réserve : tu n’es pas désarmé, seulement au calme. La lucidité veille sous la trêve, prête mais silencieuse.", en: "The single weapon still kept lies flat, unbrandished. It embodies discernment held in reserve: you are not disarmed, merely at peace. Clear judgment keeps watch beneath the truce, ready yet silent." } },
+    { label: { fr: "Le vitrail", en: "The stained-glass window" }, text: { fr: "La lumière filtrée par le verre change le lieu en sanctuaire : le repos devient sacré, presque liturgique. La scène du vitrail — un suppliant devant une figure bénissante — inscrit ta pause dans un ordre plus vaste, où guérir relève de la grâce autant que de la volonté.", en: "Light filtered through glass turns the space into a sanctuary: rest becomes sacred, almost liturgical. The window's scene — a supplicant before a blessing figure — sets your pause within a larger order, where healing is as much grace as will." } },
+  ],
+  "swords-05": [
+    { label: { fr: "Les trois épées ramassées", en: "The three gathered swords" }, text: { fr: "Butin d’un combat où l’esprit a servi d’arme. Rafler les lames de l’autre, c’est vouloir posséder la dernière pensée, désarmer autrui pour n’avoir jamais tort. Ce trophée n’enrichit pas : il enchaîne le vainqueur à sa propre rancune.", en: "Spoils of a fight where the mind was the weapon. Seizing another’s blades means craving the last word, disarming others so you’re never wrong. This trophy enriches nothing: it chains the victor to his own spite." } },
+    { label: { fr: "Le regard en arrière", en: "The backward glance" }, text: { fr: "Le triomphe qui a besoin de public pour exister. Se retourner pour savourer la déroute de l’adversaire trahit une victoire creuse : elle ne se suffit pas, elle réclame l’humiliation d’autrui pour se sentir réelle. L’ego repu se nourrit encore.", en: "Triumph that needs an audience to exist. Turning to savor the other’s rout betrays a hollow win: it isn’t enough in itself, it demands another’s humiliation to feel real. The sated ego still feeds." } },
+    { label: { fr: "Les deux silhouettes qui partent", en: "The two departing figures" }, text: { fr: "Le prix humain du fait d’avoir raison. Ceux qui s’éloignent, dos courbé, sont les liens sacrifiés à ta victoire : alliés perdus, confiance rompue. Ils incarnent la solitude qui suit toute conquête menée aux dépens des autres.", en: "The human price of being right. Those walking off, backs bent, are the bonds sacrificed to your win: allies lost, trust broken. They embody the solitude that trails any conquest waged at others’ expense." } },
+    { label: { fr: "Le ciel lacéré", en: "The torn sky" }, text: { fr: "L’atmosphère empoisonnée qui reste après les mots. Le firmament de l’Air, déchiré en lambeaux, dit que la pensée elle-même s’est blessée : le climat vicié d’un conflit qui ne se dissipe pas, la tension coupante qui survit à la trêve.", en: "The poisoned air left behind when words have cut. The sky of Air, ripped to shreds, says thought itself was wounded: the tainted climate of a conflict that won’t clear, the cutting tension that outlives the truce." } },
+    { label: { fr: "L’eau immobile au loin", en: "The still water beyond" }, text: { fr: "Le calme trompeur qui suit la victoire. Sous le ciel déchiré, l’eau reste lisse, presque indifférente : l’émotion refoulée que nul triomphe n’apaise. Ce silence n’est pas la paix, c’est le froid d’après la querelle, quand plus rien ne se dit.", en: "The deceptive calm that follows the win. Under the torn sky the water lies flat, almost indifferent: the buried feeling no triumph soothes. This silence isn’t peace but the chill after the quarrel, when nothing more is said." } },
+  ],
+  "swords-06": [
+    { label: { fr: "Les six épées dressées", en: "The six upright swords" }, text: { fr: "Six lames plantées dans la coque : les pensées et les peines que tu emportes, désormais rangées plutôt que brandies. Elles ne blessent plus mais restent lestées de vérité. Le six, chiffre d’équilibre et de guérison, dit que le conflit s’est mué en fardeau supportable, condition même du départ.", en: "Six blades set into the hull: the thoughts and hurts you carry, now stowed rather than wielded. They no longer cut yet stay heavy with truth. Six, number of balance and healing, tells that conflict has become a bearable burden — the very condition of departure." } },
+    { label: { fr: "Le passeur", en: "The ferryman" }, text: { fr: "Figure du guide et du psychopompe, écho de Charon menant les âmes d’une rive à l’autre. Il incarne l’aide extérieure — ou la part de toi qui sait manœuvrer quand tu es trop épuisé pour te mener seul. La traversée n’est jamais tout à fait solitaire.", en: "Figure of the guide and psychopomp, echo of Charon leading souls from one shore to the next. He embodies outside help — or the part of you that steers when you are too spent to lead yourself. The crossing is never wholly solitary." } },
+    { label: { fr: "La femme voilée et l’enfant", en: "The veiled woman and the child" }, text: { fr: "Recroquevillés et couverts, ils portent le deuil silencieux et la vulnérabilité que tu mets à l’abri. La mère protège l’enfant : ce que tu as de plus fragile et d’encore neuf voyage avec toi vers un avenir possible. Le voile dit la douleur qu’on ne montre pas encore.", en: "Hunched and covered, they bear the silent grief and vulnerability you take to safety. The mother shields the child: what is most fragile and still new in you travels toward a possible future. The veil speaks the pain not yet shown." } },
+    { label: { fr: "Les eaux contrastées", en: "The contrasting waters" }, text: { fr: "Agitées derrière la barque, lisses devant elle : cartographie de l’âme en mouvement. Le passé bouillonne, l’avenir s’aplanit. Cette césure de l’eau promet que l’apaisement n’est pas illusion mais direction — pour peu qu’on avance dans le bon sens du courant.", en: "Choppy behind the boat, smooth ahead of it: a map of the soul in motion. The past churns, the future levels out. This seam in the water promises that calm is no illusion but a direction — provided you move with the right pull of the current." } },
+    { label: { fr: "La rive lointaine", en: "The far shore" }, text: { fr: "But encore indistinct vers lequel la barque glisse : le seuil de renouveau, l’ailleurs qu’on ne connaît pas encore. Elle incarne la foi minimale du départ — croire qu’un autre bord existe suffit à s’y porter. Terre d’Air et de recommencement, elle ne s’atteint qu’en tournant le dos au connu.", en: "An as-yet indistinct goal the boat glides toward: the threshold of renewal, the elsewhere not yet known. It embodies the minimal faith of departure — believing another bank exists is enough to set out. Land of Air and beginning again, reached only by turning your back on the familiar." } },
+  ],
+  "swords-07": [
+    { label: { fr: "Les cinq épées emportées", en: "The five swords carried off" }, text: { fr: "Cinq lames raflées d’un coup : l’esprit qui veut tout prendre par le calcul, sans droit ni combat. Serrées par le tranchant, elles disent le prix du gain trop rapide — ce que tu voles à la ruse te blesse les mains, et ne t’appartient jamais vraiment.", en: "Five blades snatched at once: the mind that would take everything by calculation, without right or fight. Grasped by their edges, they name the cost of the too-quick gain — what you steal by cunning wounds your hands, and never truly becomes yours." } },
+    { label: { fr: "Les deux épées laissées", en: "The two swords left behind" }, text: { fr: "Deux lames abandonnées, fichées droites : le plan reste incomplet. La stratégie qui privilégie la vitesse laisse toujours une part exposée, un aveu tacite. Ce qu’on renonce à emporter demeure en évidence, témoin muet de ce qu’on a voulu cacher.", en: "Two blades abandoned, staked upright: the plan stays incomplete. A strategy that favors speed always leaves a portion exposed, a silent admission. What one declines to carry stands in plain sight, a mute witness to what was meant to be hidden." } },
+    { label: { fr: "Le regard en arrière", en: "The backward glance" }, text: { fr: "L’œil tourné vers ce qu’on fuit : la ruse n’est jamais sereine. C’est la conscience qui surveille, la peur d’être vu, l’esprit divisé entre son coup et son remords. Agir seul, en secret, c’est vivre déjà à demi retourné vers ceux qu’on trompe.", en: "The eye turned toward what one flees: cunning is never serene. This is conscience keeping watch, the fear of being seen, the mind split between its move and its regret. To act alone, in secret, is already to live half turned back toward those one deceives." } },
+    { label: { fr: "La démarche sur la pointe des pieds", en: "The tiptoeing gait" }, text: { fr: "Le corps qui se fait léger, silencieux, presque absent : l’art de l’esquive et de la discrétion. Cette prudence est une force — savoir se retirer, ne pas s’engager de front — mais aussi un piège : à trop se dérober, on n’habite plus vraiment ses actes.", en: "The body made light, silent, almost absent: the art of evasion and discretion. This caution is a strength — knowing when to withdraw, not to engage head-on — yet also a trap: dodge too much and you no longer fully inhabit your own acts." } },
+    { label: { fr: "Le campement de tentes", en: "The tented camp" }, text: { fr: "La communauté qu’on quitte dans son dos : le collectif, le camp allié dont on se sépare pour agir en solitaire. La carte oppose l’individu rusé au groupe ; s’écarter des autres donne la marge de manœuvre, mais coupe aussi du soutien et de la loyauté partagée.", en: "The community one leaves behind: the collective, the allied camp from which one breaks away to act alone. The card sets the cunning individual against the group; stepping apart grants room to maneuver, but also severs support and shared loyalty." } },
+  ],
+  "swords-08": [
+    { label: { fr: "Les huit épées dressées", en: "The eight upright swords" }, text: { fr: "L’Air, élément mental des Épées, porté au huit : le nombre de la structure et de la répétition. Ce sont tes propres raisonnements, alignés en barreaux, qui te cernent. Aucune main ne les tient : la contrainte est intériorisée, une prison que la pensée reconduit d’elle-même.", en: "Air, the mental element of Swords, brought to eight: the number of structure and repetition. These are your own lines of reasoning, ranged like bars, hemming you in. No hand holds them: the constraint is internalized, a prison the mind renews of its own accord." } },
+    { label: { fr: "Le bandeau", en: "The blindfold" }, text: { fr: "L’aveuglement volontaire : non l’absence de vue, mais le refus de regarder. Il dit que la captivité est d’abord un choix de perception. Tant que l’œil reste couvert, la peur gouverne ; le desserrer, c’est laisser rentrer le discernement qui dissout la cage.", en: "Willed blindness: not the loss of sight but the refusal to look. It says captivity is first a choice of perception. While the eye stays covered, fear governs; to loosen it is to let in the discernment that dissolves the cage." } },
+    { label: { fr: "Les liens desserrés", en: "The loosened bonds" }, text: { fr: "Des entraves qui ne mordent pas : l’emblème de l’impuissance imaginaire. Le pouvoir de se défaire n’a jamais quitté tes mains ; c’est la croyance en la contrainte, non la contrainte, qui te tient. Le nœud tiendra exactement le temps que tu lui accorderas foi.", en: "Bonds that do not bite: the emblem of imagined helplessness. The power to break free never left your hands; it is belief in the constraint, not the constraint, that holds you. The knot lasts precisely as long as you grant it faith." } },
+    { label: { fr: "La terre humide et grise", en: "The wet grey ground" }, text: { fr: "Le sol détrempé sous ses pieds : la stagnation, l’enlisement affectif où la pensée tourne sans avancer. Le gris et l’eau stagnante signent une mélancolie qui alourdit chaque pas et rend l’immobilité plus douce que l’effort de partir.", en: "The sodden earth beneath her feet: stagnation, the emotional mire where thought circles without moving. Grey and standing water mark a melancholy that weighs on every step, making stillness feel gentler than the effort to leave." } },
+    { label: { fr: "Le château au loin", en: "The distant castle" }, text: { fr: "La hauteur lointaine, souvent lue comme le lieu d’où tu es venu : autorité, jugement, origine de l’interdit intériorisé. Sa distance dit que la loi qui t’enferme n’est plus présente — seul son écho persiste en toi, longtemps après que la porte s’est ouverte.", en: "The far height, often read as the place you came from: authority, judgment, the source of the internalized ban. Its distance says the law that jails you is no longer present — only its echo lingers in you, long after the door has opened." } },
+  ],
+  "swords-09": [
+    { label: { fr: "Le geste des mains sur le visage", en: "The hands over the face" }, text: { fr: "Non un coup reçu mais un effondrement vers l’intérieur : tu te caches les yeux du monde pour ne plus voir que ta propre nuit. Le tourment de l’Air ne vient jamais du dehors ; il siège sous le crâne, juge et bourreau à la fois.", en: "Not a blow received but a collapse inward: you hide your eyes from the world only to see nothing but your own night. The torment of Air never comes from outside; it lodges beneath the skull, judge and executioner at once." } },
+    { label: { fr: "Les neuf épées horizontales", en: "The nine horizontal swords" }, text: { fr: "Neuf — l’ultime degré avant l’achèvement, la pensée poussée jusqu’à l’extrême. Couchées, elles ne frappent personne : ce sont des pensées suspendues, un procès intérieur qui s’empile sans jamais trancher. Le mal qu’elles font, tu te l’infliges seul.", en: "Nine — the last degree before completion, thought driven to its extreme. Laid flat, they strike no one: suspended thoughts, an inner trial stacking up without ever cutting through. The harm they do, you inflict on yourself alone." } },
+    { label: { fr: "Le fond noir", en: "The black ground" }, text: { fr: "Le vide absolu derrière la scène : ni décor, ni horizon, ni issue visible. Cette noirceur figure l’heure où la raison perd ses repères et où l’imagination comble le vide de monstres. C’est la nuit intérieure, pas la nuit du monde.", en: "The absolute void behind the scene: no setting, no horizon, no visible way out. This blackness figures the hour when reason loses its bearings and imagination fills the emptiness with monsters. It is the inner night, not the world's." } },
+    { label: { fr: "Les roses rouges de la courtepointe", en: "The red roses of the quilt" }, text: { fr: "La passion et la vie qui persistent en damier tout autour de toi : même au cœur du tourment, la chaleur du désir n’a pas disparu, seulement recouverte. Elles rappellent que ce qui souffre tant tient encore fermement à la vie.", en: "Passion and life persisting in a chequerboard all around you: even at the heart of the torment, the warmth of desire has not vanished, only been buried. They recall that what suffers so keenly still clings fiercely to life." } },
+    { label: { fr: "Les signes du zodiaque", en: "The zodiac signs" }, text: { fr: "Gravés sur la couche, ils inscrivent cette nuit dans un cycle plus vaste que ta peur. Les astres tournent, les heures passent : l’angoisse te fait croire l’instant éternel, alors qu’il n’est qu’un point sur une roue destinée à poursuivre son tour.", en: "Carved on the bedding, they set this night within a cycle far larger than your fear. The stars wheel, the hours pass: dread convinces you the moment is eternal, when it is only one point on a wheel bound to keep turning." } },
+  ],
+  "swords-10": [
+    { label: { fr: "Les dix lames", en: "The ten blades" }, text: { fr: "Dix, le nombre qui achève l’enseigne : l’Air poussé à son terme, la pensée devenue arme retournée contre soi. L’acharnement d’une seule lame de trop dit une souffrance que le mental s’inflige lui-même, ressassée jusqu’à l’absurde. Passé ce comble, rien ne peut empirer.", en: "Ten, the number that ends the suit: Air pushed to its limit, thought made a weapon turned inward. That one blade too many names a suffering the mind inflicts on itself, chewed over past all reason. Beyond this excess, nothing can worsen." } },
+    { label: { fr: "La blessure au dos", en: "The wound in the back" }, text: { fr: "Frappé par-derrière : la trahison qu’on ne voit pas venir, ou celle que tu t’infliges à ton insu. Le dos, angle mort de la conscience, marque une défaite subie et non affrontée face à face — l’effondrement des certitudes qu’aucune vigilance n’aurait su parer.", en: "Struck from behind: the betrayal you never saw coming, or the one you deal yourself unaware. The back, the mind's blind spot, marks a defeat endured rather than faced head-on — the collapse of certainties no vigilance could have parried." } },
+    { label: { fr: "Le ciel noir", en: "The black sky" }, text: { fr: "La nuit la plus dense de tout le tarot : l’esprit vidé, le point mort absolu où toute lutte cesse. Ce noir n’est pas seulement deuil, il est reddition — l’instant où, n’ayant plus rien à défendre, tu deviens paradoxalement libre du poids que tu portais.", en: "The densest night in all the tarot: the mind emptied, the dead calm where every struggle ceases. This black is not only grief but surrender — the moment when, with nothing left to defend, you grow paradoxically free of the weight you carried." } },
+    { label: { fr: "L’aube dorée", en: "The golden dawn" }, text: { fr: "Une bande d’or fend l’horizon : la loi du cycle, la promesse que même le fond appelle une remontée. L’or dit une valeur survivante sous les cendres. Le pire est derrière, non devant — la lumière ne console pas, elle atteste que la nuit a une fin.", en: "A band of gold splits the horizon: the law of the cycle, the promise that even the bottom calls for a rise. The gold names a worth surviving under the ashes. The worst lies behind, not ahead — the light does not console, it attests the night has an end." } },
+    { label: { fr: "La main en bénédiction", en: "The hand in blessing" }, text: { fr: "Deux doigts repliés du gisant : ultime geste de paix qui transmue la ruine en acquiescement. Signe hiératique de bénédiction, il dit que le lâcher-prise reste un pouvoir. Même terrassé, tu gardes la souveraineté d’accepter, et d’absoudre ce qui t’a détruit.", en: "The fallen figure's two curled fingers: a last gesture of peace that turns ruin into assent. A hieratic sign of blessing, it says letting go is still a power. Even brought down, you keep the sovereignty to accept — and to absolve what destroyed you." } },
+  ],
+  "swords-11": [
+    { label: { fr: "L’épée dressée", en: "The upraised sword" }, text: { fr: "L’arme de l’Air : la pensée elle-même, dégainée et brandie. Tenue haute par une main encore verte, elle dit l’intellect qui veut agir avant d’avoir mûri — le tranchant du discernement confondu avec l’envie d’en découdre. Un pouvoir juste, maniement incertain.", en: "Air’s weapon: thought itself, drawn and brandished. Held high by a still-green hand, it marks intellect eager to act before it has ripened — the edge of discernment mistaken for the itch to fight. A rightful power, an unsteady grip." } },
+    { label: { fr: "Le corps de profil, la tête tournée", en: "The turned head" }, text: { fr: "Le buste avance, mais le regard fouille en arrière : l’esprit qui ne se donne jamais tout entier à la direction qu’il prend. C’est la posture du guetteur — vigilance et défiance mêlées, un œil sur la route, l’autre sur ce qui pourrait la menacer.", en: "The body presses forward while the gaze searches behind: a mind that never wholly commits to the way it goes. This is the watcher’s stance — vigilance laced with distrust, one eye on the road, the other on whatever might threaten it." } },
+    { label: { fr: "Le sol accidenté, la butte", en: "The rough rising ground" }, text: { fr: "La figure se tient sur une hauteur inégale, mal assurée : le terrain mental du néophyte, plein d’élans et de faux-pas. L’altitude promet la vue d’ensemble, mais le pied n’est pas encore ferme — le savoir entrevu de haut, sans l’ancrage de l’expérience.", en: "The figure stands on uneven, higher ground, poorly steadied: the novice’s mental terrain, full of drive and misstep. The height promises the wider view, but the footing is not yet firm — knowledge glimpsed from above, without the anchor of experience." } },
+    { label: { fr: "Les nuées bousculées", en: "The scudding clouds" }, text: { fr: "Ciel agité, mouvant, jamais posé : l’air chargé d’Épées, ce flux d’idées, de mots et de rumeurs qui file sans se fixer. C’est la pensée en régime rapide, féconde tant qu’elle circule, dangereuse quand elle s’emballe et brasse le vent pour le vent.", en: "A restless, shifting sky that never settles: the charged air of Swords, that current of ideas, words and rumours streaming without taking hold. It is thought at high speed — fertile while it flows, dangerous when it races and stirs wind for wind’s sake." } },
+    { label: { fr: "Les arbres et les oiseaux dans le vent", en: "The wind-bent trees and wheeling birds" }, text: { fr: "Les arbres ploient et des oiseaux tournoient, portés par la même bourrasque : la carte tout entière est mise en mouvement par l’Air. Rien ne repose ; tout est emporté. C’est l’esprit qui ne sait pas encore s’arrêter, agité par ses propres courants.", en: "Trees bend and birds wheel, carried on the same gust: the whole card is set in motion by Air. Nothing rests; everything is swept along. It is the mind that cannot yet be still, tossed about by its own currents." } },
+  ],
+  "swords-12": [
+    { label: { fr: "L’épée brandie", en: "The raised sword" }, text: { fr: "Arme de l’enseigne d’Air, elle est la pensée faite tranchant. Levée avant même la cible, elle dit une vérité qui n’attend pas d’être opportune : la lucidité comme lame, magnifique et dangereuse, car couper vite n’est pas couper juste. Tu portes une conviction qui précède sa preuve.", en: "Weapon of the Air suit, it is thought made edge. Raised before any target, it speaks a truth that will not wait to be timely: clarity as a blade, magnificent and perilous, for a swift cut is not a just one. You carry a conviction that outruns its proof." } },
+    { label: { fr: "Le cheval blanc lancé", en: "The white horse in full charge" }, text: { fr: "La monture est la force vitale qui porte l’esprit. Blanche, elle dit un élan pur, non corrompu ; mais lancée à fond, elle échappe à la main. Voilà la tension du Cavalier : l’énergie fidèle qui te sert tant que tu la guides, et te trahit dès qu’elle court plus vite que ton jugement.", en: "The mount is the life-force that carries the mind. White, it names an impulse still pure, uncorrupted; yet at full gallop it slips the hand. Here lies the Knight's tension: loyal energy that serves while you steer it, and betrays you the instant it outruns your judgment." } },
+    { label: { fr: "Les nuages striés en tempête", en: "The storm-streaked clouds" }, text: { fr: "Air agité contre Air : le ciel tourmenté est le climat mental où naît cette charge, nervosité, urgence, pensées qui s’entrechoquent. Le décor ne borde pas la scène, il expose le dedans : tu galopes dans ta propre tempête, et c’est elle qui te presse autant qu’elle t’aveugle.", en: "Air roused against Air: the churning sky is the mental weather in which this charge is born — nerves, urgency, thoughts colliding. The backdrop does not frame the scene, it exposes the inner one: you gallop through your own storm, and it goads you as much as it blinds you." } },
+    { label: { fr: "Les arbres ployés", en: "The bending trees" }, text: { fr: "Grêles et courbés sous le vent, ils marquent ce qui plie devant ton passage : les résistances balayées, mais aussi ta propre fragilité sous la pression. Ils rappellent que la force qui te porte est celle qui tord tout autour — rien d’enraciné ne tient longtemps face à un tel assaut.", en: "Spindly and bowed in the wind, they mark what yields before your passage: resistances swept aside, but also your own frailty under strain. They warn that the force carrying you is the one bending everything around — nothing rooted holds for long against such an onslaught." } },
+    { label: { fr: "Les oiseaux dans le vent", en: "The birds in the wind" }, text: { fr: "Créatures de l’Air, ils sont les pensées libres qui filent avec la bourrasque. Épars et emportés, ils disent un esprit dispersé par sa propre vitesse : les idées volent en tous sens, vives mais fugaces. Ta hâte multiplie les intuitions sans t’en laisser saisir une seule.", en: "Creatures of Air, they are free thoughts streaming with the gust. Scattered and swept along, they name a mind dispersed by its own speed: ideas fly in all directions, quick yet fleeting. Your haste multiplies intuitions without letting you grasp a single one." } },
+  ],
+  "swords-13": [
+    { label: { fr: "L’épée dressée, légèrement inclinée", en: "The upright sword, slightly tilted" }, text: { fr: "L’Air de la suite porté à son sommet : la pensée souveraine qui tranche le vrai du faux. Dressée, elle affirme un jugement assumé, sans détour ni excuse. C’est la faculté de couper net dans les demi-vérités — don précieux quand il sert la justice, arme cruelle quand il sert l’orgueil.", en: "The suit’s Air raised to its peak: sovereign thought severing the true from the false. Held upright, it declares a judgement fully owned, without detour or apology. It is the power to cut cleanly through half-truths — a precious gift when it serves justice, a cruel weapon when it serves pride." } },
+    { label: { fr: "Les papillons de la couronne", en: "The butterflies of the crown" }, text: { fr: "Emblème de l’âme et de la métamorphose : la chenille qui meurt pour renaître ailée. Posés sur la couronne, ils disent une pensée transfigurée par l’épreuve. Cette Reine n’est pas née dure — elle a mué à travers la perte, et sa clarté est le fruit d’un deuil traversé, non d’une froideur innée.", en: "Emblem of the soul and of metamorphosis: the caterpillar that dies to be reborn winged. Set upon the crown, they mark a mind transfigured by ordeal. This Queen was not born hard — she molted through loss, and her clarity is the fruit of a grief crossed through, not of an innate coldness." } },
+    { label: { fr: "La main gauche tendue en avant", en: "The left hand extended forward" }, text: { fr: "Le geste de qui accueille sans se livrer. La gauche, côté du recevoir, s’ouvre vers l’autre mais depuis la distance du trône : elle réclame la vérité en retour. Un accueil conditionnel, sans tendresse aveugle — on peut l’approcher, mais seulement à visage découvert.", en: "The gesture of one who welcomes without surrendering. The left, side of receiving, opens toward the other yet from the throne’s distance: it asks for truth in return. A conditional welcome, with no blind tenderness — you may approach, but only with an open face." } },
+    { label: { fr: "Le trône au-dessus des nuages", en: "The throne above the clouds" }, text: { fr: "Le siège de l’esprit qui domine ses propres brumes. Les nuages sont les émotions troubles, les pensées confuses ; elle règne au-dessus, dans l’air clair des hauteurs. Position de recul et de surplomb — vue imprenable, mais aussi solitude de qui vit trop loin du sol des sentiments.", en: "The seat of a mind that overlooks its own fogs. The clouds are troubled emotions, muddled thoughts; she reigns above them, in the clear air of the heights. A stance of distance and vantage — an unobstructed view, yet also the solitude of one who dwells too far from the ground of feeling." } },
+    { label: { fr: "Le vent dans les tentures, l’oiseau unique", en: "The wind in the drapery, the lone bird" }, text: { fr: "L’élément Air rendu visible : le souffle qui agite l’étoffe et porte l’unique oiseau marque le domaine de l’intellect en mouvement. Rien ne stagne dans son royaume — la pensée circule, questionne, éprouve. Ce vent est vivifiant pour qui aime le vrai, mais glacial pour qui cherchait un abri contre la lucidité.", en: "The element of Air made visible: the breath stirring the cloth and lifting the single bird marks the realm of intellect in motion. Nothing stagnates in her kingdom — thought circulates, questions, tests. This wind is bracing for whoever loves the truth, but freezing for whoever sought shelter from lucidity." } },
+  ],
+  "swords-14": [
+    { label: { fr: "L’épée dressée", en: "The upright sword" }, text: { fr: "L’unique lame de l’enseigne, tenue verticale : le discernement porté à son sommet, la faculté de séparer le vrai du faux, le juste de l’expédient. C’est le Verbe qui tranche, la décision assumée. Chez le Roi, elle ne blesse pas : elle établit la loi.", en: "The suit’s single blade held vertical: discernment at its height, the power to sever true from false, just from expedient. It is the Word that cuts, the decision owned. In the King’s hand it does not wound — it establishes law." } },
+    { label: { fr: "Le trône de pierre", en: "The stone throne" }, text: { fr: "L’assise minérale de l’autorité : le jugement rendu stable, incorruptible, soustrait aux vents changeants de l’émotion. La pierre dit la constance d’un pouvoir qui ne se dédit pas. C’est l’esprit fait institution, la parole devenue structure sur laquelle d’autres peuvent bâtir.", en: "The mineral seat of authority: judgment made stable, incorruptible, withdrawn from the shifting winds of emotion. Stone speaks the constancy of a power that does not recant. It is mind become institution, the word turned into a structure others can build upon." } },
+    { label: { fr: "Les papillons gravés", en: "The carved butterflies" }, text: { fr: "Emblème de l’Air et de l’âme (la psyché grecque) : la pensée qui se métamorphose, s’élève au-dessus de la mêlée avant de conclure. Ils rappellent que ce pouvoir vient d’une transformation intérieure, non de la force brute — l’intelligence affinée jusqu’à la légèreté.", en: "Emblem of Air and of the soul (the Greek psyche): thought that metamorphoses, rising above the fray before it concludes. They recall that this power springs from inner transformation, not brute force — intelligence refined to the point of lightness." } },
+    { label: { fr: "La robe bleue sous la cape pourpre", en: "The blue robe beneath the purple cloak" }, text: { fr: "Le bleu de la vérité et de l’esprit lucide, voilé du pourpre de la souveraineté : savoir et commander noués en un seul être. La couleur dit que son autorité n’est pas usurpée mais méritée par la clarté — il règne parce qu’il comprend d’abord.", en: "The blue of truth and lucid spirit, wrapped in the purple of sovereignty: knowing and commanding bound in one being. The colours declare that his authority is not usurped but earned through clarity — he rules because he first understands." } },
+    { label: { fr: "Le regard de face", en: "The frontal gaze" }, text: { fr: "Assis droit face à toi, il te fixe sans détour : la confrontation d’un esprit qui ne détourne pas les yeux. Il t’examine, te somme d’être franc. C’est l’exigence de vérité rendue personnelle — sous ce regard, aucun mensonge, aucune dérobade ne tient.", en: "Seated square and facing you, he holds your eye without evasion: the confrontation of a mind that will not look away. He examines you, demands your candour. It is the requirement of truth made personal — under that gaze no lie, no dodge holds." } },
+  ],
+  "pentacles-01": [
+    { label: { fr: "La main issue du nuage", en: "The hand from the cloud" }, text: { fr: "Toute enseigne s’ouvre sur cette main descendue du ciel : le don ne vient pas de toi, il t’est tendu par le divin. C’est la grâce de la Terre, un potentiel offert gratuitement, en amont de tout mérite. À toi seul de refermer les doigts dessus.", en: "Every suit opens with this hand lowered from heaven: the gift is not yours in origin, it is held out to you by the divine. This is the grace of Earth, a potential freely offered, prior to any merit. Yours alone to close your fingers upon." } },
+    { label: { fr: "Le pentacle", en: "The pentacle" }, text: { fr: "L’étoile à cinq branches enclose dans le cercle : l’esprit descendu et scellé dans la matière, les quatre éléments couronnés par le cinquième. Elle dit que le tangible n’est pas vil, mais un lieu sacré où l’invisible prend corps. Ta prospérité a déjà une forme et un poids.", en: "The five-pointed star enclosed in a circle: spirit descended and sealed into matter, the four elements crowned by the fifth. It declares the tangible not base but a sacred site where the invisible takes body. Your prosperity already holds shape and weight." } },
+    { label: { fr: "Le jardin clos", en: "The walled garden" }, text: { fr: "L’enclos fleuri, terrain soigné et non lande sauvage, dit la valeur déjà mise en ordre : l’abondance domestiquée, le confort acquis. Mais c’est un espace fermé — le connu, le sûr. La Terre y prospère au risque de t’y enfermer si tu n’en franchis jamais le seuil.", en: "The flowering enclosure, a tended plot and not wild heath, speaks of worth already ordered: abundance domesticated, comfort secured. Yet it is a closed space — the known, the safe. Earth prospers here at the risk of walling you in, should you never cross its threshold." } },
+    { label: { fr: "L’arche vers les montagnes", en: "The arch toward the mountains" }, text: { fr: "La haie s’ouvre en porche sur un sentier qui monte vers des cimes bleues et lointaines. C’est l’appel à quitter l’aisance pour l’ascension : la richesse n’est pas une fin mais un tremplin. Le vrai sommet spirituel se gagne au-delà du confort, hors du jardin.", en: "The hedge opens into a gate onto a path climbing toward distant blue peaks. It is the call to leave ease for ascent: wealth is no ending but a foothold. The true spiritual summit is won beyond comfort, out past the garden’s edge." } },
+    { label: { fr: "Les roses rouges", en: "The red roses" }, text: { fr: "Semées le long de la haie, les roses rouges portent le désir et la passion — la sève qui anime la matière. Elles rappellent que l’or sans ferveur reste stérile : c’est le désir vivant qui rend la richesse féconde. La Terre veut être aimée, non seulement thésaurisée.", en: "Strung along the hedge, the red roses carry desire and passion — the sap that animates matter. They warn that gold without fervour stays barren: it is living desire that makes wealth fruitful. Earth wants to be loved, not merely hoarded away." } },
+  ],
+  "pentacles-02": [
+    { label: { fr: "Le huit couché (lemniscate)", en: "The lying figure-eight (lemniscate)" }, text: { fr: "Le ruban qui relie les deniers dessine le signe de l’infini. Il dit que l’équilibre est perpétuel et cyclique, jamais acquis : la même énergie passe sans fin d’un pôle à l’autre. Comme sur Le Bateleur, il marque une maîtrise consciente du flux, non un hasard subi.", en: "The band linking the pentacles traces the sign of infinity. It says balance is perpetual and cyclic, never won for good: the same energy flows endlessly from one pole to the other. As on the Magician, it marks a conscious mastery of flux, not luck endured." } },
+    { label: { fr: "Les deux deniers", en: "The two pentacles" }, text: { fr: "Terre et matière, mais ici dédoublées : le deux, c’est le choix, la dualité, la tension entre deux options concrètes. Argent, temps, engagements — deux réalités qui exigent ton attention simultanée. Leur valeur ne tient qu’au geste qui les fait circuler.", en: "Earth and matter, here doubled: two is choice, duality, the tension between two concrete options. Money, time, commitments — two realities demanding your attention at once. Their worth holds only in the gesture that keeps them circulating." } },
+    { label: { fr: "La mer houleuse et les navires", en: "The swelling sea and the ships" }, text: { fr: "L’eau agitée figure l’émotion et la fortune, mouvantes sous toute affaire terrestre. Les navires montent et plongent : les cycles économiques, les hauts et bas que tu ne commandes pas. La carte t’enseigne à composer avec le roulis plutôt qu’à rêver d’une mer plate.", en: "The restless water figures emotion and fortune, forever shifting beneath any earthly affair. The ships rise and plunge: the economic cycles, the highs and lows you do not command. The card teaches you to work with the roll, not to dream of a flat sea." } },
+    { label: { fr: "La danse aux jambes écartées", en: "The wide-legged dance" }, text: { fr: "Sa posture n’est pas un repos mais un effort actif : il tient debout parce qu’il bouge. C’est l’équilibre dynamique, celui du funambule — l’instant où l’on cesse d’ajuster, on chute. Ta sécurité présente est réelle mais vivante, exigeante d’une attention de chaque instant.", en: "His stance is no rest but active effort: he stays upright because he moves. This is dynamic balance, the tightrope-walker's — the instant you stop adjusting, you fall. Your present security is real yet living, demanding attention at every moment." } },
+    { label: { fr: "Le chapeau rouge démesuré", en: "The oversized red hat" }, text: { fr: "Le rouge dit l’énergie, l’élan vital ; sa hauteur excessive coiffe la tête, le mental. La charge que tu portes déborde du cadre, mais tu la portes avec panache plutôt qu’avec crainte. Un signe que l’attitude — la légèreté choisie — fait ici toute la différence.", en: "Red speaks of energy, vital drive; its exaggerated height crowns the head, the mind. The load you carry overspills the frame, yet you bear it with flair rather than dread. A sign that attitude — a chosen lightness — makes all the difference here." } },
+  ],
+  "pentacles-03": [
+    { label: { fr: "Les trois deniers", en: "The three pentacles" }, text: { fr: "Le trois est le premier nombre qui fait tenir une structure : deux points se toisent, trois s’accordent. Fixés dans la pierre, ces deniers disent la Terre devenue durable, la valeur inscrite dans la matière. Ton effort a cessé d’être idée : il porte, il résiste, on peut s’y appuyer.", en: "Three is the first number that lets a structure stand: two points face off, three cohere. Set into stone, these pentacles speak of Earth made lasting, worth written into matter. Your effort has stopped being an idea: it bears weight, it holds, it can be leaned upon." } },
+    { label: { fr: "La voûte et l’arche", en: "The vault and arch" }, text: { fr: "L’arche ne tient que si chaque pierre pousse contre sa voisine : nulle ne se suffit, toutes se soutiennent. Voilà le sens caché de la carte — la solidité naît de la tension partagée, non de la force d’un seul. Sanctuaire en devenir, elle promet que l’ouvrage bien lié survivra à ses bâtisseurs.", en: "The arch holds only if each stone presses against its neighbor: none suffices alone, all sustain one another. This is the card’s hidden sense — strength born of shared tension, not one person’s might. A sanctuary in the making, it promises that well-joined work outlives its builders." } },
+    { label: { fr: "L’artisan sur le banc", en: "The craftsman on the bench" }, text: { fr: "Surélevé, outil en main, il incarne le savoir-faire qui s’expose au jugement. Se retourner vers les autres n’est pas faiblesse mais maturité : le maître accepte d’être conseillé sans cesser d’être maître. En toi, c’est la part qui consent à montrer son travail avant qu’il soit parfait.", en: "Raised up, tool in hand, he embodies the craft that exposes itself to judgment. Turning toward others is not weakness but maturity: the master accepts counsel without ceasing to be master. In you, this is the part willing to show its work before it is perfect." } },
+    { label: { fr: "Les deux figures et le plan", en: "The two figures and the plan" }, text: { fr: "L’un tient la vision, l’autre l’ouvrage — le concepteur et l’exécutant réunis autour d’une même feuille. La carte enseigne que l’idée sans la main reste stérile, et la main sans l’idée s’égare. La reconnaissance vient de ce dialogue : on te juge digne d’entrer dans une œuvre plus grande que toi.", en: "One holds the vision, the other the labor — designer and doer gathered over one sheet. The card teaches that idea without hand stays barren, and hand without idea goes astray. Recognition flows from this dialogue: you are judged worthy to enter a work larger than yourself." } },
+    { label: { fr: "La robe monastique", en: "The monk’s robe" }, text: { fr: "L’habit religieux d’un des visiteurs ancre le chantier dans le sacré : ce n’est pas qu’un mur, c’est un temple. Le travail bien fait devient offrande, la compétence une forme de dévotion. Ta tâche, si modeste soit-elle, participe d’un dessein qui te dépasse et lui donne son sens.", en: "The religious garb of one visitor roots the worksite in the sacred: this is no mere wall but a temple. Work well done becomes offering, skill a form of devotion. Your task, however modest, takes part in a design that surpasses you and lends it meaning." } },
+  ],
+  "pentacles-04": [
+    { label: { fr: "Le denier tenu contre le cœur", en: "The coin held to the heart" }, text: { fr: "Serrer l'avoir sur la poitrine, c'est le hisser au rang d'affection : le bien prend la place réservée à l'autre. Attachement du possédant, où le cœur ne bat plus que pour ce qu'il détient et se ferme à ce qu'il pourrait recevoir.", en: "Clutching wealth to the chest raises it to the rank of love: the possession takes the place meant for another. This is the owner's attachment, where the heart beats only for what it holds and shuts out all it might receive." } },
+    { label: { fr: "Le denier en couronne sur la tête", en: "The coin crowning the head" }, text: { fr: "Posée en équilibre au sommet du crâne, la pièce coiffe l'esprit comme un souverain : ce que tu possèdes gouverne désormais tes pensées. Fausse couronne du roi de Terre, elle dit l'obsession matérielle installée en maîtresse, la raison au service du calcul plutôt que du sens.", en: "Balanced atop the skull, the coin crowns the mind like a sovereign: what you own now governs your thoughts. A false crown of the king of Earth, it names material obsession enthroned as mistress, reason serving calculation rather than meaning." } },
+    { label: { fr: "Les deux deniers sous les pieds", en: "The two coins beneath the feet" }, text: { fr: "Fouler ses biens pour les clouer au sol scelle le mouvement : les pieds, organes de l'avancée, se muent en verrous. Terre figée qui refuse le devenir — la stabilité poussée jusqu'à l'immobilité, la racine devenue chaîne.", en: "Standing on one's goods to pin them down seals all motion: the feet, organs of advance, become bolts. Frozen Earth refusing to become — stability pushed to immobility, the root turned into a chain." } },
+    { label: { fr: "La posture fermée du corps", en: "The closed posture of the body" }, text: { fr: "Bras et jambes verrouillés en cercle autour du trésor dessinent une forteresse de chair. Ce repli défensif est la grammaire même de la carte : tout ce qui protège finit par emprisonner, et l'enceinte qui garde est aussi celle qui coupe du dehors.", en: "Arms and legs locked in a circle around the treasure trace a fortress of flesh. This defensive withdrawal is the card's very grammar: all that protects ends by imprisoning, and the wall that guards is also the one that severs from the world." } },
+    { label: { fr: "La cité dans le dos", en: "The city at his back" }, text: { fr: "La communauté prospère derrière lui, tournée le dos : la richesse gardée pour soi rompt le lien qui la rendait vivante. Terre stérile de l'accumulation solitaire — l'or ne circule plus, il stagne, et l'homme s'exile au seuil du monde qu'il pourrait nourrir.", en: "The thriving community lies behind him, turned away from: wealth kept for oneself severs the bond that made it alive. The barren Earth of solitary hoarding — gold no longer circulates, it stagnates, and the man exiles himself at the threshold of a world he could feed." } },
+  ],
+  "pentacles-05": [
+    { label: { fr: "Le vitrail aux cinq deniers", en: "The stained-glass window with five coins" }, text: { fr: "L’édifice sacré porte la richesse spirituelle et le secours, offerts à qui pousse la porte. Les cinq pentacles s’y ordonnent en arbre de vie : l’abondance est structurée, présente, mais tu la longes par-dessous. Le manque n’est pas d’objet, mais de lien.", en: "The sacred building holds spiritual wealth and refuge, offered to whoever enters. The five coins arrange into a tree of life: abundance is ordered, present, yet you pass below it. The lack is not of goods, but of belonging." } },
+    { label: { fr: "Les béquilles et le pied bandé", en: "The crutches and bandaged foot" }, text: { fr: "La blessure qui entrave la marche : faiblesse, maladie ou perte qui te retranche du monde des valides. Elle dit combien le dénuement est aussi du corps, non de la seule bourse. Ce qui te ralentit devient ce qui te tient à l’écart.", en: "The wound that hinders the walk: weakness, sickness or loss that cuts you off from the world of the able. It shows that destitution is of the body too, not of the purse alone. What slows you down becomes what shuts you out." } },
+    { label: { fr: "La cloche au cou du mendiant", en: "The bell at the beggar's neck" }, text: { fr: "Signe du lépreux, elle avertit d’écarter le contagieux : l’exclusion rendue visible, la marque qui fait fuir autrui. Elle sonne la honte intériorisée, celle qui te persuade que tu n’as pas droit au seuil. Le paria porte lui-même l’instrument de son bannissement.", en: "The leper's mark, it warns others to keep clear: exclusion made visible, the sign that drives people away. It tolls internalized shame, the kind that convinces you the threshold is not yours to cross. The outcast carries the very tool of his banishment." } },
+    { label: { fr: "La neige et la nuit", en: "The snow and the night" }, text: { fr: "L’élément Terre gelé, stérile : la matière qui ne nourrit plus, la saison morte de la vie. Le froid dénude tout et n’adoucit rien tant qu’on reste dehors. Il incarne l’épreuve à ciel ouvert, l’endurance nue quand aucun abri ne se donne.", en: "The element Earth frozen, barren: matter that no longer feeds, the dead season of a life. The cold strips everything and eases nothing while you stay outside. It embodies the open-air ordeal, bare endurance when no shelter offers itself." } },
+    { label: { fr: "Les deux marcheurs", en: "The two walkers" }, text: { fr: "L’épreuve ne s’endure pas seule : la détresse crée son propre lien, une camaraderie du malheur. Deux plutôt qu’un dit la solidarité des exclus, mais aussi le risque d’une errance à deux qui tourne en rond, l’un entraînant l’autre loin de la porte.", en: "The ordeal is not endured alone: distress forges its own bond, a fellowship of misfortune. Two rather than one speaks of the solidarity of outcasts, but also the risk of a shared wandering that circles endlessly, each leading the other away from the door." } },
+  ],
+  "pentacles-06": [
+    { label: { fr: "La balance", en: "The scales" }, text: { fr: "Attribut de la Justice glissé dans une scène d’aumône : la générosité vraie n’est pas élan aveugle mais pesée. Elle interroge le discernement du donateur — donner selon le juste, non selon l’humeur ni le pouvoir que le don confère.", en: "The Justice attribute slipped into a scene of alms: true generosity is not blind impulse but weighing. It questions the giver’s discernment — to give by what is fair, not by mood, nor by the power the gift confers." } },
+    { label: { fr: "Les deux mendiants", en: "The two beggars" }, text: { fr: "À genoux, ils incarnent la position basse du besoin, celle qui reçoit sans pouvoir rendre. Ils te rappellent que tout échange a un dessous et un dessus, et posent la question de la place : es-tu celui qui verse, ou celui qui attend ?", en: "On their knees, they embody the low posture of need, the one that takes without power to repay. They remind you every exchange has an over and an under, and pose the question of place: are you the one who pours, or the one who waits?" } },
+    { label: { fr: "Les pièces qui tombent", en: "The falling coins" }, text: { fr: "Deniers saisis en pleine chute, ni tout à fait donnés ni encore reçus : le don n’est réel qu’en mouvement. Ils disent la richesse comme flux et non comme réserve — retenue, elle stagne et pourrit ; laissée passer, elle féconde.", en: "Coins caught mid-fall, neither quite given nor yet received: the gift is real only in motion. They speak of wealth as flow rather than hoard — held back it stagnates and rots; let through, it fertilizes." } },
+    { label: { fr: "La main ouverte", en: "The open hand" }, text: { fr: "Paume tournée vers le bas, elle verse — mais une paume qui verse peut aussi se refermer. Là tient toute l’ambiguïté de la carte : le même geste offre et surplombe, libère et endette. La générosité y côtoie sa contrefaçon.", en: "Palm turned downward, it pours — yet a palm that pours can also close. Here lies the whole ambiguity of the card: the same gesture offers and looms over, frees and indebts. Generosity brushes against its counterfeit." } },
+    { label: { fr: "Les vêtements du marchand", en: "The merchant’s robes" }, text: { fr: "Rouge et riches, ils marquent le rang, l’avoir, la puissance temporelle. Ils rappellent que la charité se joue toujours entre inégaux : celui qui donne demeure debout, drapé, au-dessus. Le rang n’annule pas le don, mais le colore.", en: "Red and rich, they mark rank, having, worldly power. They recall that charity always plays out between unequals: the one who gives stays standing, robed, above. Rank does not void the gift, but it tints it." } },
+  ],
+  "pentacles-07": [
+    { label: { fr: "Les sept deniers sur le plant", en: "The seven pentacles on the plant" }, text: { fr: "Sept — le nombre de l’épreuve et de la mise à l’œuvre, où l’élan se heurte à la durée. Suspendus au feuillage, non cueillis, les deniers disent une valeur promise mais non acquise : ta richesse existe déjà, en puissance, et n’attend que le mûrissement pour devenir réelle.", en: "Seven — the number of trial and testing, where impulse meets duration. Hanging in the leaves, unpicked, the coins name a value promised yet unclaimed: your wealth already exists in potential, and awaits only ripening to become real." } },
+    { label: { fr: "L’appui sur la houe", en: "Leaning on the hoe" }, text: { fr: "L’outil planté et le corps qui s’y repose incarnent le labeur consenti, la part faite. C’est la pause légitime, non la paresse : l’instant où l’on cesse d’agir parce qu’agir davantage nuirait. Tenir l’outil sans s’en servir, c’est apprendre que la terre travaille aussi sans toi.", en: "The planted tool and the body resting on it embody labour freely given, the part done. This is legitimate pause, not idleness: the moment one stops acting because more action would harm. To hold the tool unused is to learn the earth works even without you." } },
+    { label: { fr: "Le regard incliné", en: "The bowed gaze" }, text: { fr: "Tête penchée sur ce qu’il a fait pousser, il incarne l’évaluation lucide. Ni fierté, ni fuite : l’œil qui jauge le rendement d’un investissement de vie. Ce regard te demande si la peine valait la récolte à venir, et si tu sais attendre sans céder au calcul anxieux.", en: "Head bent over what he has grown, he embodies clear-eyed assessment. Neither pride nor flight: the eye that gauges the yield of a life's investment. This gaze asks whether the toil was worth the coming harvest, and whether you can wait without slipping into anxious reckoning." } },
+    { label: { fr: "La terre et l’enseigne des Deniers", en: "The earth and the suit of Pentacles" }, text: { fr: "Les Deniers sont l’élément Terre : le concret, le corps, l’argent, le temps long des saisons. Ici la Terre impose sa loi — rien ne mûrit sur commande. Elle enracine ta question dans le tangible : ce qui compte se compte en récoltes, pas en désirs, et se paie en patience.", en: "Pentacles are the element Earth: the concrete, the body, money, the slow time of seasons. Here Earth lays down its law — nothing ripens on command. It roots your question in the tangible: what matters is counted in harvests, not desires, and paid for in patience." } },
+  ],
+  "pentacles-08": [
+    { label: { fr: "L’étoile gravée dans le disque", en: "The star carved into the disc" }, text: { fr: "Le pentacle n’est pas une pièce mais un sceau de Terre : matière domptée par la volonté. Le graver, c’est imprimer l’esprit dans le concret. Le huit du nombre le dit : la maîtrise n’est pas un don reçu mais une forme qu’on incise, coup après coup, dans le réel.", en: "The pentacle is no coin but a seal of Earth: matter tamed by will. To carve it is to press spirit into the concrete. The eight of the number says it: mastery is no gift received but a form one incises, blow after blow, into the real." } },
+    { label: { fr: "Les six ouvrages exposés", en: "The six finished works on display" }, text: { fr: "Alignés sur le poteau, les acquis deviennent visibles : le passé maîtrisé qui soutient le présent. Ils ne sont pas vanité mais mémoire du chemin, seuils franchis. Ta valeur ne s’affirme pas en paroles ; elle se donne à voir, œuvre après œuvre, sans exigence de public.", en: "Ranged on the post, what has been mastered becomes visible: the conquered past that supports the present. Not vanity but memory of the road, thresholds crossed. Your worth is not claimed in words; it is shown, work after work, asking for no audience." } },
+    { label: { fr: "L’établi et l’isolement", en: "The bench and the seclusion" }, text: { fr: "Le poste de travail est un espace sacré, retranché du monde. S’asseoir là, c’est choisir la profondeur contre la dispersion. L’isolement n’est pas fuite mais condition de l’art : rien ne se forge sous le regard permanent des autres, seul le silence laisse mûrir le geste juste.", en: "The workstation is a sacred space, cut off from the world. To sit there is to choose depth over dispersal. The seclusion is no flight but the very condition of craft: nothing is forged under others' constant gaze; only silence lets the true gesture ripen." } },
+    { label: { fr: "La ville au loin", en: "The town in the distance" }, text: { fr: "Séparée par une route, la cité incarne le monde qui attend et le retour à venir. On se retire pour se former, non pour renoncer. Elle rappelle que ce labeur solitaire a une destination : le talent perfectionné n’a de sens que rendu, un jour, à la communauté qui l’espère.", en: "Set apart by a road, the town embodies the world that waits and the return to come. One withdraws to train, not to renounce. It recalls that this solitary labor has a destination: perfected talent means something only when given back, one day, to the community that awaits it." } },
+    { label: { fr: "Le tablier d’artisan", en: "The craftsman's apron" }, text: { fr: "Vêtement du métier, il marque une identité choisie : non plus qui l’on rêve d’être, mais ce qu’on fait de ses mains. Porter le tablier, c’est accepter l’humilité du travail et l’effacement de l’ego devant l’ouvrage. On devient ce qu’on pratique, jour après jour.", en: "Garment of the trade, it marks a chosen identity: no longer who one dreams of being, but what one makes with one's hands. To wear the apron is to accept the humility of labor and the ego's self-effacement before the work. You become what you practice, day after day." } },
+  ],
+  "pentacles-09": [
+    { label: { fr: "Le faucon encapuchonné", en: "The hooded falcon" }, text: { fr: "Prédateur libre qu’on a choisi d’aveugler pour l’apprivoiser : c’est l’instinct dompté par ta seule volonté. Le capuchon dit une maîtrise consentie, non subie — tu commandes à ta part sauvage sans la tuer, et elle ne s’envole que sur ton ordre.", en: "A free predator deliberately blinded to be tamed: the instinct mastered by your will alone. The hood signals a chosen discipline, not a suffered one — you command your wild part without killing it, and it takes flight only at your bidding." } },
+    { label: { fr: "La vigne chargée", en: "The laden vine" }, text: { fr: "Plante de la patience par excellence : elle ne donne qu’après des saisons de taille et d’attente. Son abondance n’est pas chance mais rendement du temps investi ; elle dit que ta récolte est légitime, fruit d’une culture lente et d’un domaine tenu.", en: "The plant of patience above all: it yields only after seasons of pruning and waiting. Its abundance is not luck but the return on invested time; it says your harvest is legitimate, the fruit of slow cultivation and a well-kept domain." } },
+    { label: { fr: "L’escargot", en: "The snail" }, text: { fr: "Il porte sa maison sur son dos et avance sans hâte : figure de l’autosuffisance et de la sécurité intérieure. Il enseigne que la vraie richesse se transporte en soi ; nul besoin de courir, ta demeure et ta paix ne te quittent jamais.", en: "It carries its house on its back and moves without haste: an emblem of self-sufficiency and inner security. It teaches that true wealth is carried within; no need to rush, for your home and your peace never leave you." } },
+    { label: { fr: "La robe brodée", en: "The embroidered gown" }, text: { fr: "Ornée de motifs floraux, elle drape la réussite rendue visible. Le vêtement somptueux n’est pas vanité mais signature : il dit un statut gagné, une valeur que tu peux enfin afficher sans devoir la prouver à quiconque.", en: "Adorned with floral motifs, it drapes success made visible. The sumptuous garment is not vanity but signature: it declares a status earned, a worth you may at last display without needing to prove it to anyone." } },
+    { label: { fr: "Le jardin clos", en: "The walled garden" }, text: { fr: "Enceinte cultivée et protégée : l’espace que tu as délimité pour toi seul, à l’abri du monde. Il incarne la frontière saine, le territoire d’intimité où l’abondance peut mûrir sans être ni pillée ni partagée — un royaume à ta mesure.", en: "A cultivated, guarded enclosure: the space you have marked out for yourself alone, sheltered from the world. It embodies the healthy boundary, the territory of privacy where abundance can ripen without being plundered or shared — a realm scaled to you." } },
+  ],
+  "pentacles-10": [
+    { label: { fr: "Les dix deniers en arbre de vie", en: "The ten pentacles as Tree of Life" }, text: { fr: "Dix, le nombre de l’achèvement matériel : la spirale des Deniers touche son terme, plus rien à conquérir, tout à préserver. Épousant l’arbre de vie kabbalistique, l’or ne se compte plus mais s’ordonne — la matière devenue structure sacrée, la fortune promue en providence qui irrigue toute une maisonnée.", en: "Ten, the number of material completion: the Pentacles' spiral reaches its end, nothing left to win, everything to keep. Mapped onto the Kabbalistic Tree of Life, the gold is no longer counted but ordered — matter turned sacred structure, fortune raised into a providence feeding a whole household." } },
+    { label: { fr: "L’aïeul à l’écart", en: "The elder set apart" }, text: { fr: "Il incarne le temps accompli, celui qui a bâti et se retire déjà du tableau, à demi oublié des siens absorbés par leurs affaires. Sa robe brodée de pampres dit l’abondance méritée ; sa mise à l’écart, la solitude de qui transmet et le prix d’une réussite qui continue sans vraiment le voir.", en: "He embodies fulfilled time — the one who built and is already withdrawing from the scene, half-forgotten by kin absorbed in their own affairs. His vine-embroidered robe names earned abundance; his apartness names the loneliness of the one who hands down, the cost of a success that carries on without quite seeing him." } },
+    { label: { fr: "Les chiens blancs", en: "The white dogs" }, text: { fr: "La fidélité domestiquée, l’instinct rallié au foyer plutôt qu’à l’errance. Blancs, ils disent une loyauté sans tache, la garde paisible d’un bien acquis. Là où le chien du Fou pressait au saut, ceux-ci se couchent aux pieds de l’aïeul : la maison a apprivoisé jusqu’à la pulsion, la sécurité l’a emporté sur l’aventure.", en: "Domesticated loyalty, instinct rallied to hearth rather than roaming. White, they speak of unblemished faithfulness, the peaceful guarding of what has been won. Where the Fool's dog urged the leap, these lie at the elder's feet: the house has tamed even impulse, security has won out over adventure." } },
+    { label: { fr: "L’arche au blason", en: "The arch with its coat of arms" }, text: { fr: "Le seuil, frontière entre le clan et le dehors. Gravé d’armoiries, il fait de la richesse un nom : ce qui se transmet n’est pas que l’or mais l’appartenance, l’identité héritée. Passer sous l’arche, c’est entrer dans une histoire déjà écrite — abri pour qui s’y reconnaît, muraille pour qui étouffe d’en être.", en: "The threshold, boundary between clan and outside. Carved with heraldry, it turns wealth into a name: what passes down is not only gold but belonging, inherited identity. To step under the arch is to enter a story already written — a shelter for those who recognize themselves in it, a wall for those it smothers." } },
+    { label: { fr: "Le couple et l’enfant", en: "The couple and the child" }, text: { fr: "La continuité vivante de la lignée : le présent qui reçoit, l’avenir qui tend déjà la main vers l’héritage. L’enfant qui touche un denier scelle la promesse de transmission — mais aussi le risque, celui d’une fortune donnée avant d’être méritée, d’un patrimoine qui définit une vie avant qu’elle se choisisse.", en: "The living continuity of the line: the present that receives, the future already reaching toward the inheritance. The child touching a pentacle seals the promise of transmission — but also the risk, that of a fortune given before it is earned, of an estate that defines a life before it can choose itself." } },
+  ],
+  "pentacles-11": [
+    { label: { fr: "Le pentacle levé et contemplé", en: "The pentacle raised and contemplated" }, text: { fr: "Un seul denier dans tout le tableau, porté à hauteur du regard : la matière encore promesse, non possession. Le Valet ne dépense ni ne thésaurise — il étudie. Ce cercle d’or est l’objet d’un apprentissage, la vocation qu’on soupèse avant de s’y engager corps et âme.", en: "A single coin in the whole scene, borne at eye level: matter still promise, not yet possession. The Page neither spends nor hoards — he studies. This golden disc is the object of an apprenticeship, the calling one weighs before committing body and soul." } },
+    { label: { fr: "Le regard absorbé", en: "The absorbed gaze" }, text: { fr: "Toute la posture converge vers la pièce : concentration totale, presque dévotion. C’est la vertu et le piège du Valet — la Terre appelle l’attention soutenue, mais fixer l’objet trop longtemps sans agir, c’est glisser de l’étude à la rêverie stérile.", en: "The whole posture bends toward the coin: total concentration, near devotion. This is the Page's virtue and his trap — Earth demands sustained attention, yet to fix on the object too long without acting is to slide from study into barren reverie." } },
+    { label: { fr: "Le champ labouré", en: "The ploughed field" }, text: { fr: "Les sillons retournés disent le travail déjà entamé sur le réel : la Terre ne récompense que la peine. Ils rappellent au jeune contemplateur que la promesse tenue en main n’a de valeur que rendue au sol — le savoir doit devenir pratique, ou il se dessèche.", en: "The turned furrows speak of labour already begun upon the real: Earth rewards only toil. They remind the young dreamer that the promise held aloft counts for nothing until returned to the ground — knowledge must become practice, or it withers." } },
+    { label: { fr: "La prairie fleurie", en: "The flowering meadow" }, text: { fr: "L’herbe drue semée de fleurs marque la fécondité du terrain : le potentiel est bien là, généreux, offert. Mais la floraison au sol n’est encore que promesse spontanée — à toi de la cultiver en quelque chose de durable plutôt que de la laisser passer.", en: "The lush grass strewn with flowers marks the fertility of the ground: the potential is truly there, generous, offered. Yet the bloom at his feet is still only spontaneous promise — yours to cultivate into something lasting rather than let it pass." } },
+    { label: { fr: "Les arbres à l’horizon", en: "The trees on the horizon" }, text: { fr: "Le bosquet lointain figure la maturité au bout du chemin : la croissance lente et patiente que la Terre seule accorde. Ils te montrent où mène l’apprentissage tenu — non un éclat soudain, mais un enracinement qui prend des années et ne trompe pas.", en: "The distant grove figures maturity at the end of the road: the slow, patient growth that Earth alone grants. It shows where a steady apprenticeship leads — not sudden brilliance but a rooting that takes years and does not deceive." } },
+  ],
+  "pentacles-12": [
+    { label: { fr: "L’arrêt du cavalier", en: "The knight at a standstill" }, text: { fr: "Seul cavalier du Tarot à ne pas s’élancer, il fait de l’immobilité une décision. Là où les autres chevaliers sont mouvement pur, il incarne la vertu de Terre : peser, examiner, ne s’engager qu’à coup sûr. Sa lenteur n’est pas faiblesse mais fondation.", en: "The only knight in the Tarot who does not spur forward, he makes stillness a decision. Where the other knights are pure motion, he embodies the virtue of Earth: to weigh, to examine, to commit only when certain. His slowness is no weakness but a foundation." } },
+    { label: { fr: "Le cheval de trait noir", en: "The black draught horse" }, text: { fr: "Non un coursier mais une bête de labour, massive et sans fougue : la puissance instinctive domestiquée pour l’endurance, non pour la course. Le noir dit la matière brute, la terre elle-même. C’est l’énergie qui ne s’épuise pas parce qu’elle refuse de se hâter.", en: "Not a courser but a labouring beast, massive and without fire: instinctual power tamed for endurance rather than speed. Its blackness speaks of raw matter, of the soil itself. This is the energy that never burns out because it refuses to hurry." } },
+    { label: { fr: "Le denier tenu et contemplé", en: "The pentacle held and contemplated" }, text: { fr: "Il ne le brandit pas : il le tient devant lui, posé dans sa main, et ne le quitte pas des yeux. Le pentacle est l’œuvre concrète, la valeur gardée en vue sans jamais la lâcher. Contempler ainsi son objectif, c’est en faire une charge sacrée plutôt qu’une possession.", en: "He does not brandish it: he holds it up before him, cradled in his hand, and never looks away. The pentacle is the concrete work, the value kept in sight and never let slip. To contemplate one's goal this way is to make it a sacred charge rather than a possession." } },
+    { label: { fr: "Le champ labouré", en: "The ploughed field" }, text: { fr: "Les sillons déjà tracés attestent d’un travail accompli avant même la scène : la terre préparée, prête à recevoir la graine. Ils promettent que l’effort méthodique porte, mais aussi que rien ne lève sans l’attente. Le fruit appartient au temps, pas à l’impatience.", en: "The furrows already cut attest to work done before the scene itself: earth prepared, ready to take the seed. They promise that methodical effort bears fruit, yet also that nothing rises without the wait. The harvest belongs to time, not to impatience." } },
+    { label: { fr: "L’élément Terre", en: "The element of Earth" }, text: { fr: "L’enseigne des Deniers gouverne le corps, l’argent, l’ouvrage des mains — tout ce qui se mesure et se garde. Le Cavalier en est le mouvement le plus lent, celui qui incarne la terre en marche : lourde, féconde, mais toujours menacée de se figer en simple pesanteur.", en: "The suit of Pentacles governs the body, money, the work of hands — all that can be measured and kept. The Knight is its slowest motion, the one who embodies earth in movement: heavy, fertile, yet forever at risk of settling into mere dead weight." } },
+  ],
+  "pentacles-13": [
+    { label: { fr: "Le pentacle bercé sur les genoux", en: "The pentacle cradled on her lap" }, text: { fr: "La richesse qu’on couve comme un enfant, non qu’on brandit : matière devenue objet de tendresse. Le regard baissé sur elle dit une intelligence intériorisée du concret — savoir, sans mots, ce dont un corps ou un foyer a besoin. La valeur ici se soigne, elle ne se montre pas.", en: "Wealth brooded over like a child rather than brandished: matter made an object of tenderness. Her lowered gaze marks an inward intelligence of the concrete — knowing wordlessly what a body or a home requires. Value here is tended, not displayed." } },
+    { label: { fr: "Le trône sculpté de fruits et de chèvres", en: "The throne carved with fruit and goats" }, text: { fr: "Sur la pierre : fruits, angelots, béliers du Capricorne — terre gouvernée par Saturne. Son autorité ne s’impose pas d’en haut, elle pousse d’en bas, comme une plante. Le trône dit que l’ancrage matériel devient siège légitime : régner par la fertilité et la constance, non par la force.", en: "Carved in the stone: fruit, cherubs, the Capricorn rams — earth ruled by Saturn. Her authority does not press down from above; it grows up from below, like a plant. The throne says material rootedness becomes rightful seat: to rule by fertility and constancy, not by force." } },
+    { label: { fr: "La treille de roses rouges", en: "The bower of red roses" }, text: { fr: "Arceau de Vénus au-dessus de sa tête : le foyer qu’elle fait fleurir, sensuel, chaleureux, vivant. Mais la rose porte l’épine — l’amour qui nourrit sait aussi blesser, retenir, étouffer. La beauté domestique a un prix, et cette treille en marque le seuil.", en: "A Venusian arch above her head: the home she brings to bloom, sensual, warm, alive. Yet the rose carries the thorn — love that nourishes can also wound, cling, smother. Domestic beauty exacts a price, and this bower marks its threshold." } },
+    { label: { fr: "Le lièvre bondissant", en: "The leaping hare" }, text: { fr: "À ses pieds, l’animal de la fécondité et du désir : la vie qui se multiplie d’elle-même, sans qu’on la commande. Mais le lièvre est aussi nervosité, fuite, instinct qui traverse ce jardin trop parfait — un rappel que l’abondance reste inquiète, jamais tout à fait apprivoisée.", en: "At her feet, the beast of fertility and desire: life multiplying of its own accord, ungoverned. Yet the hare is also skittishness, flight, instinct darting through this too-perfect garden — a reminder that abundance stays restless, never wholly tamed." } },
+    { label: { fr: "Le jardin foisonnant", en: "The teeming garden" }, text: { fr: "Autour d’elle, tout croît et donne : c’est le royaume de Terre porté à son plein rendement. Le jardin prouve que sa vertu n’est pas de posséder mais de faire pousser — transformer le soin en récolte. Domaine cultivé, il oppose la patience du vivant à la stérilité du seul avoir.", en: "All around her everything grows and gives: the realm of Earth brought to full yield. The garden proves her virtue is not to possess but to make grow — turning care into harvest. A cultivated domain, it sets the patience of living things against the sterility of mere having." } },
+  ],
+  "pentacles-14": [
+    { label: { fr: "Le trône aux mufles de taureau", en: "The throne of bull heads" }, text: { fr: "Le taureau, signe de terre fixe, dit la force qui ne bouge pas : patience, endurance, obstination fertile. Assis sur elle, tu tiens ton pouvoir de ce qui dure, non de ce qui s’élance. C’est l’assise même du roi — inébranlable tant qu’elle sert, écrasante quand elle refuse de plier.", en: "The bull, fixed earth sign, names the strength that does not stir: patience, endurance, fertile obstinacy. Seated upon it, you draw your power from what lasts, not from what leaps. It is the king's very foundation — unshakable while it serves, crushing when it refuses to bend." } },
+    { label: { fr: "Le denier sous la main", en: "The pentacle beneath his hand" }, text: { fr: "L’or reposant sans crispation dit la juste relation à la matière : tu possèdes sans être possédé, tu touches la richesse sans t’y agripper. La main détendue est tout le secret du roi — la même paume qui, serrée en poing, ferait de lui l’avare inversé.", en: "Gold at rest under an easy hand names the right bond with matter: you own without being owned, you touch wealth without clutching it. That relaxed hand is the king's whole secret — the very palm that, clenched to a fist, would make him the miser of the reversal." } },
+    { label: { fr: "La vigne et les grappes brodées", en: "The embroidered vine and grapes" }, text: { fr: "La vigne est l’abondance qui a mûri : elle ne se cueille qu’après des saisons de soin. Portée sur toi comme une seconde peau, elle dit une richesse cultivée et non raflée, la fécondité de la Terre récompensant la constance. Ton opulence est le fruit d’un long travail, non d’un coup de chance.", en: "The vine is abundance that has ripened: it yields only after seasons of tending. Worn upon you like a second skin, it speaks of wealth cultivated, not seized — Earth's fertility rewarding constancy. Your plenty is the fruit of long labor, never of a lucky stroke." } },
+    { label: { fr: "Le château et le domaine derrière lui", en: "The castle and domain behind him" }, text: { fr: "L’édifice dans son dos n’est pas décor mais héritage : l’œuvre matérielle accomplie, l’empire bâti pierre à pierre. Il dit ce que l’ancrage produit dans le temps — un legs, une structure qui te survivra. Mais tourner le dos au monde pour garder sa muraille, c’est déjà glisser vers la forteresse.", en: "The structure at his back is not scenery but legacy: the material work achieved, an estate built stone by stone. It shows what rootedness yields over time — an inheritance, a structure that outlasts you. Yet to turn your back on the world to guard your wall is already to slide toward the fortress." } },
+    { label: { fr: "L’armure sous la robe royale", en: "The armor beneath the royal robe" }, text: { fr: "Sous la pourpre et les fruits, le métal affleure : le roi de Terre reste un défenseur. Sa douceur n’est pas mollesse — il sait protéger ce qu’il a bâti. L’armure dit la vigilance du pourvoyeur ; dévoyée, elle devient méfiance, la peur de perdre changée en cuirasse permanente.", en: "Beneath the purple and the fruit, metal shows through: the earthly king remains a defender. His ease is not softness — he can guard what he built. The armor speaks of the provider's vigilance; corrupted, it turns to mistrust, the fear of loss set hard into a permanent shell." } },
   ],
 };

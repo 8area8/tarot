@@ -1,579 +1,571 @@
 import type { CardContent } from '../lib/types';
 
 /**
- * Contenu des 56 arcanes mineurs (cadre JDR solo, FR+EN).
- * Chaque « meaning » évoque la scène RWS de la carte pour ouvrir l'imaginaire,
- * sur un socle symbolique tissé en filigrane : numérologie du rang × élément de
- * l'enseigne (Bâtons=Feu, Coupes=Eau, Épées=Air, Deniers=Terre). Voir cards.ts.
- * Registre : nominal + tutoiement léger ; l'inversé = tournure assombrie/bloquée/dévoyée.
- * Clé = id de la carte (ex. "wands-01"). Fusionné dans cards.ts.
+ * Contenu des 56 arcanes mineurs (FR+EN). Chaque « meaning » est une lecture
+ * SYMBOLIQUE concise (ce que la carte signifie, pas ce que l'image montre) ;
+ * le détail par élément vit dans symbols.ts. Clé = id de la carte (« wands-01 »).
+ * Socle : numérologie du rang × élément de l'enseigne (Bâtons=Feu, Coupes=Eau,
+ * Épées=Air, Deniers=Terre). Registre : nominal + tutoiement léger ; inversé = assombri.
  */
 export const MINOR_CONTENT: Record<string, CardContent> = {
-  // ─────────────── BÂTONS / WANDS (feu : énergie, action, conflit) ───────────────
-  'wands-01': {
+  "wands-01": {
     keywords: {
-      upright: { fr: ['étincelle', 'occasion', 'élan', 'énergie neuve'], en: ['spark', 'opportunity', 'drive', 'fresh energy'] },
-      reversed: { fr: ['faux départ', 'énergie dispersée', 'retard', 'projet avorté'], en: ['false start', 'scattered energy', 'delay', 'stalled venture'] },
+      upright: { fr: ["étincelle", "occasion", "élan", "énergie neuve"], en: ["spark", "opportunity", "drive", "fresh energy"] },
+      reversed: { fr: ["faux départ", "énergie dispersée", "retard", "projet avorté"], en: ["false start", "scattered energy", "delay", "stalled venture"] },
     },
     meaning: {
-      upright: { fr: "Une main jaillit d'un nuage et brandit un bâton verdoyant, encore couvert de feuilles neuves. Rien n'est bâti, tout est promesse : un feu qui prend, un désir qui se lève, la sève d'un commencement offert à qui saura le saisir. Au loin, un château sur sa colline — le premier appel d'une aventure.", en: "A hand thrusts from a cloud, gripping a living branch still crowned with new leaves. Nothing is built yet, all is promise: a fire catching, a desire rising, the sap of a beginning held out to whoever will seize it. Far off, a castle on its hill — the first summons of an adventure." },
-      reversed: { fr: "La main tend le bâton, mais aucune flamme ne prend. Les feuilles neuves fanent avant d'avoir grandi, l'élan se disperse en gestes sans lendemain. Une occasion couve encore dans la paume — refroidie, retardée, faute d'un souffle pour l'attiser.", en: "The hand offers the branch, yet no flame will catch. The new leaves wither before they can grow, the impulse scatters into gestures with no morrow. A chance still smoulders in the palm — cooled, delayed, wanting a breath to fan it." },
+      upright: { fr: "La racine du Feu : le désir avant qu’il n’ait un nom. Une pure impulsion créatrice t’est offerte, brute, sans forme encore — l’instant où la volonté prend feu. Rien n’est acquis, tout est potentiel ardent : saisis l’élan pendant qu’il flambe.", en: "The root of Fire: desire before it has a name. A raw creative impulse is offered to you, brute and unshaped — the instant will catches fire. Nothing is earned, everything is burning potential: seize the surge while it blazes." },
+      reversed: { fr: "Le même feu, mais qui ne prend pas. L’élan te traverse sans t’embraser : envie sans direction, ardeur qui retombe, projet allumé puis abandonné. La force est là, dévoyée en agitation ou étouffée par le doute — tu tiens la mèche, il manque la flamme.", en: "The same fire, failing to catch. The impulse passes through you without kindling: appetite without aim, ardour that sinks back, a venture lit then dropped. The force is present, misspent in restlessness or smothered by doubt — you hold the wick, the flame is missing." },
     },
   },
-  'wands-02': {
+  "wands-02": {
     keywords: {
-      upright: { fr: ['plan', 'horizon', 'décision', 'ambition'], en: ['planning', 'horizon', 'decision', 'ambition'] },
-      reversed: { fr: ['hésitation', 'peur du saut', 'statu quo', 'indécision'], en: ['hesitation', 'fear of the leap', 'status quo', 'indecision'] },
+      upright: { fr: ["plan", "horizon", "décision", "ambition"], en: ["planning", "horizon", "decision", "ambition"] },
+      reversed: { fr: ["hésitation", "peur du saut", "statu quo", "indécision"], en: ["hesitation", "fear of the leap", "status quo", "indecision"] },
     },
     meaning: {
-      upright: { fr: "Un homme se tient sur son rempart, un globe au creux de la main, le regard perdu vers la mer et les terres qu'il n'a pas encore touchées. Un bâton reste fiché derrière lui, l'autre serré contre lui : ce qu'il possède le tient, ce qu'il désire l'appelle. Tout est prêt pour le départ — il ne manque que le pas.", en: "A man stands on his rampart, a small globe cupped in his hand, his gaze cast toward the sea and the lands he has not yet touched. One staff is fixed behind him, the other held close: what he owns anchors him, what he craves calls out. All is set for departure — only the step is missing." },
-      reversed: { fr: "Le globe pèse dans la paume, mais le pied ne quitte pas la pierre. L'horizon reste un tableau qu'on admire de loin, l'ambition s'enlise dans le confort du déjà-acquis. On tourne le monde entier entre ses doigts sans jamais franchir le mur.", en: "The globe weighs in the hand, but the foot will not leave the stone. The horizon stays a picture admired from afar, ambition sinking into the comfort of what is already held. The whole world turns between the fingers, and never once is the wall crossed." },
+      upright: { fr: "Le vertige du seuil : tu as déjà bâti, et cela ne suffit plus. Le pouvoir de choisir sa direction, de miser sur l’inconnu plutôt que de jouir de l’acquis. L’ambition demande un premier renoncement pour devenir voyage.", en: "The vertigo of the threshold: you have already built, and it no longer suffices. The power to choose your bearing, to wager on the unknown rather than savor what is won. Ambition asks a first renunciation before it can become a journey." },
+      reversed: { fr: "L’élan retenu : tu contemples ton empire sans oser l’étendre. La décision se dilue en projets qui restent des vues de l’esprit, le confort du déjà-tenu étouffe le feu. Rêver le monde te dispense de le rejoindre.", en: "Momentum held back: you survey your domain without daring to widen it. Decision dissolves into schemes that stay mere prospects; the comfort of the held smothers the fire. Dreaming the world spares you from reaching it." },
     },
   },
-  'wands-03': {
+  "wands-03": {
     keywords: {
-      upright: { fr: ['progrès', 'renforts', 'expansion', 'premiers fruits'], en: ['progress', 'reinforcements', 'expansion', 'first fruits'] },
-      reversed: { fr: ['retard', 'obstacle', 'attente vaine', 'vue courte'], en: ['delay', 'obstacle', 'fruitless wait', 'short sight'] },
+      upright: { fr: ["progrès", "renforts", "expansion", "premiers fruits"], en: ["progress", "reinforcements", "expansion", "first fruits"] },
+      reversed: { fr: ["retard", "obstacle", "attente vaine", "vue courte"], en: ["delay", "obstacle", "fruitless wait", "short sight"] },
     },
     meaning: {
-      upright: { fr: "Une figure de dos, campée sur la hauteur, contemple les navires qui glissent vers le large. Trois bâtons plantés autour d'elle tiennent bon comme les jalons d'une entreprise déjà lancée. Les premiers efforts ont pris le vent ; ce qui est parti reviendra plus vaste, et le regard suit la promesse à l'horizon.", en: "A figure seen from behind, planted on the height, watches the ships slide toward open water. Three staves stand around them like the markers of a venture already under way. The first efforts have caught the wind; what set out will return enlarged, and the gaze follows the promise to the horizon." },
-      reversed: { fr: "Les voiles s'attardent sur une mer qui ne rend rien. On scrute l'horizon jour après jour, les bâtons plantés dans un sol qui ne porte plus — l'expansion espérée bute sur un obstacle qu'on n'avait pas vu venir. L'attente s'étire et l'élan se fatigue.", en: "The sails linger on a sea that yields nothing back. Day after day the horizon is scanned, the staves rooted in ground that bears no more — the hoped-for growth snags on an obstacle unseen. The waiting draws out, and the drive grows weary." },
+      upright: { fr: "L’instant où l’effort semé revient élargi. Tu as engagé quelque chose et cela a pris le vent : la vision porte plus loin que tes mains, l’expansion est déjà en route. Ce feu, c’est la confiance qui attend son retour, non plus dans l’effort mais dans l’horizon.", en: "The moment when effort sown comes back enlarged. You committed to something and it caught the wind: your vision reaches farther than your hands, expansion already under way. This fire is the confidence that awaits its return no longer in the toil, but on the horizon." },
+      reversed: { fr: "La vision se rétrécit à la longueur du quai. L’expansion promise se heurte à un retard, un renfort qui manque, un calcul trop court. Tu guettes un retour qui ne vient pas — le feu n’est pas éteint, mais il brûle en pure attente, sans le large pour le nourrir.", en: "The vision shrinks to the length of the pier. The promised expansion snags on delay, on missing support, on too short a reckoning. You watch for a return that does not come — the fire is not out, but it burns in mere waiting, with no open water to feed it." },
     },
   },
-  'wands-04': {
+  "wands-04": {
     keywords: {
-      upright: { fr: ['fête', 'foyer', 'célébration', 'étape'], en: ['celebration', 'home', 'milestone', 'stability'] },
-      reversed: { fr: ['harmonie fragile', 'transition', 'soutien absent', 'instabilité'], en: ['fragile harmony', 'transition', 'missing support', 'instability'] },
+      upright: { fr: ["fête", "foyer", "célébration", "étape"], en: ["celebration", "home", "milestone", "stability"] },
+      reversed: { fr: ["harmonie fragile", "transition", "soutien absent", "instabilité"], en: ["fragile harmony", "transition", "missing support", "instability"] },
     },
     meaning: {
-      upright: { fr: "Quatre bâtons dressés portent une guirlande de fleurs et de fruits, comme un seuil de fête sous le grand jour. Au-delà, deux silhouettes lèvent leurs bouquets vers le château : un foyer atteint, une récolte partagée, une étape que l'on célèbre à plusieurs. La joie repose enfin sur des bases sûres.", en: "Four staves raised bear a garland of flowers and fruit, a threshold of celebration under open sky. Beyond it, two figures lift their bouquets toward the castle: a home reached, a harvest shared, a milestone marked together. Joy rests at last on solid ground." },
-      reversed: { fr: "La guirlande tient encore, mais les fleurs commencent à pencher. La fête sonne un peu creux, le foyer vacille sur ses appuis, un convive manque à l'appel. L'harmonie est réelle — seulement plus fragile qu'elle n'en a l'air, et le seuil demande à être consolidé.", en: "The garland still holds, but the flowers have begun to droop. The feast rings a little hollow, the home teeters on its footing, one guest is missing from the gathering. The harmony is real — only frailer than it looks, and the threshold asks to be shored up." },
+      upright: { fr: "Le premier accomplissement stable : le Feu de la volonté, après l’élan et la lutte, trouve enfin un seuil où reposer. Tu franchis une étape, tu es accueilli, ta place est reconnue par les tiens. Joie communautaire, foyer fondé, promesse tenue.", en: "The first stable accomplishment: the Fire of will, after its surge and struggle, finds a threshold to rest upon. You cross a milestone, you are welcomed, your place is acknowledged by your own. Communal joy, a home founded, a promise kept." },
+      reversed: { fr: "La même joie, mais désancrée : la célébration précède les fondations, ou l’appartenance sonne creux. Un seuil qu’on veut franchir avant qu’il tienne, un foyer dont le soutien se dérobe. Fête forcée, transition qui grince, harmonie qui demande encore ses appuis.", en: "The same joy, but unmoored: celebration outrunning its foundations, or belonging that rings hollow. A threshold you rush before it holds, a home whose support slips away. A forced feast, a grinding transition, harmony still asking for its footing." },
     },
   },
-  'wands-05': {
+  "wands-05": {
     keywords: {
-      upright: { fr: ['querelle', 'rivalité', 'mêlée', 'chaos'], en: ['quarrel', 'rivalry', 'skirmish', 'chaos'] },
-      reversed: { fr: ['trêve', 'compromis', 'conflit évité', 'apaisement'], en: ['truce', 'compromise', 'conflict avoided', 'de-escalation'] },
+      upright: { fr: ["querelle", "rivalité", "mêlée", "chaos"], en: ["quarrel", "rivalry", "skirmish", "chaos"] },
+      reversed: { fr: ["trêve", "compromis", "conflit évité", "apaisement"], en: ["truce", "compromise", "conflict avoided", "de-escalation"] },
     },
     meaning: {
-      upright: { fr: "Cinq jeunes gens brandissent leurs bâtons dans une mêlée désordonnée, chacun frappant l'air sans viser vraiment. Ce n'est pas la guerre mais la friction : rivalités, voix qui se couvrent, ardeurs qui se heurtent faute de s'accorder. L'équilibre a cédé, et l'énergie tourne au chaos avant de trouver son camp.", en: "Five youths raise their staves in a ragged scrum, each striking the air without truly aiming. This is not war but friction: rivalries, voices talking over one another, ardours colliding for want of accord. The balance has broken, and the energy churns into chaos before it finds its side." },
-      reversed: { fr: "Les bâtons s'abaissent, la mêlée se dénoue. On lâche prise, on cherche un terrain d'entente, ou l'on quitte la place avant que les coups ne portent. Le feu de la dispute retombe — trêve gagnée ou querelle esquivée, le fracas cède au silence.", en: "The staves come down, the scrum unknots. Grips loosen, common ground is sought, or the field is quit before the blows land. The fire of the quarrel dies down — a truce won or a fight sidestepped, the clamour giving way to quiet." },
+      upright: { fr: "Le Feu qui se resserre sur lui-même : cinq ardeurs qui veulent la même arène et refusent de s’accorder. Épreuve, pas guerre — la friction créatrice où tu affûtes ta volonté au contact d’autres volontés. Rien n’est encore perdu ; rien n’est tranché.", en: "Fire crowded against itself: five ardours claiming the same arena, none willing to yield. A trial, not a war — the creative friction where you sharpen your will against other wills. Nothing is lost yet; nothing is settled." },
+      reversed: { fr: "La friction retombe, mais deux voies s’écartent. Soit l’accord mûri, la rivalité muée en effort commun ; soit l’esquive — tu quittes la mêlée sans avoir mesuré ta force, et la question reste ouverte, remise à plus tard.", en: "The friction subsides, but two roads part. Either accord ripens, rivalry turning into shared effort; or evasion — you leave the fray without testing your strength, the question left open, merely postponed." },
     },
   },
-  'wands-06': {
+  "wands-06": {
     keywords: {
-      upright: { fr: ['victoire', 'triomphe', 'honneurs', 'reconnaissance'], en: ['victory', 'triumph', 'honours', 'recognition'] },
-      reversed: { fr: ['gloire volée', 'doute', 'revers public', 'orgueil'], en: ['stolen glory', 'doubt', 'public setback', 'pride'] },
+      upright: { fr: ["victoire", "triomphe", "honneurs", "reconnaissance"], en: ["victory", "triumph", "honours", "recognition"] },
+      reversed: { fr: ["gloire volée", "doute", "revers public", "orgueil"], en: ["stolen glory", "doubt", "public setback", "pride"] },
     },
     meaning: {
-      upright: { fr: "Un cavalier s'avance couronné de laurier, son bâton orné d'une guirlande, porté par la clameur de ceux qui l'entourent. Après la mêlée vient le retour glorieux : l'effort reconnu, les honneurs rendus, la tête haute au milieu des acclamations. Le répit d'un triomphe que la foule confirme.", en: "A rider comes forward crowned with laurel, his staff wreathed in a garland, borne up by the cheers around him. After the fray comes the glorious return: effort acknowledged, honours paid, head held high amid the acclaim. The respite of a triumph the crowd confirms." },
-      reversed: { fr: "Le laurier tient mal sur le front, et la clameur s'est tue. La victoire revient à un autre, les acclamations manquent, ou l'orgueil enfle juste avant de trébucher. Le cortège se disperse et laisse le cavalier seul avec un triomphe que nul ne vient saluer.", en: "The laurel sits poorly on the brow, and the cheering has fallen silent. The victory is claimed by another, the acclaim withheld, or pride swells just before the stumble. The procession thins and leaves the rider alone with a triumph no one comes to hail." },
+      upright: { fr: "La victoire reconnue, et le rare moment où elle se dit tout haut. Ton effort a porté, le monde le nomme, et cette parole extérieure te sacre autant que l’acte lui-même. Tu avances porté par une confiance légitime : ose recevoir l’hommage sans t’en excuser.", en: "Victory acknowledged, and the rare moment when it is said aloud. Your effort bore fruit, the world names it, and that outward word crowns you as much as the deed. You move carried by earned confidence: dare to receive the honour without apology." },
+      reversed: { fr: "Le même triomphe, mais faussé. La reconnaissance manque, tarde, ou revient à un autre ; ou bien elle t’a grisé et l’orgueil précède la chute. Tu confonds l’applaudissement avec ta valeur : le sacre extérieur t’échappe, ou te tient captif.", en: "The same triumph, gone awry. Recognition is withheld, delayed, or claimed by another; or it has intoxicated you and pride outruns the fall. You mistake applause for worth: the outward crowning slips away, or holds you captive." },
     },
   },
-  'wands-07': {
+  "wands-07": {
     keywords: {
-      upright: { fr: ['défi', 'tenir tête', 'défense', 'avantage'], en: ['challenge', 'standing firm', 'defence', 'high ground'] },
-      reversed: { fr: ['débordé', 'épuisement', 'recul', 'abandon'], en: ['overwhelmed', 'exhaustion', 'retreat', 'giving up'] },
+      upright: { fr: ["défi", "tenir tête", "défense", "avantage"], en: ["challenge", "standing firm", "defence", "high ground"] },
+      reversed: { fr: ["débordé", "épuisement", "recul", "abandon"], en: ["overwhelmed", "exhaustion", "retreat", "giving up"] },
     },
     meaning: {
-      upright: { fr: "Un homme campé sur une éminence frappe de son bâton contre six autres qui montent à l'assaut d'en bas. Il tient le terrain haut, seul face au nombre, chaque coup défendant ce qu'il a conquis. La position est rude mais l'avantage lui reste — tant que le bras et la volonté ne faiblissent pas.", en: "A man braced on a rise beats down with his staff against six others surging up from below. He holds the high ground, one against many, each blow defending what he has won. The stance is punishing, yet the advantage stays with him — so long as arm and will do not fail." },
-      reversed: { fr: "Les assaillants gagnent la pente et le bâton pèse trop lourd. Épuisé, débordé, on recule d'un pas puis d'un autre, la hauteur qui protégeait se dérobe. Tenir tête n'est plus que tenir bon, de plus en plus mal — et le terrain, coup après coup, glisse entre les doigts.", en: "The attackers gain the slope and the staff grows too heavy to lift. Worn out, overwhelmed, one gives a step and then another, the height that shielded slipping away. Standing one's ground shrinks to barely holding on — and the terrain, blow by blow, slides through the fingers." },
+      upright: { fr: "Le courage de la position tenue. Tu défends seul ce que tu as conquis, et la hauteur — conviction, légitimité, preuves déjà faites — te donne l’avantage sur le nombre. C’est ta constance sous pression, pas ta force brute, qui garde le terrain.", en: "The courage of a position held. You defend alone what you have won, and the high ground — conviction, legitimacy, proof already given — gives you the edge over sheer numbers. It is your steadiness under pressure, not raw force, that keeps the ground." },
+      reversed: { fr: "La même vaillance, mais vidée. À force de tout parer, tu t’épuises et doutes de mériter la place que tu défends. La pression finit par payer : tu cèdes un pas, puis un autre, ou tu te bats désormais contre des menaces que tu inventes. Tenir tête devient s’accrocher.", en: "The same valour, but drained. From parrying everything you wear thin and doubt you deserve the place you defend. The pressure tells: you give a step, then another, or you now fight threats you invent. Standing firm curdles into merely clinging on." },
     },
   },
-  'wands-08': {
+  "wands-08": {
     keywords: {
-      upright: { fr: ['rapidité', 'nouvelles', 'mouvement', 'action'], en: ['speed', 'news', 'movement', 'action'] },
-      reversed: { fr: ['retard', 'message perdu', 'précipitation', 'blocage'], en: ['delay', 'lost message', 'haste', 'blockage'] },
+      upright: { fr: ["rapidité", "nouvelles", "mouvement", "action"], en: ["speed", "news", "movement", "action"] },
+      reversed: { fr: ["retard", "message perdu", "précipitation", "blocage"], en: ["delay", "lost message", "haste", "blockage"] },
     },
     meaning: {
-      upright: { fr: "Huit bâtons filent dans un ciel dégagé, tous lancés dans le même sens, sans personne pour les retenir. La campagne verte défile sous leur course, l'air siffle de vitesse. Rien ne freine : messages en chemin, choses déjà en route, un élan qui se précipite vers son but.", en: "Eight staves streak across a clear sky, all loosed the same way, with no hand to hold them back. Green country flows beneath their flight, the air whistling with speed. Nothing slows: messages in transit, things already underway, a rush aimed straight at its mark." },
-      reversed: { fr: "Les traits s'emmêlent en plein vol, retombent avant terme, se croisent sans plus savoir où frapper. La hâte tourne à la bousculade — messages qui se perdent, élans qui se contrarient. Trop de vitesse d'un coup, et plus rien n'arrive où on l'attendait.", en: "The shafts tangle in mid-flight, dropping short, crossing with no sense of where to land. Haste turns to jostle — messages gone astray, impulses working against each other. Too much speed at once, and nothing lands where it was meant to." },
+      upright: { fr: "La décision est déjà prise, la flèche a quitté l’arc : plus rien à retenir, seulement à accompagner. Le Feu s’est fait pure vitesse — nouvelle qui arrive, désir qui converge droit vers son but. Le temps de l’action éclair, pas de la délibération.", en: "The choice is already made, the arrow has left the bow: nothing left to hold, only to ride. Fire has become pure velocity — news arriving, desire converging straight on its aim. This is the hour of the swift strike, not of deliberation." },
+      reversed: { fr: "L’élan s’emballe et se dévore : trop vite, trop tôt, avant que rien ne soit mûr. La force part dans tous les sens, se contrarie, se perd en route. Le message n’arrive pas, ou frappe à côté ; freine avant que la hâte ne te dépasse.", en: "The rush overheats and devours itself: too fast, too soon, before anything has ripened. The force scatters, works against itself, goes astray. The message fails to land, or strikes wide; slow down before haste outruns you." },
     },
   },
-  'wands-09': {
+  "wands-09": {
     keywords: {
-      upright: { fr: ['vigilance', 'dernier rempart', 'ténacité', 'sur ses gardes'], en: ['vigilance', 'last stand', 'resilience', 'on guard'] },
-      reversed: { fr: ['épuisement', 'paranoïa', 'à bout', 'reddition'], en: ['exhaustion', 'paranoia', 'at the end', 'surrender'] },
+      upright: { fr: ["vigilance", "dernier rempart", "ténacité", "sur ses gardes"], en: ["vigilance", "last stand", "resilience", "on guard"] },
+      reversed: { fr: ["épuisement", "paranoïa", "à bout", "reddition"], en: ["exhaustion", "paranoia", "at the end", "surrender"] },
     },
     meaning: {
-      upright: { fr: "Un homme s'appuie sur son bâton, la tête bandée, derrière une palissade de huit autres plantés comme une clôture. Le corps porte les marques des assauts passés, mais le regard scrute encore l'horizon. Épuisé et sur ses gardes, il tient — une bataille de plus à soutenir avant le repos.", en: "A man leans on his staff, his head bound, behind a fence of eight others driven in like a stockade. His body carries the marks of past assaults, yet his eyes still search the ridge. Spent and wary, he holds — one more clash to weather before rest." },
-      reversed: { fr: "La garde ne tient plus que par la peur. Chaque ombre devient ennemi, chaque bruit une attaque, et le corps blessé refuse d'aller plus loin. À force de tout défendre, on ne défend plus qu'une position vidée de sens.", en: "The guard holds now on fear alone. Every shadow becomes an enemy, every sound an assault, and the wounded body refuses to go on. Defend everything long enough and you defend nothing but a position drained of meaning." },
+      upright: { fr: "La résilience du survivant : tu as déjà encaissé, et cette mémoire du combat est devenue ta force autant que ta méfiance. Un dernier effort te sépare du repos, et tu le tiendras — non par élan, mais par une ténacité qui refuse de céder si près du but.", en: "The survivor's resilience: you have taken hits before, and that memory has become your strength as much as your wariness. One last effort stands between you and rest, and you will hold — not from momentum, but from a tenacity that refuses to yield so close to the end." },
+      reversed: { fr: "La vigilance se dévoie en paranoïa : à force de tout traiter en menace, tu épuises la force qui te gardait debout. La garde ne protège plus rien, elle emmure ; le corps réclame la reddition et la blessure, mal soignée, dicte ta loi.", en: "Vigilance curdles into paranoia: by treating everything as a threat, you drain the very strength that kept you upright. The guard no longer protects, it walls you in; the body begs to surrender and the wound, left untended, rules you." },
     },
   },
-  'wands-10': {
+  "wands-10": {
     keywords: {
-      upright: { fr: ['fardeau', 'surcharge', 'épuisement', 'devoir'], en: ['burden', 'overload', 'exhaustion', 'duty'] },
-      reversed: { fr: ['délestage', 'effondrement', 'abandon', 'trop-plein'], en: ['offloading', 'collapse', 'giving up', 'overwhelm'] },
+      upright: { fr: ["fardeau", "surcharge", "épuisement", "devoir"], en: ["burden", "overload", "exhaustion", "duty"] },
+      reversed: { fr: ["délestage", "effondrement", "abandon", "trop-plein"], en: ["offloading", "collapse", "giving up", "overwhelm"] },
     },
     meaning: {
-      upright: { fr: "Un homme avance courbé, serrant dix bâtons contre sa poitrine, la ville proche mais le pas écrasé. Le faisceau lui masque le chemin autant qu'il pèse sur l'échine. Tout ce qui fut entrepris s'est amassé sur une seule paire d'épaules — la charge du succès autant que celle du devoir.", en: "A man trudges bent double, ten staves clutched to his chest, the town near but his stride crushed. The bundle hides the road as much as it weighs on his spine. All that was begun has piled onto a single pair of shoulders — the load of success as much as duty." },
-      reversed: { fr: "Le faisceau glisse enfin des bras — posé de plein gré, ou lâché quand les jambes cèdent. On répartit le poids, ou l'on s'effondre en pleine côte, les bâtons roulant dans la poussière. Ce qu'on portait seul depuis trop longtemps trouve son terme, d'une manière ou d'une autre.", en: "The bundle slips at last from the arms — set down by choice, or dropped when the legs give out. The weight is shared, or you buckle on the slope, staves rolling in the dust. What was carried alone too long finds its end, one way or another." },
+      upright: { fr: "L’aboutissement qui se retourne en fardeau : tu as gagné, et le prix, c’est de tout porter seul. Le Feu conquérant des Bâtons s’est mué en devoir écrasant. Tu tiens jusqu’au bout, mais tu ne sais plus déléguer ni distinguer ce qui t’incombe vraiment.", en: "Achievement curdling into burden: you have won, and the price is to carry it all alone. The conquering Fire of Wands has hardened into crushing duty. You hold on to the end, but no longer know how to delegate, nor to tell what is truly yours to bear." },
+      reversed: { fr: "Le trop-plein cède. Soit tu déposes enfin ce que tu portais par habitude ou par orgueil, soit tu t’effondres, submergé. La charge trouve son terme — libération salutaire ou renoncement amer. Reste à savoir ce que tu tenais vraiment, et ce qui n’était que poids emprunté.", en: "The overload gives way. Either you finally set down what you carried out of habit or pride, or you collapse, overwhelmed. The load ends — welcome release or bitter surrender. What remains is to know what was truly yours, and what was only borrowed weight." },
     },
   },
-  'wands-11': {
+  "wands-11": {
     keywords: {
-      upright: { fr: ['jeune fougueux', 'messager', 'enthousiasme', 'idée neuve'], en: ['eager youth', 'messenger', 'enthusiasm', 'fresh idea'] },
-      reversed: { fr: ['dispersion', 'vantardise', 'projet sans suite', 'fausse nouvelle'], en: ['scattered', 'bragging', 'no follow-through', 'false news'] },
+      upright: { fr: ["jeune fougueux", "messager", "enthousiasme", "idée neuve"], en: ["eager youth", "messenger", "enthusiasm", "fresh idea"] },
+      reversed: { fr: ["dispersion", "vantardise", "projet sans suite", "fausse nouvelle"], en: ["scattered", "bragging", "no follow-through", "false news"] },
     },
     meaning: {
-      upright: { fr: "Un jeune homme se tient droit, son bâton verdoyant planté devant lui, et l'examine comme une chose vivante pleine de promesses. Les salamandres brodées sur sa tunique s'étirent au soleil du désert. Curieux, ardent, il porte une nouvelle ou une idée qui n'attend que la première flamme pour s'embraser.", en: "A young man stands upright, his sprouting staff planted before him, studying it like a living thing full of promise. Salamanders stretch across his tunic in the desert sun. Curious and ardent, he carries a piece of news or an idea waiting only for the first flame to catch." },
-      reversed: { fr: "Le jeune homme parle plus qu'il n'agit : le bâton reste planté, la salamandre ne s'allume pas. Grandes annonces, feu de paille, une nouvelle qui excite un instant puis retombe. L'ardeur s'éparpille avant d'avoir rien pris.", en: "The young man talks more than he acts: the staff stays planted, the salamander never lights. Grand announcements, a flash in the pan, news that thrills for a moment then falls flat. The ardour scatters before anything takes hold." },
+      upright: { fr: "L’étincelle avant la flamme : une intuition ardente qui te choisit pour messager. Tu n’as pas encore de plan, mais un feu neuf te presse d’annoncer, d’explorer, de t’élancer. Enthousiasme brut, curiosité sans peur — tout reste possible parce que rien n’est encore engagé.", en: "The spark before the fire: an ardent intuition that names you its messenger. You have no plan yet, only a fresh flame urging you to announce, to explore, to set out. Raw enthusiasm, fearless curiosity — everything stays possible because nothing is yet committed." },
+      reversed: { fr: "Le même feu, mais qui brûle en paroles : tu annonces plus que tu n’accomplis. L’élan s’éparpille, l’idée reste verte et retombe, la nouvelle enfle sans fond. Vantardise, projet sans suite, ardeur qui t’agite au lieu de te porter quelque part.", en: "The same fire, but burning in words: you announce more than you achieve. The drive scatters, the idea stays green and falls flat, the news swells without substance. Bragging, projects left unfinished, an ardour that agitates you instead of carrying you anywhere." },
     },
   },
-  'wands-12': {
+  "wands-12": {
     keywords: {
-      upright: { fr: ['aventurier', 'fougue', 'passion', 'départ'], en: ['adventurer', 'dash', 'passion', 'departure'] },
-      reversed: { fr: ['imprudence', 'colère', 'précipitation', 'sans suite'], en: ['recklessness', 'anger', 'haste', 'no follow-through'] },
+      upright: { fr: ["aventurier", "fougue", "passion", "départ"], en: ["adventurer", "dash", "passion", "departure"] },
+      reversed: { fr: ["imprudence", "colère", "précipitation", "sans suite"], en: ["recklessness", "anger", "haste", "no follow-through"] },
     },
     meaning: {
-      upright: { fr: "Un cavalier lance son cheval cabré, l'armure ornée de salamandres, le bâton dressé comme une torche. La poussière du désert se soulève sous les sabots, tout est mouvement et chaleur. Rien ne l'arrête : la passion prend corps, le départ est donné, l'aventure fonce droit devant.", en: "A rider spurs his rearing horse, his armour scaled with salamanders, his staff raised like a torch. Desert dust kicks up beneath the hooves, all heat and motion. Nothing stays him: passion made flesh, the leap taken, the adventure charging straight ahead." },
-      reversed: { fr: "Le cheval se cabre trop haut, la charge part sans cap. L'ardeur vire à la fureur, l'audace à l'imprudence — on éperonne dans le vide, on brûle plus qu'on ne bâtit. L'élan est bien réel, mais il tourne en rond ou se jette contre les rochers.", en: "The horse rears too high, the charge sets off with no bearing. Ardour curdles into fury, boldness into folly — spurring into emptiness, burning more than building. The drive is real, but it wheels in circles or hurls itself onto the rocks." },
+      upright: { fr: "Tu es l’élan pur du Feu fait personnage : le désir qui décide avant que la raison n’ait voté. Cette carte dit le départ, la conviction brûlante, l’aventure qu’on épouse corps et âme. Charisme conquérant, mais volatil — tu enflammes tout ce que tu traverses.", en: "You are Fire’s pure momentum given a face: the desire that decides before reason has cast its vote. This card speaks of departure, burning conviction, the adventure embraced body and soul. Conquering charisma, but volatile — you set alight all you pass through." },
+      reversed: { fr: "La même flamme, mais sans cap : l’ardeur dégénère en colère, l’audace en imprudence. Tu t’enflammes vite et t’éteins de même, laissant derrière toi des chantiers abandonnés. Énergie réelle qui brûle à vide, se querelle ou fuit dès que l’aventure exige de la constance.", en: "The same flame, but rudderless: ardour degrades into anger, boldness into recklessness. You ignite fast and burn out just as fast, leaving abandoned projects behind. Real energy spent on nothing, quarrelling or fleeing the moment the venture demands constancy." },
     },
   },
-  'wands-13': {
+  "wands-13": {
     keywords: {
-      upright: { fr: ['meneuse', 'assurance', 'charisme', 'chaleur'], en: ['leader', 'confidence', 'charisma', 'warmth'] },
-      reversed: { fr: ['jalousie', 'exigence', 'susceptibilité', 'domination'], en: ['jealousy', 'demanding', 'touchiness', 'domineering'] },
+      upright: { fr: ["meneuse", "assurance", "charisme", "chaleur"], en: ["leader", "confidence", "charisma", "warmth"] },
+      reversed: { fr: ["jalousie", "exigence", "susceptibilité", "domination"], en: ["jealousy", "demanding", "touchiness", "domineering"] },
     },
     meaning: {
-      upright: { fr: "Une reine trône, un tournesol dans une main, son bâton fleuri dans l'autre, un chat noir couché à ses pieds. Le soleil du désert baigne la scène d'une chaleur assurée. Rayonnante et généreuse, elle tient sa flamme sans jamais la laisser dévorer — présence qui réchauffe et qu'on suit d'instinct.", en: "A queen sits enthroned, a sunflower in one hand, her flowering staff in the other, a black cat couched at her feet. Desert sun bathes the scene in steady warmth. Radiant and giving, she holds her flame without ever letting it devour — a presence that warms, one you follow by instinct." },
-      reversed: { fr: "La chaleur se retourne en brûlure. Le tournesol se fane, le chat noir sort ses griffes, la générosité se fait possession jalouse. Ce qui rayonnait exige désormais qu'on l'entoure — une flamme qui étouffe autant qu'elle éclaire.", en: "The warmth turns to scorch. The sunflower wilts, the black cat bares its claws, generosity hardens into jealous grip. What once shone now demands to be circled and served — a flame that smothers as much as it lights." },
+      upright: { fr: "Le charisme comme force de feu maîtrisée : tu régnes par la chaleur, non par la contrainte. Confiance qui n’a plus à s’imposer, désir qui crée au lieu de consumer. On te suit d’instinct parce que ta flamme donne vie sans dévorer.", en: "Charisma as fire made steady: you rule by warmth, not by force. A confidence that no longer needs to assert itself, a desire that creates instead of consuming. Others follow you on instinct because your flame gives life without devouring." },
+      reversed: { fr: "La même flamme retournée contre l’autre : la chaleur devient emprise. Ton assurance vire à l’exigence, ton rayonnement réclame qu’on t’entoure. Jalousie, susceptibilité, besoin de dominer — un feu qui étouffe ceux qu’il prétendait réchauffer.", en: "The same flame turned against others: warmth curdles into control. Your confidence hardens into demand, your radiance insists on being served. Jealousy, touchiness, the need to dominate — a fire that smothers those it claimed to warm." },
     },
   },
-  'wands-14': {
+  "wands-14": {
     keywords: {
-      upright: { fr: ['chef visionnaire', 'audace', 'leadership', 'inspiration'], en: ['visionary leader', 'boldness', 'leadership', 'inspiration'] },
-      reversed: { fr: ['despote', 'impulsivité', 'intolérance', 'tyrannie'], en: ['despot', 'impulsiveness', 'intolerance', 'tyranny'] },
+      upright: { fr: ["chef visionnaire", "audace", "leadership", "inspiration"], en: ["visionary leader", "boldness", "leadership", "inspiration"] },
+      reversed: { fr: ["despote", "impulsivité", "intolérance", "tyrannie"], en: ["despot", "impulsiveness", "intolerance", "tyranny"] },
     },
     meaning: {
-      upright: { fr: "Un roi siège de profil, le bâton fermement en main, salamandres et lions frappés sur son trône et son manteau. Le regard porte au loin, déjà sur la conquête suivante. Autorité naturelle, souffle qui entraîne — il gouverne le feu du dehors, celui qui bâtit des royaumes et allume les autres.", en: "A king sits in profile, his staff firm in hand, salamanders and lions stamped on throne and robe. His gaze reaches far off, already on the next conquest. Natural authority, a breath that carries others along — he governs the outward fire, the kind that builds kingdoms and kindles those around him." },
-      reversed: { fr: "Le roi ne supporte plus la contradiction. La vision se fait décret, l'ardeur intolérance, et le feu qui bâtissait se met à consumer tout ce qui résiste. Le sceptre devient trique, le meneur un brasier qui n'éclaire que lui-même.", en: "The king no longer brooks dissent. Vision hardens into decree, ardour into intolerance, and the fire that built now consumes whatever resists it. The sceptre becomes a cudgel, the leader a blaze that lights none but himself." },
+      upright: { fr: "La maîtrise du feu tourné vers le monde : ta vision devient royaume. Tu commandes non par la force mais par l’élan que tu communiques — meneur né, tu allumes chez les autres l’ardeur qui te consume. Ose, décide, entraîne.", en: "Mastery of fire turned outward: your vision becomes a kingdom. You command not by force but by the drive you transmit — a born leader, you kindle in others the ardour that burns in you. Dare, decide, carry them along." },
+      reversed: { fr: "Le même feu, mais dressé contre quiconque résiste. La vision se fige en décret, l’audace en impatience, l’autorité en tyrannie. Tu n’écoutes plus, tu consumes ; le meneur devient despote qui n’éclaire que lui-même.", en: "The same fire, now turned against whoever resists. Vision hardens into decree, boldness into impatience, authority into tyranny. You no longer listen, you consume; the leader becomes a despot who lights none but himself." },
     },
   },
-
-  // ─────────────── COUPES / CUPS (eau : émotions, liens, ambiance) ───────────────
-  'cups-01': {
+  "cups-01": {
     keywords: {
-      upright: { fr: ['amour naissant', 'émotion', 'tendresse', 'grâce'], en: ['new love', 'emotion', 'tenderness', 'grace'] },
-      reversed: { fr: ['cœur fermé', 'vide', 'amour refoulé', 'froideur'], en: ['closed heart', 'emptiness', 'repressed love', 'coldness'] },
+      upright: { fr: ["amour naissant", "émotion", "tendresse", "grâce"], en: ["new love", "emotion", "tenderness", "grace"] },
+      reversed: { fr: ["cœur fermé", "vide", "amour refoulé", "froideur"], en: ["closed heart", "emptiness", "repressed love", "coldness"] },
     },
     meaning: {
-      upright: { fr: "Une main sortie de la nuée présente une coupe qui déborde, et cinq filets d'eau retombent sur le miroir d'un étang couvert de lys. La colombe descend y déposer l'hostie ; tout ruisselle, tendre et neuf. Le cœur s'ouvre comme une source qui n'a encore rien perdu de sa fraîcheur.", en: "A hand out of the cloud offers a brimming cup, and five streams fall back onto the mirror of a pond thick with lilies. The dove descends to lay the wafer within; everything runs over, tender and new. The heart opens like a spring that has yet to lose a drop of its freshness." },
-      reversed: { fr: "La coupe se retourne, l'eau ne coule plus, la colombe s'est tue. Le cœur se referme sur sa propre source, tarie ou tenue au secret ; la tendresse demeure au-dedans, sans trouver la lèvre où se répandre. Un plein qui pèse comme un vide.", en: "The cup turns over, the water no longer flows, the dove has fallen silent. The heart closes upon its own spring, run dry or kept hidden; tenderness stays sealed within, finding no rim to spill across. A fullness that weighs like an emptiness." },
+      upright: { fr: "La grâce affective à l’état pur : un cœur qui s’ouvre avant tout calcul, comblé d’une émotion qu’il n’a pas produite mais reçue. Amour, compassion, foi renaissent d’une source neuve. Laisse-toi remplir, puis déborde vers l’autre.", en: "Emotional grace in its purest form: a heart opening before any calculation, filled with a feeling it did not make but received. Love, compassion, faith rise from an untouched source. Let yourself be filled, then overflow toward another." },
+      reversed: { fr: "La même source, mais scellée. La tendresse existe et se retourne vers le dedans : cœur verrouillé, amour refoulé, émotion qui stagne faute d’exutoire. Le trop-plein devient poids. Ce qui ne se donne plus finit par croupir ou tarir.", en: "The same source, but sealed. Tenderness exists yet turns inward: heart locked, love repressed, emotion stagnating for want of an outlet. Fullness becomes weight. What is no longer given eventually stagnates or runs dry." },
     },
   },
-  'cups-02': {
+  "cups-02": {
     keywords: {
-      upright: { fr: ['rencontre', 'attirance', 'pacte', 'réciprocité'], en: ['meeting', 'attraction', 'pact', 'reciprocity'] },
-      reversed: { fr: ['rupture', 'déséquilibre', 'malentendu', 'tension'], en: ['breakup', 'imbalance', 'misunderstanding', 'tension'] },
+      upright: { fr: ["rencontre", "attirance", "pacte", "réciprocité"], en: ["meeting", "attraction", "pact", "reciprocity"] },
+      reversed: { fr: ["rupture", "déséquilibre", "malentendu", "tension"], en: ["breakup", "imbalance", "misunderstanding", "tension"] },
     },
     meaning: {
-      upright: { fr: "Deux êtres se font face et échangent leurs coupes ; entre eux monte le caducée surmonté du lion ailé, sceau ardent d'un accord. Les regards se répondent, les mains se tendent à égale distance. Un pacte se scelle là, dans l'espace juste où deux courants consentent à se mêler.", en: "Two figures stand face to face and exchange their cups; between them rises the caduceus crowned by a winged lion, ardent seal of an accord. Their gazes answer each other, their hands reach across an equal distance. A pact is sealed there, in the exact space where two currents consent to mingle." },
-      reversed: { fr: "Les coupes ne se rejoignent plus à mi-chemin ; l'un tend la sienne trop loin, l'autre la retient. Le caducée vacille, l'accord se fêle en un malentendu que nul ne nomme. Deux courants qui voulaient se mêler tirent désormais chacun vers sa rive.", en: "The cups no longer meet halfway; one reaches too far, the other holds back. The caduceus wavers, the accord cracks into a misunderstanding no one names. Two currents that meant to merge now each pull toward their own shore." },
+      upright: { fr: "L’union par consentement mutuel. Deux volontés distinctes se reconnaissent et scellent un pacte d’égal à égal : attirance, réciprocité, alliance qui guérit. Ni fusion ni possession, mais l’accord vivant où chacun reste soi tout en s’offrant à l’autre.", en: "Union by mutual consent. Two distinct wills recognize each other and seal an equal pact: attraction, reciprocity, an alliance that heals. Neither fusion nor possession, but the living accord where each stays whole while offering itself to the other." },
+      reversed: { fr: "Le pacte se fêle. La réciprocité se rompt : l’un donne trop, l’autre se retient, et l’accord dégénère en malentendu ou dépendance. L’attirance persiste mais s’empoisonne, tirant chacun vers sa rive au lieu de les relier.", en: "The pact cracks. Reciprocity breaks: one gives too much, the other withholds, and the accord curdles into misunderstanding or dependency. Attraction lingers but sours, pulling each toward their own shore instead of joining them." },
     },
   },
-  'cups-03': {
+  "cups-03": {
     keywords: {
-      upright: { fr: ['célébration', 'amitié', 'retrouvailles', 'joie'], en: ['celebration', 'friendship', 'reunion', 'joy'] },
-      reversed: { fr: ['excès', 'ragots', 'isolement', 'lassitude'], en: ['excess', 'gossip', 'isolation', 'weariness'] },
+      upright: { fr: ["célébration", "amitié", "retrouvailles", "joie"], en: ["celebration", "friendship", "reunion", "joy"] },
+      reversed: { fr: ["excès", "ragots", "isolement", "lassitude"], en: ["excess", "gossip", "isolation", "weariness"] },
     },
     meaning: {
-      upright: { fr: "Trois femmes se tiennent en cercle et lèvent leurs coupes vers le ciel, au milieu des fruits mûrs et des premières récoltes. La danse tourne, les rires se répondent, l'abondance se partage à trois. C'est la joie qui fructifie quand elle se met en commun.", en: "Three women stand in a ring and raise their cups skyward, amid ripe fruit and the first harvest. The dance turns, laughter answers laughter, plenty shared three ways. It is joy come to fruit when it is held in common." },
-      reversed: { fr: "Le cercle se défait, les coupes se vident une fois de trop. La danse se fait titubante, les rires tournent aux murmures et aux médisances. Ce qui unissait à trois se dilue dans l'excès, et l'un finit par regarder les autres de loin.", en: "The ring comes apart, the cups drain one time too many. The dance turns unsteady, the laughter curdles into whispers and gossip. What bound the three dissolves in excess, and one is left watching the others from a distance." },
+      upright: { fr: "La joie qui déborde et cherche à se partager. Trois, c’est l’émotion qui fructifie : ce qu’on a nourri à deux se fête à plusieurs. Amitié, gratitude, retrouvailles ; tu lèves ta coupe parce qu’une abondance vécue seule ne serait qu’à moitié vraie.", en: "Joy that overflows and seeks to be shared. Three is emotion come to fruit: what two nurtured is now celebrated among many. Friendship, gratitude, reunion; you raise your cup because plenty felt alone would be only half true." },
+      reversed: { fr: "La même joie, mais trop tirée sur elle-même. La fête devient fuite, la coupe se remplit pour ne plus sentir ; le lien se corrompt en ragots, en excès, en tiers qu’on écarte. Ou l’inverse : tu restes au bord, exclu du cercle, à regarder la joie des autres.", en: "The same joy, but stretched too thin. Celebration becomes escape, the cup refilled to stop feeling; the bond sours into gossip, excess, a third one left out. Or the reverse: you linger at the edge, shut out of the ring, watching others' joy." },
     },
   },
-  'cups-04': {
+  "cups-04": {
     keywords: {
-      upright: { fr: ['morosité', 'ennui', 'lassitude', 'offre ignorée'], en: ['gloom', 'boredom', 'apathy', 'offer ignored'] },
-      reversed: { fr: ['réveil', 'nouvelle envie', 'ouverture', 'regain'], en: ['awakening', 'new desire', 'opening', 'renewal'] },
+      upright: { fr: ["morosité", "ennui", "lassitude", "offre ignorée"], en: ["gloom", "boredom", "apathy", "offer ignored"] },
+      reversed: { fr: ["réveil", "nouvelle envie", "ouverture", "regain"], en: ["awakening", "new desire", "opening", "renewal"] },
     },
     meaning: {
-      upright: { fr: "Un homme reste assis sous l'arbre, bras croisés, le regard buté sur les trois coupes posées devant lui. Une quatrième surgit d'un nuage, offerte, et il ne la voit même pas. L'eau s'est faite étale et grise ; l'ennui l'a muré dans une contemplation qui ne désire plus rien.", en: "A man sits beneath the tree, arms folded, his gaze fixed and sullen on the three cups set before him. A fourth appears from a cloud, offered, and he does not even see it. The water has gone flat and grey; boredom has walled him into a contemplation that wants for nothing and no one." },
-      reversed: { fr: "Les bras se décroisent, le regard se lève enfin vers la coupe tendue. Ce qui semblait fade retrouve une saveur ; une envie neuve traverse l'eau dormante comme un frisson. On se surprend à tendre la main vers ce qu'on avait dédaigné.", en: "The arms unfold, the gaze lifts at last toward the offered cup. What seemed dull recovers a savor; a new desire crosses the sleeping water like a shiver. You catch yourself reaching for the very thing you had scorned." },
+      upright: { fr: "La satiété qui tourne au vide. Tu possèdes déjà, et c’est justement le trop-plein qui étouffe le désir : l’émotion s’étale, stagnante, et le cœur se replie dans une bouderie contemplative. Une grâce t’est tendue, mais l’ennui t’a rendu aveugle à ce qui pourrait te rouvrir.", en: "Fullness curdled into emptiness. You already have, and it is the surfeit itself that smothers desire: feeling pools and stagnates, and the heart folds inward in sullen reverie. A grace is held out to you, yet boredom has blinded you to what might reopen the well." },
+      reversed: { fr: "Le charme apathique se rompt. La soif remonte de l’eau dormante, le repli cède, et tu te surprends à convoiter de nouveau. Attention pourtant : parfois l’inversion n’est que fuite, un désir neuf inventé pour ne pas accueillir la coupe déjà offerte.", en: "The apathetic spell breaks. Thirst rises again from the sleeping water, the withdrawal loosens, and you catch yourself wanting once more. Beware, though: sometimes the reversal is only flight, a fresh craving invented to avoid receiving the cup already offered." },
     },
   },
-  'cups-05': {
+  "cups-05": {
     keywords: {
-      upright: { fr: ['perte', 'chagrin', 'regret', 'deuil'], en: ['loss', 'grief', 'regret', 'mourning'] },
-      reversed: { fr: ['acceptation', 'ce qui reste', 'pardon', 'on avance'], en: ['acceptance', 'what remains', 'forgiveness', 'moving on'] },
+      upright: { fr: ["perte", "chagrin", "regret", "deuil"], en: ["loss", "grief", "regret", "mourning"] },
+      reversed: { fr: ["acceptation", "ce qui reste", "pardon", "on avance"], en: ["acceptance", "what remains", "forgiveness", "moving on"] },
     },
     meaning: {
-      upright: { fr: "Trois coupes gisent renversées sur la pierre, et le regard ne quitte pas l'eau répandue. Le chagrin colle, le dos tourné à ce qui tient encore debout. Ce qui s'est perdu ne se ramasse pas — mais derrière soi, deux coupes sont restées pleines.", en: "Three cups lie spilled on the stone, and the gaze will not leave the wasted water. Grief clings, the back turned to what still stands. What is lost cannot be gathered up — yet behind you, two cups remain full." },
-      reversed: { fr: "L'eau versée finit par s'évaporer. On se retourne enfin vers les coupes intactes ; le deuil desserre son étreinte, le pardon devient possible. Le courant reprend, doucement, vers l'avant.", en: "Spilled water dries in the end. At last you turn toward the cups still whole; grief loosens its grip, forgiveness becomes possible. The current picks up again, gently, forward." },
+      upright: { fr: "Le deuil qui absorbe. Tu t’identifies à la perte au point d’en faire ton visage : le chagrin est réel, mais il t’aveugle sur ce qui subsiste. Trois coupes versées comptent plus que les deux restées pleines. Regret, remords, tarissement affectif.", en: "Grief that swallows you whole. You bind yourself to loss until it becomes your face: the sorrow is real, yet it blinds you to what endures. Three spilled cups outweigh the two still full. Regret, remorse, an emotional ebb." },
+      reversed: { fr: "La même perte, mais le regard se décolle enfin de ce qui gît. Acceptation, pardon offert ou reçu, retour vers les liens intacts. Le chagrin ne disparaît pas : il cesse d’être tout ce que tu es, et le courant reprend.", en: "The same loss, but the gaze finally lifts from what lies fallen. Acceptance, forgiveness given or received, a turning back toward bonds still whole. The grief does not vanish: it stops being all you are, and the current resumes." },
     },
   },
-  'cups-06': {
+  "cups-06": {
     keywords: {
-      upright: { fr: ['nostalgie', 'souvenir', 'retrouvailles', 'innocence'], en: ['nostalgia', 'memory', 'reunion', 'innocence'] },
-      reversed: { fr: ['nostalgie pesante', 'idéalisation', 'stagnation', 'regret'], en: ['heavy nostalgia', 'idealising', 'stagnation', 'regret'] },
+      upright: { fr: ["nostalgie", "souvenir", "retrouvailles", "innocence"], en: ["nostalgia", "memory", "reunion", "innocence"] },
+      reversed: { fr: ["nostalgie pesante", "idéalisation", "stagnation", "regret"], en: ["heavy nostalgia", "idealising", "stagnation", "regret"] },
     },
     meaning: {
-      upright: { fr: "Dans une cour d'un autre temps, un enfant tend à un plus petit une coupe emplie de fleurs blanches. Tout baigne dans une lumière dorée et sans danger, celle des souvenirs adoucis. Une tendresse ancienne remonte, offerte comme un présent qu'on croyait perdu.", en: "In a courtyard out of another age, a child holds out to a smaller one a cup filled with white flowers. Everything is bathed in a golden, harmless light, the light of memories gone soft. An old tenderness rises up, offered like a gift once thought lost." },
-      reversed: { fr: "La lumière dorée se fige et devient une cage. On reste penché sur la coupe de fleurs comme sur une image trop belle pour être vraie, et le présent attend, dehors, sans qu'on le regarde. Le souvenir embelli retient les pieds au seuil d'hier.", en: "The golden light hardens into a cage. You stay bent over the cup of flowers as over a picture too fair to be true, while the present waits outside, unlooked at. The prettied memory keeps your feet at yesterday's threshold." },
+      upright: { fr: "Le retour de l’enfance en toi : une tendresse qu’on te lègue sans condition, la mémoire adoucie qui répare. Tu renoues avec une innocence intacte, un don gratuit, un visage d’autrefois. Reçois — quelque chose de bon revient à ta rencontre.", en: "Childhood returning within you: a tenderness handed over freely, softened memory that mends. You reconnect with an untouched innocence, a gift asking nothing, a face from before. Receive it — something good is coming back to meet you." },
+      reversed: { fr: "La même douceur qui se fait piège : hier embelli te retient et tu refuses de grandir. Tu idéalises un passé qui n’a jamais existé ainsi, et le présent se fane, inhabité. La nostalgie n’est plus refuge mais cage dorée.", en: "The same sweetness turned trap: a prettied past holds you and you refuse to grow. You idealise a yesterday that never quite was, and the present withers, unlived. Nostalgia is no longer shelter but a gilded cage." },
     },
   },
-  'cups-07': {
+  "cups-07": {
     keywords: {
-      upright: { fr: ['choix multiples', 'mirage', 'rêverie', 'tentation'], en: ['many choices', 'mirage', 'daydream', 'temptation'] },
-      reversed: { fr: ['clarté', 'décision', 'priorités', 'retour au réel'], en: ['clarity', 'decision', 'priorities', 'back to reality'] },
+      upright: { fr: ["choix multiples", "mirage", "rêverie", "tentation"], en: ["many choices", "mirage", "daydream", "temptation"] },
+      reversed: { fr: ["clarté", "décision", "priorités", "retour au réel"], en: ["clarity", "decision", "priorities", "back to reality"] },
     },
     meaning: {
-      upright: { fr: "Devant une silhouette dressée dans l'ombre, sept coupes flottent sur la nuée, chacune chargée d'un mirage : un visage, un joyau, une couronne, un dragon, un linceul voilé. Tout brille, tout appelle, et rien n'a de poids. La rêverie ouvre mille chemins qui ne tiennent qu'à la fumée.", en: "Before a figure standing in shadow, seven cups float upon the cloud, each freighted with a mirage: a face, a jewel, a crown, a dragon, a veiled shroud. Everything glitters, everything calls, and nothing holds any weight. Reverie opens a thousand paths spun from nothing but smoke." },
-      reversed: { fr: "La nuée se dissipe et les coupes s'effacent une à une ; il n'en reste qu'une, tangible dans la main. Le regard cesse d'errer parmi les mirages et se pose sur ce qui existe vraiment. Choisir, c'est laisser mourir les fantômes qu'on ne prendra pas.", en: "The cloud thins and the cups fade one by one; a single one remains, solid in the hand. The gaze stops wandering among the mirages and settles on what truly exists. To choose is to let the phantoms you will not take fall away." },
+      upright: { fr: "L’imagination souveraine, l’instant où le désir fabrique plus de mondes que tu n’en pourras jamais habiter. Sept envies s’égalent en éclat et s’annulent : tant qu’aucune ne pèse plus que l’autre, tu jouis de tout et ne possèdes rien. La tentation ici, c’est de confondre rêver et vouloir.", en: "Imagination made sovereign, the moment desire spins more worlds than you could ever inhabit. Seven longings shine as equals and cancel out: while none outweighs the rest, you savour everything and hold nothing. The temptation here is to mistake dreaming for willing." },
+      reversed: { fr: "Le charme se rompt : la volonté tranche et la plupart des désirs s’avèrent creux. Soit tu retrouves la clarté qui hiérarchise et engage, soit tu t’enlises, hébété par tes propres mirages, incapable d’en laisser mourir un seul. La rêverie devient fuite plutôt que promesse.", en: "The spell breaks: will chooses, and most of the longings prove hollow. Either clarity returns to rank and commit, or you sink, dazed by your own mirages, unable to let a single one die. Reverie curdles into escape rather than promise." },
     },
   },
-  'cups-08': {
+  "cups-08": {
     keywords: {
-      upright: { fr: ['départ', 'quête', 'renoncement', 'tourner la page'], en: ['departure', 'quest', 'letting go', 'turning the page'] },
-      reversed: { fr: ['peur de partir', 'stagnation', 'allers-retours', 'indécision'], en: ['fear of leaving', 'stagnation', 'back and forth', 'indecision'] },
+      upright: { fr: ["départ", "quête", "renoncement", "tourner la page"], en: ["departure", "quest", "letting go", "turning the page"] },
+      reversed: { fr: ["peur de partir", "stagnation", "allers-retours", "indécision"], en: ["fear of leaving", "stagnation", "back and forth", "indecision"] },
     },
     meaning: {
-      upright: { fr: "Sous une lune voilée, une silhouette encapuchonnée s'éloigne à travers le marécage, appuyée sur son bâton. Derrière elle, huit coupes restent dressées, pleines — et pourtant quelque chose y manque. Le pas quitte l'eau stagnante vers les hauteurs, en quête d'un ailleurs plus vrai que ce qui brillait ici.", en: "Beneath a veiled moon, a cloaked figure trudges off across the marsh, leaning on a staff. Behind, eight cups still stand full — and yet something in them is missing. The step leaves the stagnant water for the heights, seeking a truth deeper than all that shone here." },
-      reversed: { fr: "Le voyageur revient sur ses pas, ou n'ose plus les faire. Les coupes le retiennent, tièdes et familières, tandis que la lune décroît sur un marécage où l'on tourne en rond. Rester par peur du départ, et l'eau immobile qui se met à croupir.", en: "The traveller doubles back, or no longer dares to move at all. The cups hold him, lukewarm and familiar, while the moon wanes over a marsh that keeps folding into the same circle. Staying for fear of leaving — and the still water begins to rot." },
+      upright: { fr: "Le renoncement lucide. Tu quittes un bonheur qui a cessé de nourrir, non par dépit mais parce que l’âme réclame plus vrai. Départ vers l’inconnu, guidé par l’intuition contre le confort acquis : partir alors que tout semble encore debout.", en: "Lucid renunciation. You leave behind a contentment that no longer feeds you — not from spite, but because the soul demands something truer. A departure into the unknown, led by intuition against earned comfort: walking away while everything still looks intact." },
+      reversed: { fr: "La quête avortée. Tu pressens qu’il faut partir mais tu restes, retenu par la peur ou l’habitude ; ou tu fuis sans fin, incapable de te poser. L’eau qu’on n’ose quitter croupit : stagnation déguisée en fidélité.", en: "The aborted quest. You sense you must go, yet you stay — held by fear or habit; or you flee endlessly, never able to settle. The water you dare not leave turns stagnant: stagnation dressed up as loyalty." },
     },
   },
-  'cups-09': {
+  "cups-09": {
     keywords: {
-      upright: { fr: ['contentement', 'vœu exaucé', 'plaisir', 'satisfaction'], en: ['contentment', 'wish granted', 'pleasure', 'satisfaction'] },
-      reversed: { fr: ['suffisance', 'plaisir vide', 'insatiable', 'vanité'], en: ['smugness', 'hollow pleasure', 'never enough', 'vanity'] },
+      upright: { fr: ["contentement", "vœu exaucé", "plaisir", "satisfaction"], en: ["contentment", "wish granted", "pleasure", "satisfaction"] },
+      reversed: { fr: ["suffisance", "plaisir vide", "insatiable", "vanité"], en: ["smugness", "hollow pleasure", "never enough", "vanity"] },
     },
     meaning: {
-      upright: { fr: "Un homme trône bras croisés devant une rangée de neuf coupes dorées, alignées sur une étoffe bleue comme un vœu déjà exaucé. Le visage est comblé, le ventre plein, l'instant se savoure sans hâte. Presque tout est là — le contentement tranquille de qui a obtenu ce qu'il désirait.", en: "A man sits arms folded before a curved shelf of nine golden cups, ranged on blue cloth like a wish already granted. The face is sated, the belly full, the moment savoured without haste. Nearly everything is here — the quiet contentment of one who got what he wanted." },
-      reversed: { fr: "Le sourire du festin se fige en suffisance. Les neuf coupes brillent toujours, mais leur or ne rassasie plus : on en veut une dixième, puis une autre, sans jamais toucher le fond du désir. Le plaisir tourne à vide, et la satisfaction sonne creux.", en: "The banquet's smile stiffens into smugness. The nine cups still gleam, but their gold no longer fills: one more is wanted, then another, the hunger never reaching bottom. The pleasure spins empty, and satisfaction rings hollow." },
+      upright: { fr: "La « carte du vœu » : ce que ton cœur réclamait est accordé, la plénitude émotionnelle atteinte. Contentement gagné, sensuel, mérité — tu jouis d’un désir comblé. Savoure sans honte, mais sache que l’abondance amassée pour soi reste encore à partager.", en: "The 'wish card': what your heart asked for is granted, emotional fullness reached. A contentment earned, sensual, deserved — you taste a desire fulfilled. Savour it without shame, yet know that plenty hoarded for oneself has still to be shared." },
+      reversed: { fr: "Le désir comblé se retourne en avidité : le plaisir cesse de nourrir, la jouissance devient façade. Suffisance, satiété qui n’apaise rien, vœu exaucé mais creux. Tu confonds l’avoir et l’être ; aucune coupe de plus ne remplira ce qui manque au-dedans.", en: "Fulfilled desire curdles into greed: pleasure stops nourishing, enjoyment turns to display. Smugness, a satiety that soothes nothing, a wish granted yet hollow. You mistake having for being; no further cup will fill what is missing within." },
     },
   },
-  'cups-10': {
+  "cups-10": {
     keywords: {
-      upright: { fr: ['plénitude', 'foyer', 'harmonie', 'bonheur'], en: ['fulfilment', 'home', 'harmony', 'happiness'] },
-      reversed: { fr: ['façade', 'discorde', 'tensions cachées', 'désunion'], en: ['facade', 'discord', 'hidden tension', 'disunity'] },
+      upright: { fr: ["plénitude", "foyer", "harmonie", "bonheur"], en: ["fulfilment", "home", "harmony", "happiness"] },
+      reversed: { fr: ["façade", "discorde", "tensions cachées", "désunion"], en: ["facade", "discord", "hidden tension", "disunity"] },
     },
     meaning: {
-      upright: { fr: "Un arc-en-ciel de dix coupes se déploie dans le ciel au-dessus d'un couple enlacé, tandis que deux enfants dansent près de la rivière et de la maison. C'est le comble de la joie partagée : un foyer, un lien accompli, un bonheur simple qui déborde et rayonne sur tout le paysage.", en: "A rainbow of ten cups arches across the sky above an embracing couple, while two children dance by the river and the house. This is joy brimming over: a home, a bond fulfilled, a simple happiness that spills out and lights the whole landscape." },
-      reversed: { fr: "L'arc-en-ciel pâlit au-dessus d'un foyer qui joue la scène du bonheur. Les gestes tendres sont encore là, mais une fêlure court sous le vernis — regards qui s'évitent, silences trop longs. La belle image tient debout ; c'est la joie, dessous, qui s'est retirée.", en: "The rainbow fades over a home performing its own happiness. The tender gestures remain, but a crack runs beneath the varnish — eyes that avoid each other, silences held too long. The pretty picture stands; it is the joy underneath that has withdrawn." },
+      upright: { fr: "L’accomplissement du cœur : non plus l’émotion vécue seul, mais la joie qui se partage et fait alliance. Le lien affectif atteint sa plénitude et se scelle dans la durée. Tu es comblé parce que ton bonheur rejaillit sur les tiens.", en: "The heart brought to fullness: no longer emotion lived alone but joy that is shared and makes a covenant. The bond of affection reaches its completion and seals itself for the long term. You are fulfilled because your happiness spills over onto your own." },
+      reversed: { fr: "L’harmonie n’est plus qu’une image que l’on entretient. La forme du bonheur subsiste, mais la vie affective s’en est retirée : ce que tu montres et ce que tu ressens ont cessé de coïncider. Sous l’accord affiché couve la désunion.", en: "Harmony survives only as an image one keeps up. The shape of happiness remains, but the feeling has drained from it: what you show and what you feel no longer coincide. Beneath the displayed accord, disunity smoulders." },
     },
   },
-  'cups-11': {
+  "cups-11": {
     keywords: {
-      upright: { fr: ['âme sensible', 'messager tendre', 'rêverie', 'invitation'], en: ['sensitive soul', 'tender messenger', 'reverie', 'invitation'] },
-      reversed: { fr: ['caprice', 'humeur', 'susceptibilité', 'immaturité'], en: ['whim', 'moodiness', 'touchiness', 'immaturity'] },
+      upright: { fr: ["âme sensible", "messager tendre", "rêverie", "invitation"], en: ["sensitive soul", "tender messenger", "reverie", "invitation"] },
+      reversed: { fr: ["caprice", "humeur", "susceptibilité", "immaturité"], en: ["whim", "moodiness", "touchiness", "immaturity"] },
     },
     meaning: {
-      upright: { fr: "Un jeune homme aux habits fleuris contemple une coupe d'où surgit un poisson, sans s'étonner de le voir lui parler. L'imaginaire déborde du réel, tendre et curieux ; c'est un messager du cœur, une invitation neuve venue de l'eau — la promesse d'une émotion qui commence à peine.", en: "A youth in flowered clothes gazes at a cup from which a fish rises, unsurprised to find it speaks to him. Imagination overflows the real, tender and curious; a messenger of the heart, a fresh invitation risen from the water — the promise of a feeling barely begun." },
-      reversed: { fr: "Le poisson dans la coupe n'amuse plus : il boude, se vexe, se noie dans son propre sentiment. La sensibilité tourne au caprice, l'humeur vire sans raison, et l'imaginaire qui devait s'ouvrir se replie sur une blessure minuscule qu'il caresse.", en: "The fish in the cup delights no longer: it sulks, takes offence, drowns in its own feeling. Sensitivity curdles into whim, moods shift for no reason, and the imagination that should have opened folds back onto a tiny wound it keeps stroking." },
+      upright: { fr: "Le seuil de l’âme sensible : une émotion neuve affleure, une intuition qui prend forme sans que tu la commandes. Messager du cœur, une invitation tendre te traverse, un rêve qui demande à être accueilli plutôt que jugé. La sensibilité est ici un don, non une faiblesse.", en: "The threshold of the sensitive soul: a fresh feeling surfaces, an intuition taking shape without your bidding. Messenger of the heart, a tender invitation crosses you, a dream asking to be welcomed rather than judged. Here sensitivity is a gift, not a weakness." },
+      reversed: { fr: "La même douceur tourne à l’aigre : la sensibilité se referme en susceptibilité, l’élan créateur se noie dans l’humeur et le caprice. Tu confonds ton ressenti avec la vérité du monde, tu caresses une petite blessure au lieu d’écouter le message. L’émotion, non mûrie, boude.", en: "The same softness curdles: sensitivity closes into touchiness, the creative impulse drowns in mood and whim. You mistake your feeling for the world’s truth, stroking a small wound instead of hearing the message. Emotion, left unripe, sulks." },
     },
   },
-  'cups-12': {
+  "cups-12": {
     keywords: {
-      upright: { fr: ['romantique', 'charmeur', 'proposition', 'idéal'], en: ['romantic', 'charmer', 'proposal', 'ideal'] },
-      reversed: { fr: ['belles paroles', 'humeur', 'déception', 'mirage'], en: ['empty words', 'moodiness', 'disappointment', 'mirage'] },
+      upright: { fr: ["romantique", "charmeur", "proposition", "idéal"], en: ["romantic", "charmer", "proposal", "ideal"] },
+      reversed: { fr: ["belles paroles", "humeur", "déception", "mirage"], en: ["empty words", "moodiness", "disappointment", "mirage"] },
     },
     meaning: {
-      upright: { fr: "Un cavalier s'avance au pas, sa monture calme, tendant devant lui une coupe comme on offre son cœur. Rien de guerrier dans cet élan : c'est le désir mis en mouvement, le romantique en quête, une proposition sincère portée jusqu'à l'autre, casque et talons ornés d'ailes.", en: "A rider comes forward at a walk, his mount unhurried, holding out a cup the way one offers a heart. Nothing warlike in the advance: desire set in motion, the romantic on his quest, a sincere proposal carried to another, helm and heels feathered with wings." },
-      reversed: { fr: "La coupe tendue ne contient que de belles paroles. Le cavalier séduit, promet, s'enflamme — puis le cheval piétine, l'ardeur retombe et rien ne suit. Sous le charme, un mirage : l'offre du cœur se révèle vide, la déception tapie au bout du chemin.", en: "The offered cup holds nothing but fine words. The rider charms, promises, catches fire — then the horse stalls, the ardour cools and nothing follows. Beneath the charm, a mirage: the heart's offer proves empty, disappointment lying in wait at the road's end." },
+      upright: { fr: "Le désir enfin mis en marche, mais au rythme du cœur, pas de l’épée. Tu portes une offre sincère vers l’autre : proposition amoureuse, quête d’idéal, imagination qui se fait geste. L’émotion prend forme et vient à toi — accueille, réponds.", en: "Desire finally set moving, yet paced by the heart, not the sword. You carry a sincere offer toward another: a romantic proposal, a quest for the ideal, imagination becoming gesture. Feeling takes shape and comes to meet you — receive it, answer." },
+      reversed: { fr: "Le même élan, mais vidé de sa substance. Le charme tourne à la belle parole, l’idéal au mirage ; l’humeur monte et retombe sans rien accomplir. Méfie-toi de l’offre qui séduit sans se tenir : au bout, la déception d’un cœur promis mais jamais livré.", en: "The same impulse, hollowed out. Charm slides into empty words, the ideal into mirage; moods rise and fall without accomplishing anything. Beware the offer that seduces without holding: at road’s end, the letdown of a heart promised yet never delivered." },
     },
   },
-  'cups-13': {
+  "cups-13": {
     keywords: {
-      upright: { fr: ['bienveillance', 'compassion', 'écoute', 'soutien'], en: ['kindness', 'compassion', 'listening', 'support'] },
-      reversed: { fr: ['trop-plein', 'dépendance', 'oubli de soi', 'susceptibilité'], en: ['overwhelm', 'dependence', 'self-neglect', 'over-sensitivity'] },
+      upright: { fr: ["bienveillance", "compassion", "écoute", "soutien"], en: ["kindness", "compassion", "listening", "support"] },
+      reversed: { fr: ["trop-plein", "dépendance", "oubli de soi", "susceptibilité"], en: ["overwhelm", "dependence", "self-neglect", "over-sensitivity"] },
     },
     meaning: {
-      upright: { fr: "Sur un trône au bord de l'eau, une femme contemple une coupe ouvragée qu'elle tient à deux mains, absorbée, tendre. Elle règne sur le sentiment sans jamais s'y noyer : écoute, compassion, une présence qui apaise. Ce qu'elle porte, elle le comprend — et de là, elle veille sur les autres.", en: "On a throne at the water's edge, a woman contemplates an ornate cup she cradles in both hands, absorbed and tender. She reigns over feeling without ever drowning in it: listening, compassion, a presence that soothes. What she holds, she understands — and from it she watches over others." },
-      reversed: { fr: "Le trône glisse trop près de la marée, et la coupe déborde sur celle qui la tient. À force de porter les peines d'autrui, elle s'oublie ; l'écoute devient dépendance, la tendresse un trop-plein qui submerge. Le cœur qui apaisait tout ne trouve plus le rivage.", en: "The throne slides too close to the tide, and the cup overflows onto the one who holds it. Carrying every other grief, she loses herself; listening turns to dependence, tenderness to a flood that overwhelms. The heart that soothed all can no longer find the shore." },
+      upright: { fr: "La maîtrise du sentiment. Tu reçois l’émotion d’autrui sans t’y dissoudre : l’eau de l’âme tenue par la souveraineté du cœur. Intuition qui guérit, compassion qui devine avant les mots. Tu comprends ce que tu portes, et de cette lueur tendre tu prends soin des autres.", en: "Mastery of feeling. You take in another’s emotion without dissolving into it: the water of the soul held by a sovereign heart. Healing intuition, compassion that senses before words are spoken. You understand what you carry, and from that tender clarity you tend to others." },
+      reversed: { fr: "La même eau, mais sans digue. À force d’épouser les peines d’autrui, tu te perds : l’écoute vire à la dépendance, la tendresse au trop-plein qui noie. Émotions confuses, susceptibilité, dévouement qui s’oublie lui-même. Le cœur qui apaisait tout ne trouve plus son propre rivage.", en: "The same water, but without a bank. Wedded to everyone’s sorrows, you lose yourself: listening turns to dependence, tenderness to a flood that drowns. Muddled emotions, over-sensitivity, devotion that forgets itself. The heart that soothed everything can no longer find its own shore." },
     },
   },
-  'cups-14': {
+  "cups-14": {
     keywords: {
-      upright: { fr: ['maîtrise', 'calme', 'diplomatie', 'sagesse du cœur'], en: ['composure', 'calm', 'diplomacy', 'wise heart'] },
-      reversed: { fr: ['instabilité', 'manipulation', 'froideur', 'houle cachée'], en: ['volatility', 'manipulation', 'coldness', 'hidden storm'] },
+      upright: { fr: ["maîtrise", "calme", "diplomatie", "sagesse du cœur"], en: ["composure", "calm", "diplomacy", "wise heart"] },
+      reversed: { fr: ["instabilité", "manipulation", "froideur", "houle cachée"], en: ["volatility", "manipulation", "coldness", "hidden storm"] },
     },
     meaning: {
-      upright: { fr: "Un roi trône sur un socle de pierre au milieu d'une mer houleuse, coupe en main, parfaitement calme tandis que les vagues se dressent autour de lui. Il ne nie pas la tempête affective : il la gouverne. Diplomate, égal à lui-même, il tient d'une main sûre ce que d'autres laisseraient déborder.", en: "A king sits enthroned on a stone dais amid a heaving sea, cup in hand, perfectly calm as the waves rear around him. He does not deny the emotional storm: he governs it. Diplomatic, unshaken, he holds with a steady hand what others would let spill over." },
-      reversed: { fr: "Le calme du roi n'est plus qu'un masque posé sur la houle. Sous la surface lisse, les humeurs montent, et la maîtrise se retourne en arme : mots calculés, froideur qui blesse, sentiments retenus pour mieux les manier. La mer, longtemps contenue, cherche par où déborder.", en: "The king's calm is now only a mask laid over the swell. Beneath the smooth surface the moods rise, and mastery turns into a weapon: measured words, a wounding coldness, feeling held back the better to wield it. The sea, long contained, hunts for a way to break free." },
+      upright: { fr: "La maîtrise du cœur qui gouverne sans réprimer. Tu ressens tout, la houle affective des autres comme la tienne, et pourtant tu ne débordes pas : sentiment tempéré par la raison, autorité qui console. Diplomate, tu tiens ce que d’autres laisseraient se répandre.", en: "The mastery of a heart that governs without repressing. You feel everything, others' emotional swell and your own, yet you do not spill over: feeling tempered by reason, an authority that consoles. Diplomatic, you hold what others would let run wild." },
+      reversed: { fr: "La même eau, mais retournée : le calme n’est plus maîtrise, c’est un couvercle. Les humeurs macèrent sous la surface lisse et ressortent en froideur, en mots calculés, en chantage affectif. Tu manies le sentiment comme une arme, ou tu te noies dans ce que tu refuses de dire.", en: "The same water, turned: calm is no longer mastery but a lid. Moods ferment beneath the smooth surface and leak out as coldness, measured words, emotional blackmail. You wield feeling as a weapon, or drown in what you refuse to voice." },
     },
   },
-
-  // ─────────────── ÉPÉES / SWORDS (air : esprit, conflit, vérité) ───────────────
-  'swords-01': {
+  "swords-01": {
     keywords: {
-      upright: { fr: ['clarté', 'vérité', 'idée décisive', 'percée'], en: ['clarity', 'truth', 'decisive idea', 'breakthrough'] },
-      reversed: { fr: ['confusion', 'désinformation', 'brouillard', 'idée faussée'], en: ['confusion', 'misinformation', 'fog', 'muddled idea'] },
+      upright: { fr: ["clarté", "vérité", "idée décisive", "percée"], en: ["clarity", "truth", "decisive idea", "breakthrough"] },
+      reversed: { fr: ["confusion", "désinformation", "brouillard", "idée faussée"], en: ["confusion", "misinformation", "fog", "muddled idea"] },
     },
     meaning: {
-      upright: { fr: "Une main jaillie d'un nuage brandit l'épée droite vers le ciel, la pointe ceinte d'une couronne et de palmes. Rien ne l'émousse : une vérité s'ouvre d'un seul coup, une idée décisive fend le brouillard et l'esprit y voit enfin net. La lame est neuve, tranchante, offerte au premier qui saura la saisir.", en: "A hand thrust from a cloud lifts the blade straight to the sky, its point crowned with laurel and palm. Nothing dulls it: a truth opens in a single stroke, a decisive idea splits the fog, and the mind at last sees clear. The edge is new, keen, held out to whoever dares take it." },
-      reversed: { fr: "La lame vacille dans la nuée, la pointe embrouillée de brume au lieu de la trancher. Ce qui devait éclairer trouble : une parole faussée, une pensée qui tourne mal, une clarté qu'on retourne comme une arme contre soi. Le fil est là, mais l'esprit ne sait plus où frapper.", en: "The blade wavers in the cloud, its point snarled in mist instead of cutting it. What should light the way only muddies: twisted words, a thought gone sour, a clarity turned like a weapon against oneself. The edge is there, but the mind no longer knows where to strike." },
+      upright: { fr: "La racine de l’Air : la faculté de trancher. Une vérité te traverse d’un coup, nette, impersonnelle, et tu vois enfin le nœud à couper. Nommer, décider, séparer le vrai du confus — une force double, qui éclaire et qui blesse.", en: "The root of Air: the power to cut. A truth runs through you in one stroke, sharp and impersonal, and at last you see the knot to sever. To name, to decide, to part the true from the muddled — a double edge that lights and wounds." },
+      reversed: { fr: "La lame retournée contre l’esprit qui la porte. La clarté vire en sophisme, la vérité en arme, la décision en violence froide ou en paralysie. Tu affûtes un jugement sur du brouillard : plus tu insistes, plus tu te blesses à ta propre logique.", en: "The blade turned against the mind that wields it. Clarity curdles into sophistry, truth into a weapon, decision into cold violence or into stall. You hone a judgment on fog: the harder you press, the more your own logic cuts you." },
     },
   },
-  'swords-02': {
+  "swords-02": {
     keywords: {
-      upright: { fr: ['impasse', 'choix évité', 'statu quo', 'tension'], en: ['stalemate', 'avoided choice', 'standoff', 'tension'] },
-      reversed: { fr: ['déblocage', 'vérité révélée', 'décision', 'tension qui lâche'], en: ['breakthrough', 'truth revealed', 'decision', 'release'] },
+      upright: { fr: ["impasse", "choix évité", "statu quo", "tension"], en: ["stalemate", "avoided choice", "standoff", "tension"] },
+      reversed: { fr: ["déblocage", "vérité révélée", "décision", "tension qui lâche"], en: ["breakthrough", "truth revealed", "decision", "release"] },
     },
     meaning: {
-      upright: { fr: "Assise au bord de l'eau calme, les yeux bandés, une silhouette croise deux épées sur sa poitrine, immobile sous un mince croissant de lune. Deux forces se neutralisent et le choix reste suspendu, tenu à distance par le bandeau qu'on refuse d'ôter. L'équilibre tient — mais c'est l'équilibre d'un bras qui n'ose plus bouger.", en: "Seated by still water, blindfolded, a figure holds two swords crossed over the chest, motionless beneath a thin crescent moon. Two forces cancel each other out, the choice left hanging, kept at arm's length by a blindfold no one will lift. The balance holds — but it is the balance of an arm that no longer dares move." },
-      reversed: { fr: "Le bandeau glisse, les bras se dénouent, et la mer derrière cesse d'être calme. Ce qu'on tenait à distance revient de plein fouet : une vérité tombe, on tranche enfin, ou tout bascule d'un coup dans le fracas. La tension trop longtemps portée cherche partout où lâcher.", en: "The blindfold slips, the arms come apart, and the sea behind ceases to be calm. What was held at bay comes flooding back: a truth drops, a choice is finally cut, or everything tips at once into noise. Tension carried too long feels everywhere for a place to break." },
+      upright: { fr: "L’art de ne pas trancher. Deux vérités s’équilibrent si parfaitement que choisir semble impossible — alors tu t’aveugles pour ne pas décider. Trêve fragile, achetée au prix du refus de voir : la paix d’une porte qu’on tient close.", en: "The art of not deciding. Two truths balance so evenly that choosing feels impossible — so you blind yourself rather than commit. A fragile truce bought by refusing to see: the peace of a door held shut." },
+      reversed: { fr: "Le déni cède. Ce que tu tenais à distance force l’entrée : une vérité tombe, l’émotion refoulée déborde, ou tu tranches enfin — parfois trop vite, à l’aveugle. L’équilibre était un couvercle ; il saute.", en: "Denial gives way. What you kept at bay forces its way in: a truth drops, held-back feeling overflows, or you finally cut — sometimes too fast, still half-blind. The balance was a lid; it blows off." },
     },
   },
-  'swords-03': {
+  "swords-03": {
     keywords: {
-      upright: { fr: ['blessure', 'trahison', 'parole qui blesse', 'chagrin'], en: ['heartbreak', 'betrayal', 'wounding words', 'grief'] },
-      reversed: { fr: ['guérison', 'pardon', 'douleur relâchée', 'reconstruction'], en: ['healing', 'forgiveness', 'pain released', 'rebuilding'] },
+      upright: { fr: ["blessure", "trahison", "parole qui blesse", "chagrin"], en: ["heartbreak", "betrayal", "wounding words", "grief"] },
+      reversed: { fr: ["guérison", "pardon", "douleur relâchée", "reconstruction"], en: ["healing", "forgiveness", "pain released", "rebuilding"] },
     },
     meaning: {
-      upright: { fr: "Trois lames transpercent un cœur rouge, dressé seul sous un ciel gorgé de pluie. La douleur est nette, sans détour : une trahison, une parole qui traverse de part en part, un chagrin qu'aucun voile ne masque. L'orage lave et ne console pas ; il ne reste que la vérité, crue, plantée en plein centre.", en: "Three blades pierce a single red heart, upright beneath a sky heavy with rain. The pain is clean, without detour: a betrayal, a word driven clear through, a grief no veil can soften. The storm washes but does not comfort; only the truth remains, raw, lodged dead centre." },
-      reversed: { fr: "La pluie faiblit, et l'une des lames commence à céder du terrain. La plaie reste, mais on la laisse enfin respirer : la douleur se relâche, le pardon cherche son chemin, le cœur apprend lentement à porter ce qui l'a percé. Rien n'est effacé — quelque chose, pourtant, se referme.", en: "The rain thins, and one of the blades begins to give ground. The wound stays, but at last it is let breathe: the pain loosens, forgiveness feels for its path, the heart slowly learns to carry what pierced it. Nothing is erased — yet something, at last, begins to close." },
+      upright: { fr: "La lucidité qui tranche : l’Air (l’esprit) porté à son point douloureux, où comprendre et souffrir ne font qu’un. Une vérité te traverse, nette, inévitable — trahison, rupture, parole qui blesse. Le chagrin ici n’est pas trouble ; il est clair, et cette clarté même est la lame.", en: "Lucidity that cuts: Air — the mind — brought to its aching point, where to understand and to suffer become one. A truth passes through you, clean and inescapable: betrayal, rupture, a wounding word. This grief is not murky; it is clear, and that very clarity is the blade." },
+      reversed: { fr: "La même blessure, mais retenue : douleur qu’on refuse de nommer, rumination qui rejoue la coupure sans jamais la laisser cicatriser. Ou, au tournant, le pardon qui desserre enfin l’étreinte — non pour effacer, mais pour cesser de saigner par volonté. Choisis lequel te tient.", en: "The same wound, but withheld: pain refused a name, rumination replaying the cut yet never letting it heal. Or, at the turning, forgiveness that loosens the grip at last — not to erase, but to stop bleeding by will. Ask which one holds you." },
     },
   },
-  'swords-04': {
+  "swords-04": {
     keywords: {
-      upright: { fr: ['repos', 'trêve', 'récupération', 'pause'], en: ['rest', 'truce', 'recovery', 'pause'] },
-      reversed: { fr: ['agitation', 'épuisement', 'repos refusé', 'reprise forcée'], en: ['restlessness', 'exhaustion', 'rest refused', 'forced return'] },
+      upright: { fr: ["repos", "trêve", "récupération", "pause"], en: ["rest", "truce", "recovery", "pause"] },
+      reversed: { fr: ["agitation", "épuisement", "repos refusé", "reprise forcée"], en: ["restlessness", "exhaustion", "rest refused", "forced return"] },
     },
     meaning: {
-      upright: { fr: "Une effigie de pierre repose les mains jointes, trois épées suspendues au mur, une quatrième couchée sous elle. Le vitrail filtre une lumière paisible sur ce sommeil qui n'est pas la mort mais la trêve. On dépose les armes, on panse ses forces en silence — un répit gagné, non une fuite.", en: "A stone effigy lies with hands joined, three swords hung on the wall, a fourth laid beneath it. A stained-glass window filters a quiet light over this sleep that is not death but truce. The weapons are set down, strength mended in silence — a rest earned, not a flight." },
-      reversed: { fr: "Le gisant remue, la trêve se refuse : on rouvre les yeux trop tôt, on rattrape l'épée avant que le corps ait recouvré. L'agitation revient sous le calme feint, l'épuisement s'entête à ne rien vouloir entendre. Le repos qu'on repousse revient frapper à sa porte.", en: "The recumbent figure stirs, the truce refused: eyes opened too soon, the sword snatched back before the body has mended. Restlessness returns beneath the feigned calm, exhaustion insisting on hearing nothing. The rest one pushes away comes knocking again at the door." },
+      upright: { fr: "La trêve nécessaire du mental. Tu retires ta pensée du champ de bataille pour qu’elle guérisse : ce n’est pas une défaite, c’est une convalescence choisie. L’esprit épuisé exige le silence avant de pouvoir trancher de nouveau.", en: "The mind's necessary truce. You withdraw thought from the battlefield so it may heal: not defeat, but a chosen convalescence. The exhausted spirit demands silence before it can cut clean again." },
+      reversed: { fr: "Le repos refusé ou imposé. Tu te relèves avant l’heure, ou l’immobilité s’éternise en stagnation. La trêve tourne à l’engourdissement, la récupération à la fuite : l’esprit qu’on prive de silence finit par se rompre.", en: "Rest refused or imposed. You rise before your time, or stillness curdles into stagnation. Truce becomes numbness, recovery becomes flight: a mind denied its silence will finally break." },
     },
   },
-  'swords-05': {
+  "swords-05": {
     keywords: {
-      upright: { fr: ['querelle', 'humiliation', 'victoire amère', 'rancune'], en: ['quarrel', 'humiliation', 'hollow victory', 'resentment'] },
-      reversed: { fr: ['réconciliation', 'on lâche', 'retrait', 'pardon'], en: ['reconciliation', 'letting go', 'walking away', 'forgiveness'] },
+      upright: { fr: ["querelle", "humiliation", "victoire amère", "rancune"], en: ["quarrel", "humiliation", "hollow victory", "resentment"] },
+      reversed: { fr: ["réconciliation", "on lâche", "retrait", "pardon"], en: ["reconciliation", "letting go", "walking away", "forgiveness"] },
     },
     meaning: {
-      upright: { fr: "Sur un rivage venteux, un homme ramasse trois épées avec un rictus, tandis que deux silhouettes s'éloignent, tête basse, abandonnant leurs lames. La victoire est là, mais elle a le goût de la cendre : on l'a prise par la ruse, l'humiliation, le mépris. Le ciel déchiré retient une rancune que nul triomphe ne dissipe.", en: "On a windswept shore a man gathers three swords with a smirk while two figures walk off, heads low, leaving their blades behind. Victory is his, but it tastes of ash: taken by cunning, humiliation, contempt. The torn sky holds a spite no triumph can clear." },
-      reversed: { fr: "Le vent tombe, et les armes ramassées commencent à peser. Le vainqueur sans gloire desserre son emprise, le vaincu digère sa défaite et quitte enfin le sable ; peut-être une main se tend là où régnait le mépris. On lâche la querelle avant qu'elle n'achève de tout ronger.", en: "The wind drops, and the gathered blades begin to weigh. The joyless victor loosens his grip, the beaten swallow their loss and leave the sand at last; perhaps a hand reaches out where scorn once ruled. The quarrel is let go before it finishes eating everything." },
+      upright: { fr: "La victoire qui coûte plus qu’elle ne rapporte. Tu as gagné en piétinant, et le triomphe a le goût de cendre : orgueil de l’Air dévoyé en mépris. Une querelle dont nul ne sort grandi — même le vainqueur repart appauvri, entouré de ponts brûlés.", en: "Victory that costs more than it yields. You won by trampling, and the triumph tastes of ash: Air’s pride soured into contempt. A quarrel no one leaves greater — even the victor walks off poorer, ringed by burned bridges." },
+      reversed: { fr: "La rancune desserre enfin son étreinte. Tu poses les armes, non par faiblesse mais parce que gagner ne valait pas ce prix : retrait, pardon, réconciliation. Ou bien l’humiliation s’enkyste, honte ravalée qui empoisonne en silence.", en: "Resentment loosens its grip at last. You lay down the blades, not from weakness but because winning wasn’t worth the cost: withdrawal, forgiveness, reconciliation. Or the humiliation festers, swallowed shame that poisons in silence." },
     },
   },
-  'swords-06': {
+  "swords-06": {
     keywords: {
-      upright: { fr: ['passage', 'traversée', 'apaisement', 'départ'], en: ['passage', 'crossing', 'relief', 'departure'] },
-      reversed: { fr: ['bagage', 'retour en arrière', 'enlisement', 'départ manqué'], en: ['baggage', 'backsliding', 'stuck', 'failed departure'] },
+      upright: { fr: ["passage", "traversée", "apaisement", "départ"], en: ["passage", "crossing", "relief", "departure"] },
+      reversed: { fr: ["bagage", "retour en arrière", "enlisement", "départ manqué"], en: ["baggage", "backsliding", "stuck", "failed departure"] },
     },
     meaning: {
-      upright: { fr: "Un passeur pousse sa barque chargée de six épées dressées, menant une silhouette voilée et son enfant vers l'autre rive. D'un côté l'eau se hérisse, de l'autre elle s'apaise ; la traversée est lente, silencieuse, mais elle éloigne des remous. On emporte ses lames avec soi, sans plus les brandir — le pire est derrière, la berge devant.", en: "A ferryman poles his boat, laden with six upright swords, carrying a veiled figure and a child toward the far bank. On one side the water bristles, on the other it smooths; the crossing is slow, silent, but it draws away from the turmoil. The blades come along, no longer raised — the worst behind, the shore ahead." },
-      reversed: { fr: "La barque n'avance plus, la perche s'enfonce dans une eau qui la retient. Le bagage qu'on traîne alourdit chaque coup ; les rives se confondent, on dérive vers l'arrière au lieu de gagner l'autre bord. Le départ reste une intention qui ne trouve pas son courant.", en: "The boat no longer moves, the pole sinking into water that holds it fast. The baggage dragged along drags each stroke down; the banks blur, and one drifts back rather than reaching the far side. Departure stays an intention that cannot find its current." },
+      upright: { fr: "La transition mélancolique mais nécessaire : tu quittes des eaux troublées pour un ailleurs plus doux. Nul triomphe, seulement le soulagement grave de qui s’éloigne enfin. Air de l’intellect refroidi, on part sans brûler ses ponts — les blessures voyagent avec toi, apaisées, pas effacées.", en: "The melancholy yet necessary transition: you leave troubled waters for something gentler. No triumph, only the grave relief of one who finally moves away. Air of a cooled intellect, you go without burning bridges — the wounds travel with you, eased, not erased." },
+      reversed: { fr: "Le passage qui refuse de s’accomplir : tu voudrais fuir mais quelque chose t’amarre à la rive amère. Le mental ressasse au lieu d’avancer, le bagage émotionnel plombe chaque geste. Départ ajourné, retour du même remous — on tourne au lieu de traverser.", en: "The crossing that refuses to complete: you long to flee but something moors you to the bitter shore. The mind broods instead of advancing, emotional baggage weighs each move down. Departure deferred, the same turmoil returning — you circle instead of crossing." },
     },
   },
-  'swords-07': {
+  "swords-07": {
     keywords: {
-      upright: { fr: ['ruse', 'larcin', 'stratégie', 'discrétion'], en: ['stealth', 'theft', 'strategy', 'discretion'] },
-      reversed: { fr: ['pris sur le fait', 'aveu', 'conscience', 'plan éventé'], en: ['caught', 'confession', 'conscience', 'plan exposed'] },
+      upright: { fr: ["ruse", "larcin", "stratégie", "discrétion"], en: ["stealth", "theft", "strategy", "discretion"] },
+      reversed: { fr: ["pris sur le fait", "aveu", "conscience", "plan éventé"], en: ["caught", "confession", "conscience", "plan exposed"] },
     },
     meaning: {
-      upright: { fr: "Un homme s'éloigne d'un campement sur la pointe des pieds, cinq épées serrées maladroitement dans ses bras, deux autres laissées plantées derrière lui. Le regard en arrière trahit le plan discret, le larcin, la manœuvre menée dans le dos des tentes. C'est l'esprit qui ruse plutôt que la force qui frappe — habile, et jamais tout à fait tranquille.", en: "A man tiptoes away from a camp, five swords clutched awkwardly in his arms, two more left standing behind him. The glance over his shoulder betrays the quiet plan, the pilfering, the manoeuvre worked behind the tents' backs. It is the cunning mind, not the striking hand — clever, and never quite at ease." },
-      reversed: { fr: "Le voleur s'arrête net, une épée lui glisse des bras, un regard le fixe depuis les tentes. La ruse se retourne contre son auteur : on est pris sur le fait, la conscience se met à parler, un aveu monte qu'on ne peut plus retenir. Le plan si soigneusement caché gît soudain à découvert.", en: "The thief stops short, a sword slipping from his arms, a gaze fixing him from the tents. The cunning turns on its author: caught in the act, conscience begins to speak, a confession rises that can no longer be held. The plan so carefully hidden lies suddenly exposed." },
+      upright: { fr: "L’intelligence qui contourne plutôt que d’affronter. Tu obtiens par la ruse, l’esquive et le secret ce que la force te refuse — stratégie solitaire, victoire partielle et jamais tranquille. L’Air ici pense trop, et se sépare des autres pour agir seul.", en: "The mind that goes around rather than through. You take by cunning, evasion and secrecy what force denies you — a lone strategy, a partial win that never sits easy. Air here thinks too much, and cuts itself off to act alone." },
+      reversed: { fr: "La ruse se retourne : conscience qui parle, plan éventé, désir d’avouer et de poser le fardeau. Ou l’inverse — l’esquive devient fuite chronique, tu te dérobes même à toi. Le retour au grand jour, choisi ou subi.", en: "The cunning rebounds: conscience speaks, the plan is exposed, the urge to confess and set the burden down. Or the reverse — evasion hardens into chronic flight, dodging even yourself. A return to daylight, chosen or forced." },
     },
   },
-  'swords-08': {
+  "swords-08": {
     keywords: {
-      upright: { fr: ['piège', 'entrave', 'impuissance', 'aveuglement'], en: ['trap', 'restriction', 'powerlessness', 'blindfold'] },
-      reversed: { fr: ['libération', 'issue', 'nouveau regard', 'délivrance'], en: ['release', 'way out', 'new perspective', 'freeing'] },
+      upright: { fr: ["piège", "entrave", "impuissance", "aveuglement"], en: ["trap", "restriction", "powerlessness", "blindfold"] },
+      reversed: { fr: ["libération", "issue", "nouveau regard", "délivrance"], en: ["release", "way out", "new perspective", "freeing"] },
     },
     meaning: {
-      upright: { fr: "Bandée et ligotée, une femme se tient parmi huit lames plantées comme les barreaux d'une cage à ciel ouvert. Terre boueuse, mer lointaine, château muet : l'esprit se croit prisonnier de ses propres pensées et n'ose plus un pas. Pourtant les cordes ne serrent guère, et nul ne monte la garde.", en: "Blindfolded and bound, a woman stands among eight blades staked like the bars of an open-air cage. Muddy ground, a distant sea, a silent castle: the mind takes its own thoughts for a prison and dares not move. Yet the ropes barely bite, and no one keeps watch." },
-      reversed: { fr: "Le bandeau glisse et la lumière rentre par en dessous. Les nœuds tombés d'eux-mêmes découvrent l'évidence : entre deux lames s'ouvrait un passage que la seule peur masquait. Ce qui retenait n'était fait que de mots.", en: "The blindfold slips and light returns from below. Knots fallen of their own accord lay the truth bare: between two blades a passage stood open all along, veiled by nothing but fear. What held you was made of words alone." },
+      upright: { fr: "L’enfermement mental : tu te crois piégé par des forces extérieures, alors que la geôle est bâtie de tes propres pensées. Victimisation, paralysie, refus de voir l’issue pourtant à portée. L’impuissance ici est un consentement, non une fatalité.", en: "Mental imprisonment: you believe outer forces have trapped you, yet the jail is built of your own thoughts. Victimhood, paralysis, refusal to see the exit that lies within reach. This powerlessness is consent, not fate." },
+      reversed: { fr: "La même geôle, mais dont tu commences à percer l’illusion : le regard se déprend, la peur perd son autorité, une issue se nomme enfin. Délivrance qui vient de l’intérieur — ou, si elle achoppe, l’entêtement à rester ligoté par confort.", en: "The same jail, but its illusion starts to crack: perception loosens, fear loses its authority, a way out is finally named. Release that comes from within — or, if it stalls, the stubborn comfort of staying bound." },
     },
   },
-  'swords-09': {
+  "swords-09": {
     keywords: {
-      upright: { fr: ['angoisse', 'cauchemar', 'peur', 'culpabilité'], en: ['anguish', 'nightmare', 'fear', 'guilt'] },
-      reversed: { fr: ['apaisement', 'peur qui reflue', 'aide', 'sortie du tunnel'], en: ['relief', 'fear receding', 'help', 'coming through'] },
+      upright: { fr: ["angoisse", "cauchemar", "peur", "culpabilité"], en: ["anguish", "nightmare", "fear", "guilt"] },
+      reversed: { fr: ["apaisement", "peur qui reflue", "aide", "sortie du tunnel"], en: ["relief", "fear receding", "help", "coming through"] },
     },
     meaning: {
-      upright: { fr: "Dressée dans le noir, une silhouette se redresse du lit, le visage dans les mains, tandis que neuf lames luisent alignées au mur. La nuit épaissit chaque pensée, retourne le remords, gonfle la peur jusqu'à emplir la chambre. Rien n'attaque — l'ennemi veille à l'intérieur du crâne.", en: "Bolt upright in the dark, a figure sits with face buried in hands, nine blades glinting in a row along the wall. Night thickens every thought, turns the remorse over and over, swells the fear until it fills the room. Nothing attacks — the enemy keeps vigil inside the skull." },
-      reversed: { fr: "L'étau nocturne cède fibre à fibre. Ce qui rongeait dans le silence se dit enfin tout haut, et le cauchemar, une fois nommé, perd de sa masse. Sous la porte, une ligne pâle rappelle que la nuit a une fin.", en: "The night's grip yields thread by thread. What gnawed in silence is finally spoken aloud, and the nightmare, once named, loses its bulk. Under the door a pale line recalls that the night does have an end." },
+      upright: { fr: "L’angoisse qui se dévore elle-même dans le noir. L’Air — le mental — a tourné contre toi : remords, culpabilité, catastrophe anticipée. Aucune lame ne t’a touché ; la souffrance est entièrement forgée par la pensée qui rumine et grossit ce qu’elle nomme.", en: "Anguish devouring itself in the dark. Air — the mind — has turned against you: remorse, guilt, dread rehearsed in advance. No blade has struck; the suffering is entirely forged by thought, ruminating and swelling whatever it names." },
+      reversed: { fr: "L’étau nocturne se desserre. La peur, une fois dite tout haut ou traversée, perd sa masse : le cauchemar était plus vaste que le danger réel. Attention pourtant au déni — refouler l’angoisse au lieu de la nommer ne fait que la reporter à demain.", en: "The night's grip loosens. Fear, once spoken aloud or walked through, loses its bulk: the nightmare was always larger than the real danger. Beware denial, though — burying the dread instead of naming it merely postpones it to tomorrow." },
     },
   },
-  'swords-10': {
+  "swords-10": {
     keywords: {
-      upright: { fr: ['ruine', 'trahison', 'point bas', 'fin brutale'], en: ['ruin', 'betrayal', 'rock bottom', 'brutal ending'] },
-      reversed: { fr: ['relèvement', 'pire passé', 'aube', 'survie'], en: ['recovery', 'worst is over', 'dawn', 'survival'] },
+      upright: { fr: ["ruine", "trahison", "point bas", "fin brutale"], en: ["ruin", "betrayal", "rock bottom", "brutal ending"] },
+      reversed: { fr: ["relèvement", "pire passé", "aube", "survie"], en: ["recovery", "worst is over", "dawn", "survival"] },
     },
     meaning: {
-      upright: { fr: "Un corps gît face contre terre, dix lames enfoncées le long du dos — une chute sans appel, une trahison portée jusqu'au bout. Le ciel est le plus noir des noirs et le sang a cessé de couler. Plus rien ne pèse, car il n'y a plus rien à perdre.", en: "A body lies face-down, ten blades driven the length of its back — a fall past appeal, a betrayal carried to its very end. The sky is the blackest of blacks and the bleeding has stopped. Nothing weighs anymore, for there is nothing left to lose." },
-      reversed: { fr: "À l'horizon, une bande d'or perce le noir absolu. Le pire a déjà eu lieu, il ne guette plus derrière soi ; ne reste que le corps qui, contre toute attente, respire encore. D'ici, tout chemin remonte.", en: "At the horizon a band of gold splits the absolute black. The worst has already happened; it no longer lurks behind you — only the body remains, breathing against all odds. From here, every road leads upward." },
+      upright: { fr: "Le fond du gouffre : une défaite si complète qu’elle libère. Le mental (l’Air) a tourné ses lames contre toi jusqu’au dernier coup, mais l’excès même clôt le cycle. Tu ne crains plus la chute, tu l’as touchée. Fin sans appel, donc paix froide.", en: "Rock bottom: a defeat so total it sets you free. The mind (Air) has turned its blades on you down to the last stroke, yet the very excess seals the cycle. You no longer dread the fall — you have hit it. An ending past appeal, and so a cold peace." },
+      reversed: { fr: "Le pire refuse de mourir : tu rejoues la trahison, tu presses les lames pour vérifier qu’elles blessent encore. La convalescence stagne, dramatisée, ou l’aube pointe enfin et tu te relèves. Choisir de respirer, ou s’attarder dans les ruines.", en: "The worst refuses to die: you replay the betrayal, press the blades to check they still hurt. Recovery stalls, made a drama — or dawn finally breaks and you rise. To choose breath, or to linger in the ruin." },
     },
   },
-  'swords-11': {
+  "swords-11": {
     keywords: {
-      upright: { fr: ['esprit vif', 'guetteur', 'curiosité', 'vigilance'], en: ['sharp mind', 'watcher', 'curiosity', 'vigilance'] },
-      reversed: { fr: ['espionnage', 'ragots', 'précipitation', 'médisance'], en: ['snooping', 'gossip', 'haste', 'slander'] },
+      upright: { fr: ["esprit vif", "guetteur", "curiosité", "vigilance"], en: ["sharp mind", "watcher", "curiosity", "vigilance"] },
+      reversed: { fr: ["espionnage", "ragots", "précipitation", "médisance"], en: ["snooping", "gossip", "haste", "slander"] },
     },
     meaning: {
-      upright: { fr: "Sur une crête balayée de vent, une jeune figure lève sa lame et scrute l'horizon, prête à bondir au moindre mot. Nuages hachés, cheveux fouettés, regard qui fouille — c'est l'esprit à l'affût, curieux de tout, avide de comprendre. Quelque part au loin, une nouvelle se prépare, encore hors de vue.", en: "On a wind-scoured ridge a young figure lifts a blade and scans the skyline, poised to leap at the faintest word. Ragged clouds, whipped hair, a searching gaze — this is the mind on watch, curious about everything, hungry to understand. Somewhere far off, word is gathering, still out of sight." },
-      reversed: { fr: "La vigie devient guetteuse d'ombre : on épie, on colporte, on tranche avant de savoir. La lame si promptement levée sert désormais la rumeur, et la langue court plus vite que la vérité.", en: "The lookout turns spy: prying, tattling, cutting before knowing. The blade so quickly raised now serves the rumour, and the tongue outruns the truth." },
+      upright: { fr: "Le mental à l’état naissant : curiosité qui dégaine avant de savoir, vigilance qui prend tout pour signal. Tu es l’éclaireur de l’Air, avide d’idées neuves, prompt à défier ce qui bouge. Une vérité se lève au loin ; à toi de la guetter sans encore la trancher.", en: "The mind at its dawning: curiosity that draws before it knows, vigilance that reads every stir as a sign. You are Air’s scout, hungry for fresh ideas, quick to challenge whatever moves. A truth is rising far off; yours to watch, not yet to cut." },
+      reversed: { fr: "La vigilance vire à l’espionnage, la curiosité au ragot. La lame juvénile tranche à vide : on colporte, on épie, on parle avant de comprendre. L’esprit vif se disperse en médisance et précipitation, et la langue devance la vérité.", en: "Watchfulness curdles into snooping, curiosity into gossip. The youthful blade cuts at nothing: prying, tattling, speaking before understanding. The keen mind scatters into slander and haste, and the tongue runs ahead of the truth." },
     },
   },
-  'swords-12': {
+  "swords-12": {
     keywords: {
-      upright: { fr: ['assaut', 'franchise', 'rapidité', 'détermination'], en: ['charge', 'bluntness', 'speed', 'determination'] },
-      reversed: { fr: ['agressivité', 'imprudence', 'brusquerie', 'sans suite'], en: ['aggression', 'recklessness', 'harshness', 'no follow-through'] },
+      upright: { fr: ["assaut", "franchise", "rapidité", "détermination"], en: ["charge", "bluntness", "speed", "determination"] },
+      reversed: { fr: ["agressivité", "imprudence", "brusquerie", "sans suite"], en: ["aggression", "recklessness", "harshness", "no follow-through"] },
     },
     meaning: {
-      upright: { fr: "Un cavalier lance sa monture au galop, lame haute, penché sur l'encolure sous un ciel de tempête. Rien ne l'arrête, ni le vent contraire ni les arbres tordus — c'est la pensée changée en charge, la franchise qui fend l'air, l'idée poussée d'un seul trait jusqu'au but.", en: "A rider drives his mount at full gallop, blade raised, bent low over its neck beneath a storm-torn sky. Nothing slows him — not the headwind, not the twisted trees — this is thought made charge, bluntness cleaving the air, the idea flung in a single line toward its mark." },
-      reversed: { fr: "L'élan tourne à la furie aveugle : on charge sans regarder, la parole blesse, la monture s'emballe. La fougue retombée, la poussière recouvre un terrain conquis puis aussitôt abandonné.", en: "The drive curdles into blind fury: charging without looking, words that wound, a mount run wild. When the blaze burns out, dust settles over ground taken and just as quickly abandoned." },
+      upright: { fr: "L’intellect (Air) devenu pure impulsion : une idée si tranchante qu’elle se change en action avant le doute. Tu incarnes la conviction qui fonce, la franchise qui ne ménage rien. Vertu du cavalier, le courage ; son vice, croire que vouloir vite suffit à voir juste.", en: "Intellect (Air) turned to sheer impulse: an idea so sharp it becomes action before doubt can catch it. You embody conviction that charges, candor that spares nothing. The knight's virtue is courage; his vice, mistaking speed of will for clarity of sight." },
+      reversed: { fr: "La même lame, mais dégainée à vide. L’élan devient agression sans cap : on tranche pour trancher, la parole coupe plus qu’elle ne défend, et rien ne tient au-delà de l’assaut. Panache qui saisit un terrain, puis le déserte.", en: "The same blade, now drawn on nothing. Drive becomes aimless aggression: cutting for the sake of cutting, words that wound more than they defend, nothing outlasting the charge. Bravado that seizes ground, then deserts it." },
     },
   },
-  'swords-13': {
+  "swords-13": {
     keywords: {
-      upright: { fr: ['lucidité', 'perspicacité', 'franchise', 'indépendance'], en: ['clarity', 'perceptiveness', 'frankness', 'independence'] },
-      reversed: { fr: ['froideur', 'jugement dur', 'amertume', 'sarcasme'], en: ['coldness', 'harsh judgement', 'bitterness', 'sarcasm'] },
+      upright: { fr: ["lucidité", "perspicacité", "franchise", "indépendance"], en: ["clarity", "perceptiveness", "frankness", "independence"] },
+      reversed: { fr: ["froideur", "jugement dur", "amertume", "sarcasme"], en: ["coldness", "harsh judgement", "bitterness", "sarcasm"] },
     },
     meaning: {
-      upright: { fr: "Sur un trône dressé au-dessus des nuages, une femme tient sa lame droite vers le ciel, une main tendue vers qui saura dire vrai. Le regard ne cille pas ; il a connu la perte et en a tiré la clarté. Ici la pensée règne sans complaisance, tranchante comme l'air pur des hauteurs.", en: "On a throne raised above the clouds, a woman holds her blade upright to the sky, one hand extended to whoever will speak true. The gaze does not waver; it has known loss and drawn clarity from it. Here the mind reigns without indulgence, keen as the pure air of high places." },
-      reversed: { fr: "La lucidité vire au gel. La lame qui coupait le faux entaille désormais tout ce qui approche ; le jugement ne pardonne plus, l'amertume tient lieu de vérité. À force de tout voir, on ne voit plus que les défauts.", en: "The clarity turns to frost. The blade that once cut through falsehood now gashes all that comes near; judgement no longer forgives, bitterness stands in for truth. Seeing everything, one comes to see only the flaws." },
+      upright: { fr: "La maturité de l’Air : une intelligence qui a payé la clarté au prix de la douleur. Tu perçois sans te raconter d’histoires, tu nommes le vrai même quand il coûte, sans quémander d’approbation. Une lucidité veuve d’illusions, tranchante mais juste.", en: "The maturity of Air: a mind that paid for its clarity in grief. You perceive without lying to yourself, you name the truth even when it costs, begging no one’s approval. A lucidity widowed of illusions, keen yet fair." },
+      reversed: { fr: "La même lame retournée contre la vie. La lucidité se fige en froideur, le discernement en verdict sans appel ; l’intelligence sert désormais à isoler et à punir. Le deuil non digéré tourne en amertume, et le sarcasme remplace la vérité qu’il singe.", en: "The same blade turned against life. Clarity hardens into coldness, discernment into a verdict beyond appeal; the mind now serves to isolate and to punish. Undigested grief curdles into bitterness, and sarcasm stands in for the truth it mimics." },
     },
   },
-  'swords-14': {
+  "swords-14": {
     keywords: {
-      upright: { fr: ['intelligence', 'autorité', 'rigueur', 'vérité'], en: ['intellect', 'authority', 'rigour', 'truth'] },
-      reversed: { fr: ['manipulation', 'froideur', 'abus', 'rigidité'], en: ['manipulation', 'coldness', 'abuse', 'rigidity'] },
+      upright: { fr: ["intelligence", "autorité", "rigueur", "vérité"], en: ["intellect", "authority", "rigour", "truth"] },
+      reversed: { fr: ["manipulation", "froideur", "abus", "rigidité"], en: ["manipulation", "coldness", "abuse", "rigidity"] },
     },
     meaning: {
-      upright: { fr: "De face sur son trône de pierre, un homme tient l'épée bien droite, le regard qui pèse et qui sonde. Papillons gravés, ciel immobile : ici la loi, la stratégie et la parole donnée gouvernent. C'est l'esprit fait autorité, celui qui tranche parce qu'il a d'abord compris.", en: "Facing forward on his stone throne, a man holds the sword bolt upright, his gaze weighing and probing. Carved butterflies, a windless sky: here law, strategy and the given word hold sway. This is the mind made authority, the one who decides because he first understood." },
-      reversed: { fr: "L'intelligence se met au service de la seule puissance. La lame juge sans écouter, la règle écrase au lieu de protéger, la parole devient piège. Un pouvoir qui a cessé de sentir gouverne encore, mais ne gouverne plus que par la crainte.", en: "Intellect bends into the service of raw power. The blade judges without listening, the rule crushes instead of shielding, the given word becomes a snare. A power that has stopped feeling still governs — but governs now by fear alone." },
+      upright: { fr: "La maturité de l’Air : l’intellect devenu souverain, qui juge selon la vérité, non selon l’humeur. Tu incarnes l’autorité de la pensée claire — celle qui tranche parce qu’elle a compris, tient parole et gouverne par principe. La lame de l’esprit au service de la justice.", en: "The maturity of Air: intellect become sovereign, judging by truth rather than mood. You embody the authority of clear thought — the mind that cuts because it has understood, keeps its word, and rules by principle. The blade of the spirit in the service of justice." },
+      reversed: { fr: "L’esprit tranchant qui a perdu son cœur : la logique devient arme, la règle devient cage. Tu juges sans écouter, tu manipules au nom de la raison, tu confonds froideur et lucidité. Un pouvoir qui n’argumente plus, il intimide — la vérité pliée en outil de domination.", en: "The keen mind that has lost its heart: logic turned weapon, rule turned cage. You judge without listening, manipulate in reason’s name, mistake coldness for clarity. A power that no longer argues but intimidates — truth bent into a tool of domination." },
     },
   },
-
-  // ─────────────── DENIERS / PENTACLES (terre : matériel, travail, corps) ───────────────
-  'pentacles-01': {
+  "pentacles-01": {
     keywords: {
-      upright: { fr: ['aubaine', 'occasion', 'richesse', 'prospérité'], en: ['windfall', 'opportunity', 'wealth', 'prosperity'] },
-      reversed: { fr: ['occasion manquée', 'piège', 'promesse creuse', 'perte'], en: ['missed chance', 'trap', 'hollow promise', 'loss'] },
+      upright: { fr: ["aubaine", "occasion", "richesse", "prospérité"], en: ["windfall", "opportunity", "wealth", "prosperity"] },
+      reversed: { fr: ["occasion manquée", "piège", "promesse creuse", "perte"], en: ["missed chance", "trap", "hollow promise", "loss"] },
     },
     meaning: {
-      upright: { fr: "Une main s'ouvre et tend une pièce d'or, lourde et bien réelle. Au bout du jardin, une porte donne sur du concret : un don, un sol fertile, la graine d'une prospérité qui ne demande qu'à être plantée. Tout part de là, tangible dans la paume.", en: "A hand opens and offers a gold coin, heavy and wholly real. At the garden's end, a gate opens onto the tangible: a gift, fertile ground, the seed of a prosperity that asks only to be planted. It all starts here, solid in the palm." },
-      reversed: { fr: "La main se referme sur la pièce, ou la laisse tomber dans la boue. La graine pourrit avant de lever : occasion gâchée, promesse sans lendemain, ou l'or serré si fort qu'il n'a plus rien à rendre. Le sol, ici, ne donne pas.", en: "The hand closes over the coin, or lets it drop in the mud. The seed rots before it sprouts: a chance wasted, a promise with no morrow, or gold gripped so tight it has nothing left to give. This ground yields nothing." },
+      upright: { fr: "La semence de la Terre : un potentiel matériel offert à l’état pur, avant tout effort. Racine du monde tangible — corps, argent, métier, santé — cet As te dit qu’une fondation neuve est possible, réelle, à condition de t’incarner et de planter. La grâce précède le labeur.", en: "The seed of Earth: raw material potential offered before any toil. Root of the tangible world — body, money, craft, health — this Ace tells you a new foundation is possible, real, if you consent to embody it and plant. Grace comes before labour." },
+      reversed: { fr: "La même semence, mais coupée du sol. Le potentiel se fige en avidité ou se dissipe en promesse creuse : tu confonds la valeur avec sa possession, tu serres au lieu de faire fructifier. Fondation bâtie sur du vide, ou aubaine que ta peur laisse filer.", en: "The same seed, but severed from the soil. Potential hardens into greed or scatters into hollow promise: you mistake worth for its mere possession, gripping instead of growing. A foundation built on emptiness, or a windfall your fear lets slip away." },
     },
   },
-  'pentacles-02': {
+  "pentacles-02": {
     keywords: {
-      upright: { fr: ['jonglage', 'adaptation', 'équilibre', 'souplesse'], en: ['juggling', 'adaptability', 'balance', 'flexibility'] },
-      reversed: { fr: ['surcharge', 'désordre', 'déséquilibre', 'trop de fronts'], en: ['overload', 'disorder', 'imbalance', 'too many fronts'] },
+      upright: { fr: ["jonglage", "adaptation", "équilibre", "souplesse"], en: ["juggling", "adaptability", "balance", "flexibility"] },
+      reversed: { fr: ["surcharge", "désordre", "déséquilibre", "trop de fronts"], en: ["overload", "disorder", "imbalance", "too many fronts"] },
     },
     meaning: {
-      upright: { fr: "Un jongleur fait danser deux pièces d'or dans une boucle sans fin, tandis que derrière lui la mer soulève et repose les navires. Les pieds bougent, le corps ondule, tout tient dans le rythme trouvé. Rien n'est posé, et pourtant rien ne tombe : l'équilibre est une danse, pas un repos.", en: "A juggler keeps two golden coins looping through the air, while behind him the sea lifts the ships and sets them down again. The feet shift, the body sways, everything holds in the rhythm found. Nothing is set down, yet nothing drops: balance here is a dance, not a rest." },
-      reversed: { fr: "Le rythme se casse, les vagues montent trop haut derrière la silhouette. Les pièces filent plus vite que les mains ne suivent, et la danse tourne à la course essoufflée. Un poids de trop dans la boucle, et tout ce qu'on tenait s'éparpille sur la pierre.", en: "The rhythm breaks, the waves climb too high behind the figure. The coins fly faster than the hands can follow, and the dance turns into a breathless scramble. One weight too many in the loop, and everything you held scatters across the stone." },
+      upright: { fr: "L’art de tenir deux charges à la fois sans en sacrifier aucune. Tu composes avec le flux, tu ajustes en continu ; ta stabilité n’est pas un socle mais un rythme. Souplesse joyeuse : garde les choses en mouvement et rien ne tombe.", en: "The art of holding two burdens at once without dropping either. You work with the flux, adjusting endlessly; your stability is not a foundation but a rhythm. A playful nimbleness: keep things moving and nothing falls." },
+      reversed: { fr: "Le jonglage vire à la dispersion. Trop de fronts ouverts, le rythme se rompt et tu ne fais plus qu’éteindre des feux. La souplesse devient épuisement, priorités confuses ; ce que tu croyais tenir t’échappe faute de choisir.", en: "The juggling scatters into chaos. Too many fronts open, the rhythm breaks, and you do nothing but douse fires. Nimbleness turns to exhaustion, priorities blur; what you thought you held slips away for lack of choosing." },
     },
   },
-  'pentacles-03': {
+  "pentacles-03": {
     keywords: {
-      upright: { fr: ['savoir-faire', 'collaboration', 'chantier', 'reconnaissance'], en: ['craft', 'collaboration', 'project', 'recognition'] },
-      reversed: { fr: ['cafouillage', 'rôles flous', 'travail bâclé', 'egos'], en: ['muddle', 'unclear roles', 'sloppy work', 'egos'] },
+      upright: { fr: ["savoir-faire", "collaboration", "chantier", "reconnaissance"], en: ["craft", "collaboration", "project", "recognition"] },
+      reversed: { fr: ["cafouillage", "rôles flous", "travail bâclé", "egos"], en: ["muddle", "unclear roles", "sloppy work", "egos"] },
     },
     meaning: {
-      upright: { fr: "Dans la fraîcheur de la pierre, un artisan taille la voûte pendant que deux hommes tiennent le plan sous les yeux. Le marteau, le dessin, la parole s'accordent : chaque main sait sa part et l'ouvrage monte. Le savoir-faire d'un seul devient l'œuvre de plusieurs, et l'édifice porte déjà leur nom.", en: "In the cool of the stone, a craftsman carves the vault while two men hold the plan before him. Hammer, drawing and word fall into accord: each hand knows its part and the work rises. One person's skill becomes the labour of many, and the building already bears their names." },
-      reversed: { fr: "L'échafaudage tient encore, mais les voix se croisent sans se répondre. L'un montre le plan que l'autre ignore, le ciseau frappe de travers, et l'ouvrage prend du retard à mesure que les orgueils enflent. Sans mains accordées, la belle voûte reste une esquisse figée.", en: "The scaffolding still stands, but the voices cross without answering one another. One points at a plan the other ignores, the chisel bites off the mark, and the work falls behind as the egos swell. With hands out of accord, the fine vault stays a frozen sketch." },
+      upright: { fr: "Le seuil où le talent solitaire devient œuvre commune. Ta maîtrise cesse d’être promesse : elle s’éprouve au contact d’autres exigences, se laisse corriger, et gagne enfin une valeur reconnue. Terre patiente qui bâtit dans la durée, pierre après pierre, chacun à sa place.", en: "The threshold where solitary talent becomes shared work. Your mastery stops being mere promise: it is tested against others’ demands, lets itself be corrected, and finally earns recognized worth. Patient earth that builds to last, stone by stone, each one in place." },
+      reversed: { fr: "Le même chantier, mais l’accord se défait. Les rôles se brouillent, l’ego réclame la gloire avant l’ouvrage, le soin cède à la hâte. Tu bâtis sans plan partagé : chaque main tire à soi et la matière ne prend plus.", en: "The same worksite, but the accord unravels. Roles blur, ego claims glory before the labor is done, care gives way to haste. You build without a shared plan: every hand pulls its own way and the material no longer holds." },
     },
   },
-  'pentacles-04': {
+  "pentacles-04": {
     keywords: {
-      upright: { fr: ['sécurité', 'épargne', 'contrôle', 'possession'], en: ['security', 'saving', 'control', 'possession'] },
-      reversed: { fr: ['avarice', 'possessivité', 'isolement', 'perte'], en: ['greed', 'possessiveness', 'isolation', 'loss'] },
+      upright: { fr: ["sécurité", "épargne", "contrôle", "possession"], en: ["security", "saving", "control", "possession"] },
+      reversed: { fr: ["avarice", "possessivité", "isolement", "perte"], en: ["greed", "possessiveness", "isolation", "loss"] },
     },
     meaning: {
-      upright: { fr: "Assis aux portes de la cité, un homme presse une pièce contre son cœur, deux autres sous ses pieds, une dernière en couronne sur son front. Rien ne lui échappe, tout est tenu, verrouillé, à l'abri du vent. C'est la paix de qui possède — une forteresse de métal bâtie autour d'un corps qui n'ose plus bouger.", en: "Seated at the city gates, a man clutches a coin to his heart, two more beneath his feet, a last one crowning his brow. Nothing slips from him, all is held, locked, sheltered from the wind. This is the peace of the one who owns — a fortress of metal built around a body that no longer dares to move." },
-      reversed: { fr: "Les doigts se referment jusqu'à blanchir, et le rempart d'or devient une cage. À trop serrer, on ne tient plus que le vide autour de soi : les portes closes, les mains crispées, personne à qui ouvrir. Ou bien la prise cède d'un coup, et tout ce qu'on couvait roule loin dans la poussière.", en: "The fingers close until they whiten, and the rampart of gold becomes a cage. Grip too hard and all you hold is the emptiness around you: the gates shut, the hands clenched, no one left to open to. Or else the hold gives way at once, and all you hoarded rolls off into the dust." },
+      upright: { fr: "La sécurité érigée en refuge, puis en prison. Tu tiens, tu épargnes, tu maîtrises — et cette stabilité de Terre devient identité : tu es ce que tu possèdes. Vrai repos du bâtisseur, mais qui commence à confondre garder et vivre.", en: "Security raised into a refuge, then into a jail. You hold, you save, you control — and this earthy stability becomes identity: you are what you own. A builder's true rest, yet one starting to confuse keeping with living." },
+      reversed: { fr: "La même poigne, mais crispée : l'avarice qui fait le vide, la possessivité qui étouffe l'aimé. Fermé sur ton trésor, tu t'isoles — ou la peur de perdre provoque enfin la perte, la prise qui lâche.", en: "The same grip, now clenched: greed that hollows everything out, possessiveness that smothers the loved one. Sealed around your hoard, you cut yourself off — or the fear of loss finally causes the loss, the hold that slips." },
     },
   },
-  'pentacles-05': {
+  "pentacles-05": {
     keywords: {
-      upright: { fr: ['disette', 'manque', 'exclusion', 'froid'], en: ['hardship', 'want', 'exclusion', 'cold'] },
-      reversed: { fr: ['secours', 'refuge', 'reprise', 'espoir'], en: ['aid', 'shelter', 'recovery', 'hope'] },
+      upright: { fr: ["disette", "manque", "exclusion", "froid"], en: ["hardship", "want", "exclusion", "cold"] },
+      reversed: { fr: ["secours", "refuge", "reprise", "espoir"], en: ["aid", "shelter", "recovery", "hope"] },
     },
     meaning: {
-      upright: { fr: "Deux silhouettes en haillons passent dans la neige, l'une boitant sur des béquilles, l'autre courbée sous le froid. Au-dessus d'eux, un vitrail brûle de lumière et de pièces d'or — mais la porte n'est pas de leur côté. Le manque mord, et le seuil chaud reste juste hors d'atteinte, à quelques pas dans la nuit.", en: "Two ragged figures trudge through the snow, one limping on crutches, the other bent beneath the cold. Above them a stained-glass window blazes with light and golden coins — but the door is not on their side. Want bites deep, and the warm threshold stays just out of reach, a few steps away in the night." },
-      reversed: { fr: "Le froid relâche enfin son étreinte : un porche se découpe dans la nuit, une main tendue attend au bout du chemin. Les pas restent lourds, mais la lumière du vitrail cesse d'être un mur pour devenir une direction. Ce qui manquait n'est pas encore là — pourtant le pire s'éloigne, un peu.", en: "The cold loosens its hold at last: a porch takes shape in the dark, a hand held out waits at the road's end. The steps are still heavy, but the window's light stops being a wall and becomes a bearing. What was missing is not yet here — and yet the worst is drawing back, a little." },
+      upright: { fr: "Le froid du manque, mais surtout celui de l’exclusion : privation matérielle, santé, amour ou foi qui s’effondrent ensemble. Tu te vis dehors, indigne du seuil chaud — et cette honte t’aveugle sur l’aide toute proche. L’épreuve du dénuement partagé.", en: "The cold of lack, but above all of exclusion: material want, health, love or faith caving in together. You feel cast outside, unworthy of the warm threshold — and that shame blinds you to the help close at hand. The ordeal of shared destitution." },
+      reversed: { fr: "L’étreinte se desserre : convalescence, recours enfin accepté, retour vers le refuge. Tu relèves les yeux et vois la porte qui existait déjà. Ou l’ombre s’installe — misère chronique, orgueil qui refuse le secours, errance sans fin dans le froid.", en: "The grip loosens: recovery, aid finally accepted, a turn back toward shelter. You lift your eyes and see the door that was always there. Or the shadow settles in — chronic misery, pride refusing all rescue, endless wandering in the cold." },
     },
   },
-  'pentacles-06': {
+  "pentacles-06": {
     keywords: {
-      upright: { fr: ['générosité', 'partage', 'mécène', 'échange juste'], en: ['generosity', 'sharing', 'patron', 'fair exchange'] },
-      reversed: { fr: ['don intéressé', 'dette', 'déséquilibre', 'dépendance'], en: ['strings attached', 'debt', 'imbalance', 'dependence'] },
+      upright: { fr: ["générosité", "partage", "mécène", "échange juste"], en: ["generosity", "sharing", "patron", "fair exchange"] },
+      reversed: { fr: ["don intéressé", "dette", "déséquilibre", "dépendance"], en: ["strings attached", "debt", "imbalance", "dependence"] },
     },
     meaning: {
-      upright: { fr: "Un marchand tient sa balance d'une main et laisse tomber des pièces de l'autre dans les paumes ouvertes de deux mendiants agenouillés. Le geste est mesuré, l'échange pesé, chacun reçoit selon sa part. Un instant de justice tranquille où le trop-plein de l'un comble le vide de l'autre.", en: "A merchant holds his scales in one hand and lets coins fall from the other into the open palms of two kneeling beggars. The gesture is measured, the exchange weighed, each receives according to his share. A quiet moment of justice, where one man's surplus fills another's want." },
-      reversed: { fr: "La balance penche, et l'on ne sait plus qui tient l'autre. La pièce donnée traîne un fil invisible : elle achète une reconnaissance, elle scelle une dette, elle place le mendiant sous une main qui pourra se refermer. Le geste garde l'allure de la bonté, mais les plateaux ne s'équilibrent plus.", en: "The scales tilt, and it is no longer clear who holds whom. The coin given trails an invisible thread: it buys a debt of gratitude, it seals an obligation, it sets the beggar beneath a hand that can yet close. The gesture keeps the look of kindness, but the pans no longer come level." },
+      upright: { fr: "L’abondance qui accepte de circuler. Tu tiens la juste mesure entre ce que tu possèdes et ce que tu partages, et le monde te répond en flux : recevoir et donner cessent d’être opposés. Grâce accordée, dette réglée, équilibre choisi.", en: "Abundance that agrees to circulate. You hold the fair measure between what you own and what you share, and the world answers in flow: receiving and giving stop being opposites. A grace granted, a debt settled, a balance chosen." },
+      reversed: { fr: "Le don qui asservit. La générosité tourne au levier : on donne pour tenir, on reçoit et l’on reste à genoux. La mesure ment, les plateaux truqués. Charité d’apparat, dépendance, dette qui enchaîne au lieu de délier.", en: "The gift that binds. Generosity turns into leverage: one gives to keep a grip, one takes and stays on their knees. The measure lies, the pans are rigged. Charity as display, dependence, debt that chains instead of freeing." },
     },
   },
-  'pentacles-07': {
+  "pentacles-07": {
     keywords: {
-      upright: { fr: ['patience', 'récolte à venir', 'évaluation', 'investissement'], en: ['patience', 'coming harvest', 'assessment', 'investment'] },
-      reversed: { fr: ['maigre récolte', 'effort vain', 'impatience', 'doute'], en: ['poor harvest', 'wasted effort', 'impatience', 'doubt'] },
+      upright: { fr: ["patience", "récolte à venir", "évaluation", "investissement"], en: ["patience", "coming harvest", "assessment", "investment"] },
+      reversed: { fr: ["maigre récolte", "effort vain", "impatience", "doute"], en: ["poor harvest", "wasted effort", "impatience", "doubt"] },
     },
     meaning: {
-      upright: { fr: "Appuyé sur sa houe, un homme s'arrête au bord du feuillage où mûrissent des pièces d'or comme des fruits lourds. Le travail est fait ; reste le temps, ce vieux complice qui gonfle la récolte à son heure et non à la nôtre. Un moment suspendu entre l'effort donné et la moisson encore verte.", en: "Leaning on his hoe, a man pauses at the edge of the foliage where golden coins ripen like heavy fruit. The labour is done; what remains is time, that old accomplice who swells the harvest at its hour and not at ours. A suspended moment between the effort spent and the crop still green." },
-      reversed: { fr: "Le regard s'attarde sur les pièces sans les voir grossir, et le doute s'installe dans la longue attente. La récolte semble maigre pour tant de sueur, l'envie monte d'arracher le fruit avant terme. La houe pèse plus lourd qu'au premier jour, et le vert ne veut pas virer à l'or.", en: "The gaze lingers on the coins without seeing them swell, and doubt settles into the long wait. The harvest looks meagre for so much sweat, and the urge rises to tear the fruit down before its time. The hoe weighs heavier than on the first day, and the green will not turn to gold." },
+      upright: { fr: "Le seuil où l’action cède à la maturation. Tu as investi ; maintenant tu évalues, tu laisses le temps faire son œuvre sans l’arracher. Patience active de qui mesure la valeur du semé et discerne ce qui mérite qu’on persévère.", en: "The threshold where action yields to ripening. You have invested; now you assess, letting time do its work rather than forcing it. The active patience of one who weighs what was sown and discerns what deserves persevering." },
+      reversed: { fr: "L’attente devient rongement. Le doute chiffre la récolte trop tôt et la juge maigre, l’impatience veut cueillir le vert. Effort mal placé, ou refus de voir qu’un chantier ne rend rien : lâcher, ou tenir aveuglément.", en: "Waiting turns to gnawing. Doubt tallies the harvest too soon and calls it meagre; impatience wants to pick it green. Effort misplaced, or refusal to see a venture yielding nothing: to let go, or to hold on blindly." },
     },
   },
-  'pentacles-08': {
+  "pentacles-08": {
     keywords: {
-      upright: { fr: ['application', 'métier', 'constance', 'apprentissage'], en: ['diligence', 'craft', 'consistency', 'apprenticeship'] },
-      reversed: { fr: ['routine vide', 'perfectionnisme', 'sans cœur', 'bâclage'], en: ['empty routine', 'perfectionism', 'heartless', 'sloppiness'] },
+      upright: { fr: ["application", "métier", "constance", "apprentissage"], en: ["diligence", "craft", "consistency", "apprenticeship"] },
+      reversed: { fr: ["routine vide", "perfectionnisme", "sans cœur", "bâclage"], en: ["empty routine", "perfectionism", "heartless", "sloppiness"] },
     },
     meaning: {
-      upright: { fr: "Assis à l'établi, l'artisan grave une étoile dans le métal et l'accroche au mur, déjà six ouvrées, une septième sous le burin. Le geste se répète, patient, chaque pièce plus sûre que la précédente ; la ville reste au loin, oubliée. Le métier s'apprend là, coup après coup, dans l'odeur du copeau et le silence de l'application.", en: "At the bench the craftsman carves a star into the metal and hangs it on the wall — six done already, a seventh under the chisel. The gesture repeats, patient, each piece surer than the last; the town stays far off, forgotten. The craft is learned right here, stroke after stroke, in the scent of shavings and the quiet of applied hands." },
-      reversed: { fr: "Le burin frappe encore, mais la main ne regarde plus l'ouvrage. Les étoiles s'alignent, identiques et froides, ou bien on lime la même à l'infini sans jamais l'accrocher. Le geste demeure — c'est le cœur qui a quitté l'établi.", en: "The chisel still strikes, but the hand no longer looks at the work. The stars line up, identical and cold — or the same one is filed forever and never hung. The gesture remains; it is the heart that has left the bench." },
+      upright: { fr: "La discipline patiente qui transforme le talent en maîtrise. Tu ne cherches ni éclat ni raccourci : tu répètes le geste jusqu’à ce qu’il devienne toi. Chaque effort accompli est une preuve gravée, un pas de l’apprenti vers l’artisan. Le vrai savoir se paie en constance.", en: "The patient discipline that turns talent into mastery. You seek neither dazzle nor shortcut: you repeat the gesture until it becomes you. Each finished effort is a proof engraved, one step from apprentice toward craftsman. True skill is paid for in constancy." },
+      reversed: { fr: "La même constance, mais vidée de son âme. Le geste tourne à vide : perfectionnisme stérile qui lime sans jamais livrer, ou routine machinale sans cœur ni progrès. Tu confonds l’effort avec la peur d’avancer, ou tu bâcles ce qui méritait ton soin.", en: "The same constancy, hollowed of its soul. The gesture turns empty: sterile perfectionism that files forever and never delivers, or a heartless, mechanical routine without progress. You mistake effort for the fear of moving on, or you botch what deserved your care." },
     },
   },
-  'pentacles-09': {
+  "pentacles-09": {
     keywords: {
-      upright: { fr: ['aisance', 'autonomie', 'confort', 'récompense'], en: ['ease', 'self-reliance', 'comfort', 'reward'] },
-      reversed: { fr: ['surmenage', 'vide', 'dépendance', 'luxe creux'], en: ['overwork', 'emptiness', 'dependence', 'hollow luxury'] },
+      upright: { fr: ["aisance", "autonomie", "confort", "récompense"], en: ["ease", "self-reliance", "comfort", "reward"] },
+      reversed: { fr: ["surmenage", "vide", "dépendance", "luxe creux"], en: ["overwork", "emptiness", "dependence", "hollow luxury"] },
     },
     meaning: {
-      upright: { fr: "Dans un jardin mûr, une femme richement vêtue pose la main sur une étoile d'or, un oiseau encapuchonné perché à son gant. Les vignes ploient de fruits, le domaine respire l'abondance patiemment gagnée ; elle est seule et cela lui suffit. Ici, le travail a porté sa récompense, et l'on peut enfin en savourer le calme raffiné.", en: "In a ripe garden a richly dressed woman rests her hand on a golden star, a hooded bird poised on her glove. The vines bow with fruit, the estate breathes an abundance patiently earned; she is alone and it is enough. Here the work has borne its reward, and one may savour at last its refined calm." },
-      reversed: { fr: "Le jardin est toujours somptueux, mais le gant serre trop fort et le regard se fatigue. On tient le train de vie à bout de bras, ou l'on erre parmi des ors qui ne réjouissent plus personne. L'aisance est là, splendide et vide, comme un fruit peint sur la vigne.", en: "The garden is still sumptuous, but the glove grips too hard and the gaze grows tired. One keeps up the lifestyle at arm's length, or wanders among golds that gladden no one anymore. The ease is there, splendid and hollow, like a fruit painted onto the vine." },
+      upright: { fr: "L’autonomie enfin conquise. Tu jouis de ce que ta discipline a bâti : une aisance qui ne doit rien à personne, un raffinement mérité. La solitude ici n’est pas manque mais souveraineté — tu te suffis, et cela a le goût du fruit mûr.", en: "Hard-won autonomy. You enjoy what your own discipline has built: an ease that owes nothing to anyone, a well-earned refinement. Solitude here is not lack but sovereignty — you are enough unto yourself, and it tastes of ripe fruit." },
+      reversed: { fr: "L’aisance devenue façade. Tu tiens le décor à bout de bras, ou tu t’appuies sur ce que tu croyais avoir dépassé : l’or est là mais ne nourrit plus. Indépendance surjouée qui cache une dépendance, luxe qui sonne creux.", en: "Ease turned facade. You prop up the setting at arm's length, or lean on what you thought you had outgrown: the gold is there but no longer feeds you. Overplayed independence masking dependence, luxury that rings hollow." },
     },
   },
-  'pentacles-10': {
+  "pentacles-10": {
     keywords: {
-      upright: { fr: ['richesse durable', 'héritage', 'maisonnée', 'stabilité'], en: ['lasting wealth', 'legacy', 'household', 'stability'] },
-      reversed: { fr: ['héritage disputé', 'argent qui divise', 'instabilité', 'sursis'], en: ['disputed legacy', 'money that divides', 'instability', 'borrowed time'] },
+      upright: { fr: ["richesse durable", "héritage", "maisonnée", "stabilité"], en: ["lasting wealth", "legacy", "household", "stability"] },
+      reversed: { fr: ["héritage disputé", "argent qui divise", "instabilité", "sursis"], en: ["disputed legacy", "money that divides", "instability", "borrowed time"] },
     },
     meaning: {
-      upright: { fr: "Sous une arche gravée d'armoiries, trois générations se tiennent : le vieillard aux chiens, le couple, l'enfant qui touche une étoile. Dix pièces s'agencent dans l'air comme un arbre de lignée, et la maisonnée entière repose à leur ombre. Tout est bâti, transmis, à l'abri — un patrimoine assez lourd pour porter ceux qui viendront.", en: "Beneath an arch carved with heraldry three generations stand: the old man with his hounds, the couple, the child reaching for a star. Ten coins arrange themselves in the air like a family tree, and the whole household rests in their shade. Everything is built, handed down, sheltered — a legacy heavy enough to carry those still to come." },
-      reversed: { fr: "L'arche tient encore, mais une fissure court dans la pierre des armoiries. Les héritiers comptent les pièces au lieu de se regarder, et l'or qui devait unir la maisonnée la divise. La prospérité demeure — sur un socle qui n'est plus tout à fait sûr.", en: "The arch still stands, but a crack runs through the heraldic stone. The heirs count the coins instead of meeting each other's eyes, and the gold that should have bound the household divides it. The prosperity remains — on a footing no longer quite sure." },
+      upright: { fr: "L’aboutissement de la Terre : la richesse cesse d’être la tienne pour devenir celle d’une lignée. Tu n’es plus celui qui possède, mais le maillon qui transmet — sécurité, nom, appartenance. La réussite se mesure ici à ce qui survit à son bâtisseur.", en: "Earth's culmination: wealth stops being yours to become a bloodline's. You are no longer the one who owns but the link who hands down — security, name, belonging. Success is measured here by what outlasts the one who built it." },
+      reversed: { fr: "Le même héritage, mais qui pèse au lieu de porter. L’or cesse de lier et se met à diviser : on compte les parts, on se dispute le nom, la tradition devient prison. Stabilité de façade sur des fondations que plus personne ne consolide.", en: "The same legacy, now a burden instead of a shelter. Gold stops binding and starts dividing: shares are counted, the name is fought over, tradition hardens into a cage. Surface stability atop foundations no one shores up anymore." },
     },
   },
-  'pentacles-11': {
+  "pentacles-11": {
     keywords: {
-      upright: { fr: ['jeune studieux', 'apprenti', 'occasion', 'projet concret'], en: ['studious youth', 'apprentice', 'opportunity', 'concrete plan'] },
-      reversed: { fr: ['procrastination', 'occasion gâchée', 'stagnation', 'rêverie'], en: ['procrastination', 'missed chance', 'stagnation', 'daydreaming'] },
+      upright: { fr: ["jeune studieux", "apprenti", "occasion", "projet concret"], en: ["studious youth", "apprentice", "opportunity", "concrete plan"] },
+      reversed: { fr: ["procrastination", "occasion gâchée", "stagnation", "rêverie"], en: ["procrastination", "missed chance", "stagnation", "daydreaming"] },
     },
     meaning: {
-      upright: { fr: "Dans un champ verdoyant, un jeune homme lève une étoile d'or à deux mains et la contemple comme une promesse. Rien n'est encore construit, mais tout y est contenu : le sérieux du regard, le sol fertile alentour, l'envie d'apprendre un métier bien réel. Une graine tangible, offerte à qui saura la mettre en terre.", en: "In a green field a young man lifts a golden star in both hands and studies it like a promise. Nothing is built yet, but everything is held within it: the seriousness of the gaze, the fertile ground around, the hunger to learn a real trade. A tangible seed, offered to whoever will plant it." },
-      reversed: { fr: "L'étoile tourne encore entre ses doigts, mais elle n'ira pas plus loin que la contemplation. Le projet reste au fond de la poche, l'occasion glisse pendant qu'on rêve du fruit sans creuser la terre. La graine était bonne — elle sèche dans la paume.", en: "The star still turns between his fingers, but it will go no further than contemplation. The plan stays at the bottom of the pocket, the chance slips while one dreams of the fruit without breaking the soil. The seed was good — it dries in the palm." },
+      upright: { fr: "L’élève de la Terre : tu prends au sérieux une chose concrète — un savoir, un métier, une occasion tangible. Curiosité patiente, appétit d’apprendre par la main autant que par l’esprit. La promesse n’est pas encore réalisée, mais tu la portes avec gravité, prêt à la faire fructifier pas à pas.", en: "The pupil of Earth: you take something concrete seriously — a craft, a skill, a tangible chance. Patient curiosity, a hunger to learn by hand as much as by mind. The promise is not yet fulfilled, but you hold it gravely, ready to make it grow step by step." },
+      reversed: { fr: "L’étude reste rêverie. Tu contemples la promesse sans jamais y mettre les mains : projet remis, occasion qui sèche, ambition confondue avec fantasme. L’appétit d’apprendre se dévoie en dispersion, ou la peur d’essayer fige la graine dans la paume au lieu de la confier à la terre.", en: "Study curdles into daydream. You contemplate the promise without ever setting hands to it: a plan deferred, a chance left to wither, ambition mistaken for fantasy. The hunger to learn scatters, or fear of trying freezes the seed in the palm instead of trusting it to the soil." },
     },
   },
-  'pentacles-12': {
+  "pentacles-12": {
     keywords: {
-      upright: { fr: ['fiabilité', 'constance', 'sérieux', 'labeur'], en: ['reliability', 'consistency', 'diligence', 'toil'] },
-      reversed: { fr: ['routine', 'ennui', 'stagnation', 'paresse'], en: ['dull routine', 'boredom', 'stagnation', 'laziness'] },
+      upright: { fr: ["fiabilité", "constance", "sérieux", "labeur"], en: ["reliability", "consistency", "diligence", "toil"] },
+      reversed: { fr: ["routine", "ennui", "stagnation", "paresse"], en: ["dull routine", "boredom", "stagnation", "laziness"] },
     },
     meaning: {
-      upright: { fr: "Sur un cheval de trait noir, immobile au bord d'un champ labouré, un cavalier tient une étoile d'or et fixe le sillon. Nulle fougue ici : la monture pèse, le pas sera lent, mais le travail sera fait jusqu'au bout. Une force tranquille tournée vers la terre, qui avance sans jamais se hâter.", en: "On a heavy black horse, still at the edge of a ploughed field, a knight holds a golden star and studies the furrow. No fire here: the mount is weighty, the pace will be slow, but the work will be seen through. A quiet strength turned toward the soil, moving forward without ever hurrying." },
-      reversed: { fr: "Le cheval s'est arrêté et ne repart plus, planté dans un champ qu'il connaît trop. Le pas régulier s'est fait ornière, la lenteur a viré à l'engourdissement ; l'étoile reste au poing, oubliée. La constance, privée d'horizon, n'est plus qu'un piétinement.", en: "The horse has halted and will not set off again, rooted in a field it knows too well. The steady pace has worn into a rut, the slowness curdled to torpor; the star stays in the fist, forgotten. Constancy, robbed of a horizon, is nothing but treading in place." },
+      upright: { fr: "Le seul chevalier qui n’avance pas : la vertu de rester. Tu incarnes la fiabilité faite chair — le labeur patient, la parole tenue, le sillon mené jusqu’au bout. Nulle vision fulgurante, mais une constance qui, à force, déplace la terre.", en: "The one knight who does not charge: the virtue of staying put. You embody reliability made flesh — patient toil, the kept word, the furrow seen through to its end. No dazzling vision, only a steadiness that, in time, moves earth itself." },
+      reversed: { fr: "La constance privée d’horizon : elle tourne à l’ornière. Le sérieux devient inertie, la méthode se fait routine morte, et tenir bon n’est plus que s’enliser. Tu confonds fidélité et immobilité — la terre te retient au lieu de te nourrir.", en: "Constancy robbed of a horizon curdles into a rut. Diligence hardens to inertia, method decays into dead routine, and holding fast becomes merely bogging down. You mistake loyalty for paralysis — the earth clings to you instead of feeding you." },
     },
   },
-  'pentacles-13': {
+  "pentacles-13": {
     keywords: {
-      upright: { fr: ['sens pratique', 'générosité', 'ancrage', 'débrouille'], en: ['practicality', 'generosity', 'groundedness', 'resourcefulness'] },
-      reversed: { fr: ['oubli de soi', 'surprotection', 'déséquilibre', 'dispersion'], en: ['self-neglect', 'smothering', 'imbalance', 'overstretch'] },
+      upright: { fr: ["sens pratique", "générosité", "ancrage", "débrouille"], en: ["practicality", "generosity", "groundedness", "resourcefulness"] },
+      reversed: { fr: ["oubli de soi", "surprotection", "déséquilibre", "dispersion"], en: ["self-neglect", "smothering", "imbalance", "overstretch"] },
     },
     meaning: {
-      upright: { fr: "Trônant dans un jardin foisonnant, une femme tient une étoile d'or sur ses genoux et la contemple avec tendresse, un lièvre filant à ses pieds. Roses, fruits et verdure l'entourent d'une abondance qu'elle sait faire vivre et partager. Ancrée, débrouillarde, elle nourrit les siens et le domaine sans jamais rompre son propre équilibre.", en: "Enthroned in a teeming garden, a woman cradles a golden star on her lap and gazes at it with tenderness, a hare darting past her feet. Roses, fruit and green surround her with an abundance she knows how to keep alive and to share. Grounded and resourceful, she feeds her own and the estate without ever breaking her own balance." },
-      reversed: { fr: "Le jardin déborde encore, mais elle ne s'assoit plus. À force de veiller sur chacun, elle s'oublie ; l'étoile passe de main en main, jamais gardée pour elle. Le soin vire à l'étouffement, l'abondance à l'épuisement — tout pour les siens, plus rien pour son propre sol.", en: "The garden still overflows, but she no longer sits down. From tending everyone she forgets herself; the star passes from hand to hand, never kept for her. Care tips into smothering, abundance into exhaustion — all for her own, nothing left for her own ground." },
+      upright: { fr: "La maturité de la Terre : nourrir sans s’épuiser, faire fructifier ce qu’on touche. Tu prends soin du concret — corps, argent, proches — avec une intelligence sensuelle et généreuse. Ta force est d’ancrer l’abondance dans le réel et de la partager.", en: "Earth come to full maturity: to nourish without draining yourself, to make whatever you touch bear fruit. You tend the concrete — body, money, kin — with a sensual, generous intelligence. Your strength is to root abundance in the real and share it." },
+      reversed: { fr: "Le soin retourné contre soi. À force de porter les autres, tu te vides ; la générosité vire à la possession ou à l’oubli de ton propre sol. Trop donner devient contrôler, ou disparaître. Reprends ta part avant qu’il n’en reste rien.", en: "Care turned against itself. From carrying everyone you run dry; generosity curdles into possession, or into neglect of your own ground. Giving too much becomes controlling, or vanishing. Reclaim your share before nothing is left." },
     },
   },
-  'pentacles-14': {
+  "pentacles-14": {
     keywords: {
-      upright: { fr: ['prospérité', 'discipline', 'pourvoyeur', 'réussite solide'], en: ['prosperity', 'discipline', 'provider', 'solid success'] },
-      reversed: { fr: ['avidité', 'matérialisme', 'entêtement', 'contrôle'], en: ['greed', 'materialism', 'stubbornness', 'control'] },
+      upright: { fr: ["prospérité", "discipline", "pourvoyeur", "réussite solide"], en: ["prosperity", "discipline", "provider", "solid success"] },
+      reversed: { fr: ["avidité", "matérialisme", "entêtement", "contrôle"], en: ["greed", "materialism", "stubbornness", "control"] },
     },
     meaning: {
-      upright: { fr: "Sous une treille lourde de grappes, un roi corpulent siège, une étoile d'or au creux du bras, sa robe brodée de fruits mûrs. Le château monte derrière lui, la richesse s'étale, tout ici obéit et prospère. Bâtisseur et pourvoyeur, il règne sur un domaine solide qu'il sait faire fructifier année après année.", en: "Beneath a trellis heavy with grapes a stout king sits, a golden star in the crook of his arm, his robe embroidered with ripe fruit. The castle rises behind him, the wealth spreads out, everything here obeys and prospers. A builder and a provider, he presides over a solid domain he knows how to grow year upon year." },
-      reversed: { fr: "La treille croule toujours de fruits, mais la main sur l'étoile ne s'ouvre plus. Le pourvoyeur ne pourvoit qu'à lui-même, tenant le domaine dans un poing qui compte et ne donne pas. La réussite s'est figée en avidité, le trône en forteresse.", en: "The trellis still sags with fruit, but the hand upon the star no longer opens. The provider provides only for himself, holding the domain in a fist that counts and does not give. Success has hardened into greed, the throne into a fortress." },
+      upright: { fr: "La maîtrise achevée de la Terre : l’argent, le corps, le métier devenus serviteurs et non maîtres. Tu incarnes le pourvoyeur qui a bâti lentement et sait faire fructifier ; ta puissance est celle d’une racine, tranquille, généreuse, sans rien à prouver.", en: "Earth brought to full mastery: money, body, craft made into servants, never masters. You embody the provider who built slowly and knows how to grow what he holds; your power is that of a root — calm, generous, with nothing left to prove." },
+      reversed: { fr: "La même solidité, mais refermée sur elle-même. La possession te possède : tu comptes au lieu de donner, tu confonds sécurité et contrôle. La réussite se fige en avidité, l’ancrage en entêtement, et le domaine devient une forteresse où tu t’enfermes.", en: "The same solidity, now curled around itself. Possession possesses you: you hoard instead of giving, you mistake control for safety. Success hardens into greed, rootedness into stubbornness, and the domain becomes a fortress you lock yourself inside." },
     },
   },
 };
