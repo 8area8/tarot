@@ -4,6 +4,7 @@ import { LOCALES, type Locale, t } from '../../lib/i18n';
 import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
 import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO, DIGNITIES, DIGNITIES_INTRO } from '../../data/grammar';
 import { SPREAD_POSITIONS } from '../../data/spread';
+import { METHOD, METHOD_INTRO } from '../../data/method';
 import type { Suit } from '../../lib/types';
 
 export function getStaticPaths() {
@@ -136,6 +137,10 @@ const galleryGroups = [
           <p class="spread-signals-title">{t(locale, 'spread.signals')}</p>
           <ul class="signals" id="signals"></ul>
         </div>
+        <div class="synth-group" id="quint-group" hidden>
+          <p class="spread-signals-title">{t(locale, 'spread.quintessence')}</p>
+          <ul class="signals" id="quint"></ul>
+        </div>
       </div>
 
       <div class="spread-actions">
@@ -235,6 +240,27 @@ const galleryGroups = [
         </ul>
       </div>
     </section>
+
+    <div class="grammar-toggle">
+      <button type="button" class="btn-gallery" id="btn-method" aria-expanded="false" aria-controls="method">
+        {t(locale, 'method.show')}
+      </button>
+    </div>
+
+    <section class="grammar" id="method" aria-label={t(locale, 'method.heading')} hidden>
+      <div class="grammar-group">
+        <h3>{t(locale, 'method.heading')}</h3>
+        <p class="grammar-intro">{METHOD_INTRO[locale]}</p>
+        <ol class="grammar-list">
+          {METHOD.map((s, i) => (
+            <li>
+              <p class="g-term"><span class="g-key">{i + 1}</span>{s.title[locale]}</p>
+              <p class="g-text">{s.text[locale]}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   </section>
 </Base>
 
@@ -243,6 +269,7 @@ const galleryGroups = [
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
   import { buildSignals } from '../../lib/signals';
   import { buildDignities } from '../../lib/dignities';
+  import { quintessence } from '../../lib/quintessence';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREAD_POSITIONS } from '../../data/spread';
@@ -288,6 +315,10 @@ const galleryGroups = [
   const signalsGroup = document.querySelector<HTMLElement>('#signals-group')!;
   const dignitiesEl = document.querySelector<HTMLElement>('#dignities')!;
   const dignitiesGroup = document.querySelector<HTMLElement>('#dignities-group')!;
+  const quintEl = document.querySelector<HTMLElement>('#quint')!;
+  const quintGroup = document.querySelector<HTMLElement>('#quint-group')!;
+  const btnMethod = document.querySelector<HTMLButtonElement>('#btn-method')!;
+  const methodSection = document.querySelector<HTMLElement>('#method')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
@@ -565,15 +596,24 @@ const galleryGroups = [
     }
   }
 
-  // Synthèse du spread : dignités élémentaires (relationnel) + signaux (additif).
+  // Nom + chiffre romain d'un arcane majeur (pour la quintessence).
+  function majorRoman(n: number): string {
+    return n > 0 ? ROMAN[n] : '0';
+  }
+
+  // Synthèse du spread : dignités (relationnel) + signaux (additif) + quintessence (thème).
   function renderSynthesis(draws: Draw[], mode: DeckMode) {
     const digs = buildDignities(draws, locale);
     const sigs = buildSignals(draws, mode, locale);
+    const q = quintessence(draws);
+    const quintItems = q ? [`${q.name[locale]} · ${majorRoman(q.number)}`] : [];
     fillList(dignitiesEl, digs);
     dignitiesGroup.hidden = digs.length === 0;
     fillList(signalsEl, sigs);
     signalsGroup.hidden = sigs.length === 0;
-    synthEl.hidden = digs.length === 0 && sigs.length === 0;
+    fillList(quintEl, quintItems);
+    quintGroup.hidden = quintItems.length === 0;
+    synthEl.hidden = digs.length === 0 && sigs.length === 0 && quintItems.length === 0;
   }
 
   // Reflète le spread dans l'URL : #spread=<id>[.r],<id>[.r],<id>[.r]
@@ -692,6 +732,15 @@ const galleryGroups = [
     if (willShow) grammarSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   });
 
+  // Déplier / replier « Comment lire » (la méthode).
+  btnMethod.addEventListener('click', () => {
+    const willShow = methodSection.hasAttribute('hidden');
+    methodSection.toggleAttribute('hidden', !willShow);
+    btnMethod.textContent = willShow ? T['method.hide'] : T['method.show'];
+    btnMethod.setAttribute('aria-expanded', String(willShow));
+    if (willShow) methodSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+
   // Déplier / replier la galerie.
   btnGallery.addEventListener('click', () => {
     const willShow = gallery.hasAttribute('hidden');
@@ -781,6 +830,10 @@ const galleryGroups = [
     const signals = buildSignals(currentSpread, currentSpreadMode, locale);
     if (signals.length) {
       text += `\n\n${T['spread.signals']} :\n` + signals.map((s) => `- ${s}`).join('\n');
+    }
+    const q = quintessence(currentSpread);
+    if (q) {
+      text += `\n\n${T['spread.quintessence']} : ${q.name[locale]} · ${majorRoman(q.number)}`;
     }
     try {
       await navigator.clipboard.writeText(text);
