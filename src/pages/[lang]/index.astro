@@ -1551,23 +1551,29 @@ const base = import.meta.env.BASE_URL;
      le détail reste toujours déplié (tête non cliquable, chevron masqué),
      et la carte reste collante pendant qu'on parcourt la lecture. */
   @media (min-width: 46rem) {
-    /* Symbolique pleine largeur : colonnes auto (2-3 selon la place) séparées
-       par un filet doré vertical. */
+    /* Symbolique pleine largeur en grille : les entrées s'alignent par ligne
+       (align-items: start) et se remplissent gauche→droite — un éventuel vide
+       tombe donc en bas à droite. Les filets dorés verticaux sont tracés en fond
+       du conteneur : pleine hauteur, indépendants du contenu et des cellules vides. */
     .symbolism .bricks {
-      column-width: 16rem;
-      column-gap: 2.4rem;
-      column-rule: 1px solid var(--line);
+      display: grid;
+      column-gap: 0;
+      row-gap: 1.6rem;
+      align-items: start;
+      background-repeat: no-repeat;
     }
-    .symbolism :global(.brick) {
-      margin-bottom: 1.2rem;
+    .symbolism .bricks :global(.brick) {
+      padding-inline: 1.4rem;
     }
     .symbolism :global(.brick + .brick) {
       margin-top: 0;
       padding-top: 0;
       border-top: none;
     }
-    /* Lettrine sur l'essentiel : pose l'exergue en tête de lecture. */
-    .meaning::first-letter {
+    /* Lettrine sur l'essentiel : pose l'exergue en tête de lecture.
+       Scopée au tirage simple (.reading) — surtout PAS aux .meaning des colonnes
+       de spread, qui sont étroites et n'ont pas de lettrine. */
+    .reading .meaning::first-letter {
       float: left;
       font-family: var(--font-display);
       font-size: 3.2rem;
@@ -1581,6 +1587,37 @@ const base = import.meta.env.BASE_URL;
     }
     .symbolism .bricks :global(details.brick > summary::after) {
       display: none;
+    }
+  }
+  /* Desktop étroit : 2 colonnes (1 filet vertical au milieu). */
+  @media (min-width: 46rem) and (max-width: 61.999rem) {
+    .symbolism .bricks {
+      grid-template-columns: repeat(2, 1fr);
+      background-image: linear-gradient(var(--line), var(--line));
+      background-size: 1px 100%;
+      background-position: 50% 0;
+    }
+    .symbolism .bricks :global(.brick):nth-child(2n + 1) {
+      padding-left: 0;
+    }
+    .symbolism .bricks :global(.brick):nth-child(2n) {
+      padding-right: 0;
+    }
+  }
+  /* Desktop large : 3 colonnes (2 filets verticaux, aux tiers). */
+  @media (min-width: 62rem) {
+    .symbolism .bricks {
+      grid-template-columns: repeat(3, 1fr);
+      background-image: linear-gradient(var(--line), var(--line)),
+        linear-gradient(var(--line), var(--line));
+      background-size: 1px 100%, 1px 100%;
+      background-position: 33.333% 0, 66.667% 0;
+    }
+    .symbolism .bricks :global(.brick):nth-child(3n + 1) {
+      padding-left: 0;
+    }
+    .symbolism .bricks :global(.brick):nth-child(3n) {
+      padding-right: 0;
     }
   }
 
