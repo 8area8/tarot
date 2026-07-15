@@ -32,6 +32,7 @@ const base = import.meta.env.BASE_URL;
             <label class="seg"><input type="radio" name="spread" value="single" checked /><span>{t(locale, 'spread.single')}</span></label>
             <label class="seg"><input type="radio" name="spread" value="two" /><span>{t(locale, 'spread.two')}</span></label>
             <label class="seg"><input type="radio" name="spread" value="three" /><span>{t(locale, 'spread.three')}</span></label>
+            <label class="seg"><input type="radio" name="spread" value="yesno" /><span>{t(locale, 'spread.yesno')}</span></label>
           </div>
 
           <p class="opt-caption">{t(locale, 'deck.label')}</p>
@@ -66,6 +67,15 @@ const base = import.meta.env.BASE_URL;
         <p class="placeholder" id="placeholder">{t(locale, 'card.placeholder')}</p>
 
         <div class="reading-body" id="reading-body" hidden>
+          <div class="verdict" id="verdict" hidden>
+            <p class="verdict-title" id="verdict-title"></p>
+            <div class="gauge">
+              <div class="gauge-track"></div>
+              <span class="gauge-marker" id="gauge-marker"></span>
+            </div>
+            <p class="verdict-level" id="verdict-level"></p>
+            <p class="verdict-caveat" id="verdict-caveat"></p>
+          </div>
           <p class="meta" id="card-meta"></p>
           <h2 id="reading-name" tabindex="-1"></h2>
           <p class="orientation" id="orientation"></p>
@@ -144,6 +154,7 @@ const base = import.meta.env.BASE_URL;
 <script>
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
+  import { inclination } from '../../lib/oracle';
   import { buildSignals } from '../../lib/signals';
   import { buildDignities } from '../../lib/dignities';
   import { quintessence } from '../../lib/quintessence';
@@ -156,6 +167,10 @@ const base = import.meta.env.BASE_URL;
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
   const T = ui[locale];
+  // Libellés des 5 crans d'inclinaison (question fermée), du non franc au oui franc.
+  const LEVELS = [
+    T['yesno.level.0'], T['yesno.level.1'], T['yesno.level.2'], T['yesno.level.3'], T['yesno.level.4'],
+  ];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FLIP_MS = 430;
@@ -175,6 +190,11 @@ const base = import.meta.env.BASE_URL;
   const meaningEl = document.querySelector<HTMLElement>('#meaning')!;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
+  const verdict = document.querySelector<HTMLElement>('#verdict')!;
+  const verdictTitle = document.querySelector<HTMLElement>('#verdict-title')!;
+  const verdictLevel = document.querySelector<HTMLElement>('#verdict-level')!;
+  const verdictCaveat = document.querySelector<HTMLElement>('#verdict-caveat')!;
+  const gaugeMarker = document.querySelector<HTMLElement>('#gauge-marker')!;
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
@@ -211,6 +231,7 @@ const base = import.meta.env.BASE_URL;
   let current: Card | null = null;
   let view: Orientation = 'upright';
   let study = false; // « Étudier la carte » : panneau image + formule sous la carte
+  let askMode = false; // « Question fermée » : affiche la jauge d'inclinaison oui/non
 
   // État du tirage multi-cartes.
   let currentSpread: Draw[] | null = null;
@@ -218,9 +239,9 @@ const base = import.meta.env.BASE_URL;
   let currentSpreadType: SpreadType = 'three'; // positions actives (deux / trois)
   let hasDrawn = false; // au moins un tirage effectué (fige le libellé du bouton sur « Nouveau tirage »)
 
-  const getSpreadMode = (): 'single' | SpreadType => {
+  const getSpreadMode = (): 'single' | SpreadType | 'yesno' => {
     const v = new FormData(form).get('spread');
-    return v === 'two' || v === 'three' ? v : 'single';
+    return v === 'two' || v === 'three' || v === 'yesno' ? v : 'single';
   };
 
   // Avant le 1er tirage, le bouton reflète le type de tirage choisi.
@@ -228,7 +249,10 @@ const base = import.meta.env.BASE_URL;
     if (hasDrawn) return;
     const v = getSpreadMode();
     btnDraw.textContent =
-      v === 'three' ? T['action.drawThree'] : v === 'two' ? T['action.drawTwo'] : T['action.draw'];
+      v === 'three' ? T['action.drawThree']
+      : v === 'two' ? T['action.drawTwo']
+      : v === 'yesno' ? T['action.drawYesno']
+      : T['action.draw'];
   }
 
   // Reflète l'état « Étudier la carte » sur son bouton (libellé + aria-pressed).
@@ -371,8 +395,22 @@ const base = import.meta.env.BASE_URL;
 
   // Reflète la carte + orientation dans l'URL (permalien partageable / bookmarkable).
   function syncHash(card: Card, orientation: Orientation) {
-    const hash = `#${card.id}${orientation === 'reversed' ? '-reversed' : ''}`;
+    const rev = orientation === 'reversed' ? '-reversed' : '';
+    // Le mode « question fermée » se distingue par le préfixe ask= (restaure la jauge).
+    const hash = askMode ? `#ask=${card.id}${rev}` : `#${card.id}${rev}`;
     history.replaceState(null, '', hash);
+  }
+
+  // Titre + rappel de la jauge : fixes, posés une fois pour toutes.
+  verdictTitle.textContent = T['yesno.inclination'];
+  verdictCaveat.textContent = T['yesno.caveat'];
+
+  // Jauge d'inclinaison (question fermée) : place le marqueur au cran voulu
+  // (centre du 1/5 correspondant) et affiche le libellé du cran.
+  function renderVerdict(card: Card, orientation: Orientation) {
+    const { level } = inclination({ card, orientation });
+    gaugeMarker.style.left = `${((level + 0.5) / 5) * 100}%`;
+    verdictLevel.textContent = LEVELS[level];
   }
 
   function renderReading(card: Card, orientation: Orientation) {
@@ -398,6 +436,9 @@ const base = import.meta.env.BASE_URL;
     }
 
     updateStudy(card);
+
+    verdict.hidden = !askMode;
+    if (askMode) renderVerdict(card, orientation);
 
     placeholder.hidden = true;
     body.hidden = false;
@@ -582,8 +623,10 @@ const base = import.meta.env.BASE_URL;
     const allowReversed = data.get('reversed') === 'on';
     const spread = data.get('spread');
     if (spread === 'two' || spread === 'three') {
+      askMode = false;
       await doSpread(mode, allowReversed, spread);
     } else {
+      askMode = spread === 'yesno';
       await doSingle(mode, allowReversed);
     }
   });
@@ -654,7 +697,11 @@ const base = import.meta.env.BASE_URL;
     const key = view === 'reversed' ? 'reversed' : 'upright';
     const orient = view === 'reversed' ? T['card.reversed'] : T['card.upright'];
     const meaning = current.content ? current.content.meaning[key][locale] : T['card.noContent'];
-    const text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
+    let text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
+    if (askMode) {
+      const { level } = inclination({ card: current, orientation: view });
+      text = `${T['yesno.inclination']} : ${LEVELS[level]}\n\n${text}`;
+    }
     try {
       await navigator.clipboard.writeText(text);
       btnCopy.textContent = T['card.copied'];
@@ -780,14 +827,22 @@ const base = import.meta.env.BASE_URL;
       return;
     }
 
-    let id = raw;
+    // Question fermée partagée : #ask=<id>[-reversed] → restaure la jauge.
+    const asked = raw.startsWith('ask=');
+    let body = asked ? raw.slice('ask='.length) : raw;
+
     let orientation: Orientation = 'upright';
-    if (raw.endsWith('-reversed')) {
-      id = raw.slice(0, -'-reversed'.length);
+    if (body.endsWith('-reversed')) {
+      body = body.slice(0, -'-reversed'.length);
       orientation = 'reversed';
     }
-    const card = cardById.get(id);
+    const card = cardById.get(body);
     if (!card) return;
+    if (asked) {
+      askMode = true;
+      const radio = form.querySelector<HTMLInputElement>('input[name="spread"][value="yesno"]');
+      if (radio) radio.checked = true;
+    }
     current = card;
     view = orientation;
     flip.classList.add('no-anim');
@@ -928,7 +983,7 @@ const base = import.meta.env.BASE_URL;
   }
   .spread-select {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.25rem;
   }
   .deck-select {
@@ -1266,6 +1321,72 @@ const base = import.meta.env.BASE_URL;
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.18);
     color: var(--text);
+  }
+
+  /* ---- « Question fermée » : jauge d'inclinaison oui/non ---- */
+  /* Pas un verdict binaire : un curseur qui penche sur un dégradé non→oui. */
+  .verdict {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(201, 164, 76, 0.05);
+    text-align: center;
+  }
+  .verdict[hidden] {
+    display: none;
+  }
+  .verdict-title {
+    margin: 0;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+  }
+  .gauge {
+    position: relative;
+    height: 10px;
+    margin: 0.5rem 0.3rem 0.2rem;
+  }
+  .gauge-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    /* Non (rouge) → incertain (neutre) → oui (vert). */
+    background: linear-gradient(90deg, #db4b52, var(--muted) 50%, #2fb86a);
+    opacity: 0.7;
+  }
+  .gauge-marker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 2px solid var(--ground);
+    box-shadow: 0 0 12px rgba(201, 164, 76, 0.65);
+    transform: translate(-50%, -50%);
+    transition: left 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gauge-marker {
+      transition: none;
+    }
+  }
+  .verdict-level {
+    margin: 0.1rem 0 0;
+    font-size: 1.35rem;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .verdict-caveat {
+    margin: 0;
+    font-size: 0.82rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--muted);
   }
 
   /* ---- « Étudier la carte » : panneau unifié (l'image + la formule) ---- */
