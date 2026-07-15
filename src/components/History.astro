@@ -21,6 +21,7 @@ const { locale } = Astro.props;
 <script>
   import { ui, type Locale } from '../lib/i18n';
   import { cards } from '../data/cards';
+  import { answerFor } from '../lib/oracle';
   import { readHistory, removeAt, clearHistory, hashFor, type SpreadKind } from '../lib/history';
 
   const root = document.querySelector<HTMLElement>('.history')!;
@@ -41,6 +42,12 @@ const { locale } = Astro.props;
     two: T['spread.two'],
     three: T['spread.three'],
   };
+
+  // Libellés des 6 réponses de l'oracle (pour rappeler la réponse d'une question fermée).
+  const ANSWERS = [
+    T['yesno.answer.0'], T['yesno.answer.1'], T['yesno.answer.2'],
+    T['yesno.answer.3'], T['yesno.answer.4'], T['yesno.answer.5'],
+  ];
 
   // Date + heure localisées (« 15 juil. 2026, 14:32 »).
   const dtf = new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
@@ -85,7 +92,15 @@ const { locale } = Astro.props;
       meta.className = 'history-meta';
       const kindEl = document.createElement('p');
       kindEl.className = 'history-kind';
-      kindEl.textContent = `${KIND_LABEL[entry.kind]} · ${dtf.format(new Date(entry.at))}`;
+      // Pour une question fermée, on recalcule la réponse déterministe (carte + orientation).
+      let kindText = KIND_LABEL[entry.kind];
+      if (entry.kind === 'yesno') {
+        const c0 = entry.cards[0];
+        const card0 = byId.get(c0.id);
+        const a = card0 ? answerFor({ card: card0, orientation: c0.reversed ? 'reversed' : 'upright' }) : null;
+        if (a) kindText += ` · ${ANSWERS[a.answer]}`;
+      }
+      kindEl.textContent = `${kindText} · ${dtf.format(new Date(entry.at))}`;
       const namesEl = document.createElement('p');
       namesEl.className = 'history-names';
       namesEl.textContent = names.join(' · ');

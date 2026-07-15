@@ -69,12 +69,16 @@ const base = import.meta.env.BASE_URL;
         <div class="reading-body" id="reading-body" hidden>
           <div class="verdict" id="verdict" hidden>
             <p class="verdict-title" id="verdict-title"></p>
-            <div class="gauge">
-              <div class="gauge-track"></div>
-              <span class="gauge-marker" id="gauge-marker"></span>
+            <div class="oracle-scale" id="oracle-scale" aria-hidden="true">
+              <span class="oracle-step" data-step="0"></span>
+              <span class="oracle-step" data-step="1"></span>
+              <span class="oracle-step" data-step="2"></span>
+              <span class="oracle-step" data-step="3"></span>
+              <span class="oracle-step" data-step="4"></span>
+              <span class="oracle-step" data-step="5"></span>
             </div>
-            <p class="verdict-level" id="verdict-level"></p>
-            <p class="verdict-caveat" id="verdict-caveat"></p>
+            <p class="verdict-answer" id="verdict-answer"></p>
+            <p class="verdict-why" id="verdict-why"></p>
           </div>
           <p class="meta" id="card-meta"></p>
           <h2 id="reading-name" tabindex="-1"></h2>
@@ -154,7 +158,7 @@ const base = import.meta.env.BASE_URL;
 <script>
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
-  import { inclination } from '../../lib/oracle';
+  import { answerFor } from '../../lib/oracle';
   import { buildSignals } from '../../lib/signals';
   import { buildDignities } from '../../lib/dignities';
   import { quintessence } from '../../lib/quintessence';
@@ -168,9 +172,10 @@ const base = import.meta.env.BASE_URL;
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
   const T = ui[locale];
-  // Libellés des 5 crans d'inclinaison (question fermée), du non franc au oui franc.
-  const LEVELS = [
-    T['yesno.level.0'], T['yesno.level.1'], T['yesno.level.2'], T['yesno.level.3'], T['yesno.level.4'],
+  // Libellés des 6 réponses de l'oracle (question fermée), de « Non, et… » à « Oui, et… ».
+  const ANSWERS = [
+    T['yesno.answer.0'], T['yesno.answer.1'], T['yesno.answer.2'],
+    T['yesno.answer.3'], T['yesno.answer.4'], T['yesno.answer.5'],
   ];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -193,9 +198,9 @@ const base = import.meta.env.BASE_URL;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
   const verdict = document.querySelector<HTMLElement>('#verdict')!;
   const verdictTitle = document.querySelector<HTMLElement>('#verdict-title')!;
-  const verdictLevel = document.querySelector<HTMLElement>('#verdict-level')!;
-  const verdictCaveat = document.querySelector<HTMLElement>('#verdict-caveat')!;
-  const gaugeMarker = document.querySelector<HTMLElement>('#gauge-marker')!;
+  const verdictAnswer = document.querySelector<HTMLElement>('#verdict-answer')!;
+  const verdictWhy = document.querySelector<HTMLElement>('#verdict-why')!;
+  const scaleSteps = [...document.querySelectorAll<HTMLElement>('#oracle-scale .oracle-step')];
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
@@ -402,16 +407,18 @@ const base = import.meta.env.BASE_URL;
     history.replaceState(null, '', hash);
   }
 
-  // Titre + rappel de la jauge : fixes, posés une fois pour toutes.
-  verdictTitle.textContent = T['yesno.inclination'];
-  verdictCaveat.textContent = T['yesno.caveat'];
+  // Titre de la section oracle : fixe, posé une fois pour toutes.
+  verdictTitle.textContent = T['yesno.title'];
 
-  // Jauge d'inclinaison (question fermée) : place le marqueur au cran voulu
-  // (centre du 1/5 correspondant) et affiche le libellé du cran.
+  // Oracle « question fermée » : allume la case répondue sur l'échelle à 6 crans,
+  // affiche le libellé (Non, et… → Oui, et…) et le « pourquoi » rédigé.
   function renderVerdict(card: Card, orientation: Orientation) {
-    const { level } = inclination({ card, orientation });
-    gaugeMarker.style.left = `${((level + 0.5) / 5) * 100}%`;
-    verdictLevel.textContent = LEVELS[level];
+    const entry = answerFor({ card, orientation });
+    const ans = entry ? entry.answer : 3;
+    scaleSteps.forEach((s, i) => s.classList.toggle('is-active', i === ans));
+    verdictAnswer.textContent = ANSWERS[ans];
+    verdictAnswer.dataset.tone = ans <= 2 ? 'no' : 'yes';
+    verdictWhy.textContent = entry ? entry.why[locale] : '';
   }
 
   function renderReading(card: Card, orientation: Orientation) {
@@ -435,6 +442,8 @@ const base = import.meta.env.BASE_URL;
       meaningEl.textContent = T['card.noContent'];
       btnOrient.hidden = true;
     }
+    // En mode oracle, le « pourquoi » remplace le texte d'ambiance.
+    meaningEl.hidden = askMode;
 
     updateStudy(card);
 
@@ -712,8 +721,10 @@ const base = import.meta.env.BASE_URL;
     const meaning = current.content ? current.content.meaning[key][locale] : T['card.noContent'];
     let text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
     if (askMode) {
-      const { level } = inclination({ card: current, orientation: view });
-      text = `${T['yesno.inclination']} : ${LEVELS[level]}\n\n${text}`;
+      const entry = answerFor({ card: current, orientation: view });
+      const ans = entry ? ANSWERS[entry.answer] : '';
+      const why = entry ? entry.why[locale] : '';
+      text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${T['yesno.title']} : ${ans}\n${why}`;
     }
     try {
       await navigator.clipboard.writeText(text);
@@ -1336,12 +1347,13 @@ const base = import.meta.env.BASE_URL;
     color: var(--text);
   }
 
-  /* ---- « Question fermée » : jauge d'inclinaison oui/non ---- */
-  /* Pas un verdict binaire : un curseur qui penche sur un dégradé non→oui. */
+  /* ---- « Question fermée » : oracle de jeu (échelle à 6 crans) ---- */
+  /* Pas un verdict binaire : l'échelle du solo (Non, et… → Oui, et…), la case
+     répondue allumée, puis le « pourquoi » rédigé qui relie l'image à la réponse. */
   .verdict {
     display: grid;
-    gap: 0.5rem;
-    padding: 0.9rem 1.1rem;
+    gap: 0.55rem;
+    padding: 0.95rem 1.1rem;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: rgba(201, 164, 76, 0.05);
@@ -1357,49 +1369,53 @@ const base = import.meta.env.BASE_URL;
     letter-spacing: 0.18em;
     color: var(--muted);
   }
-  .gauge {
-    position: relative;
-    height: 10px;
-    margin: 0.5rem 0.3rem 0.2rem;
+  /* Échelle : 6 segments non→oui. Éteints par défaut, la case répondue s'allume. */
+  .oracle-scale {
+    display: flex;
+    gap: 0.32rem;
+    margin: 0.35rem 0.1rem 0.5rem;
+    align-items: center;
   }
-  .gauge-track {
-    position: absolute;
-    inset: 0;
+  .oracle-step {
+    flex: 1;
+    height: 7px;
     border-radius: 999px;
-    /* Non (rouge) → incertain (neutre) → oui (vert). */
-    background: linear-gradient(90deg, #db4b52, var(--muted) 50%, #2fb86a);
-    opacity: 0.7;
+    opacity: 0.25;
+    transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
-  .gauge-marker {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background: var(--text);
-    border: 2px solid var(--ground);
-    box-shadow: 0 0 12px rgba(201, 164, 76, 0.65);
-    transform: translate(-50%, -50%);
-    transition: left 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  .oracle-step[data-step='0'] { background: #d1454d; } /* Non, et… */
+  .oracle-step[data-step='1'] { background: #d06a4f; } /* Non */
+  .oracle-step[data-step='2'] { background: #c79a52; } /* Non, mais… */
+  .oracle-step[data-step='3'] { background: #8fae55; } /* Oui, mais… */
+  .oracle-step[data-step='4'] { background: #4faf72; } /* Oui */
+  .oracle-step[data-step='5'] { background: #2fb86a; } /* Oui, et… */
+  .oracle-step.is-active {
+    opacity: 1;
+    transform: scaleY(2.1);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.28);
   }
   @media (prefers-reduced-motion: reduce) {
-    .gauge-marker {
+    .oracle-step {
       transition: none;
     }
   }
-  .verdict-level {
+  .verdict-answer {
     margin: 0.1rem 0 0;
-    font-size: 1.35rem;
-    color: var(--text);
-    letter-spacing: 0.02em;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1.2;
   }
-  .verdict-caveat {
+  .verdict-answer[data-tone='no'] {
+    color: #e0716f;
+  }
+  .verdict-answer[data-tone='yes'] {
+    color: #5cc389;
+  }
+  .verdict-why {
     margin: 0;
-    font-size: 0.82rem;
-    font-style: italic;
-    line-height: 1.55;
-    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--text);
   }
 
   /* ---- « Étudier la carte » : panneau unifié (l'image + la formule) ---- */
