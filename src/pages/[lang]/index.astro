@@ -85,6 +85,10 @@ const base = import.meta.env.BASE_URL;
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
+          <div class="reading-actions">
+            <button type="button" class="btn-orient" id="btn-orient"></button>
+            <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
+          </div>
         </div>
       </article>
 
@@ -94,14 +98,7 @@ const base = import.meta.env.BASE_URL;
           <div class="bricks" id="sym-bricks"></div>
         </div>
         <div class="study" id="study" hidden>
-          <p class="study-title">{t(locale, 'study.formula')}</p>
-          <p class="study-sub" id="decompose-title"></p>
           <div class="bricks" id="bricks"></div>
-        </div>
-        <div class="reading-actions">
-          <button type="button" class="btn-decode" id="btn-study" aria-pressed="false" aria-controls="study">{t(locale, 'action.study')}</button>
-          <button type="button" class="btn-orient" id="btn-orient"></button>
-          <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
         </div>
       </div>
     </div>
@@ -206,10 +203,8 @@ const base = import.meta.env.BASE_URL;
   const verdictWhy = document.querySelector<HTMLElement>('#verdict-why')!;
   const scaleSteps = [...document.querySelectorAll<HTMLElement>('#oracle-scale .oracle-step')];
   const result = document.querySelector<HTMLElement>('.result')!;
-  const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
-  const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
@@ -239,7 +234,6 @@ const base = import.meta.env.BASE_URL;
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
-  let study = false; // « La formule » : panneau de décomposition replié sous la carte
   let askMode = false; // « Question fermée » : affiche la jauge d'inclinaison oui/non
 
   // État du tirage multi-cartes.
@@ -262,13 +256,6 @@ const base = import.meta.env.BASE_URL;
       : v === 'two' ? T['action.drawTwo']
       : v === 'yesno' ? T['action.drawYesno']
       : T['action.draw'];
-  }
-
-  // Reflète l'état « La formule » sur son bouton (libellé + aria-pressed).
-  function syncStudyBtn() {
-    btnStudy.textContent = study ? T['action.studyHide'] : T['action.study'];
-    btnStudy.setAttribute('aria-pressed', String(study));
-    btnStudy.classList.toggle('is-on', study);
   }
 
   // Une « brique » de lecture (symbole, élément, nombre, figure ou étape du voyage).
@@ -313,19 +300,16 @@ const base = import.meta.env.BASE_URL;
       const el = ELEMENTS[suit];
       const rank = card.number <= 10 ? NUMBERS[card.number] : COURT[card.number];
       const rankKey = card.number <= 10 ? String(card.number) : '';
-      decomposeTitle.textContent = `${el.glyph} ${el.label[locale]} × ${rank.label[locale]}`;
       bricksEl.appendChild(makeBrick(el.glyph, el.label[locale], el.gloss[locale], el.text[locale]));
       bricksEl.appendChild(makeBrick(rankKey, rank.label[locale], rank.gloss[locale], rank.text[locale]));
       return true;
     }
     if (card.number === 0) {
-      decomposeTitle.textContent = T['meta.major'];
       bricksEl.appendChild(makeBrick('0', card.name[locale], '', JOURNEY_INTRO[locale]));
       return true;
     }
     const stage = JOURNEY.find((s) => s.cards.includes(card.number));
     if (stage) {
-      decomposeTitle.textContent = `${T['meta.major']} · ${stage.range}`;
       bricksEl.appendChild(makeBrick(stage.range, stage.label[locale], '', stage.text[locale]));
       return true;
     }
@@ -367,9 +351,9 @@ const base = import.meta.env.BASE_URL;
   wideMq.addEventListener('change', syncSymbolismDisclosure);
 
   // « La formule » : décomposition élément × rang (ou étape du voyage),
-  // repliée derrière son bouton.
+  // affichée systématiquement sous la symbolique.
   function updateFormula(card: Card | null) {
-    if (!card || !study) {
+    if (!card) {
       studyEl.hidden = true;
       return;
     }
@@ -686,18 +670,6 @@ const base = import.meta.env.BASE_URL;
     renderReading(current, view);
   });
 
-  // Afficher / masquer « La formule » (décomposition) sous la carte.
-  btnStudy.addEventListener('click', () => {
-    study = !study;
-    try {
-      localStorage.setItem(PREF_STUDY, study ? '1' : '0');
-    } catch {
-      /* stockage indisponible */
-    }
-    syncStudyBtn();
-    updateFormula(current);
-  });
-
   // Popover d'options : révélé à la demande pour garder le hero épuré.
   // Les réglages étant persistés, la plupart des sessions ne l'ouvrent jamais.
   function setOptionsOpen(open: boolean) {
@@ -803,10 +775,9 @@ const base = import.meta.env.BASE_URL;
     }
   });
 
-  // Mémoriser les préférences (mode de jeu + inversées + apprentissage + tirage) entre les visites.
+  // Mémoriser les préférences (mode de jeu + inversées + tirage) entre les visites.
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
-  const PREF_STUDY = 'tarot.study';
   const PREF_SPREAD = 'tarot.spread';
   form.addEventListener('change', () => {
     try {
@@ -836,11 +807,9 @@ const base = import.meta.env.BASE_URL;
         const radio = form.querySelector<HTMLInputElement>(`input[name="spread"][value="${spread}"]`);
         if (radio) radio.checked = true;
       }
-      study = localStorage.getItem(PREF_STUDY) === '1';
     } catch {
       /* stockage indisponible */
     }
-    syncStudyBtn();
     updateDrawLabel();
   })();
 
