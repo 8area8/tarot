@@ -1,9 +1,12 @@
 # Tirage Tarot
 
-Site statique **Astro**, **une seule page**, bilingue **FR / EN**, sans backend.
+Site statique **Astro**, **multi-pages**, bilingue **FR / EN**, sans backend.
 On tire une carte de tarot **Rider-Waite-Smith** : arcanes majeurs, mineurs, ou
 jeu complet, cartes inversées optionnelles. Thème « nuit mystique »
 (indigo-aubergine + or).
+
+Pages (sous `/{lang}/`) : **tirage** (`/`), **galerie** (`/cartes`),
+**grammaire** (`/grammaire`), **comment lire** (`/comment-lire`).
 
 Les textes de lecture sont rédigés dans un cadre **JDR solo** : chaque carte
 propose une ambiance / une piste narrative plutôt qu'une prédiction. Le négatif
@@ -20,7 +23,11 @@ Stack : [Astro](https://astro.build) (sortie statique) · i18n par routes
   `prefers-reduced-motion`).
 - Bouton pour **explorer l'autre orientation** sans re-tirer.
 - **Permalien** vers un tirage précis et **copie** de la lecture.
-- **Galerie** des 78 cartes, groupées par arcane / couleur.
+- Tirage **« trois temps »** (Situation · Action · Conséquence) avec synthèse :
+  dignités élémentaires, signaux, quintessence.
+- **« Étudier la carte »** : l'image (symboles RWS repérables) + la formule
+  (élément × nombre / voyage).
+- Pages **Galerie** (78 cartes), **Grammaire** et **Comment lire**.
 
 ## Développement
 
@@ -51,12 +58,18 @@ src/
     deck.ts            # getDeck(mode) + tirage drawCard(mode, allowReversed)
     i18n.ts            # libellés d'UI FR/EN ; t(), ui, LOCALES, types Locale/UIKey
   layouts/
-    Base.astro         # layout : <head>, header (marque + LangToggle), crédits, tokens CSS
+    Base.astro         # layout : <head>, header (marque + nav + LangToggle), crédits, tokens CSS
   components/
-    LangToggle.astro   # bascule FR/EN (lien vers /${autre}/)
+    LangToggle.astro   # bascule FR/EN (conserve la page courante)
+    Gallery.astro      # grille des 78 cartes (liens vers /{lang}/#id)
+    Grammar.astro      # sections de grammaire
+    Method.astro       # étapes « comment lire »
   pages/
-    index.astro        # redirection racine / → /fr/
-    [lang]/index.astro # la page : contrôles + carte + lecture + galerie
+    index.astro          # redirection racine / → /fr/
+    [lang]/index.astro   # home : contrôles + carte + lecture + spread
+    [lang]/cartes.astro  # galerie
+    [lang]/grammaire.astro
+    [lang]/comment-lire.astro
 public/
   cards/               # 78 illustrations WebP + back.svg + manifest.json (provenance)
   favicon.svg

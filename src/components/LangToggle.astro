@@ -7,8 +7,10 @@ interface Props {
 
 const { locale } = Astro.props;
 const other: Locale = locale === 'fr' ? 'en' : 'fr';
-// Site d'une page : l'autre langue, c'est sa racine (/fr/ ↔ /en/), sous le base path.
-const href = `${import.meta.env.BASE_URL}${other}/`;
+// Conserve la page courante en changeant de langue (/fr/cartes ↔ /en/cartes).
+const base = import.meta.env.BASE_URL;
+const sub = Astro.url.pathname.replace(base, '').replace(/^(fr|en)\/?/, '');
+const href = `${base}${other}/${sub}`;
 ---
 
 <a class="lang-toggle" href={href} hreflang={other} rel="alternate">

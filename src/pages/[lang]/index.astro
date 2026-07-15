@@ -1,11 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { LOCALES, type Locale, t } from '../../lib/i18n';
-import { cards, SUIT_NAMES, SUIT_ELEMENTS } from '../../data/cards';
-import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO, DIGNITIES, DIGNITIES_INTRO } from '../../data/grammar';
 import { SPREAD_POSITIONS } from '../../data/spread';
-import { METHOD, METHOD_INTRO } from '../../data/method';
-import type { Suit } from '../../lib/types';
 
 export function getStaticPaths() {
   return LOCALES.map((lang) => ({ params: { lang } }));
@@ -13,23 +9,9 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const base = import.meta.env.BASE_URL;
-
-// Galerie : groupes ordonnés (majeurs, puis les 4 enseignes).
-const SUIT_ORDER: Suit[] = ['wands', 'cups', 'swords', 'pentacles'];
-
-// Grammaire : entrées ordonnées pour la section pédagogique.
-const numberEntries = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ key: String(n), ...NUMBERS[n] }));
-const courtEntries = [11, 12, 13, 14].map((n) => COURT[n]);
-const galleryGroups = [
-  { heading: t(locale, 'gallery.majors'), cards: cards.filter((c) => c.arcana === 'major') },
-  ...SUIT_ORDER.map((suit) => ({
-    heading: `${SUIT_NAMES[suit][locale]} · ${SUIT_ELEMENTS[suit][locale]}`,
-    cards: cards.filter((c) => c.suit === suit),
-  })),
-];
 ---
 
-<Base locale={locale}>
+<Base locale={locale} active="home">
   <section class="draw-app" data-locale={locale}>
     <div class="stage">
     <div class="lede">
@@ -155,119 +137,6 @@ const galleryGroups = [
       </div>
     </div>
     </div>
-
-    <div class="gallery-toggle">
-      <button type="button" class="btn-gallery" id="btn-gallery" aria-expanded="false" aria-controls="gallery">
-        {t(locale, 'gallery.show')}
-      </button>
-    </div>
-
-    <section class="gallery" id="gallery" aria-label={t(locale, 'gallery.heading')} hidden>
-      {galleryGroups.map((group) => (
-        <div class="gallery-group">
-          <h3>{group.heading}</h3>
-          <div class="gallery-grid">
-            {group.cards.map((card) => (
-              <button type="button" class="gallery-card" data-card-id={card.id} title={card.name[locale]}>
-                <img src={`${base}cards/${card.image}`} alt={card.name[locale]} width="110" height="192" loading="lazy" />
-                <span class="gallery-name">{card.name[locale]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
-    </section>
-
-    <div class="grammar-toggle">
-      <button type="button" class="btn-gallery" id="btn-grammar" aria-expanded="false" aria-controls="grammar">
-        {t(locale, 'grammar.show')}
-      </button>
-    </div>
-
-    <section class="grammar" id="grammar" aria-label={t(locale, 'grammar.heading')} hidden>
-      <div class="grammar-group">
-        <h3>{t(locale, 'grammar.elements')}</h3>
-        <ul class="grammar-list">
-          {SUIT_ORDER.map((suit) => (
-            <li>
-              <p class="g-term"><span class="g-glyph">{ELEMENTS[suit].glyph}</span>{ELEMENTS[suit].label[locale]} <span class="g-gloss">{ELEMENTS[suit].gloss[locale]}</span></p>
-              <p class="g-text">{ELEMENTS[suit].text[locale]}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="grammar-group">
-        <h3>{t(locale, 'grammar.numbers')}</h3>
-        <ul class="grammar-list">
-          {numberEntries.map((e) => (
-            <li>
-              <p class="g-term"><span class="g-key">{e.key}</span>{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-              <p class="g-text">{e.text[locale]}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="grammar-group">
-        <h3>{t(locale, 'grammar.court')}</h3>
-        <ul class="grammar-list">
-          {courtEntries.map((e) => (
-            <li>
-              <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-              <p class="g-text">{e.text[locale]}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="grammar-group">
-        <h3>{t(locale, 'grammar.journey')}</h3>
-        <p class="grammar-intro">{JOURNEY_INTRO[locale]}</p>
-        <ul class="grammar-list">
-          {JOURNEY.map((s) => (
-            <li>
-              <p class="g-term"><span class="g-key">{s.range}</span>{s.label[locale]}</p>
-              <p class="g-text">{s.text[locale]}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="grammar-group">
-        <h3>{t(locale, 'grammar.dignities')}</h3>
-        <p class="grammar-intro">{DIGNITIES_INTRO[locale]}</p>
-        <ul class="grammar-list">
-          {DIGNITIES.map((e) => (
-            <li>
-              <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-              <p class="g-text">{e.text[locale]}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
-    <div class="grammar-toggle">
-      <button type="button" class="btn-gallery" id="btn-method" aria-expanded="false" aria-controls="method">
-        {t(locale, 'method.show')}
-      </button>
-    </div>
-
-    <section class="grammar" id="method" aria-label={t(locale, 'method.heading')} hidden>
-      <div class="grammar-group">
-        <h3>{t(locale, 'method.heading')}</h3>
-        <p class="grammar-intro">{METHOD_INTRO[locale]}</p>
-        <ol class="grammar-list">
-          {METHOD.map((s, i) => (
-            <li>
-              <p class="g-term"><span class="g-key">{i + 1}</span>{s.title[locale]}</p>
-              <p class="g-text">{s.text[locale]}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
   </section>
 </Base>
 
@@ -306,8 +175,6 @@ const galleryGroups = [
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
   const result = document.querySelector<HTMLElement>('.result')!;
-  const btnGallery = document.querySelector<HTMLButtonElement>('#btn-gallery')!;
-  const gallery = document.querySelector<HTMLElement>('#gallery')!;
   const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
   const studyImage = document.querySelector<HTMLElement>('#study-image')!;
@@ -315,8 +182,6 @@ const galleryGroups = [
   const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
-  const btnGrammar = document.querySelector<HTMLButtonElement>('#btn-grammar')!;
-  const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
   const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
   const spreadEl = document.querySelector<HTMLElement>('#spread')!;
@@ -328,8 +193,6 @@ const galleryGroups = [
   const dignitiesGroup = document.querySelector<HTMLElement>('#dignities-group')!;
   const quintEl = document.querySelector<HTMLElement>('#quint')!;
   const quintGroup = document.querySelector<HTMLElement>('#quint-group')!;
-  const btnMethod = document.querySelector<HTMLButtonElement>('#btn-method')!;
-  const methodSection = document.querySelector<HTMLElement>('#method')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
@@ -500,19 +363,6 @@ const galleryGroups = [
     body.classList.add('is-revealing');
   }
 
-  // Met en évidence la carte active dans la galerie.
-  function markActive(id: string) {
-    for (const el of gallery.querySelectorAll('.gallery-card.is-active')) {
-      el.classList.remove('is-active');
-      el.removeAttribute('aria-current');
-    }
-    const el = gallery.querySelector<HTMLElement>(`.gallery-card[data-card-id="${id}"]`);
-    if (el) {
-      el.classList.add('is-active');
-      el.setAttribute('aria-current', 'true');
-    }
-  }
-
   // Reflète la carte + orientation dans l'URL (permalien partageable / bookmarkable).
   function syncHash(card: Card, orientation: Orientation) {
     const hash = `#${card.id}${orientation === 'reversed' ? '-reversed' : ''}`;
@@ -545,7 +395,6 @@ const galleryGroups = [
 
     placeholder.hidden = true;
     body.hidden = false;
-    markActive(card.id);
     syncHash(card, orientation);
     playStagger();
   }
@@ -732,56 +581,6 @@ const galleryGroups = [
     }
     syncStudyBtn();
     updateStudy(current);
-  });
-
-  // Accès direct à une carte depuis la galerie : affichage instantané, sans choréo de pioche.
-  function selectCard(card: Card, orientation: Orientation) {
-    current = card;
-    view = orientation;
-    spreadEl.hidden = true;
-    result.hidden = false;
-    flip.classList.add('no-anim');
-    renderReading(card, orientation);
-    flip.classList.add('is-flipped');
-    void flip.offsetWidth; // force le rendu avant de réactiver la transition
-    flip.classList.remove('no-anim');
-    btnDraw.textContent = T['action.again'];
-    result.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
-    nameEl.focus({ preventScroll: true });
-  }
-
-  gallery.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.gallery-card');
-    if (!btn) return;
-    const card = cardById.get(btn.dataset.cardId!);
-    if (card) selectCard(card, 'upright');
-  });
-
-  // Déplier / replier la « grammaire du tarot » (section pédagogique).
-  btnGrammar.addEventListener('click', () => {
-    const willShow = grammarSection.hasAttribute('hidden');
-    grammarSection.toggleAttribute('hidden', !willShow);
-    btnGrammar.textContent = willShow ? T['grammar.hide'] : T['grammar.show'];
-    btnGrammar.setAttribute('aria-expanded', String(willShow));
-    if (willShow) grammarSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-  });
-
-  // Déplier / replier « Comment lire » (la méthode).
-  btnMethod.addEventListener('click', () => {
-    const willShow = methodSection.hasAttribute('hidden');
-    methodSection.toggleAttribute('hidden', !willShow);
-    btnMethod.textContent = willShow ? T['method.hide'] : T['method.show'];
-    btnMethod.setAttribute('aria-expanded', String(willShow));
-    if (willShow) methodSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-  });
-
-  // Déplier / replier la galerie.
-  btnGallery.addEventListener('click', () => {
-    const willShow = gallery.hasAttribute('hidden');
-    gallery.toggleAttribute('hidden', !willShow);
-    btnGallery.textContent = willShow ? T['gallery.hide'] : T['gallery.show'];
-    btnGallery.setAttribute('aria-expanded', String(willShow));
-    if (willShow) gallery.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   });
 
   // Popover d'options : révélé à la demande pour garder le hero épuré.
@@ -1633,175 +1432,6 @@ const galleryGroups = [
     .card-slot.small {
       width: min(240px, 68vw);
     }
-  }
-
-  /* ---- Galerie ---- */
-  .gallery-toggle {
-    display: flex;
-    justify-content: center;
-  }
-  .btn-gallery {
-    font-family: var(--font-body);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    padding: 0.6rem 1.4rem;
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  }
-  .btn-gallery:hover {
-    border-color: var(--accent);
-    background: rgba(201, 164, 76, 0.08);
-    color: var(--text);
-  }
-  .btn-gallery:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .gallery {
-    display: grid;
-    gap: 2rem;
-  }
-  .gallery[hidden] {
-    display: none;
-  }
-  .gallery-group h3 {
-    margin: 0 0 0.9rem;
-    font-size: 0.8rem;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 0.5rem;
-  }
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-    gap: 0.75rem;
-  }
-  .gallery-card {
-    position: relative;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-    border-radius: 8px;
-    overflow: hidden;
-    line-height: 0;
-    box-shadow: 0 0 0 1px var(--line);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-  .gallery-card img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1100 / 1920;
-    object-fit: cover;
-  }
-  /* Légende au survol / focus. */
-  .gallery-name {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: 1.4rem 0.4rem 0.4rem;
-    font-size: 0.72rem;
-    line-height: 1.2;
-    text-align: center;
-    color: var(--text);
-    background: linear-gradient(to top, rgba(21, 16, 30, 0.95), transparent);
-    opacity: 0;
-    transition: opacity 0.18s ease;
-    pointer-events: none;
-  }
-  .gallery-card:hover .gallery-name,
-  .gallery-card:focus-visible .gallery-name {
-    opacity: 1;
-  }
-  .gallery-card:hover,
-  .gallery-card:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent),
-      0 0 18px rgba(201, 164, 76, 0.25);
-    outline: none;
-  }
-  /* Carte actuellement affichée dans la zone de lecture. */
-  .gallery-card.is-active {
-    box-shadow: 0 0 0 2px var(--accent), 0 0 20px rgba(201, 164, 76, 0.35);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .gallery-card,
-    .gallery-name {
-      transition: none;
-    }
-  }
-
-  /* ---- Grammaire du tarot (section pédagogique) ---- */
-  .grammar-toggle {
-    display: flex;
-    justify-content: center;
-  }
-  .grammar {
-    display: grid;
-    gap: 2rem;
-    max-width: 44rem;
-    margin: 0 auto;
-  }
-  .grammar[hidden] {
-    display: none;
-  }
-  .grammar-group h3 {
-    margin: 0 0 0.9rem;
-    font-size: 0.8rem;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 0.5rem;
-  }
-  .grammar-intro {
-    margin: -0.3rem 0 1rem;
-    color: var(--muted);
-    font-style: italic;
-  }
-  .grammar-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 1.1rem;
-  }
-  .grammar-list .g-term {
-    margin: 0 0 0.2rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.5rem;
-    color: var(--text);
-  }
-  .g-glyph {
-    font-size: 1.15em;
-  }
-  .g-key {
-    min-width: 2.4rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-  }
-  .g-gloss {
-    font-size: 0.9rem;
-    font-style: italic;
-    color: var(--muted);
-  }
-  .grammar-list .g-text {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.65;
   }
 
   @media (max-width: 46rem) {

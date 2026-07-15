@@ -1,0 +1,24 @@
+---
+import { type Locale } from '../lib/i18n';
+import { METHOD, METHOD_INTRO } from '../data/method';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<div class="grammar">
+  <div class="grammar-group">
+    <p class="grammar-intro">{METHOD_INTRO[locale]}</p>
+    <ol class="grammar-list">
+      {METHOD.map((s, i) => (
+        <li>
+          <p class="g-term"><span class="g-key">{i + 1}</span>{s.title[locale]}</p>
+          <p class="g-text">{s.text[locale]}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</div>

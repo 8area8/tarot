@@ -1,9 +1,13 @@
 # CLAUDE.md — Tirage Tarot
 
-Site statique **Astro**, **une seule page**, bilingue **FR/EN**, sans backend.
-Thème « nuit mystique » (sombre indigo-aubergine + or). La page tire une carte de
-tarot (Rider-Waite-Smith) : arcanes majeurs, mineurs, ou jeu complet ; cartes inversées optionnelles.
+Site statique **Astro**, **multi-pages** (tirage + cartes + grammaire + comment lire),
+bilingue **FR/EN**, sans backend. Thème « nuit mystique » (sombre indigo-aubergine + or).
+La home tire une carte de tarot (Rider-Waite-Smith) : arcanes majeurs, mineurs, ou jeu
+complet ; cartes inversées optionnelles ; tirage « trois temps » optionnel.
 Voir `README.md` pour la structure des fichiers.
+
+Pages (sous `/{lang}/`) : `/` (tirage), `/cartes` (galerie), `/grammaire`,
+`/comment-lire`. Nav dans l'en-tête (`Base.astro`).
 
 ## Commandes
 
@@ -32,25 +36,34 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 - **Astro statique** (`output: 'static'`), i18n intégré : `defaultLocale: 'fr'`,
   `prefixDefaultLocale: true` → `/fr` et `/en` explicites. `redirectToDefaultLocale`
   est **désactivé** ; la racine `/` redirige vers `/fr` via `src/pages/index.astro`.
-- La page unique vit dans `src/pages/[lang]/index.astro` avec
+- Chaque page vit dans `src/pages/[lang]/*.astro` avec
   `getStaticPaths() { return LOCALES.map(lang => ({ params: { lang } })) }`
   et `const locale = Astro.params.lang as Locale`. Profondeur d'import : 2 niveaux
-  (`../../lib/…`, `../../data/…`).
-- Layout unique `src/layouts/Base.astro` : `<head>`, header (marque + `LangToggle`),
-  pied de page avec les **crédits** (illustrations RWS domaine public + Wikimedia),
-  tokens CSS `:root` (`is:global`), polices. Prend `locale` et `title?`.
+  (`../../lib/…`, `../../data/…`, `../../components/…`).
+- Layout unique `src/layouts/Base.astro` : `<head>`, header (marque + **nav** +
+  `LangToggle`), pied de page avec les **crédits** (illustrations RWS domaine public +
+  Wikimedia), tokens CSS `:root` + styles partagés des pages d'apprentissage
+  (`.grammar*`, `.page-title`, `.nav-link`) en `is:global`, polices. Prend `locale`,
+  `title?` et `active?` (entrée de nav en cours).
 
 ### Fichiers clés
 
 | Fichier | Rôle |
 |---|---|
-| `src/pages/[lang]/index.astro` | la page : tirage tarot (contrôles + carte + lecture) |
+| `src/pages/[lang]/index.astro` | home : tirage tarot (contrôles + carte + lecture + spread) |
+| `src/pages/[lang]/cartes.astro` | galerie des 78 cartes (`Gallery.astro`) |
+| `src/pages/[lang]/grammaire.astro` | grammaire du tarot (`Grammar.astro`) |
+| `src/pages/[lang]/comment-lire.astro` | méthode de lecture (`Method.astro`) |
 | `src/pages/index.astro` | redirection racine `/` → `/fr/` |
+| `src/components/Gallery.astro` | grille des 78 cartes ; chaque carte → `/{lang}/#id` |
+| `src/components/Grammar.astro`, `Method.astro` | sections d'apprentissage (contenu de `data/`) |
 | `src/lib/i18n.ts` | libellés d'UI ; `t()`, `ui`, `LOCALES`, types `Locale`/`UIKey` |
 | `src/lib/types.ts` | types des cartes (`Card`, `CardContent`, `Orientation`) |
-| `src/lib/deck.ts` | `getDeck(mode)`, `drawCard(mode, allowReversed)` ; `DeckMode = 'major' \| 'minor' \| 'full'` |
-| `src/components/LangToggle.astro` | bascule FR/EN (site d'une page → lien vers `/${autre}/`) |
+| `src/lib/deck.ts` | `getDeck`, `drawCard`, `drawSpread` ; `DeckMode = 'major' \| 'minor' \| 'full'` |
+| `src/lib/dignities.ts`, `quintessence.ts`, `signals.ts` | synthèse du spread |
+| `src/components/LangToggle.astro` | bascule FR/EN (conserve la page courante) |
 | `src/data/cards.ts` | 78 cartes (22 majeurs rédigés + 56 mineurs), `SUIT_NAMES` |
+| `src/data/grammar.ts`, `spread.ts`, `method.ts`, `symbols.ts` | contenus pédagogiques / spread / « lire l'image » |
 | `src/data/minor-content.ts` | significations des 56 mineurs |
 | `public/cards/` | 78 WebP + `back.svg` + `manifest.json` (provenance) |
 

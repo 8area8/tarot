@@ -7,17 +7,28 @@ import LangToggle from '../components/LangToggle.astro';
 interface Props {
   locale: Locale;
   title?: string;
+  /** Entrée de nav active : 'home' | 'cartes' | 'grammaire' | 'comment-lire'. */
+  active?: string;
 }
 
-const { locale, title } = Astro.props;
+const { locale, title, active = 'home' } = Astro.props;
 const pageTitle = title ? `${title} — ${t(locale, 'site.title')}` : t(locale, 'site.title');
 
-// Variante de langue de la page courante, pour les liens hreflang. Site d'une page :
-// chaque langue n'a qu'une route (sa racine sous le base path).
 const base = import.meta.env.BASE_URL;
 const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
-const path = `${base}${locale}/`;
-const otherPath = `${base}${otherLocale}/`;
+
+// Sous-chemin courant (après /{lang}/) pour conserver la page dans les liens hreflang.
+const sub = Astro.url.pathname.replace(base, '').replace(/^(fr|en)\/?/, '');
+const path = `${base}${locale}/${sub}`;
+const otherPath = `${base}${otherLocale}/${sub}`;
+
+// Navigation principale. Le slug '' est la home (le tirage).
+const NAV = [
+  { key: 'home', slug: '', label: 'nav.draw' },
+  { key: 'cartes', slug: 'cartes', label: 'nav.cards' },
+  { key: 'grammaire', slug: 'grammaire', label: 'nav.grammar' },
+  { key: 'comment-lire', slug: 'comment-lire', label: 'nav.method' },
+] as const;
 
 // Polices auto-hébergées en `font-display: optional` + préchargées : la police
 // arrive avant le premier rendu et ne « swappe » jamais après coup (pas de glitch).
@@ -53,9 +64,20 @@ const fontFace = `
         <span class="brand-mark" aria-hidden="true">✦</span>
         <span>{t(locale, 'site.title')}</span>
       </a>
-      <nav class="header-utils">
-        <LangToggle locale={locale} />
+      <nav class="site-nav" aria-label={t(locale, 'nav.label')}>
+        {NAV.map((item) => (
+          <a
+            href={`${base}${locale}/${item.slug}`}
+            class:list={['nav-link', { 'is-current': active === item.key }]}
+            aria-current={active === item.key ? 'page' : undefined}
+          >
+            {t(locale, item.label)}
+          </a>
+        ))}
       </nav>
+      <div class="header-utils">
+        <LangToggle locale={locale} />
+      </div>
     </header>
 
     <main>
@@ -181,6 +203,29 @@ const fontFace = `
       .brand-mark {
         color: var(--accent);
       }
+      .site-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1.15rem;
+      }
+      .nav-link {
+        font-family: var(--font-body);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 0.15rem 0;
+        border-bottom: 1px solid transparent;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+      .nav-link:hover {
+        color: var(--text);
+      }
+      .nav-link.is-current {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
       main {
         flex: 1;
         max-width: var(--maxw);
@@ -211,6 +256,71 @@ const fontFace = `
         outline: 2px solid var(--accent);
         outline-offset: 3px;
         border-radius: 2px;
+      }
+      /* Titre des pages de référence (Cartes / Grammaire / Comment lire). */
+      .page-title {
+        font-family: var(--font-display);
+        font-weight: 600;
+        line-height: 1.05;
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        text-align: center;
+        margin: 0.5rem 0 2rem;
+      }
+      /* ---- Sections d'apprentissage partagées (Grammaire & Comment lire) ---- */
+      .grammar {
+        display: grid;
+        gap: 2rem;
+        max-width: 44rem;
+        margin: 0 auto;
+      }
+      .grammar-group h3 {
+        margin: 0 0 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 0.5rem;
+      }
+      .grammar-intro {
+        margin: -0.3rem 0 1rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+      .grammar-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 1.1rem;
+      }
+      .grammar-list .g-term {
+        margin: 0 0 0.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.5rem;
+        color: var(--text);
+      }
+      .g-glyph {
+        font-size: 1.15em;
+      }
+      .g-key {
+        min-width: 2.4rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+      }
+      .g-gloss {
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--muted);
+      }
+      .grammar-list .g-text {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
       }
     </style>
   </body>

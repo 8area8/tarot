@@ -9,25 +9,32 @@
 
 ## 0. État actuel (livré)
 
-**Tirage Tarot** — une **seule page** de tirage, thème « nuit mystique »
+**Tirage Tarot** — site **multi-pages**, thème « nuit mystique »
 (sombre indigo-aubergine + or, serifs Cormorant/EB Garamond), i18n par routes
-`/fr` et `/en`.
+`/fr` et `/en`, nav en en-tête.
 
 ```
 /                          Redirection → /fr/
-/{lang}                    Page de tirage : contrôles + carte + lecture + galerie
+/{lang}                    Tirage : contrôles + carte + lecture + spread
+/{lang}/cartes             Galerie des 78 cartes (→ /{lang}/#id)
+/{lang}/grammaire          Grammaire du tarot
+/{lang}/comment-lire       Comment lire (méthode)
 ```
 
-**Ce que fait la page** :
+**Ce que fait le site** :
 - Choix du **jeu** : arcanes majeurs (défaut), mineurs, ou jeu complet (78 cartes).
 - Interrupteur **cartes inversées** (activé par défaut).
 - **Tirage** d'une carte : dos → révélation (flip) → illustration (éventuellement
   pivotée à 180°) + nom.
+- Tirage **« trois temps »** (Situation · Action · Conséquence) : dignités
+  élémentaires, signaux, quintessence.
 - **Lecture** : mots-clés + signification correspondant à l'orientation, rédigés
   dans un cadre **JDR solo** (ambiance / piste narrative, le négatif assumé).
+- **« Étudier la carte »** : l'image (symboles RWS) + la formule (élément × nombre).
 - **Explorer l'autre orientation** sans re-tirer.
 - **Permalien** vers un tirage précis + **copie** de la lecture.
-- **Galerie** des 78 cartes, groupées par arcane / couleur.
+- **Galerie** des 78 cartes, groupées par arcane / couleur (page dédiée).
+- **Grammaire** et **Comment lire** : pages d'apprentissage.
 
 Détails techniques : voir `CLAUDE.md` et `README.md`.
 
@@ -188,17 +195,31 @@ tarot/
 ├─ src/
 │  ├─ data/
 │  │  ├─ cards.ts             ← 78 cartes (structure + contenu des majeurs)
-│  │  └─ minor-content.ts     ← significations des 56 mineurs
+│  │  ├─ minor-content.ts     ← significations des 56 mineurs
+│  │  ├─ grammar.ts           ← grammaire (éléments, nombres, cour, voyage, dignités)
+│  │  ├─ spread.ts            ← positions du tirage « trois temps »
+│  │  ├─ method.ts            ← étapes « comment lire »
+│  │  └─ symbols.ts           ← « lire l'image » : symboles RWS des 78 cartes
 │  ├─ lib/
-│  │  ├─ deck.ts              ← filtres deck + tirage (getDeck, drawCard)
+│  │  ├─ deck.ts              ← filtres deck + tirage (getDeck, drawCard, drawSpread)
+│  │  ├─ dignities.ts         ← dignités élémentaires (synthèse du spread)
+│  │  ├─ signals.ts           ← signaux du spread
+│  │  ├─ quintessence.ts      ← thème caché (somme réduite en arcane majeur)
 │  │  ├─ i18n.ts              ← libellés d'UI FR/EN
 │  │  └─ types.ts             ← types Card / CardContent / Orientation
 │  ├─ components/
-│  │  └─ LangToggle.astro
+│  │  ├─ LangToggle.astro     ← bascule FR/EN (conserve la page)
+│  │  ├─ Gallery.astro        ← grille des 78 cartes
+│  │  ├─ Grammar.astro        ← sections de grammaire
+│  │  └─ Method.astro         ← étapes « comment lire »
 │  ├─ pages/
 │  │  ├─ index.astro          ← redirection / → /fr/
-│  │  └─ [lang]/index.astro   ← page de tirage (fr/en)
-│  ├─ layouts/Base.astro      ← <head>, header, crédits en pied de page
+│  │  └─ [lang]/
+│  │     ├─ index.astro       ← home : tirage (fr/en)
+│  │     ├─ cartes.astro      ← galerie
+│  │     ├─ grammaire.astro   ← grammaire
+│  │     └─ comment-lire.astro← méthode
+│  ├─ layouts/Base.astro      ← <head>, header (nav), crédits, styles partagés
 │  └─ env.d.ts
 ├─ scripts/
 │  └─ fetch-cards.mjs         ← récupère/convertit les 78 illustrations

@@ -1,0 +1,78 @@
+---
+import { type Locale, t } from '../lib/i18n';
+import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO, DIGNITIES, DIGNITIES_INTRO } from '../data/grammar';
+import type { Suit } from '../lib/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const SUIT_ORDER: Suit[] = ['wands', 'cups', 'swords', 'pentacles'];
+const numberEntries = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ key: String(n), ...NUMBERS[n] }));
+const courtEntries = [11, 12, 13, 14].map((n) => COURT[n]);
+---
+
+<div class="grammar">
+  <div class="grammar-group">
+    <h3>{t(locale, 'grammar.elements')}</h3>
+    <ul class="grammar-list">
+      {SUIT_ORDER.map((suit) => (
+        <li>
+          <p class="g-term"><span class="g-glyph">{ELEMENTS[suit].glyph}</span>{ELEMENTS[suit].label[locale]} <span class="g-gloss">{ELEMENTS[suit].gloss[locale]}</span></p>
+          <p class="g-text">{ELEMENTS[suit].text[locale]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="grammar-group">
+    <h3>{t(locale, 'grammar.numbers')}</h3>
+    <ul class="grammar-list">
+      {numberEntries.map((e) => (
+        <li>
+          <p class="g-term"><span class="g-key">{e.key}</span>{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+          <p class="g-text">{e.text[locale]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="grammar-group">
+    <h3>{t(locale, 'grammar.court')}</h3>
+    <ul class="grammar-list">
+      {courtEntries.map((e) => (
+        <li>
+          <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+          <p class="g-text">{e.text[locale]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="grammar-group">
+    <h3>{t(locale, 'grammar.journey')}</h3>
+    <p class="grammar-intro">{JOURNEY_INTRO[locale]}</p>
+    <ul class="grammar-list">
+      {JOURNEY.map((s) => (
+        <li>
+          <p class="g-term"><span class="g-key">{s.range}</span>{s.label[locale]}</p>
+          <p class="g-text">{s.text[locale]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="grammar-group">
+    <h3>{t(locale, 'grammar.dignities')}</h3>
+    <p class="grammar-intro">{DIGNITIES_INTRO[locale]}</p>
+    <ul class="grammar-list">
+      {DIGNITIES.map((e) => (
+        <li>
+          <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
+          <p class="g-text">{e.text[locale]}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

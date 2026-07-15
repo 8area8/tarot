@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import Method from '../../components/Method.astro';
+import { LOCALES, type Locale, t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const heading = t(locale, 'method.heading');
+---
+
+<Base locale={locale} title={heading} active="comment-lire">
+  <h1 class="page-title">{heading}</h1>
+  <Method locale={locale} />
+</Base>
