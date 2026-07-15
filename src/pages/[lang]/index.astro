@@ -85,16 +85,14 @@ const base = import.meta.env.BASE_URL;
           <p class="orientation" id="orientation"></p>
           <div class="keywords" id="keywords"></div>
           <p class="meaning" id="meaning"></p>
+          <div class="symbolism" id="symbolism" hidden>
+            <p class="study-title">{t(locale, 'study.image')}</p>
+            <div class="bricks" id="sym-bricks"></div>
+          </div>
           <div class="study" id="study" hidden>
-            <div class="study-part" id="study-image" hidden>
-              <p class="study-title">{t(locale, 'study.image')}</p>
-              <div class="bricks" id="sym-bricks"></div>
-            </div>
-            <div class="study-part" id="study-formula" hidden>
-              <p class="study-title">{t(locale, 'study.formula')}</p>
-              <p class="study-sub" id="decompose-title"></p>
-              <div class="bricks" id="bricks"></div>
-            </div>
+            <p class="study-title">{t(locale, 'study.formula')}</p>
+            <p class="study-sub" id="decompose-title"></p>
+            <div class="bricks" id="bricks"></div>
           </div>
           <div class="reading-actions">
             <button type="button" class="btn-decode" id="btn-study" aria-pressed="false" aria-controls="study">{t(locale, 'action.study')}</button>
@@ -179,6 +177,8 @@ const base = import.meta.env.BASE_URL;
   ];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Desktop : la symbolique s'affiche dépliée (voir syncSymbolismDisclosure).
+  const wideMq = window.matchMedia('(min-width: 46rem)');
   const FLIP_MS = 430;
 
   const cardById = new Map(cards.map((c) => [c.id, c]));
@@ -204,8 +204,7 @@ const base = import.meta.env.BASE_URL;
   const result = document.querySelector<HTMLElement>('.result')!;
   const btnStudy = document.querySelector<HTMLButtonElement>('#btn-study')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
-  const studyImage = document.querySelector<HTMLElement>('#study-image')!;
-  const studyFormula = document.querySelector<HTMLElement>('#study-formula')!;
+  const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
   const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
@@ -236,7 +235,7 @@ const base = import.meta.env.BASE_URL;
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
-  let study = false; // « Étudier la carte » : panneau image + formule sous la carte
+  let study = false; // « La formule » : panneau de décomposition replié sous la carte
   let askMode = false; // « Question fermée » : affiche la jauge d'inclinaison oui/non
 
   // État du tirage multi-cartes.
@@ -261,7 +260,7 @@ const base = import.meta.env.BASE_URL;
       : T['action.draw'];
   }
 
-  // Reflète l'état « Étudier la carte » sur son bouton (libellé + aria-pressed).
+  // Reflète l'état « La formule » sur son bouton (libellé + aria-pressed).
   function syncStudyBtn() {
     btnStudy.textContent = study ? T['action.studyHide'] : T['action.study'];
     btnStudy.setAttribute('aria-pressed', String(study));
@@ -269,11 +268,12 @@ const base = import.meta.env.BASE_URL;
   }
 
   // Une « brique » de lecture (symbole, élément, nombre, figure ou étape du voyage).
-  // Texte toujours visible : « Étudier la carte » est déjà un choix explicite.
-  function makeBrick(key: string, label: string, gloss: string, text: string): HTMLElement {
-    const wrap = document.createElement('div');
+  // `collapsible` → rendue en <details>/<summary> : sur mobile le texte se replie
+  // sous son label (voir CSS) ; sur desktop il reste toujours déplié.
+  function makeBrick(key: string, label: string, gloss: string, text: string, collapsible = false): HTMLElement {
+    const wrap = document.createElement(collapsible ? 'details' : 'div');
     wrap.className = 'brick';
-    const head = document.createElement('p');
+    const head = document.createElement(collapsible ? 'summary' : 'p');
     head.className = 'brick-head';
     if (key) {
       const k = document.createElement('span');
@@ -334,22 +334,42 @@ const base = import.meta.env.BASE_URL;
     if (!syms || !syms.length) return false;
     symBricksEl.replaceChildren();
     for (const s of syms) {
-      symBricksEl.appendChild(makeBrick('', s.label[locale], '', s.text[locale]));
+      symBricksEl.appendChild(makeBrick('', s.label[locale], '', s.text[locale], true));
     }
     return true;
   }
 
-  // « Étudier la carte » : panneau unifié (l'image + la formule).
-  function updateStudy(card: Card | null) {
+  // La symbolique (lecture par élément) : affichée par défaut sous la carte,
+  // sauf en mode oracle (« question fermée ») où l'on garde le verdict épuré.
+  function updateSymbolism(card: Card | null) {
+    if (!card || askMode) {
+      symbolismEl.hidden = true;
+      return;
+    }
+    const has = fillSymbols(card);
+    symbolismEl.hidden = !has;
+    if (has) syncSymbolismDisclosure();
+  }
+
+  // Ouvre/replie les briques de symbolique selon la largeur : dépliées sur desktop
+  // (non repliables, cf. CSS), repliées sur mobile (tap pour ouvrir). Chrome récent
+  // masque le contenu d'un <details> fermé via ::details-content → on pilote `open`.
+  function syncSymbolismDisclosure() {
+    const open = wideMq.matches;
+    symBricksEl.querySelectorAll<HTMLDetailsElement>('details.brick').forEach((d) => {
+      d.open = open;
+    });
+  }
+  wideMq.addEventListener('change', syncSymbolismDisclosure);
+
+  // « La formule » : décomposition élément × rang (ou étape du voyage),
+  // repliée derrière son bouton.
+  function updateFormula(card: Card | null) {
     if (!card || !study) {
       studyEl.hidden = true;
       return;
     }
-    const hasImg = fillSymbols(card);
-    studyImage.hidden = !hasImg;
-    const hasFormula = fillFormula(card);
-    studyFormula.hidden = !hasFormula;
-    studyEl.hidden = !(hasImg || hasFormula);
+    studyEl.hidden = !fillFormula(card);
   }
 
   // Renseigne une ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
@@ -445,7 +465,8 @@ const base = import.meta.env.BASE_URL;
     // En mode oracle, le « pourquoi » remplace le texte d'ambiance.
     meaningEl.hidden = askMode;
 
-    updateStudy(card);
+    updateSymbolism(card);
+    updateFormula(card);
 
     verdict.hidden = !askMode;
     if (askMode) renderVerdict(card, orientation);
@@ -660,7 +681,7 @@ const base = import.meta.env.BASE_URL;
     renderReading(current, view);
   });
 
-  // Étudier / fermer le panneau (l'image + la formule) sous la carte.
+  // Afficher / masquer « La formule » (décomposition) sous la carte.
   btnStudy.addEventListener('click', () => {
     study = !study;
     try {
@@ -669,7 +690,7 @@ const base = import.meta.env.BASE_URL;
       /* stockage indisponible */
     }
     syncStudyBtn();
-    updateStudy(current);
+    updateFormula(current);
   });
 
   // Popover d'options : révélé à la demande pour garder le hero épuré.
@@ -1159,7 +1180,7 @@ const base = import.meta.env.BASE_URL;
   }
   .card-slot {
     perspective: 1400px;
-    width: min(300px, 72vw);
+    width: min(280px, 70vw);
     aspect-ratio: 1100 / 1920;
     justify-self: center;
   }
@@ -1183,7 +1204,7 @@ const base = import.meta.env.BASE_URL;
     -webkit-backface-visibility: hidden;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--line),
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 164, 76, 0.5),
       0 0 40px rgba(201, 164, 76, 0.18);
   }
   .face img {
@@ -1228,7 +1249,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   .reading {
-    max-width: 30rem;
+    max-width: 34rem;
   }
   .placeholder {
     color: var(--muted);
@@ -1250,6 +1271,8 @@ const base = import.meta.env.BASE_URL;
   .reading-body.is-revealing > :nth-child(5) { animation-delay: 0.24s; }
   .reading-body.is-revealing > :nth-child(6) { animation-delay: 0.3s; }
   .reading-body.is-revealing > :nth-child(7) { animation-delay: 0.36s; }
+  .reading-body.is-revealing > :nth-child(8) { animation-delay: 0.42s; }
+  .reading-body.is-revealing > :nth-child(9) { animation-delay: 0.48s; }
   @keyframes reading-in {
     from {
       opacity: 0;
@@ -1308,10 +1331,12 @@ const base = import.meta.env.BASE_URL;
     border: 1px solid var(--line);
     color: var(--text);
   }
+  /* L'essentiel, mis en exergue : plus grand, pleine luminosité (lettrine en desktop). */
   .meaning {
     margin: 0;
-    font-size: 1.12rem;
-    line-height: 1.75;
+    font-size: 1.22rem;
+    line-height: 1.8;
+    color: var(--text);
   }
   .reading-actions {
     display: flex;
@@ -1418,36 +1443,31 @@ const base = import.meta.env.BASE_URL;
     color: var(--text);
   }
 
-  /* ---- « Étudier la carte » : panneau unifié (l'image + la formule) ---- */
+  /* ---- Sous la carte : « La symbolique » (par défaut) + « La formule » (repliée) ----
+     Style éditorial : plus de boîte — un filet doré ouvre la section, titre en
+     capitales dorées, entrées en liste (rendu « grimoire »). */
+  .symbolism,
   .study {
     display: grid;
-    gap: 1.15rem;
-    padding: 0.9rem 1rem;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgba(201, 164, 76, 0.05);
+    gap: 0.7rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    text-align: left;
   }
+  .symbolism[hidden],
   .study[hidden] {
     display: none;
   }
-  .study-part {
-    display: grid;
-    gap: 0.55rem;
-  }
-  .study-part[hidden] {
-    display: none;
-  }
-  /* Séparateur discret entre les deux sections. */
-  .study-part + .study-part {
-    border-top: 1px solid var(--line);
-    padding-top: 1.05rem;
-  }
+  /* Titre de section : police d'affichage, casse normale, couleur texte — nettement
+     distinct des intitulés d'éléments (petites capitales dorées), pour éviter l'effet
+     de titre doublé. */
   .study-title {
     margin: 0;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--text);
   }
   /* Ligne « formule » (ex. « 🜄 Eau × Reine »), sous le titre de section. */
   .study-sub {
@@ -1463,7 +1483,19 @@ const base = import.meta.env.BASE_URL;
      le scope Astro (attribut data-astro-cid) ne les atteint pas. */
   .bricks :global(.brick) {
     display: grid;
-    gap: 0.15rem;
+    gap: 0.3rem;
+  }
+  /* Symbolique : entrées en liste séparées par un filet fin (mobile) plutôt qu'en boîte. */
+  .symbolism .bricks {
+    display: block;
+  }
+  .symbolism :global(.brick) {
+    break-inside: avoid;
+  }
+  .symbolism :global(.brick + .brick) {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
   }
   .bricks :global(.brick-head) {
     margin: 0;
@@ -1479,8 +1511,10 @@ const base = import.meta.env.BASE_URL;
     font-family: 'Apple Symbols', 'Segoe UI Symbol', 'Noto Sans Symbols2', var(--font-body);
   }
   .bricks :global(.brick-term) {
-    color: var(--text);
-    font-size: 1.05rem;
+    color: var(--accent);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
   .bricks :global(.brick-gloss) {
     font-size: 0.85rem;
@@ -1489,9 +1523,80 @@ const base = import.meta.env.BASE_URL;
   }
   .bricks :global(.brick-text) {
     margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.72;
+    color: rgba(240, 226, 196, 0.82);
+  }
+  /* Brique repliable (symbolique) : la tête <summary> est cliquable ; sur mobile
+     le texte se déplie au tap. Chevron discret aligné à droite de la tête. */
+  .bricks :global(details.brick > summary) {
+    cursor: pointer;
+    list-style: none;
+  }
+  .bricks :global(details.brick > summary::-webkit-details-marker) {
+    display: none;
+  }
+  .bricks :global(details.brick > summary::after) {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-left: auto;
+    align-self: center;
+    flex: none;
+    border-right: 1.5px solid var(--muted);
+    border-bottom: 1.5px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  .bricks :global(details.brick[open] > summary::after) {
+    transform: rotate(-135deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bricks :global(details.brick > summary::after) {
+      transition: none;
+    }
+  }
+  /* Desktop : la symbolique se lit sur deux colonnes (moitié moins haute),
+     le détail reste toujours déplié (tête non cliquable, chevron masqué),
+     et la carte reste collante pendant qu'on parcourt la lecture. */
+  @media (min-width: 46rem) {
+    /* Deux colonnes séparées par un filet doré vertical. */
+    .symbolism .bricks {
+      column-count: 2;
+      column-gap: 2.2rem;
+      column-rule: 1px solid var(--line);
+    }
+    .symbolism :global(.brick) {
+      margin-bottom: 1.2rem;
+    }
+    .symbolism :global(.brick + .brick) {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    /* Lettrine sur l'essentiel : pose l'exergue en tête de lecture. */
+    .meaning::first-letter {
+      float: left;
+      font-family: var(--font-display);
+      font-size: 3.2rem;
+      line-height: 0.82;
+      padding: 0.15rem 0.55rem 0 0;
+      color: var(--accent);
+    }
+    .symbolism .bricks :global(details.brick > summary) {
+      cursor: default;
+      pointer-events: none;
+    }
+    .symbolism .bricks :global(details.brick > summary::after) {
+      display: none;
+    }
+    .result {
+      align-items: start;
+    }
+    .result .card-slot {
+      position: sticky;
+      top: 1.5rem;
+    }
   }
 
   /* ---- Tirage « trois temps » (spread) ---- */
