@@ -92,8 +92,13 @@ const galleryGroups = [
             <p class="decompose-title" id="decompose-title"></p>
             <div class="bricks" id="bricks"></div>
           </div>
+          <div class="symbols" id="symbols" hidden>
+            <p class="decompose-title" id="symbols-title"></p>
+            <div class="bricks" id="sym-bricks"></div>
+          </div>
           <div class="reading-actions">
             <button type="button" class="btn-decode" id="btn-decode" aria-pressed="false" aria-controls="decompose">{t(locale, 'action.decode')}</button>
+            <button type="button" class="btn-decode" id="btn-image" aria-pressed="false" aria-controls="symbols">{t(locale, 'action.image')}</button>
             <button type="button" class="btn-orient" id="btn-orient"></button>
             <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
           </div>
@@ -271,6 +276,7 @@ const galleryGroups = [
   import { buildDignities } from '../../lib/dignities';
   import { quintessence } from '../../lib/quintessence';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
+  import { SYMBOLS } from '../../data/symbols';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREAD_POSITIONS } from '../../data/spread';
   import type { Card, Orientation } from '../../lib/types';
@@ -304,6 +310,10 @@ const galleryGroups = [
   const decomposeEl = document.querySelector<HTMLElement>('#decompose')!;
   const decomposeTitle = document.querySelector<HTMLElement>('#decompose-title')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
+  const btnImage = document.querySelector<HTMLButtonElement>('#btn-image')!;
+  const symbolsEl = document.querySelector<HTMLElement>('#symbols')!;
+  const symbolsTitle = document.querySelector<HTMLElement>('#symbols-title')!;
+  const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
   const btnGrammar = document.querySelector<HTMLButtonElement>('#btn-grammar')!;
   const grammarSection = document.querySelector<HTMLElement>('#grammar')!;
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
@@ -336,6 +346,7 @@ const galleryGroups = [
   let current: Card | null = null;
   let view: Orientation = 'upright';
   let learn = false; // « décoder » : affiche la décomposition sous la carte
+  let image = false; // « lire l'image » : affiche les symboles de l'illustration
 
   // État du tirage « trois temps ».
   let currentSpread: Draw[] | null = null;
@@ -356,6 +367,13 @@ const galleryGroups = [
     btnDecode.textContent = learn ? T['action.decodeHide'] : T['action.decode'];
     btnDecode.setAttribute('aria-pressed', String(learn));
     btnDecode.classList.toggle('is-on', learn);
+  }
+
+  // Reflète l'état « lire l'image » sur son bouton (libellé + aria-pressed).
+  function syncImageBtn() {
+    btnImage.textContent = image ? T['action.imageHide'] : T['action.image'];
+    btnImage.setAttribute('aria-pressed', String(image));
+    btnImage.classList.toggle('is-on', image);
   }
 
   // Une « brique » de lecture (élément, nombre, figure ou étape du voyage).
@@ -417,6 +435,21 @@ const galleryGroups = [
       }
     }
     decomposeEl.hidden = false;
+  }
+
+  // « Lire l'image » : liste les symboles repérables de l'illustration RWS.
+  function updateSymbols(card: Card | null) {
+    const syms = card ? SYMBOLS[card.id] : undefined;
+    if (!card || !image || !syms || !syms.length) {
+      symbolsEl.hidden = true;
+      return;
+    }
+    symBricksEl.replaceChildren();
+    symbolsTitle.textContent = T['action.image'];
+    for (const s of syms) {
+      symBricksEl.appendChild(makeBrick('', s.label[locale], '', s.text[locale]));
+    }
+    symbolsEl.hidden = false;
   }
 
   // Renseigne une ligne meta (« coordonnées ésotériques ») avec un glyphe stylé.
@@ -508,6 +541,8 @@ const galleryGroups = [
     }
 
     updateDecompose(card);
+    btnImage.hidden = !SYMBOLS[card.id]?.length;
+    updateSymbols(card);
 
     placeholder.hidden = true;
     body.hidden = false;
@@ -700,6 +735,18 @@ const galleryGroups = [
     updateDecompose(current);
   });
 
+  // Lire l'image / masquer les symboles de l'illustration.
+  btnImage.addEventListener('click', () => {
+    image = !image;
+    try {
+      localStorage.setItem(PREF_IMAGE, image ? '1' : '0');
+    } catch {
+      /* stockage indisponible */
+    }
+    syncImageBtn();
+    updateSymbols(current);
+  });
+
   // Accès direct à une carte depuis la galerie : affichage instantané, sans choréo de pioche.
   function selectCard(card: Card, orientation: Orientation) {
     current = card;
@@ -852,6 +899,7 @@ const galleryGroups = [
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
   const PREF_LEARN = 'tarot.learn';
+  const PREF_IMAGE = 'tarot.image';
   const PREF_SPREAD = 'tarot.spread';
   form.addEventListener('change', () => {
     try {
@@ -882,10 +930,12 @@ const galleryGroups = [
         if (radio) radio.checked = true;
       }
       learn = localStorage.getItem(PREF_LEARN) === '1';
+      image = localStorage.getItem(PREF_IMAGE) === '1';
     } catch {
       /* stockage indisponible */
     }
     syncDecodeBtn();
+    syncImageBtn();
     updateDrawLabel();
   })();
 
@@ -1408,8 +1458,9 @@ const galleryGroups = [
     color: var(--text);
   }
 
-  /* ---- Décomposition (mode apprentissage) ---- */
-  .decompose {
+  /* ---- Décomposition (« décoder ») & symboles (« lire l'image ») ---- */
+  .decompose,
+  .symbols {
     display: grid;
     gap: 0.5rem;
     padding: 0.9rem 1rem;
@@ -1417,7 +1468,8 @@ const galleryGroups = [
     border-radius: 12px;
     background: rgba(201, 164, 76, 0.05);
   }
-  .decompose[hidden] {
+  .decompose[hidden],
+  .symbols[hidden] {
     display: none;
   }
   .decompose-title {
