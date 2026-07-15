@@ -1629,29 +1629,26 @@ const base = import.meta.env.BASE_URL;
   .spread[hidden] {
     display: none;
   }
-  /* Les 3 colonnes partagent la même grille de lignes (subgrid) : chaque
-     élément (en-tête, carte, meta, nom, orientation, mots-clés, texte) s'aligne
-     horizontalement d'une colonne à l'autre, quelle que soit sa hauteur. */
+  /* Une colonne par carte. Chaque colonne est une pile verticale autonome
+     (flex) — robuste, contrairement au subgrid qui scindait la colonne en deux. */
   .spread-cols {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(7, auto);
-    column-gap: 1.75rem;
-    row-gap: 0.7rem;
+    gap: 2.25rem 2rem;
+    align-items: start;
   }
-  /* Tirage à deux cartes : deux colonnes centrées, plus resserrées. */
+  /* Tirage à deux cartes : deux colonnes centrées, moins larges. */
   .spread-cols[data-count='2'] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 34rem;
+    max-width: 44rem;
     margin-inline: auto;
   }
   .spread-col {
-    display: grid;
-    grid-row: 1 / span 7;
-    grid-template-rows: subgrid;
-    justify-items: center;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    gap: 0.7rem;
   }
   .spread-pos {
     margin: 0;
@@ -1727,17 +1724,13 @@ const base = import.meta.env.BASE_URL;
     justify-content: center;
   }
   @media (max-width: 46rem) {
-    /* En pile (une colonne) : plus de partage de lignes, chaque tirage coule
-       normalement les uns sous les autres. */
-    .spread-cols {
+    /* Une seule colonne : les cartes coulent les unes sous les autres.
+       On cible aussi [data-count='2'] (spécificité égale) pour l'emporter. */
+    .spread-cols,
+    .spread-cols[data-count='2'] {
       grid-template-columns: 1fr;
-      grid-template-rows: none;
+      max-width: none;
       row-gap: 2.5rem;
-    }
-    .spread-col {
-      grid-row: auto;
-      grid-template-rows: none;
-      row-gap: 0.6rem;
     }
     .card-slot.small {
       width: min(240px, 68vw);
