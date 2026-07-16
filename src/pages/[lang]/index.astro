@@ -158,6 +158,7 @@ const base = import.meta.env.BASE_URL;
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
   import { MINOR_CYCLE } from '../../data/minor-cycle';
+  import { MAJOR_CYCLE } from '../../data/major-cycle';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREADS, type SpreadType } from '../../data/spread';
   import { pushHistory, type SpreadKind } from '../../lib/history';
@@ -294,28 +295,14 @@ const base = import.meta.env.BASE_URL;
     return wrap;
   }
 
-  // « La formule » : décompose la carte (élément × nombre/figure, ou étape du voyage).
+  // « La formule » : décompose une mineure en son élément. Le nombre/rang (mineurs)
+  // et le temps du Voyage (majeurs) sont désormais portés par la bande « cycle » —
+  // on ne les répète pas ici.
   function fillFormula(card: Card): boolean {
     bricksEl.replaceChildren();
-    if (card.arcana === 'minor') {
-      const suit = card.suit!;
-      const el = ELEMENTS[suit];
+    if (card.arcana === 'minor' && card.suit) {
+      const el = ELEMENTS[card.suit];
       bricksEl.appendChild(makeBrick(el.glyph, el.label[locale], el.gloss[locale], el.text[locale]));
-      // Pips (As→10) : le nombre est déjà porté par le « cycle » au-dessus — pas de
-      // doublon. Les figures de cour (11→14) gardent leur brique dédiée.
-      if (card.number > 10) {
-        const rank = COURT[card.number];
-        bricksEl.appendChild(makeBrick('', rank.label[locale], rank.gloss[locale], rank.text[locale]));
-      }
-      return true;
-    }
-    if (card.number === 0) {
-      bricksEl.appendChild(makeBrick('0', card.name[locale], '', JOURNEY_INTRO[locale]));
-      return true;
-    }
-    const stage = JOURNEY.find((s) => s.cards.includes(card.number));
-    if (stage) {
-      bricksEl.appendChild(makeBrick(stage.range, stage.label[locale], '', stage.text[locale]));
       return true;
     }
     return false;
@@ -434,42 +421,67 @@ const base = import.meta.env.BASE_URL;
     verdictWhy.textContent = entry ? entry.why[locale] : '';
   }
 
-  // Cycle numérologique d'une enseigne : parcourir les pips As→10 d'une même
-  // enseigne, en lisant la numérologie du nombre (NUMBERS) à chaque pas.
-  function goCycle(suit: Suit, num: number, orientation: Orientation) {
-    const card = cards.find((c) => c.suit === suit && c.number === num);
-    if (card) renderReading(card, orientation);
+  // « Cycle » d'une carte : parcourir sa famille — l'enseigne As→10 puis Valet→Roi
+  // pour un mineur, le Voyage du Fou 0→21 pour un majeur — en lisant à chaque pas le
+  // sens générique (numérologie / rang / temps du Voyage) et le texte de progression.
+  function cardAt(arcana: 'major' | 'minor', suit: Suit | null, num: number): Card | undefined {
+    return cards.find((c) => c.arcana === arcana && c.suit === suit && c.number === num);
+  }
+  // Abréviations des figures de cour pour les pastilles (Valet → Roi).
+  const COURT_SHORT: Record<Locale, Record<number, string>> = {
+    fr: { 11: 'Va', 12: 'Cv', 13: 'Re', 14: 'Ro' },
+    en: { 11: 'Pa', 12: 'Kn', 13: 'Qu', 14: 'Ki' },
+  };
+  function makeCycleDot(label: string, isCurrent: boolean, target: Card | undefined, orientation: Orientation): HTMLElement {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cycle-dot';
+    b.textContent = label;
+    b.classList.toggle('is-current', isCurrent);
+    if (target) {
+      b.setAttribute('aria-label', target.name[locale]);
+      b.addEventListener('click', () => renderReading(target, orientation));
+    }
+    li.append(b);
+    return li;
   }
   function updateCycle(card: Card, orientation: Orientation) {
-    const isPip = card.arcana === 'minor' && card.suit !== null && card.number >= 1 && card.number <= 10;
-    cycleEl.hidden = !isPip;
-    if (!isPip || !card.suit) return;
-    const suit = card.suit;
     const n = card.number;
-    cycleSuit.textContent = `${T['cycle.title']} ${SUIT_NAMES[suit][locale]}`;
-    cycleTrack.replaceChildren(
-      ...Array.from({ length: 10 }, (_, i) => {
-        const num = i + 1;
-        const li = document.createElement('li');
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'cycle-dot';
-        b.textContent = String(num);
-        b.classList.toggle('is-current', num === n);
-        const target = cards.find((c) => c.suit === suit && c.number === num);
-        if (target) b.setAttribute('aria-label', target.name[locale]);
-        b.addEventListener('click', () => goCycle(suit, num, orientation));
-        li.append(b);
-        return li;
-      }),
-    );
-    const info = NUMBERS[n];
-    cycleStep.textContent = `${info.label[locale]} · ${info.gloss[locale]}`;
-    // Texte de progression propre à la carte (naissance depuis la précédente + écho
-    // numérologique) ; repli sur le sens générique du nombre si absent.
-    cycleText.textContent = (MINOR_CYCLE[card.id] ?? info.text)[locale];
-    cyclePrev.disabled = n <= 1;
-    cycleNext.disabled = n >= 10;
+    if (card.arcana === 'minor' && card.suit) {
+      const suit = card.suit;
+      cycleSuit.textContent = `${T['cycle.title']} ${SUIT_NAMES[suit][locale]}`;
+      cycleTrack.replaceChildren(
+        ...Array.from({ length: 14 }, (_, i) => {
+          const num = i + 1;
+          const label = num <= 10 ? String(num) : COURT_SHORT[locale][num];
+          return makeCycleDot(label, num === n, cardAt('minor', suit, num), orientation);
+        }),
+      );
+      const info = n <= 10 ? NUMBERS[n] : COURT[n];
+      cycleStep.textContent = `${info.label[locale]} · ${info.gloss[locale]}`;
+      cycleText.textContent = (MINOR_CYCLE[card.id] ?? info.text)[locale];
+      cyclePrev.disabled = n <= 1;
+      cycleNext.disabled = n >= 14;
+      cycleEl.hidden = false;
+      return;
+    }
+    if (card.arcana === 'major') {
+      cycleSuit.textContent = T['cycle.journey'];
+      cycleTrack.replaceChildren(
+        ...Array.from({ length: 22 }, (_, num) =>
+          makeCycleDot(String(num), num === n, cardAt('major', null, num), orientation),
+        ),
+      );
+      const stage = JOURNEY.find((s) => s.cards.includes(n));
+      cycleStep.textContent = n === 0 ? T['cycle.fool'] : stage ? stage.label[locale] : '';
+      cycleText.textContent = (MAJOR_CYCLE[card.id] ?? stage?.text ?? JOURNEY_INTRO)[locale];
+      cyclePrev.disabled = n <= 0;
+      cycleNext.disabled = n >= 21;
+      cycleEl.hidden = false;
+      return;
+    }
+    cycleEl.hidden = true;
   }
 
   function renderReading(card: Card, orientation: Orientation) {
@@ -655,12 +667,17 @@ const base = import.meta.env.BASE_URL;
     backBtn.hidden = true;
     paintSpread(returnSpread.draws, returnSpread.mode, returnSpread.type, false);
   });
-  cyclePrev.addEventListener('click', () => {
-    if (current?.suit && current.number > 1) goCycle(current.suit, current.number - 1, view);
-  });
-  cycleNext.addEventListener('click', () => {
-    if (current?.suit && current.number < 10) goCycle(current.suit, current.number + 1, view);
-  });
+  function stepCycle(delta: number) {
+    if (!current) return;
+    const n = current.number + delta;
+    const target =
+      current.arcana === 'major'
+        ? (n >= 0 && n <= 21 ? cardAt('major', null, n) : undefined)
+        : current.suit && n >= 1 && n <= 14 ? cardAt('minor', current.suit, n) : undefined;
+    if (target) renderReading(target, view);
+  }
+  cyclePrev.addEventListener('click', () => stepCycle(-1));
+  cycleNext.addEventListener('click', () => stepCycle(1));
 
   // « La lecture » : synthèse unifiée du tirage — le « fil » (quintessence) en tête,
   // puis des liens courts (substance à gauche, positions en repères à droite).
