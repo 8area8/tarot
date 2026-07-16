@@ -131,6 +131,10 @@ const base = import.meta.env.BASE_URL;
       </div>
 
       <div class="spread-synthesis" id="spread-synthesis" hidden>
+        <div class="synth-group" id="echoes-group" hidden>
+          <p class="spread-signals-title">{t(locale, 'spread.echoes')}</p>
+          <ul class="signals" id="echoes"></ul>
+        </div>
         <div class="synth-group" id="dignities-group" hidden>
           <p class="spread-signals-title">{t(locale, 'spread.dignities')}</p>
           <ul class="signals" id="dignities"></ul>
@@ -159,6 +163,7 @@ const base = import.meta.env.BASE_URL;
   import { answerFor } from '../../lib/oracle';
   import { buildSignals } from '../../lib/signals';
   import { buildDignities } from '../../lib/dignities';
+  import { buildEchoes } from '../../lib/echoes';
   import { quintessence } from '../../lib/quintessence';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
@@ -216,6 +221,8 @@ const base = import.meta.env.BASE_URL;
   const signalsGroup = document.querySelector<HTMLElement>('#signals-group')!;
   const dignitiesEl = document.querySelector<HTMLElement>('#dignities')!;
   const dignitiesGroup = document.querySelector<HTMLElement>('#dignities-group')!;
+  const echoesEl = document.querySelector<HTMLElement>('#echoes')!;
+  const echoesGroup = document.querySelector<HTMLElement>('#echoes-group')!;
   const quintEl = document.querySelector<HTMLElement>('#quint')!;
   const quintGroup = document.querySelector<HTMLElement>('#quint-group')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
@@ -567,17 +574,21 @@ const base = import.meta.env.BASE_URL;
   // Synthèse du spread : dignités (relationnel) + signaux (additif) + quintessence (thème).
   function renderSynthesis(draws: Draw[], mode: DeckMode, type: SpreadType) {
     const positions = SPREADS[type];
+    const echoes = buildEchoes(draws, positions, locale);
     const digs = buildDignities(draws, positions, locale);
     const sigs = buildSignals(draws, mode, positions, locale);
     const q = quintessence(draws);
     const quintItems = q ? [`${q.name[locale]} · ${majorRoman(q.number)}`] : [];
+    fillList(echoesEl, echoes);
+    echoesGroup.hidden = echoes.length === 0;
     fillList(dignitiesEl, digs);
     dignitiesGroup.hidden = digs.length === 0;
     fillList(signalsEl, sigs);
     signalsGroup.hidden = sigs.length === 0;
     fillList(quintEl, quintItems);
     quintGroup.hidden = quintItems.length === 0;
-    synthEl.hidden = digs.length === 0 && sigs.length === 0 && quintItems.length === 0;
+    synthEl.hidden =
+      echoes.length === 0 && digs.length === 0 && sigs.length === 0 && quintItems.length === 0;
   }
 
   // Reflète le spread dans l'URL : #spread=<id>[.r],<id>[.r],<id>[.r]
@@ -750,6 +761,10 @@ const base = import.meta.env.BASE_URL;
       return `${pos.label[locale]} — ${d.card.name[locale]} (${orient})\n${meaning}`;
     });
     let text = blocks.join('\n\n');
+    const echoes = buildEchoes(currentSpread, positions, locale);
+    if (echoes.length) {
+      text += `\n\n${T['spread.echoes']} :\n` + echoes.map((s) => `- ${s}`).join('\n');
+    }
     const dignities = buildDignities(currentSpread, positions, locale);
     if (dignities.length) {
       text += `\n\n${T['spread.dignities']} :\n` + dignities.map((s) => `- ${s}`).join('\n');
