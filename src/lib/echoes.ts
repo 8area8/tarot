@@ -2,10 +2,29 @@ import type { Locale } from './i18n';
 import type { Draw } from './deck';
 import type { SpreadPosition } from '../data/spread';
 import type { Card } from './types';
+import type { ReadingLine } from './reading';
 import {
   MOTIFS, SUIT_MOTIF, COLOR_GLOSS, MOTIF_GLOSS,
   type Color, type Motif, type Gaze, type Facing,
 } from '../data/motifs';
+
+/**
+ * « Le dialogue des images » : les échos visuels entre les cartes d'un tirage.
+ * Une couleur qui court d'une carte à l'autre, un motif qui se répond, des regards
+ * qui se croisent ou se fuient — lus dans les tags de `motifs.ts`. Tout est calculé
+ * sur les cartes réellement tombées (même règle que signaux/dignités).
+ *
+ * Chaque écho renvoie une `ReadingLine` : la substance (la glose) d'un côté, les
+ * positions concernées de l'autre (repères), jamais mêlées dans la phrase.
+ */
+
+type Bi = Record<Locale, string>;
+/** Ligne interne : texte bilingue + positions (indices) à résoudre en fin de course. */
+interface Raw {
+  text: Bi;
+  refs: number[];
+  join: 'dot' | 'arrow';
+}
 
 /**
  * Rareté globale d'une couleur / d'un motif dans les 22 majeurs : plus une clé est
@@ -18,23 +37,6 @@ for (const m of Object.values(MOTIFS)) {
   for (const c of m.colors) COLOR_FREQ.set(c, (COLOR_FREQ.get(c) ?? 0) + 1);
   for (const k of m.motifs) MOTIF_FREQ.set(k, (MOTIF_FREQ.get(k) ?? 0) + 1);
 }
-
-/**
- * « Le dialogue des images » : les échos visuels entre les cartes d'un tirage.
- * Une couleur qui court d'une carte à l'autre, un motif qui se répond, des regards
- * qui se croisent ou se fuient — lus non pas dans la prose mais dans les tags de
- * `motifs.ts`. Tout est calculé sur les cartes réellement tombées (même règle que
- * signaux/dignités : jamais de fausse prose).
- *
- * Portée : couleurs, regards et orientation ne concernent que les majeurs (seuls
- * tagués) ; les motifs incluent les mineurs *à condition* qu'un majeur porte le
- * même objet — sinon ce serait une répétition d'enseigne, déjà dite par les « signaux ».
- */
-
-type Bi = Record<Locale, string>;
-
-/** Nombre maximal d'échos affichés (garde la synthèse resserrée). */
-const MAX_ECHOES = 5;
 
 function cardColors(card: Card): Color[] {
   return card.arcana === 'major' ? MOTIFS[card.number]?.colors ?? [] : [];
@@ -50,16 +52,6 @@ function cardFacing(card: Card): Facing {
   return card.arcana === 'major' ? MOTIFS[card.number]?.facing ?? null : null;
 }
 
-/** « A » et « B » / « A », « B » et « C » — les positions concernées, citées. */
-function joinLabels(idx: number[], positions: SpreadPosition[], locale: Locale): string {
-  const quoted = idx.map((i) =>
-    locale === 'fr' ? `« ${positions[i].label.fr} »` : `“${positions[i].label.en}”`,
-  );
-  if (quoted.length <= 1) return quoted[0] ?? '';
-  const conj = locale === 'fr' ? ' et ' : ' and ';
-  return quoted.slice(0, -1).join(', ') + conj + quoted[quoted.length - 1];
-}
-
 /** Indices des cartes portant chaque clé (couleur ou motif). */
 function tally<K extends string>(draws: Draw[], keysOf: (c: Card) => K[]): Map<K, number[]> {
   const map = new Map<K, number[]>();
@@ -73,52 +65,43 @@ function tally<K extends string>(draws: Draw[], keysOf: (c: Card) => K[]): Map<K
   return map;
 }
 
-/**
- * Ligne d'écho : les positions (toujours ≥ 2, donc sujet pluriel) « partagent » la
- * glose. Cette tournure évite tout accord fautif avec des gloses au pluriel.
- */
-function linkLine(gloss: Bi, idx: number[], positions: SpreadPosition[]): Bi {
-  return {
-    fr: `${joinLabels(idx, positions, 'fr')} partagent ${gloss.fr}.`,
-    en: `${joinLabels(idx, positions, 'en')} share ${gloss.en}.`,
-  };
-}
-
 /** Jusqu'à deux couleurs partagées entre majeurs (≥ 2 cartes), la plus rare d'abord. */
-function colorLines(draws: Draw[], positions: SpreadPosition[]): Bi[] {
+function colorLines(draws: Draw[]): Raw[] {
   return [...tally(draws, cardColors).entries()]
     .filter(([, idx]) => idx.length >= 2)
     .sort((a, b) => (COLOR_FREQ.get(a[0]) ?? 0) - (COLOR_FREQ.get(b[0]) ?? 0) || b[1].length - a[1].length)
     .slice(0, 2)
-    .map(([color, idx]) => linkLine(COLOR_GLOSS[color], idx, positions));
+    .map(([color, idx]) => ({ text: COLOR_GLOSS[color], refs: idx, join: 'dot' as const }));
 }
 
 /** Jusqu'à deux motifs partagés (≥ 2 cartes, dont un majeur), le plus rare d'abord. */
-function motifLines(draws: Draw[], positions: SpreadPosition[]): Bi[] {
+function motifLines(draws: Draw[]): Raw[] {
   const hasMajor = (idx: number[]) => idx.some((i) => draws[i].card.arcana === 'major');
   return [...tally(draws, cardMotifs).entries()]
     .filter(([, idx]) => idx.length >= 2 && hasMajor(idx))
     .sort((a, b) => (MOTIF_FREQ.get(a[0]) ?? 0) - (MOTIF_FREQ.get(b[0]) ?? 0) || b[1].length - a[1].length)
     .slice(0, 2)
-    .map(([motif, idx]) => linkLine(MOTIF_GLOSS[motif], idx, positions));
+    .map(([motif, idx]) => ({ text: MOTIF_GLOSS[motif], refs: idx, join: 'dot' as const }));
 }
 
 /** Regards accordés entre majeurs : levés ensemble, ou baissés ensemble. */
-function gazeLine(draws: Draw[], positions: SpreadPosition[]): Bi | null {
+function gazeLine(draws: Draw[]): Raw | null {
   const idxWith = (g: Gaze) =>
     draws.map((d, i) => (cardGaze(d.card) === g ? i : -1)).filter((i) => i >= 0);
   const up = idxWith('up');
   if (up.length >= 2) {
     return {
-      fr: `${joinLabels(up, positions, 'fr')} — les regards se lèvent de concert, tournés vers l'invisible.`,
-      en: `${joinLabels(up, positions, 'en')} — the gazes lift together, turned toward the unseen.`,
+      text: { fr: "les regards se lèvent ensemble, tournés vers l'invisible", en: 'the gazes lift together, toward the unseen' },
+      refs: up,
+      join: 'dot',
     };
   }
   const down = idxWith('down');
   if (down.length >= 2) {
     return {
-      fr: `${joinLabels(down, positions, 'fr')} — les regards se baissent, tournés vers le dedans.`,
-      en: `${joinLabels(down, positions, 'en')} — the gazes lower, turned inward.`,
+      text: { fr: 'les regards se baissent, tournés vers le dedans', en: 'the gazes lower, turned inward' },
+      refs: down,
+      join: 'dot',
     };
   }
   return null;
@@ -129,38 +112,42 @@ function gazeLine(draws: Draw[], positions: SpreadPosition[]): Bi | null {
  * gauche → droite) : la figure de gauche tournée à droite + celle de droite
  * tournée à gauche se font face ; l'inverse leur fait tourner le dos.
  */
-function facingLine(draws: Draw[], positions: SpreadPosition[]): Bi | null {
+function facingLine(draws: Draw[]): Raw | null {
   for (let i = 0; i < draws.length - 1; i++) {
     const a = cardFacing(draws[i].card);
     const b = cardFacing(draws[i + 1].card);
-    const pair = [i, i + 1];
     if (a === 'right' && b === 'left') {
       return {
-        fr: `${joinLabels(pair, positions, 'fr')} — les deux figures se font face : leurs regards se croisent.`,
-        en: `${joinLabels(pair, positions, 'en')} — the two figures face each other: their gazes meet.`,
+        text: { fr: 'les deux figures se font face, leurs regards se croisent', en: 'the two figures face each other, their gazes meet' },
+        refs: [i, i + 1],
+        join: 'dot',
       };
     }
     if (a === 'left' && b === 'right') {
       return {
-        fr: `${joinLabels(pair, positions, 'fr')} — les deux figures se tournent le dos, chacune vers son ailleurs.`,
-        en: `${joinLabels(pair, positions, 'en')} — the two figures turn their backs, each toward its own elsewhere.`,
+        text: { fr: 'les deux figures se tournent le dos, chacune vers son ailleurs', en: 'the two figures turn their backs, each toward its own elsewhere' },
+        refs: [i, i + 1],
+        join: 'dot',
       };
     }
   }
   return null;
 }
 
-/** Assemble les échos visuels d'un tirage, dans la langue demandée. */
-export function buildEchoes(draws: Draw[], positions: SpreadPosition[], locale: Locale): string[] {
+/** Assemble les échos visuels d'un tirage en `ReadingLine`, dans la langue demandée. */
+export function buildEchoes(draws: Draw[], positions: SpreadPosition[], locale: Locale): ReadingLine[] {
   if (draws.length < 2) return [];
-  const lines: (Bi | null)[] = [
-    facingLine(draws, positions),
-    ...motifLines(draws, positions),
-    ...colorLines(draws, positions),
-    gazeLine(draws, positions),
+  const raw: (Raw | null)[] = [
+    facingLine(draws),
+    ...motifLines(draws),
+    ...colorLines(draws),
+    gazeLine(draws),
   ];
-  return lines
-    .filter((l): l is Bi => l !== null)
-    .slice(0, MAX_ECHOES)
-    .map((l) => l[locale]);
+  return raw
+    .filter((r): r is Raw => r !== null)
+    .map((r) => ({
+      text: r.text[locale],
+      refs: r.refs.map((i) => positions[i].label[locale]),
+      join: r.join,
+    }));
 }

@@ -2,6 +2,7 @@ import type { Locale } from './i18n';
 import type { Draw } from './deck';
 import type { Card, Suit } from './types';
 import type { SpreadPosition } from '../data/spread';
+import type { ReadingLine } from './reading';
 
 /**
  * Dignités élémentaires (tradition Golden Dawn) : une carte ne se lit jamais
@@ -50,6 +51,12 @@ export function dignity(a: Element, b: Element): Dignity {
 }
 
 type Bi = Record<Locale, string>;
+/** Ligne interne : texte bilingue + positions (indices) à résoudre en fin de course. */
+interface Raw {
+  text: Bi;
+  refs: number[];
+  join: 'dot' | 'arrow';
+}
 
 const ELEMENT_LABEL: Record<Element, Bi> = {
   fire: { fr: 'Feu', en: 'Fire' },
@@ -59,64 +66,66 @@ const ELEMENT_LABEL: Record<Element, Bi> = {
 };
 
 /** Dignité d'une paire adjacente, lue dans le sens du flux (a → b). */
-function pairLine(a: number, b: number, els: Element[], positions: SpreadPosition[]): Bi {
-  const A = positions[a].label;
-  const B = positions[b].label;
+function pairLine(a: number, b: number, els: Element[]): Raw {
   const eA = ELEMENT_LABEL[els[a]];
   const eB = ELEMENT_LABEL[els[b]];
+  const refs = [a, b];
   switch (dignity(els[a], els[b])) {
     case 'same':
       return {
-        fr: `De « ${A.fr} » à « ${B.fr} » — même élément (${eA.fr}) : l'énergie se prolonge, amplifiée.`,
-        en: `From “${A.en}” to “${B.en}” — same element (${eA.en}): the energy carries on, amplified.`,
+        text: { fr: `même élément (${eA.fr}) — l'énergie se prolonge, amplifiée`, en: `same element (${eA.en}) — the energy carries on, amplified` },
+        refs, join: 'arrow',
       };
     case 'friend':
       return {
-        fr: `De « ${A.fr} » à « ${B.fr} » — ${eA.fr} et ${eB.fr} s'accordent : l'un nourrit l'autre, le passage est fluide.`,
-        en: `From “${A.en}” to “${B.en}” — ${eA.en} and ${eB.en} agree: one feeds the other, the passage flows.`,
+        text: { fr: `${eA.fr} et ${eB.fr} s'accordent — le passage est fluide`, en: `${eA.en} and ${eB.en} agree — the passage flows` },
+        refs, join: 'arrow',
       };
     case 'enemy':
       return {
-        fr: `De « ${A.fr} » à « ${B.fr} » — ${eA.fr} et ${eB.fr} se contrarient : le passage force, l'élan se dilue.`,
-        en: `From “${A.en}” to “${B.en}” — ${eA.en} and ${eB.en} clash: the passage strains, momentum thins.`,
+        text: { fr: `${eA.fr} et ${eB.fr} se contrarient — l'élan se dilue`, en: `${eA.en} and ${eB.en} clash — momentum thins` },
+        refs, join: 'arrow',
       };
     default:
       return {
-        fr: `De « ${A.fr} » à « ${B.fr} » — ${eA.fr} et ${eB.fr} coexistent sans se mêler : chacun garde sa voix.`,
-        en: `From “${A.en}” to “${B.en}” — ${eA.en} and ${eB.en} coexist without mixing: each keeps its own voice.`,
+        text: { fr: `${eA.fr} et ${eB.fr} coexistent sans se mêler`, en: `${eA.en} and ${eB.en} coexist without mixing` },
+        refs, join: 'arrow',
       };
   }
 }
 
 /** La carte centrale (l'Action), modifiée par ses deux flancs — cœur du système. */
-function centerLine(els: Element[], positions: SpreadPosition[]): Bi | null {
+function centerLine(els: Element[]): Raw | null {
   if (els.length !== 3) return null;
   const supportive = (d: Dignity) => d === 'same' || d === 'friend';
   const left = dignity(els[1], els[0]);
   const right = dignity(els[1], els[2]);
-  const C = positions[1].label;
   if (supportive(left) && supportive(right)) {
     return {
-      fr: `« ${C.fr} » est soutenue de part et d'autre : le geste épouse la scène.`,
-      en: `“${C.en}” is supported on both sides: the move fits the scene.`,
+      text: { fr: 'soutenue des deux côtés — le geste épouse la scène', en: 'supported on both sides — the move fits the scene' },
+      refs: [1], join: 'dot',
     };
   }
   if (left === 'enemy' && right === 'enemy') {
     return {
-      fr: `« ${C.fr} » est contrariée des deux côtés : le geste va contre le courant.`,
-      en: `“${C.en}” is opposed on both sides: the move runs against the current.`,
+      text: { fr: 'contrariée des deux côtés — le geste va contre le courant', en: 'opposed on both sides — the move runs against the current' },
+      refs: [1], join: 'dot',
     };
   }
   return null;
 }
 
-/** Lignes de dignité d'un tirage (paires adjacentes + carte centrale). */
-export function buildDignities(draws: Draw[], positions: SpreadPosition[], locale: Locale): string[] {
+/** Lignes de dignité d'un tirage (paires adjacentes + carte centrale) en `ReadingLine`. */
+export function buildDignities(draws: Draw[], positions: SpreadPosition[], locale: Locale): ReadingLine[] {
   if (draws.length < 2) return [];
   const els = draws.map((d) => cardElement(d.card));
-  const lines: Bi[] = [];
-  for (let i = 0; i < draws.length - 1; i++) lines.push(pairLine(i, i + 1, els, positions));
-  const center = centerLine(els, positions);
-  if (center) lines.push(center);
-  return lines.map((l) => l[locale]);
+  const raw: Raw[] = [];
+  for (let i = 0; i < draws.length - 1; i++) raw.push(pairLine(i, i + 1, els));
+  const center = centerLine(els);
+  if (center) raw.push(center);
+  return raw.map((r) => ({
+    text: r.text[locale],
+    refs: r.refs.map((i) => positions[i].label[locale]),
+    join: r.join,
+  }));
 }

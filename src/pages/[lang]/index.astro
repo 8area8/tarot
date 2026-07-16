@@ -107,7 +107,7 @@ const base = import.meta.env.BASE_URL;
       <div class="spread-cols" id="spread-cols">
         {Array.from({ length: MAX_SPREAD_COLS }).map((_, i) => (
           <div class="spread-col" data-pos={i}>
-            <p class="spread-pos">
+            <p class="spread-pos" tabindex="-1">
               <span class="spread-pos-label" data-pos-label></span>
               <span class="spread-pos-gloss" data-pos-gloss></span>
             </p>
@@ -122,31 +122,13 @@ const base = import.meta.env.BASE_URL;
               </div>
             </div>
             <p class="meta" data-meta></p>
-            <h3 class="spread-name" data-name tabindex="-1"></h3>
-            <p class="orientation" data-orientation></p>
-            <div class="keywords" data-keywords></div>
-            <p class="meaning" data-meaning></p>
           </div>
         ))}
       </div>
 
-      <div class="spread-synthesis" id="spread-synthesis" hidden>
-        <div class="synth-group" id="echoes-group" hidden>
-          <p class="spread-signals-title">{t(locale, 'spread.echoes')}</p>
-          <ul class="signals" id="echoes"></ul>
-        </div>
-        <div class="synth-group" id="dignities-group" hidden>
-          <p class="spread-signals-title">{t(locale, 'spread.dignities')}</p>
-          <ul class="signals" id="dignities"></ul>
-        </div>
-        <div class="synth-group" id="signals-group" hidden>
-          <p class="spread-signals-title">{t(locale, 'spread.signals')}</p>
-          <ul class="signals" id="signals"></ul>
-        </div>
-        <div class="synth-group" id="quint-group" hidden>
-          <p class="spread-signals-title">{t(locale, 'spread.quintessence')}</p>
-          <ul class="signals" id="quint"></ul>
-        </div>
+      <div class="spread-reading" id="spread-reading" hidden>
+        <p class="reading-thread" id="reading-thread" hidden></p>
+        <ul class="reading-lines" id="reading-lines"></ul>
       </div>
 
       <div class="spread-actions">
@@ -161,10 +143,7 @@ const base = import.meta.env.BASE_URL;
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
   import { answerFor } from '../../lib/oracle';
-  import { buildSignals } from '../../lib/signals';
-  import { buildDignities } from '../../lib/dignities';
-  import { buildEchoes } from '../../lib/echoes';
-  import { quintessence } from '../../lib/quintessence';
+  import { buildReading } from '../../lib/reading';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
@@ -216,15 +195,9 @@ const base = import.meta.env.BASE_URL;
   const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
   const spreadEl = document.querySelector<HTMLElement>('#spread')!;
   const spreadCols = document.querySelector<HTMLElement>('#spread-cols')!;
-  const synthEl = document.querySelector<HTMLElement>('#spread-synthesis')!;
-  const signalsEl = document.querySelector<HTMLElement>('#signals')!;
-  const signalsGroup = document.querySelector<HTMLElement>('#signals-group')!;
-  const dignitiesEl = document.querySelector<HTMLElement>('#dignities')!;
-  const dignitiesGroup = document.querySelector<HTMLElement>('#dignities-group')!;
-  const echoesEl = document.querySelector<HTMLElement>('#echoes')!;
-  const echoesGroup = document.querySelector<HTMLElement>('#echoes-group')!;
-  const quintEl = document.querySelector<HTMLElement>('#quint')!;
-  const quintGroup = document.querySelector<HTMLElement>('#quint-group')!;
+  const readingEl = document.querySelector<HTMLElement>('#spread-reading')!;
+  const readingThread = document.querySelector<HTMLElement>('#reading-thread')!;
+  const readingLines = document.querySelector<HTMLElement>('#reading-lines')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
@@ -547,48 +520,41 @@ const base = import.meta.env.BASE_URL;
     img.classList.toggle('is-reversed', reversed);
 
     fillMeta(col.querySelector<HTMLElement>('[data-meta]')!, card);
-    col.querySelector<HTMLElement>('[data-name]')!.textContent = card.name[locale];
-    const or = col.querySelector<HTMLElement>('[data-orientation]')!;
-    or.textContent = reversed ? T['card.reversed'] : T['card.upright'];
-    or.classList.toggle('is-reversed', reversed);
-    fillKeywords(col.querySelector<HTMLElement>('[data-keywords]')!, card, orientation);
-    col.querySelector<HTMLElement>('[data-meaning]')!.textContent = card.content
-      ? card.content.meaning[orientation][locale]
-      : T['card.noContent'];
   }
 
-  function fillList(el: HTMLElement, items: string[]) {
-    el.replaceChildren();
-    for (const s of items) {
-      const li = document.createElement('li');
-      li.textContent = s;
-      el.appendChild(li);
-    }
-  }
-
-  // Nom + chiffre romain d'un arcane majeur (pour la quintessence).
+  // Nom + chiffre romain d'un arcane majeur (pour le « fil »/quintessence).
   function majorRoman(n: number): string {
     return n > 0 ? ROMAN[n] : '0';
   }
 
-  // Synthèse du spread : dignités (relationnel) + signaux (additif) + quintessence (thème).
-  function renderSynthesis(draws: Draw[], mode: DeckMode, type: SpreadType) {
-    const positions = SPREADS[type];
-    const echoes = buildEchoes(draws, positions, locale);
-    const digs = buildDignities(draws, positions, locale);
-    const sigs = buildSignals(draws, mode, positions, locale);
-    const q = quintessence(draws);
-    const quintItems = q ? [`${q.name[locale]} · ${majorRoman(q.number)}`] : [];
-    fillList(echoesEl, echoes);
-    echoesGroup.hidden = echoes.length === 0;
-    fillList(dignitiesEl, digs);
-    dignitiesGroup.hidden = digs.length === 0;
-    fillList(signalsEl, sigs);
-    signalsGroup.hidden = sigs.length === 0;
-    fillList(quintEl, quintItems);
-    quintGroup.hidden = quintItems.length === 0;
-    synthEl.hidden =
-      echoes.length === 0 && digs.length === 0 && sigs.length === 0 && quintItems.length === 0;
+  // « La lecture » : synthèse unifiée du tirage — le « fil » (quintessence) en tête,
+  // puis des liens courts (substance à gauche, positions en repères à droite).
+  function renderSpreadReading(draws: Draw[], mode: DeckMode, type: SpreadType) {
+    const { theme, lines } = buildReading(draws, mode, type, locale);
+    if (theme) {
+      readingThread.textContent = `${T['spread.thread']} · ${theme.name} · ${majorRoman(theme.number)}`;
+      readingThread.hidden = false;
+    } else {
+      readingThread.hidden = true;
+    }
+    readingLines.replaceChildren(
+      ...lines.map((l) => {
+        const li = document.createElement('li');
+        li.className = 'reading-line';
+        const text = document.createElement('span');
+        text.className = 'reading-text';
+        text.textContent = l.text;
+        li.append(text);
+        if (l.refs.length) {
+          const refs = document.createElement('span');
+          refs.className = 'reading-refs';
+          refs.textContent = l.refs.join(l.join === 'arrow' ? ' → ' : ' · ');
+          li.append(refs);
+        }
+        return li;
+      }),
+    );
+    readingEl.hidden = !theme && lines.length === 0;
   }
 
   // Reflète le spread dans l'URL : #spread=<id>[.r],<id>[.r],<id>[.r]
@@ -616,7 +582,7 @@ const base = import.meta.env.BASE_URL;
       col.hidden = false;
       fillSpreadColumn(col, draws[i], positions[i]);
     });
-    renderSynthesis(draws, mode, type);
+    renderSpreadReading(draws, mode, type);
     result.hidden = true;
     spreadEl.hidden = false;
     cols.slice(0, draws.length).forEach((col, i) => {
@@ -648,7 +614,7 @@ const base = import.meta.env.BASE_URL;
     const reveal = () => {
       paintSpread(draws, mode, type, true);
       finishDraw();
-      cols[0]?.querySelector<HTMLElement>('[data-name]')?.focus({ preventScroll: true });
+      cols[0]?.querySelector<HTMLElement>('.spread-pos')?.focus({ preventScroll: true });
     };
 
     if (!reduceMotion && wasFlipped) {
@@ -761,21 +727,19 @@ const base = import.meta.env.BASE_URL;
       return `${pos.label[locale]} — ${d.card.name[locale]} (${orient})\n${meaning}`;
     });
     let text = blocks.join('\n\n');
-    const echoes = buildEchoes(currentSpread, positions, locale);
-    if (echoes.length) {
-      text += `\n\n${T['spread.echoes']} :\n` + echoes.map((s) => `- ${s}`).join('\n');
+    const { theme, lines } = buildReading(currentSpread, currentSpreadMode, currentSpreadType, locale);
+    if (theme) {
+      text += `\n\n${T['spread.thread']} : ${theme.name} · ${majorRoman(theme.number)}`;
     }
-    const dignities = buildDignities(currentSpread, positions, locale);
-    if (dignities.length) {
-      text += `\n\n${T['spread.dignities']} :\n` + dignities.map((s) => `- ${s}`).join('\n');
-    }
-    const signals = buildSignals(currentSpread, currentSpreadMode, positions, locale);
-    if (signals.length) {
-      text += `\n\n${T['spread.signals']} :\n` + signals.map((s) => `- ${s}`).join('\n');
-    }
-    const q = quintessence(currentSpread);
-    if (q) {
-      text += `\n\n${T['spread.quintessence']} : ${q.name[locale]} · ${majorRoman(q.number)}`;
+    if (lines.length) {
+      text +=
+        `\n\n${T['spread.reading']} :\n` +
+        lines
+          .map((l) => {
+            const refs = l.refs.length ? ` (${l.refs.join(l.join === 'arrow' ? ' → ' : ' · ')})` : '';
+            return `- ${l.text}${refs}`;
+          })
+          .join('\n');
     }
     try {
       await navigator.clipboard.writeText(text);
@@ -1699,40 +1663,56 @@ const base = import.meta.env.BASE_URL;
     line-height: 1.65;
   }
   /* Synthèse : dignités (relationnel) + signaux (additif), sous les trois cartes. */
-  .spread-synthesis {
-    max-width: 44rem;
+  .spread-reading {
+    max-width: 38rem;
     margin: 0 auto;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .spread-reading[hidden] {
+    display: none;
+  }
+  .reading-title {
+    margin: 0;
     text-align: center;
-    display: grid;
-    gap: 1.5rem;
-  }
-  .spread-synthesis[hidden] {
-    display: none;
-  }
-  .synth-group {
-    display: grid;
-    gap: 0.6rem;
-  }
-  .synth-group[hidden] {
-    display: none;
-  }
-  .spread-signals-title {
-    margin: 0 0 0.6rem;
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     color: var(--accent);
   }
-  .signals {
+  .reading-thread {
+    margin: 0;
+    padding-bottom: 0.9rem;
+    text-align: center;
+    font-size: 1.08rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+  }
+  .reading-thread[hidden] {
+    display: none;
+  }
+  .reading-lines {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0.45rem;
+    gap: 0.7rem;
   }
-  .signals li {
+  .reading-line {
+    line-height: 1.55;
     color: var(--text);
-    line-height: 1.6;
+  }
+  .reading-text {
+    display: block;
+  }
+  .reading-refs {
+    display: block;
+    margin-top: 0.15rem;
+    text-align: right;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
   }
   .spread-actions {
     display: flex;
