@@ -126,6 +126,7 @@ export function buildDignities(draws: Draw[], positions: SpreadPosition[], local
   return raw.map((r) => ({
     text: r.text[locale],
     refs: r.refs.map((i) => positions[i].label[locale]),
+    keys: r.refs,
     join: r.join,
   }));
 }

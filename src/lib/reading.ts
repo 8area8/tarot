@@ -21,6 +21,8 @@ export interface ReadingLine {
   text: string;
   /** Les positions concernées (libellés localisés), rendues en petits repères. */
   refs: string[];
+  /** Les mêmes positions en indices — sert au survol croisé carte ↔ lecture. */
+  keys: number[];
   /** Comment relier les repères : simple lien (·) ou flux dirigé (→). */
   join: 'dot' | 'arrow';
 }

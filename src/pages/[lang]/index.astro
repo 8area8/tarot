@@ -527,6 +527,38 @@ const base = import.meta.env.BASE_URL;
     return n > 0 ? ROMAN[n] : '0';
   }
 
+  // Survol croisé cartes ↔ lecture : mettre en lumière les liens/cartes reliés,
+  // atténuer le reste (transition gérée en CSS, coupée sous prefers-reduced-motion).
+  const spreadColList = () => [...spreadCols.querySelectorAll<HTMLElement>('.spread-col')];
+
+  function clearCrossFocus() {
+    for (const c of spreadColList()) c.classList.remove('is-active', 'is-dim');
+    for (const l of readingLines.children) l.classList.remove('is-active', 'is-dim');
+  }
+  // Survol d'une carte → les liens qui la citent brillent, les autres s'atténuent.
+  function focusLinesOfCard(pos: number) {
+    for (const l of [...readingLines.children] as HTMLElement[]) {
+      const keys = (l.dataset.refs ?? '').split(' ').filter(Boolean).map(Number);
+      const active = keys.includes(pos);
+      l.classList.toggle('is-active', active);
+      l.classList.toggle('is-dim', !active);
+    }
+  }
+  // Survol d'un lien → les cartes citées brillent (toutes si lien global), les autres s'atténuent.
+  function focusCardsOfLine(keys: number[]) {
+    const all = keys.length === 0;
+    for (const c of spreadColList()) {
+      if (c.hidden) continue;
+      const active = all || keys.includes(Number(c.dataset.pos));
+      c.classList.toggle('is-active', active);
+      c.classList.toggle('is-dim', !active);
+    }
+  }
+  for (const c of spreadColList()) {
+    c.addEventListener('mouseenter', () => focusLinesOfCard(Number(c.dataset.pos)));
+    c.addEventListener('mouseleave', clearCrossFocus);
+  }
+
   // « La lecture » : synthèse unifiée du tirage — le « fil » (quintessence) en tête,
   // puis des liens courts (substance à gauche, positions en repères à droite).
   function renderSpreadReading(draws: Draw[], mode: DeckMode, type: SpreadType) {
@@ -541,6 +573,9 @@ const base = import.meta.env.BASE_URL;
       ...lines.map((l) => {
         const li = document.createElement('li');
         li.className = 'reading-line';
+        li.dataset.refs = l.keys.join(' ');
+        li.addEventListener('mouseenter', () => focusCardsOfLine(l.keys));
+        li.addEventListener('mouseleave', clearCrossFocus);
         const text = document.createElement('span');
         text.className = 'reading-text';
         text.textContent = l.text;
@@ -1698,14 +1733,16 @@ const base = import.meta.env.BASE_URL;
     display: grid;
     gap: 0.7rem;
   }
-  .reading-line {
+  /* Lignes de lecture : créées en JS → styles en :global (le scope ne les touche pas). */
+  :global(.reading-line) {
     line-height: 1.55;
     color: var(--text);
+    transition: opacity 0.25s ease;
   }
-  .reading-text {
+  :global(.reading-text) {
     display: block;
   }
-  .reading-refs {
+  :global(.reading-refs) {
     display: block;
     margin-top: 0.15rem;
     text-align: right;
@@ -1713,6 +1750,38 @@ const base = import.meta.env.BASE_URL;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--muted);
+  }
+
+  /* Survol croisé : les liens/cartes reliés brillent, le reste s'atténue. */
+  :global(.reading-line.is-dim) {
+    opacity: 0.3;
+  }
+  :global(.reading-line.is-active) {
+    text-shadow: 0 0 12px rgba(201, 164, 76, 0.25);
+  }
+  :global(.reading-line.is-active .reading-refs) {
+    color: var(--accent);
+  }
+  .spread-col {
+    transition: opacity 0.25s ease;
+  }
+  .spread-col .card-slot {
+    transition: box-shadow 0.25s ease;
+    border-radius: 8px;
+  }
+  .spread-col.is-dim {
+    opacity: 0.3;
+  }
+  .spread-col.is-active .card-slot,
+  .spread-col:hover .card-slot {
+    box-shadow: 0 0 0 1px var(--accent), 0 0 22px rgba(201, 164, 76, 0.38);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.reading-line),
+    .spread-col,
+    .spread-col .card-slot {
+      transition: none;
+    }
   }
   .spread-actions {
     display: flex;

@@ -148,6 +148,7 @@ export function buildEchoes(draws: Draw[], positions: SpreadPosition[], locale: 
     .map((r) => ({
       text: r.text[locale],
       refs: r.refs.map((i) => positions[i].label[locale]),
+      keys: r.refs,
       join: r.join,
     }));
 }
