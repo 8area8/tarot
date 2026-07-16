@@ -4,7 +4,7 @@ import type { SpreadPosition } from '../data/spread';
 import type { Card } from './types';
 import type { ReadingLine } from './reading';
 import {
-  MOTIFS, SUIT_MOTIF, COLOR_GLOSS, MOTIF_GLOSS,
+  MOTIFS, MINOR_MOTIFS, COLOR_GLOSS, MOTIF_GLOSS,
   type Color, type Motif, type Gaze, type Facing,
 } from '../data/motifs';
 
@@ -27,29 +27,32 @@ interface Raw {
 }
 
 /**
- * Rareté globale d'une couleur / d'un motif dans les 22 majeurs : plus une clé est
+ * Rareté globale d'une couleur / d'un motif sur les 78 cartes : plus une clé est
  * rare, plus l'écho qu'elle crée est frappant. On s'en sert pour faire remonter un
  * pourpre partagé (rare) avant un jaune partagé (fond banal). Calculé une fois.
  */
 const COLOR_FREQ = new Map<Color, number>();
 const MOTIF_FREQ = new Map<Motif, number>();
-for (const m of Object.values(MOTIFS)) {
+for (const m of [...Object.values(MOTIFS), ...Object.values(MINOR_MOTIFS)]) {
   for (const c of m.colors) COLOR_FREQ.set(c, (COLOR_FREQ.get(c) ?? 0) + 1);
   for (const k of m.motifs) MOTIF_FREQ.set(k, (MOTIF_FREQ.get(k) ?? 0) + 1);
 }
 
+/** Tags de la carte : table des majeurs (par numéro) ou des mineurs (par id). */
+function cardData(card: Card) {
+  return card.arcana === 'major' ? MOTIFS[card.number] : MINOR_MOTIFS[card.id];
+}
 function cardColors(card: Card): Color[] {
-  return card.arcana === 'major' ? MOTIFS[card.number]?.colors ?? [] : [];
+  return cardData(card)?.colors ?? [];
 }
 function cardMotifs(card: Card): Motif[] {
-  if (card.arcana === 'major') return MOTIFS[card.number]?.motifs ?? [];
-  return card.suit ? [SUIT_MOTIF[card.suit]] : [];
+  return cardData(card)?.motifs ?? [];
 }
 function cardGaze(card: Card): Gaze {
-  return card.arcana === 'major' ? MOTIFS[card.number]?.gaze ?? null : null;
+  return cardData(card)?.gaze ?? null;
 }
 function cardFacing(card: Card): Facing {
-  return card.arcana === 'major' ? MOTIFS[card.number]?.facing ?? null : null;
+  return cardData(card)?.facing ?? null;
 }
 
 /** Indices des cartes portant chaque clé (couleur ou motif). */
@@ -65,7 +68,7 @@ function tally<K extends string>(draws: Draw[], keysOf: (c: Card) => K[]): Map<K
   return map;
 }
 
-/** Jusqu'à deux couleurs partagées entre majeurs (≥ 2 cartes), la plus rare d'abord. */
+/** Jusqu'à deux couleurs partagées (≥ 2 cartes), la plus rare d'abord. */
 function colorLines(draws: Draw[]): Raw[] {
   return [...tally(draws, cardColors).entries()]
     .filter(([, idx]) => idx.length >= 2)
@@ -74,17 +77,16 @@ function colorLines(draws: Draw[]): Raw[] {
     .map(([color, idx]) => ({ text: COLOR_GLOSS[color], refs: idx, join: 'dot' as const }));
 }
 
-/** Jusqu'à deux motifs partagés (≥ 2 cartes, dont un majeur), le plus rare d'abord. */
+/** Jusqu'à deux motifs de scène partagés (≥ 2 cartes), le plus rare d'abord. */
 function motifLines(draws: Draw[]): Raw[] {
-  const hasMajor = (idx: number[]) => idx.some((i) => draws[i].card.arcana === 'major');
   return [...tally(draws, cardMotifs).entries()]
-    .filter(([, idx]) => idx.length >= 2 && hasMajor(idx))
+    .filter(([, idx]) => idx.length >= 2)
     .sort((a, b) => (MOTIF_FREQ.get(a[0]) ?? 0) - (MOTIF_FREQ.get(b[0]) ?? 0) || b[1].length - a[1].length)
     .slice(0, 2)
     .map(([motif, idx]) => ({ text: MOTIF_GLOSS[motif], refs: idx, join: 'dot' as const }));
 }
 
-/** Regards accordés entre majeurs : levés ensemble, ou baissés ensemble. */
+/** Regards accordés : levés ensemble, ou baissés ensemble. */
 function gazeLine(draws: Draw[]): Raw | null {
   const idxWith = (g: Gaze) =>
     draws.map((d, i) => (cardGaze(d.card) === g ? i : -1)).filter((i) => i >= 0);
