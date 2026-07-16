@@ -51,6 +51,7 @@ const base = import.meta.env.BASE_URL;
       </div>
     </form>
 
+    <button type="button" class="btn-back" id="btn-back-spread" hidden>{t(locale, 'spread.back')}</button>
     <div class="result">
       <div class="card-slot">
         <div class="flip" id="flip">
@@ -93,6 +94,16 @@ const base = import.meta.env.BASE_URL;
       </article>
 
       <div class="reading-full" id="reading-full" hidden>
+        <div class="cycle" id="cycle" hidden>
+          <p class="cycle-title" id="cycle-suit"></p>
+          <ol class="cycle-track" id="cycle-track"></ol>
+          <div class="cycle-nav">
+            <button type="button" class="cycle-arrow" id="cycle-prev" aria-label={t(locale, 'cycle.prev')}>◄</button>
+            <p class="cycle-step" id="cycle-step"></p>
+            <button type="button" class="cycle-arrow" id="cycle-next" aria-label={t(locale, 'cycle.next')}>►</button>
+          </div>
+          <p class="cycle-text" id="cycle-text"></p>
+        </div>
         <div class="symbolism" id="symbolism" hidden>
           <p class="study-title">{t(locale, 'study.image')}</p>
           <div class="bricks" id="sym-bricks"></div>
@@ -111,7 +122,7 @@ const base = import.meta.env.BASE_URL;
               <span class="spread-pos-label" data-pos-label></span>
               <span class="spread-pos-gloss" data-pos-gloss></span>
             </p>
-            <div class="card-slot small">
+            <div class="card-slot small" data-card-open role="button" tabindex="0">
               <div class="flip" data-flip>
                 <div class="face face-back">
                   <img src={`${base}cards/back.svg`} alt="" width="300" height="524" />
@@ -146,10 +157,11 @@ const base = import.meta.env.BASE_URL;
   import { buildReading } from '../../lib/reading';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
+  import { MINOR_CYCLE } from '../../data/minor-cycle';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREADS, type SpreadType } from '../../data/spread';
   import { pushHistory, type SpreadKind } from '../../lib/history';
-  import type { Card, Orientation } from '../../lib/types';
+  import type { Card, Orientation, Suit } from '../../lib/types';
 
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
@@ -199,6 +211,14 @@ const base = import.meta.env.BASE_URL;
   const readingThread = document.querySelector<HTMLElement>('#reading-thread')!;
   const readingLines = document.querySelector<HTMLElement>('#reading-lines')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
+  const backBtn = document.querySelector<HTMLButtonElement>('#btn-back-spread')!;
+  const cycleEl = document.querySelector<HTMLElement>('#cycle')!;
+  const cycleSuit = document.querySelector<HTMLElement>('#cycle-suit')!;
+  const cycleTrack = document.querySelector<HTMLElement>('#cycle-track')!;
+  const cycleStep = document.querySelector<HTMLElement>('#cycle-step')!;
+  const cycleText = document.querySelector<HTMLElement>('#cycle-text')!;
+  const cyclePrev = document.querySelector<HTMLButtonElement>('#cycle-prev')!;
+  const cycleNext = document.querySelector<HTMLButtonElement>('#cycle-next')!;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
@@ -220,6 +240,8 @@ const base = import.meta.env.BASE_URL;
   let currentSpread: Draw[] | null = null;
   let currentSpreadMode: DeckMode = 'major'; // mode de jeu (pour les signaux des majeurs)
   let currentSpreadType: SpreadType = 'three'; // positions actives (deux / trois)
+  // Tirage à restaurer quand on revient du détail d'une carte cliquée.
+  let returnSpread: { draws: Draw[]; mode: DeckMode; type: SpreadType } | null = null;
   let hasDrawn = false; // au moins un tirage effectué (fige le libellé du bouton sur « Nouveau tirage »)
 
   const getSpreadMode = (): 'single' | SpreadType | 'yesno' => {
@@ -278,10 +300,13 @@ const base = import.meta.env.BASE_URL;
     if (card.arcana === 'minor') {
       const suit = card.suit!;
       const el = ELEMENTS[suit];
-      const rank = card.number <= 10 ? NUMBERS[card.number] : COURT[card.number];
-      const rankKey = card.number <= 10 ? String(card.number) : '';
       bricksEl.appendChild(makeBrick(el.glyph, el.label[locale], el.gloss[locale], el.text[locale]));
-      bricksEl.appendChild(makeBrick(rankKey, rank.label[locale], rank.gloss[locale], rank.text[locale]));
+      // Pips (As→10) : le nombre est déjà porté par le « cycle » au-dessus — pas de
+      // doublon. Les figures de cour (11→14) gardent leur brique dédiée.
+      if (card.number > 10) {
+        const rank = COURT[card.number];
+        bricksEl.appendChild(makeBrick('', rank.label[locale], rank.gloss[locale], rank.text[locale]));
+      }
       return true;
     }
     if (card.number === 0) {
@@ -409,7 +434,47 @@ const base = import.meta.env.BASE_URL;
     verdictWhy.textContent = entry ? entry.why[locale] : '';
   }
 
+  // Cycle numérologique d'une enseigne : parcourir les pips As→10 d'une même
+  // enseigne, en lisant la numérologie du nombre (NUMBERS) à chaque pas.
+  function goCycle(suit: Suit, num: number, orientation: Orientation) {
+    const card = cards.find((c) => c.suit === suit && c.number === num);
+    if (card) renderReading(card, orientation);
+  }
+  function updateCycle(card: Card, orientation: Orientation) {
+    const isPip = card.arcana === 'minor' && card.suit !== null && card.number >= 1 && card.number <= 10;
+    cycleEl.hidden = !isPip;
+    if (!isPip || !card.suit) return;
+    const suit = card.suit;
+    const n = card.number;
+    cycleSuit.textContent = `${T['cycle.title']} ${SUIT_NAMES[suit][locale]}`;
+    cycleTrack.replaceChildren(
+      ...Array.from({ length: 10 }, (_, i) => {
+        const num = i + 1;
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cycle-dot';
+        b.textContent = String(num);
+        b.classList.toggle('is-current', num === n);
+        const target = cards.find((c) => c.suit === suit && c.number === num);
+        if (target) b.setAttribute('aria-label', target.name[locale]);
+        b.addEventListener('click', () => goCycle(suit, num, orientation));
+        li.append(b);
+        return li;
+      }),
+    );
+    const info = NUMBERS[n];
+    cycleStep.textContent = `${info.label[locale]} · ${info.gloss[locale]}`;
+    // Texte de progression propre à la carte (naissance depuis la précédente + écho
+    // numérologique) ; repli sur le sens générique du nombre si absent.
+    cycleText.textContent = (MINOR_CYCLE[card.id] ?? info.text)[locale];
+    cyclePrev.disabled = n <= 1;
+    cycleNext.disabled = n >= 10;
+  }
+
   function renderReading(card: Card, orientation: Orientation) {
+    current = card;
+    view = orientation;
     const reversed = orientation === 'reversed';
     cardImg.src = `${BASE}cards/${card.image}`;
     cardImg.alt = card.name[locale];
@@ -435,6 +500,7 @@ const base = import.meta.env.BASE_URL;
 
     updateSymbolism(card);
     updateFormula(card);
+    updateCycle(card, orientation);
 
     verdict.hidden = !askMode;
     if (askMode) renderVerdict(card, orientation);
@@ -474,6 +540,8 @@ const base = import.meta.env.BASE_URL;
   }
 
   async function doSingle(mode: DeckMode, allowReversed: boolean) {
+    returnSpread = null;
+    backBtn.hidden = true;
     const draw = drawCard(mode, allowReversed);
     current = draw.card;
     view = draw.orientation;
@@ -520,6 +588,7 @@ const base = import.meta.env.BASE_URL;
     img.classList.toggle('is-reversed', reversed);
 
     fillMeta(col.querySelector<HTMLElement>('[data-meta]')!, card);
+    col.querySelector<HTMLElement>('[data-card-open]')?.setAttribute('aria-label', card.name[locale]);
   }
 
   // Nom + chiffre romain d'un arcane majeur (pour le « fil »/quintessence).
@@ -554,10 +623,44 @@ const base = import.meta.env.BASE_URL;
       c.classList.toggle('is-dim', !active);
     }
   }
+  // Clic (ou Entrée / Espace) sur une carte du tirage → sa vue détail, avec possibilité
+  // de revenir au tirage exact via le bouton « Retour au tirage ».
+  function openCardDetail(pos: number) {
+    const draw = currentSpread?.[pos];
+    if (!draw) return;
+    returnSpread = { draws: currentSpread!, mode: currentSpreadMode, type: currentSpreadType };
+    spreadEl.hidden = true;
+    result.hidden = false;
+    flip.classList.add('is-flipped');
+    renderReading(draw.card, draw.orientation);
+    backBtn.hidden = false;
+    nameEl.focus();
+  }
+
   for (const c of spreadColList()) {
     c.addEventListener('mouseenter', () => focusLinesOfCard(Number(c.dataset.pos)));
     c.addEventListener('mouseleave', clearCrossFocus);
+    const slot = c.querySelector<HTMLElement>('[data-card-open]');
+    const open = () => openCardDetail(Number(c.dataset.pos));
+    slot?.addEventListener('click', open);
+    slot?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        open();
+      }
+    });
   }
+  backBtn.addEventListener('click', () => {
+    if (!returnSpread) return;
+    backBtn.hidden = true;
+    paintSpread(returnSpread.draws, returnSpread.mode, returnSpread.type, false);
+  });
+  cyclePrev.addEventListener('click', () => {
+    if (current?.suit && current.number > 1) goCycle(current.suit, current.number - 1, view);
+  });
+  cycleNext.addEventListener('click', () => {
+    if (current?.suit && current.number < 10) goCycle(current.suit, current.number + 1, view);
+  });
 
   // « La lecture » : synthèse unifiée du tirage — le « fil » (quintessence) en tête,
   // puis des liens courts (substance à gauche, positions en repères à droite).
@@ -1172,6 +1275,35 @@ const base = import.meta.env.BASE_URL;
   .result[hidden] {
     display: none;
   }
+  /* Retour au tirage : pastille dorée nette, en haut de la vue détail. */
+  .btn-back {
+    display: block;
+    width: fit-content;
+    margin: 0 0 0.9rem;
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: rgba(201, 164, 76, 0.14);
+    color: var(--accent);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .btn-back:hover {
+    background: rgba(201, 164, 76, 0.24);
+  }
+  .btn-back:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-back[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-back {
+      transition: none;
+    }
+  }
   .card-slot {
     grid-area: card;
     perspective: 1400px;
@@ -1768,6 +1900,104 @@ const base = import.meta.env.BASE_URL;
   .spread-col .card-slot {
     transition: box-shadow 0.25s ease;
     border-radius: 8px;
+  }
+  .spread-col [data-card-open] {
+    cursor: pointer;
+  }
+  .spread-col [data-card-open]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* Cycle numérologique d'une enseigne (vue détail d'une mineure). */
+  .cycle {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .cycle[hidden] {
+    display: none;
+  }
+  .cycle-title {
+    margin: 0;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+  }
+  .cycle-track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  :global(.cycle-dot) {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  :global(.cycle-dot:hover) {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  :global(.cycle-dot:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  :global(.cycle-dot.is-current) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1222;
+    font-weight: 600;
+  }
+  .cycle-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .cycle-arrow {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+  }
+  .cycle-arrow:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+  .cycle-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .cycle-step {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+  .cycle-text {
+    margin: 0;
+    max-width: 34rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.cycle-dot),
+    .cycle-arrow {
+      transition: none;
+    }
   }
   .spread-col.is-dim {
     opacity: 0.3;
