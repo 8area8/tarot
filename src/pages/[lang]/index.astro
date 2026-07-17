@@ -85,6 +85,18 @@ const base = import.meta.env.BASE_URL;
       </article>
 
       <div class="reading-full" id="reading-full" hidden>
+        <div class="symbolism" id="symbolism" hidden>
+          <div class="sym-head">
+            <p class="study-title">{t(locale, 'study.image')}</p>
+            <div class="sym-nav" id="sym-nav" hidden>
+              <button type="button" class="cycle-arrow" id="sym-prev" aria-label={t(locale, 'sym.prev')}>◄</button>
+              <button type="button" class="cycle-arrow" id="sym-next" aria-label={t(locale, 'sym.next')}>►</button>
+            </div>
+          </div>
+          <div class="sym-viewport">
+            <div class="bricks" id="sym-bricks"></div>
+          </div>
+        </div>
         <div class="cycle" id="cycle" hidden>
           <p class="cycle-title" id="cycle-suit"></p>
           <ol class="cycle-track" id="cycle-track"></ol>
@@ -94,10 +106,6 @@ const base = import.meta.env.BASE_URL;
             <button type="button" class="cycle-arrow" id="cycle-next" aria-label={t(locale, 'cycle.next')}>►</button>
           </div>
           <p class="cycle-text" id="cycle-text"></p>
-        </div>
-        <div class="symbolism" id="symbolism" hidden>
-          <p class="study-title">{t(locale, 'study.image')}</p>
-          <div class="bricks" id="sym-bricks"></div>
         </div>
         <div class="study" id="study" hidden>
           <div class="bricks" id="bricks"></div>
@@ -168,8 +176,9 @@ const base = import.meta.env.BASE_URL;
   const T = ui[locale];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Desktop : la symbolique s'affiche dépliée (voir syncSymbolismDisclosure).
-  const wideMq = window.matchMedia('(min-width: 46rem)');
+  // Seuils du carrousel de symbolique (nombre de colonnes visibles par page).
+  const symMedMq = window.matchMedia('(min-width: 40rem)');
+  const symWideMq = window.matchMedia('(min-width: 62rem)');
   const FLIP_MS = 430;
 
   const cardById = new Map(cards.map((c) => [c.id, c]));
@@ -196,6 +205,9 @@ const base = import.meta.env.BASE_URL;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
+  const symNav = document.querySelector<HTMLElement>('#sym-nav')!;
+  const symPrev = document.querySelector<HTMLButtonElement>('#sym-prev')!;
+  const symNext = document.querySelector<HTMLButtonElement>('#sym-next')!;
   const regionLayer = document.querySelector<SVGSVGElement>('#region-layer')!;
   const SVGNS = 'http://www.w3.org/2000/svg';
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
@@ -301,22 +313,65 @@ const base = import.meta.env.BASE_URL;
     return false;
   }
 
-  // « L'image » : liste TOUS les symboles repérables de l'illustration RWS (affichage
-  // « ancienne façon », tout visible sous la carte). Chaque brique porte son index
-  // (`data-idx`) pour le survol croisé avec l'épingle correspondante.
+  // « L'image » : liste TOUS les symboles repérables de l'illustration RWS, présentés
+  // en CARROUSEL (une rangée, N colonnes visibles, flèches pour paginer de N en N).
+  // Chaque brique porte son index (`data-idx`) pour le survol croisé avec sa région.
   function fillSymbols(card: Card): boolean {
     const syms = SYMBOLS[card.id];
-    if (!syms || !syms.length) return false;
+    if (!syms || !syms.length) {
+      symCount = 0;
+      return false;
+    }
     symBricksEl.replaceChildren();
     syms.forEach((s, i) => {
-      const brick = makeBrick('', s.label[locale], '', s.text[locale], true);
+      const brick = makeBrick('', s.label[locale], '', s.text[locale]);
       brick.dataset.idx = String(i);
-      brick.addEventListener('mouseenter', () => setActive(i));
-      brick.addEventListener('mouseleave', () => setActive(focused));
+      brick.addEventListener('mouseenter', () => hoverRegion(i));
+      brick.addEventListener('mouseleave', () => unhoverRegion());
+      // Clic sur la brique → focalise sa région (assombrit le reste), si elle en a
+      // une. `stopPropagation` évite que le clic « hors calque » ne relâche aussitôt.
+      brick.addEventListener('click', (e) => {
+        if (!regionData.some((r) => r.ref === i)) return;
+        e.stopPropagation();
+        setFocus(focused === i ? -1 : i);
+      });
       symBricksEl.appendChild(brick);
     });
+    symCount = syms.length;
+    symPage = 0;
+    renderSymCarousel();
     return true;
   }
+
+  // ---- Carrousel de symbolique ----
+  let symPage = 0; // page courante (0-indexée)
+  let symCount = 0; // nombre de symboles de la carte courante
+  const symPageSize = () => (symWideMq.matches ? 3 : symMedMq.matches ? 2 : 1);
+  const symPages = () => Math.max(1, Math.ceil(symCount / symPageSize()));
+
+  // Cale la piste : largeur des briques (1/N du viewport via --sym-page-size),
+  // translation de la page, visibilité et état des flèches.
+  function renderSymCarousel() {
+    const size = symPageSize();
+    const pages = symPages();
+    symPage = Math.min(Math.max(symPage, 0), pages - 1);
+    symBricksEl.style.setProperty('--sym-page-size', String(size));
+    symBricksEl.style.transform = `translateX(calc(${-symPage} * (100% + var(--sym-gap))))`;
+    symNav.hidden = symCount <= size;
+    symPrev.disabled = symPage <= 0;
+    symNext.disabled = symPage >= pages - 1;
+  }
+  symPrev.addEventListener('click', () => {
+    symPage -= 1;
+    renderSymCarousel();
+  });
+  symNext.addEventListener('click', () => {
+    symPage += 1;
+    renderSymCarousel();
+  });
+  // Changement de palier (nb de colonnes) → on reclampe la page et on recadre.
+  symMedMq.addEventListener('change', renderSymCarousel);
+  symWideMq.addEventListener('change', renderSymCarousel);
 
   // Région (symbole) actuellement « ouverte » — celle dont le clic assombrit le reste.
   let focused = -1; // ref du symbole focalisé (-1 = aucun)
@@ -332,7 +387,7 @@ const base = import.meta.env.BASE_URL;
     [...regionLayer.querySelectorAll<SVGPolygonElement>('.region-shape')];
 
   // Survol croisé région ↔ brique (par `data-idx` = index du symbole) : met en
-  // lumière la paire liée (toutes les formes d'une même région), sans assombrir.
+  // lumière la paire liée (toutes les formes d'une même région).
   function setActive(idx: number) {
     for (const el of regionShapes()) el.classList.toggle('is-active', el.dataset.idx === String(idx));
     for (const el of symBricksEl.children as HTMLCollectionOf<HTMLElement>) {
@@ -340,16 +395,13 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  // Focalise une région : ses objets restent éclairés, le reste de l'image
-  // s'assombrit (trou du masque = toutes ses formes), la brique se surligne et
-  // défile en vue. -1 = relâche.
-  function setFocus(ref: number) {
-    focused = ref;
-    regionLayer.classList.toggle('has-focus', ref >= 0);
-    for (const el of regionShapes()) el.classList.toggle('is-focused', el.dataset.idx === String(ref));
+  // Assombrit le reste de l'image en épargnant les formes de la région `ref`
+  // (trou du masque). `ref < 0` (ou région inconnue) → aucun assombrissement.
+  function paintDim(ref: number) {
+    const region = ref >= 0 ? regionData.find((r) => r.ref === ref) : undefined;
+    regionLayer.classList.toggle('has-focus', !!region);
     const holeG = regionLayer.querySelector('#region-dim-hole-g');
     if (holeG) {
-      const region = regionData.find((r) => r.ref === ref);
       holeG.replaceChildren(
         ...(region?.shapes ?? []).map((shape) => {
           const p = svgEl('polygon');
@@ -359,12 +411,34 @@ const base = import.meta.env.BASE_URL;
         }),
       );
     }
+  }
+
+  // Aperçu au survol : surligne la région et — tant qu'aucune sélection n'est
+  // verrouillée — assombrit le reste comme une sélection. Ne touche pas `focused`.
+  function hoverRegion(idx: number) {
+    setActive(idx);
+    if (focused < 0) paintDim(idx);
+  }
+  function unhoverRegion() {
+    setActive(focused);
+    if (focused < 0) paintDim(-1);
+  }
+
+  // Focalise (verrouille) une région : ses objets restent éclairés, le reste
+  // s'assombrit, la brique se surligne et défile en vue. -1 = relâche.
+  function setFocus(ref: number) {
+    focused = ref;
+    paintDim(ref);
+    for (const el of regionShapes()) el.classList.toggle('is-focused', el.dataset.idx === String(ref));
     if (ref >= 0) {
       setActive(ref);
+      // Amène la page du carrousel qui contient la brique (data-idx === ref) puis
+      // fait défiler la section en vue verticalement.
       const brick = symBricksEl.querySelector<HTMLElement>(`[data-idx="${ref}"]`);
       if (brick) {
-        if (brick instanceof HTMLDetailsElement) brick.open = true;
-        brick.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+        symPage = Math.floor(ref / symPageSize());
+        renderSymCarousel();
+        symbolismEl.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
       }
     } else {
       setActive(-1);
@@ -423,6 +497,8 @@ const base = import.meta.env.BASE_URL;
     for (const rg of regions) {
       const s = syms[rg.ref];
       if (!s) continue;
+      // Signale la brique correspondante comme cliquable (curseur + focalisation).
+      symBricksEl.querySelector(`[data-idx="${rg.ref}"]`)?.classList.add('is-linked');
       const toggle = () => setFocus(focused === rg.ref ? -1 : rg.ref);
       for (const shape of rg.shapes) {
         const poly = svgEl('polygon') as SVGPolygonElement;
@@ -432,8 +508,8 @@ const base = import.meta.env.BASE_URL;
         poly.setAttribute('tabindex', '0');
         poly.setAttribute('role', 'button');
         poly.setAttribute('aria-label', s.label[locale]);
-        poly.addEventListener('mouseenter', () => setActive(rg.ref));
-        poly.addEventListener('mouseleave', () => setActive(focused));
+        poly.addEventListener('mouseenter', () => hoverRegion(rg.ref));
+        poly.addEventListener('mouseleave', () => unhoverRegion());
         poly.addEventListener('click', (e) => {
           e.stopPropagation();
           toggle();
@@ -475,7 +551,6 @@ const base = import.meta.env.BASE_URL;
     }
     const has = fillSymbols(card);
     symbolismEl.hidden = !has;
-    if (has) syncSymbolismDisclosure();
     const regions = CARD_REGIONS[card.id] ?? [];
     if (has && regions.length > 0 && orientation === 'upright') buildRegionLayer(card, regions);
   }
@@ -485,16 +560,11 @@ const base = import.meta.env.BASE_URL;
     if (e.key === 'Escape' && focused >= 0) setFocus(-1);
   });
 
-  // Ouvre/replie les briques de symbolique selon la largeur : dépliées sur desktop
-  // (non repliables, cf. CSS), repliées sur mobile (tap pour ouvrir). Chrome récent
-  // masque le contenu d'un <details> fermé via ::details-content → on pilote `open`.
-  function syncSymbolismDisclosure() {
-    const open = wideMq.matches;
-    symBricksEl.querySelectorAll<HTMLDetailsElement>('details.brick').forEach((d) => {
-      d.open = open;
-    });
-  }
-  wideMq.addEventListener('change', syncSymbolismDisclosure);
+  // Clic n'importe où hors du calque des régions → relâche la sélection (le clic
+  // sur une forme s'arrête avant, cf. stopPropagation ; le voile gère son propre clic).
+  document.addEventListener('click', (e) => {
+    if (focused >= 0 && !regionLayer.contains(e.target as Node)) setFocus(-1);
+  });
 
   // « La formule » : décomposition élément × rang (ou étape du voyage),
   // affichée systématiquement sous la symbolique.
@@ -1633,16 +1703,16 @@ const base = import.meta.env.BASE_URL;
   }
   :global(.region-shape:hover),
   :global(.region-shape.is-active) {
-    stroke: var(--accent);
+    stroke: #fff;
     stroke-width: 2.5;
   }
   :global(.region-shape.is-focused) {
     stroke: #fff;
     stroke-width: 2.5;
   }
-  /* Région focalisée : on masque le contour de TOUTES les autres régions (on ne
-     veut voir que l'objet sélectionné, le reste étant assombri). */
-  .region-layer.has-focus :global(.region-shape:not(.is-focused)) {
+  /* Région focalisée (ou survolée en aperçu) : on masque le contour de TOUTES les
+     autres régions — on ne veut voir que l'objet mis en avant, le reste assombri. */
+  .region-layer.has-focus :global(.region-shape:not(.is-focused):not(.is-active)) {
     stroke: transparent;
   }
   :global(.region-shape:focus-visible) {
@@ -1670,6 +1740,10 @@ const base = import.meta.env.BASE_URL;
   .symbolism :global(.brick.is-active) {
     background: rgba(201, 164, 76, 0.1);
     border-radius: 8px;
+  }
+  /* Brique dont le symbole a une région tracée : cliquable (focalise la carte). */
+  .symbolism :global(.brick.is-linked) {
+    cursor: pointer;
   }
 
   /* Respiration du dos de carte à l'état initial : le halo pulse pour inviter au tirage. */
@@ -1900,17 +1974,44 @@ const base = import.meta.env.BASE_URL;
     display: grid;
     gap: 0.3rem;
   }
-  /* Symbolique : entrées en liste séparées par un filet fin (mobile) plutôt qu'en boîte. */
+  /* ---- Symbolique en carrousel ----
+     Titre + flèches sur une ligne ; le viewport masque le débordement ; la piste
+     (.bricks) est une rangée qui glisse en translateX. Chaque brique occupe 1/N du
+     viewport (N = --sym-page-size, piloté en JS), gouttières entre colonnes = --sym-gap. */
+  .sym-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .sym-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex: none;
+  }
+  .sym-nav[hidden] {
+    display: none;
+  }
+  .sym-viewport {
+    overflow: hidden;
+  }
   .symbolism .bricks {
-    display: block;
+    --sym-gap: 1.6rem;
+    --sym-page-size: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--sym-gap);
+    align-items: start;
+    transition: transform 0.35s cubic-bezier(0.4, 0.15, 0.2, 1);
   }
-  .symbolism :global(.brick) {
-    break-inside: avoid;
+  .symbolism .bricks :global(.brick) {
+    flex: 0 0 calc((100% - (var(--sym-page-size) - 1) * var(--sym-gap)) / var(--sym-page-size));
+    min-width: 0;
   }
-  .symbolism :global(.brick + .brick) {
-    margin-top: 0.85rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--line);
+  @media (prefers-reduced-motion: reduce) {
+    .symbolism .bricks {
+      transition: none;
+    }
   }
   .bricks :global(.brick-head) {
     margin: 0;
@@ -1971,29 +2072,7 @@ const base = import.meta.env.BASE_URL;
       transition: none;
     }
   }
-  /* Desktop : la symbolique se lit sur deux colonnes (moitié moins haute),
-     le détail reste toujours déplié (tête non cliquable, chevron masqué),
-     et la carte reste collante pendant qu'on parcourt la lecture. */
   @media (min-width: 46rem) {
-    /* Symbolique pleine largeur en grille : les entrées s'alignent par ligne
-       (align-items: start) et se remplissent gauche→droite — un éventuel vide
-       tombe donc en bas à droite. Les filets dorés verticaux sont tracés en fond
-       du conteneur : pleine hauteur, indépendants du contenu et des cellules vides. */
-    .symbolism .bricks {
-      display: grid;
-      column-gap: 0;
-      row-gap: 1.6rem;
-      align-items: start;
-      background-repeat: no-repeat;
-    }
-    .symbolism .bricks :global(.brick) {
-      padding-inline: 1.4rem;
-    }
-    .symbolism :global(.brick + .brick) {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: none;
-    }
     /* Lettrine sur l'essentiel : pose l'exergue en tête de lecture.
        Scopée au tirage simple (.reading) — surtout PAS aux .meaning des colonnes
        de spread, qui sont étroites et n'ont pas de lettrine. */
@@ -2004,44 +2083,6 @@ const base = import.meta.env.BASE_URL;
       line-height: 0.82;
       padding: 0.15rem 0.55rem 0 0;
       color: var(--accent);
-    }
-    .symbolism .bricks :global(details.brick > summary) {
-      cursor: default;
-      pointer-events: none;
-    }
-    .symbolism .bricks :global(details.brick > summary::after) {
-      display: none;
-    }
-  }
-  /* Desktop étroit : 2 colonnes (1 filet vertical au milieu). */
-  @media (min-width: 46rem) and (max-width: 61.999rem) {
-    .symbolism .bricks {
-      grid-template-columns: repeat(2, 1fr);
-      background-image: linear-gradient(var(--line), var(--line));
-      background-size: 1px 100%;
-      background-position: 50% 0;
-    }
-    .symbolism .bricks :global(.brick):nth-child(2n + 1) {
-      padding-left: 0;
-    }
-    .symbolism .bricks :global(.brick):nth-child(2n) {
-      padding-right: 0;
-    }
-  }
-  /* Desktop large : 3 colonnes (2 filets verticaux, aux tiers). */
-  @media (min-width: 62rem) {
-    .symbolism .bricks {
-      grid-template-columns: repeat(3, 1fr);
-      background-image: linear-gradient(var(--line), var(--line)),
-        linear-gradient(var(--line), var(--line));
-      background-size: 1px 100%, 1px 100%;
-      background-position: 33.333% 0, 66.667% 0;
-    }
-    .symbolism .bricks :global(.brick):nth-child(3n + 1) {
-      padding-left: 0;
-    }
-    .symbolism .bricks :global(.brick):nth-child(3n) {
-      padding-right: 0;
     }
   }
 
