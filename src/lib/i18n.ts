@@ -98,6 +98,11 @@ export const ui = {
     'card.seeReversed': 'Inversée',
     'card.copy': 'Copier',
     'card.copied': 'Copié !',
+    'daily.card': 'Carte du jour',
+    'share.link': 'Partager',
+    'share.copied': 'Lien copié !',
+    'learn.card': 'Comment lire cette carte →',
+    'learn.spread': 'Lire ce tirage pas à pas →',
     'meta.major': 'Arcane majeur',
     'meta.minor': 'Arcane mineur',
     'footer.credit':
@@ -194,6 +199,11 @@ export const ui = {
     'card.seeReversed': 'Reversed',
     'card.copy': 'Copy',
     'card.copied': 'Copied!',
+    'daily.card': 'Card of the day',
+    'share.link': 'Share',
+    'share.copied': 'Link copied!',
+    'learn.card': 'How to read this card →',
+    'learn.spread': 'Read this spread step by step →',
     'meta.major': 'Major Arcana',
     'meta.minor': 'Minor Arcana',
     'footer.credit':

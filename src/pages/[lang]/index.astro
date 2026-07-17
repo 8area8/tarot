@@ -16,10 +16,12 @@ const base = import.meta.env.BASE_URL;
     <div class="stage">
     <div class="lede">
       <h1>{t(locale, 'home.heading')}</h1>
+      <p class="tagline">{t(locale, 'site.tagline')}</p>
     </div>
 
     <form class="controls" id="controls">
       <button type="submit" class="btn-draw" id="btn-draw">{t(locale, 'action.draw')}</button>
+      <button type="button" class="btn-daily" id="btn-daily">{t(locale, 'daily.card')}</button>
 
       <div class="options-disclosure">
         <button type="button" class="btn-options" id="btn-options" aria-expanded="false" aria-controls="options-panel">
@@ -67,6 +69,7 @@ const base = import.meta.env.BASE_URL;
         <p class="placeholder" id="placeholder">{t(locale, 'card.placeholder')}</p>
 
         <div class="reading-body" id="reading-body" hidden>
+          <p class="daily-badge" id="daily-badge" hidden></p>
           <p class="meta" id="card-meta"></p>
           <h2 id="reading-name" tabindex="-1"></h2>
           <p class="orientation" id="orientation"></p>
@@ -75,6 +78,7 @@ const base = import.meta.env.BASE_URL;
           <div class="reading-actions">
             <button type="button" class="btn-orient" id="btn-orient"></button>
             <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
+            <button type="button" class="btn-copy" id="btn-share">{t(locale, 'share.link')}</button>
           </div>
         </div>
       </article>
@@ -97,6 +101,9 @@ const base = import.meta.env.BASE_URL;
         <div class="study" id="study" hidden>
           <div class="bricks" id="bricks"></div>
         </div>
+        <p class="learn">
+          <a class="learn-link" href={`${base}${locale}/comment-lire`}>{t(locale, 'learn.card')}</a>
+        </p>
       </div>
     </div>
 
@@ -130,7 +137,11 @@ const base = import.meta.env.BASE_URL;
 
       <div class="spread-actions">
         <button type="button" class="btn-copy" id="btn-copy-spread">{t(locale, 'card.copy')}</button>
+        <button type="button" class="btn-copy" id="btn-share-spread">{t(locale, 'share.link')}</button>
       </div>
+      <p class="learn">
+        <a class="learn-link" href={`${base}${locale}/comment-lire#exemple`}>{t(locale, 'learn.spread')}</a>
+      </p>
     </div>
     </div>
   </section>
@@ -162,6 +173,8 @@ const base = import.meta.env.BASE_URL;
 
   const form = document.querySelector<HTMLFormElement>('#controls')!;
   const btnDraw = document.querySelector<HTMLButtonElement>('#btn-draw')!;
+  const btnDaily = document.querySelector<HTMLButtonElement>('#btn-daily')!;
+  const dailyBadge = document.querySelector<HTMLElement>('#daily-badge')!;
   const flip = document.querySelector<HTMLElement>('#flip')!;
   const cardImg = document.querySelector<HTMLImageElement>('#card-img')!;
   const placeholder = document.querySelector<HTMLElement>('#placeholder')!;
@@ -174,6 +187,7 @@ const base = import.meta.env.BASE_URL;
   const meaningEl = document.querySelector<HTMLElement>('#meaning')!;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
+  const btnShare = document.querySelector<HTMLButtonElement>('#btn-share')!;
   const result = document.querySelector<HTMLElement>('.result')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
@@ -187,6 +201,7 @@ const base = import.meta.env.BASE_URL;
   const readingThread = document.querySelector<HTMLElement>('#reading-thread')!;
   const readingLines = document.querySelector<HTMLElement>('#reading-lines')!;
   const btnCopySpread = document.querySelector<HTMLButtonElement>('#btn-copy-spread')!;
+  const btnShareSpread = document.querySelector<HTMLButtonElement>('#btn-share-spread')!;
   const backBtn = document.querySelector<HTMLButtonElement>('#btn-back-spread')!;
   const cycleEl = document.querySelector<HTMLElement>('#cycle')!;
   const cycleSuit = document.querySelector<HTMLElement>('#cycle-suit')!;
@@ -443,6 +458,9 @@ const base = import.meta.env.BASE_URL;
   function renderReading(card: Card, orientation: Orientation) {
     current = card;
     view = orientation;
+    // Le badge « carte du jour » ne subsiste pas au-delà du dévoilement initial
+    // (bascule d'orientation, parcours du cycle…).
+    dailyBadge.hidden = true;
     const reversed = orientation === 'reversed';
     cardImg.src = `${BASE}cards/${card.image}`;
     cardImg.alt = card.name[locale];
@@ -502,13 +520,15 @@ const base = import.meta.env.BASE_URL;
     hasDrawn = true;
   }
 
-  async function doSingle(mode: DeckMode, allowReversed: boolean) {
+  // Dévoile une carte seule (tirage aléatoire OU carte du jour). `dailyDate`
+  // affiche le badge ; `record` consigne (les tirages, pas la carte du jour).
+  async function revealSingle(draw: Draw, opts: { record?: boolean; dailyDate?: string | null } = {}) {
+    const { record = true, dailyDate = null } = opts;
     returnSpread = null;
     backBtn.hidden = true;
-    const draw = drawCard(mode, allowReversed);
     current = draw.card;
     view = draw.orientation;
-    recordDraw('single', [draw]);
+    if (record) recordDraw('single', [draw]);
 
     btnDraw.disabled = true;
     btnDraw.classList.add('is-loading');
@@ -518,6 +538,10 @@ const base = import.meta.env.BASE_URL;
       spreadEl.hidden = true;
       result.hidden = false;
       renderReading(draw.card, draw.orientation);
+      if (dailyDate) {
+        dailyBadge.textContent = `${T['daily.card']} · ${dailyDate}`;
+        dailyBadge.hidden = false;
+      }
       finishDraw();
       nameEl.focus();
     };
@@ -538,6 +562,24 @@ const base = import.meta.env.BASE_URL;
       requestAnimationFrame(() => flip.classList.add('is-flipped'));
     }
   }
+
+  async function doSingle(mode: DeckMode, allowReversed: boolean) {
+    await revealSingle(drawCard(mode, allowReversed));
+  }
+
+  // Carte du jour : déterministe par date locale (même carte pour tous ce jour-là),
+  // jeu complet et à l'endroit. Ignore les réglages : c'est « la » carte du jour.
+  // Non consignée dans l'historique (elle est déterministe, pas un vrai tirage).
+  function dailyDraw() {
+    const now = new Date();
+    const key = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+    let h = 0;
+    for (const ch of key) h = (Math.imul(h, 31) + ch.charCodeAt(0)) >>> 0;
+    const card = cards[h % cards.length];
+    const dateLabel = new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { dateStyle: 'long' }).format(now);
+    void revealSingle({ card, orientation: 'upright' }, { record: false, dailyDate: dateLabel });
+  }
+  btnDaily.addEventListener('click', dailyDraw);
 
   // Remplit une colonne du spread (position + carte + lecture) pour un tirage donné.
   function fillSpreadColumn(col: HTMLElement, draw: Draw, position: (typeof SPREADS)[SpreadType][number]) {
@@ -852,6 +894,24 @@ const base = import.meta.env.BASE_URL;
     }
   });
 
+  // Partager : copier le permalien du tirage courant (l'URL reflète déjà la carte
+  // ou le spread via syncHash / syncHashSpread).
+  async function copyLink(btn: HTMLButtonElement) {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      btn.textContent = T['share.copied'];
+      btn.classList.add('is-copied');
+      window.setTimeout(() => {
+        btn.textContent = T['share.link'];
+        btn.classList.remove('is-copied');
+      }, 1600);
+    } catch {
+      /* presse-papiers indisponible (contexte non sécurisé) */
+    }
+  }
+  btnShare.addEventListener('click', () => copyLink(btnShare));
+  btnShareSpread.addEventListener('click', () => copyLink(btnShareSpread));
+
   // Mémoriser les préférences (mode de jeu + inversées + tirage) entre les visites.
   const PREF_DECK = 'tarot.deck';
   const PREF_REVERSED = 'tarot.reversed';
@@ -967,6 +1027,13 @@ const base = import.meta.env.BASE_URL;
   .lede h1 {
     font-size: clamp(2.6rem, 6vw, 3.8rem);
     margin: 0;
+  }
+  .tagline {
+    margin: 0.6rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    font-style: italic;
+    color: var(--muted);
   }
 
   /* ---- Contrôles ---- */
@@ -1181,6 +1248,28 @@ const base = import.meta.env.BASE_URL;
   .btn-draw:disabled {
     opacity: 0.6;
     cursor: default;
+  }
+  /* Entrée secondaire, discrète : la carte du jour (déterministe). */
+  .btn-daily {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.4rem 1rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn-daily:hover {
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .btn-daily:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   /* Chargement (préchargement de l'illustration) : un reflet doré balaie le bouton. */
   .btn-draw.is-loading {
@@ -1460,6 +1549,37 @@ const base = import.meta.env.BASE_URL;
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.18);
     color: var(--text);
+  }
+  /* Badge « carte du jour » : surtitre discret au-dessus de la lecture. */
+  .daily-badge {
+    margin: 0;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent-2);
+  }
+  /* Pont vers l'apprentissage, sous la lecture. */
+  .learn {
+    margin: 0.5rem 0 0;
+  }
+  .learn-link {
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    color: var(--accent);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  .learn-link:hover {
+    border-bottom-color: var(--accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-daily,
+    .learn-link {
+      transition: none;
+    }
   }
 
   /* ---- Sous la carte : « La symbolique » (par défaut) + « La formule » (repliée) ----
