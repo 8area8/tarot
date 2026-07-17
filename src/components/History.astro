@@ -6,116 +6,429 @@ interface Props {
 }
 
 const { locale } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 
 <div class="history" data-locale={locale}>
-  <div class="history-bar">
-    <button type="button" id="history-clear" class="history-clear" hidden>
-      {t(locale, 'history.clear')}
-    </button>
+  <div class="history-controls" id="history-controls" hidden>
+    <div class="history-toolbar">
+      <input
+        type="search"
+        class="history-search"
+        id="history-search"
+        placeholder={t(locale, 'history.search')}
+        aria-label={t(locale, 'history.search')}
+        autocomplete="off"
+      />
+      <div class="history-actions">
+        <button type="button" id="history-export" class="history-action">{t(locale, 'history.export')}</button>
+        <button type="button" id="history-clear" class="history-action history-clear">{t(locale, 'history.clear')}</button>
+      </div>
+    </div>
+    <div class="history-filterrow">
+      <div class="history-filters" role="group" aria-label={t(locale, 'history.filterAll')}>
+        <button type="button" class="history-filter is-on" data-kind="all">{t(locale, 'history.filterAll')}</button>
+        <button type="button" class="history-filter" data-kind="single">{t(locale, 'spread.single')}</button>
+        <button type="button" class="history-filter" data-kind="two">{t(locale, 'spread.two')}</button>
+        <button type="button" class="history-filter" data-kind="three">{t(locale, 'spread.three')}</button>
+      </div>
+      <div class="history-tags" id="history-tags" hidden></div>
+    </div>
   </div>
-  <p class="history-empty" id="history-empty" hidden>{t(locale, 'history.empty')}</p>
-  <ul class="history-list" id="history-list"></ul>
+
+  <p class="history-empty" id="history-empty" hidden>
+    <span>{t(locale, 'history.empty')}</span>
+    <a class="history-cta" href={`${base}${locale}/`}>{t(locale, 'action.draw')} →</a>
+  </p>
+  <p class="history-none" id="history-none" hidden>{t(locale, 'history.none')}</p>
+
+  <div class="history-list" id="history-list"></div>
 </div>
 
 <script>
   import { ui, type Locale } from '../lib/i18n';
   import { cards } from '../data/cards';
-  import { readHistory, removeAt, clearHistory, hashFor, type SpreadKind } from '../lib/history';
+  import { readHistory, removeAt, clearHistory, updateAt, hashFor, type SpreadKind } from '../lib/history';
 
   const root = document.querySelector<HTMLElement>('.history')!;
   const locale = root.dataset.locale as Locale;
   const T = ui[locale];
   const BASE = import.meta.env.BASE_URL;
 
-  const listEl = document.querySelector<HTMLUListElement>('#history-list')!;
+  const controlsEl = document.querySelector<HTMLElement>('#history-controls')!;
+  const filterBtns = [...root.querySelectorAll<HTMLButtonElement>('.history-filter')];
+  const searchEl = document.querySelector<HTMLInputElement>('#history-search')!;
+  const tagsBar = document.querySelector<HTMLElement>('#history-tags')!;
+  const listEl = document.querySelector<HTMLElement>('#history-list')!;
   const emptyEl = document.querySelector<HTMLElement>('#history-empty')!;
+  const noneEl = document.querySelector<HTMLElement>('#history-none')!;
   const clearBtn = document.querySelector<HTMLButtonElement>('#history-clear')!;
+  const exportBtn = document.querySelector<HTMLButtonElement>('#history-export')!;
 
   const byId = new Map(cards.map((c) => [c.id, c]));
 
-  // Libellé du type de tirage (réutilise les clés d'UI existantes).
   const KIND_LABEL: Record<SpreadKind, string> = {
     single: T['spread.single'],
     two: T['spread.two'],
     three: T['spread.three'],
   };
 
-  // Date + heure localisées (« 15 juil. 2026, 14:32 »).
-  const dtf = new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
+  const intl = locale === 'fr' ? 'fr-FR' : 'en-US';
+  const dayFmt = new Intl.DateTimeFormat(intl, { dateStyle: 'long' });
+  const timeFmt = new Intl.DateTimeFormat(intl, { timeStyle: 'short' });
+  const fullFmt = new Intl.DateTimeFormat(intl, { dateStyle: 'medium', timeStyle: 'short' });
 
-  function render() {
-    const entries = readHistory();
-    emptyEl.hidden = entries.length > 0;
-    clearBtn.hidden = entries.length === 0;
-    listEl.replaceChildren();
+  const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
-    entries.forEach((entry, index) => {
-      const li = document.createElement('li');
-      li.className = 'history-item';
+  // ---- État de filtrage / d'édition ----
+  let kindFilter: 'all' | SpreadKind = 'all';
+  let query = '';
+  let activeTag: string | null = null;
+  let openEdit: number | null = null; // index (dans l'ordre de readHistory) de l'entrée annotée
+  let refocusTag: number | null = null; // réoriente le focus après ajout d'un tag
+  let confirmDelete: number | null = null; // index de l'entrée en attente de confirmation de retrait
 
-      // Le tirage entier est un lien qui le rejoue sur la home (via le hash).
-      const link = document.createElement('a');
-      link.className = 'history-link';
-      link.href = `${BASE}${locale}/${hashFor(entry)}`;
-
-      const thumbs = document.createElement('div');
-      thumbs.className = 'history-thumbs';
-      const names: string[] = [];
-      for (const c of entry.cards) {
-        const card = byId.get(c.id);
-        const name = card ? card.name[locale] : c.id;
-        names.push(c.reversed ? `${name} (${T['card.reversed']})` : name);
-        if (!card) continue;
-        const img = document.createElement('img');
-        img.src = `${BASE}cards/${card.id}-thumb.webp`;
-        img.alt = card.name[locale];
-        img.width = 60;
-        img.height = 105;
-        img.loading = 'lazy';
-        img.classList.toggle('is-reversed', c.reversed);
-        thumbs.appendChild(img);
-      }
-
-      const meta = document.createElement('div');
-      meta.className = 'history-meta';
-      const kindEl = document.createElement('p');
-      kindEl.className = 'history-kind';
-      kindEl.textContent = `${KIND_LABEL[entry.kind]} · ${dtf.format(new Date(entry.at))}`;
-      const namesEl = document.createElement('p');
-      namesEl.className = 'history-names';
-      namesEl.textContent = names.join(' · ');
-      meta.append(kindEl, namesEl);
-
-      link.append(thumbs, meta);
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'history-remove';
-      remove.dataset.index = String(index);
-      remove.setAttribute('aria-label', T['history.remove']);
-      remove.textContent = '✕';
-
-      li.append(link, remove);
-      listEl.appendChild(li);
-    });
+  // En-tête de jour : « Aujourd'hui », « Hier », sinon la date longue.
+  function dayBucket(ts: number): string {
+    const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const diff = Math.round((startOf(new Date()) - startOf(new Date(ts))) / 86400000);
+    if (diff <= 0) return T['history.today'];
+    if (diff === 1) return T['history.yesterday'];
+    return dayFmt.format(new Date(ts));
   }
 
-  // Suppression d'une entrée (délégation : les items sont regénérés à chaque rendu).
-  listEl.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.history-remove');
-    if (!btn) return;
-    removeAt(Number(btn.dataset.index));
+  // ---- Barre de tags (filtre) ----
+  function renderTagBar(all: ReturnType<typeof readHistory>) {
+    const counts = new Map<string, number>();
+    for (const e of all) for (const tag of e.tags ?? []) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    const tags = [...counts.keys()].sort((a, b) => a.localeCompare(b, intl));
+    if (activeTag && !counts.has(activeTag)) activeTag = null;
+
+    tagsBar.replaceChildren();
+    tagsBar.hidden = tags.length === 0;
+    for (const tag of tags) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'history-tagfilter';
+      b.classList.toggle('is-on', activeTag === tag);
+      b.textContent = `#${tag} · ${counts.get(tag)}`;
+      b.addEventListener('click', () => {
+        activeTag = activeTag === tag ? null : tag;
+        render();
+      });
+      tagsBar.appendChild(b);
+    }
+  }
+
+  // ---- Éditeur (note + tags) d'une entrée ----
+  function buildEditor(entry: ReturnType<typeof readHistory>[number], index: number): HTMLElement {
+    const box = document.createElement('div');
+    box.className = 'history-editor';
+
+    const noteCap = document.createElement('p');
+    noteCap.className = 'history-editor-cap';
+    noteCap.textContent = T['history.noteLabel'];
+    box.appendChild(noteCap);
+
+    const ta = document.createElement('textarea');
+    ta.className = 'history-note-input';
+    ta.rows = 3;
+    ta.placeholder = T['history.notePlaceholder'];
+    ta.value = entry.note ?? '';
+    // Persiste à chaque frappe, sans re-render : le focus (et le curseur) restent
+    // dans le textarea. La valeur est donc toujours à jour pour tout render ultérieur.
+    ta.addEventListener('input', () => {
+      updateAt(index, { note: ta.value.trim() ? ta.value : undefined });
+    });
+    box.appendChild(ta);
+
+    const tagCap = document.createElement('p');
+    tagCap.className = 'history-editor-cap';
+    tagCap.textContent = T['history.tagsLabel'];
+    box.appendChild(tagCap);
+
+    const tagsWrap = document.createElement('div');
+    tagsWrap.className = 'history-editor-tags';
+    for (const tag of entry.tags ?? []) {
+      const chip = document.createElement('span');
+      chip.className = 'history-tag is-removable';
+      chip.textContent = `#${tag}`;
+      const x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'history-tag-x';
+      x.setAttribute('aria-label', T['history.removeTag']);
+      x.textContent = '✕';
+      x.addEventListener('click', () => {
+        const next = (entry.tags ?? []).filter((tg) => tg !== tag);
+        updateAt(index, { tags: next.length ? next : undefined });
+        render();
+      });
+      chip.appendChild(x);
+      tagsWrap.appendChild(chip);
+    }
+    const tagInput = document.createElement('input');
+    tagInput.className = 'history-tag-input';
+    tagInput.dataset.idx = String(index);
+    tagInput.placeholder = T['history.addTag'];
+    tagInput.setAttribute('aria-label', T['history.addTag']);
+    tagInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const v = tagInput.value.trim().replace(/^#+/, '').slice(0, 24);
+      if (!v) return;
+      const cur = entry.tags ?? [];
+      if (!cur.includes(v)) {
+        updateAt(index, { tags: [...cur, v] });
+        refocusTag = index;
+        render();
+      } else {
+        tagInput.value = '';
+      }
+    });
+    tagsWrap.appendChild(tagInput);
+    box.appendChild(tagsWrap);
+    return box;
+  }
+
+  // ---- Une entrée ----
+  function buildItem(entry: ReturnType<typeof readHistory>[number], index: number): HTMLElement {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.classList.toggle('is-confirming', confirmDelete === index);
+
+    const top = document.createElement('div');
+    top.className = 'history-top';
+
+    // Bloc rejouable : le tirage se relance sur la home via son permalien.
+    const link = document.createElement('a');
+    link.className = 'history-link';
+    link.href = `${BASE}${locale}/${hashFor(entry)}`;
+
+    const thumbs = document.createElement('div');
+    thumbs.className = 'history-thumbs';
+    const names: string[] = [];
+    for (const c of entry.cards) {
+      const card = byId.get(c.id);
+      const name = card ? card.name[locale] : c.id;
+      names.push(c.reversed ? `${name} (${T['card.reversed']})` : name);
+      if (!card) continue;
+      const img = document.createElement('img');
+      img.src = `${BASE}cards/${card.id}-thumb.webp`;
+      img.alt = card.name[locale];
+      img.width = 60;
+      img.height = 105;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.classList.toggle('is-reversed', c.reversed);
+      thumbs.appendChild(img);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'history-meta';
+    const kindEl = document.createElement('p');
+    kindEl.className = 'history-kind';
+    kindEl.textContent = `${KIND_LABEL[entry.kind]} · ${timeFmt.format(new Date(entry.at))}`;
+    const namesEl = document.createElement('p');
+    namesEl.className = 'history-names';
+    namesEl.textContent = names.join(' · ');
+    meta.append(kindEl, namesEl);
+    link.append(thumbs, meta);
+
+    // Actions : annoter (bascule l'éditeur) + retirer.
+    const side = document.createElement('div');
+    side.className = 'history-side';
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'history-edit';
+    editBtn.classList.toggle('is-on', openEdit === index);
+    // Signale d'un coup d'œil les tirages déjà annotés (note ou tags).
+    editBtn.classList.toggle('has-note', Boolean(entry.note) || Boolean(entry.tags?.length));
+    editBtn.setAttribute('aria-label', openEdit === index ? T['history.editDone'] : T['history.edit']);
+    editBtn.textContent = openEdit === index ? '✓' : '✎';
+    editBtn.addEventListener('click', () => {
+      openEdit = openEdit === index ? null : index;
+      confirmDelete = null;
+      render();
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'history-remove';
+    remove.setAttribute('aria-label', T['history.remove']);
+    remove.textContent = '✕';
+    // Retrait en deux temps : le clic arme une confirmation (voir la barre plus bas).
+    remove.addEventListener('click', () => {
+      confirmDelete = index;
+      openEdit = null;
+      render();
+    });
+    side.append(editBtn, remove);
+
+    top.append(link, side);
+    li.appendChild(top);
+
+    // Vue lecture : aperçu de la note + tags cliquables (masqués pendant l'édition).
+    if (openEdit !== index) {
+      if (entry.note) {
+        const note = document.createElement('p');
+        note.className = 'history-note';
+        note.textContent = entry.note;
+        li.appendChild(note);
+      }
+      if (entry.tags?.length) {
+        const row = document.createElement('div');
+        row.className = 'history-tagrow';
+        for (const tag of entry.tags) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'history-tag';
+          b.classList.toggle('is-on', activeTag === tag);
+          b.textContent = `#${tag}`;
+          b.addEventListener('click', () => {
+            activeTag = activeTag === tag ? null : tag;
+            render();
+          });
+          row.appendChild(b);
+        }
+        li.appendChild(row);
+      }
+    } else {
+      li.appendChild(buildEditor(entry, index));
+    }
+
+    // Confirmation de retrait (en place, sans popup système).
+    if (confirmDelete === index) {
+      const bar = document.createElement('div');
+      bar.className = 'history-confirm';
+      const msg = document.createElement('span');
+      msg.className = 'history-confirm-msg';
+      msg.textContent = T['history.removeConfirm'];
+      const yes = document.createElement('button');
+      yes.type = 'button';
+      yes.className = 'history-confirm-yes';
+      yes.textContent = T['history.removeYes'];
+      yes.addEventListener('click', () => {
+        removeAt(index);
+        confirmDelete = null;
+        if (openEdit === index) openEdit = null;
+        render();
+      });
+      const no = document.createElement('button');
+      no.type = 'button';
+      no.className = 'history-confirm-no';
+      no.textContent = T['history.cancel'];
+      no.addEventListener('click', () => {
+        confirmDelete = null;
+        render();
+      });
+      bar.append(msg, yes, no);
+      li.appendChild(bar);
+    }
+
+    return li;
+  }
+
+  function render() {
+    const all = readHistory();
+    const hasAny = all.length > 0;
+    controlsEl.hidden = !hasAny;
+    clearBtn.hidden = !hasAny;
+    exportBtn.hidden = !hasAny;
+    emptyEl.hidden = hasAny;
+
+    renderTagBar(all);
+
+    const q = norm(query);
+    const shown = all
+      .map((e, i) => ({ e, i }))
+      .filter(({ e }) => {
+        if (kindFilter !== 'all' && e.kind !== kindFilter) return false;
+        if (activeTag && !(e.tags ?? []).includes(activeTag)) return false;
+        if (!q) return true;
+        if (e.note && norm(e.note).includes(q)) return true;
+        return e.cards.some((c) => {
+          const card = byId.get(c.id);
+          return card ? norm(card.name[locale]).includes(q) : false;
+        });
+      });
+
+    noneEl.hidden = !(hasAny && shown.length === 0);
+
+    listEl.replaceChildren();
+    let bucket: string | null = null;
+    let ul: HTMLUListElement | null = null;
+    for (const { e, i } of shown) {
+      const b = dayBucket(e.at);
+      if (b !== bucket) {
+        bucket = b;
+        const h = document.createElement('h2');
+        h.className = 'history-day';
+        h.textContent = b;
+        listEl.appendChild(h);
+        ul = document.createElement('ul');
+        ul.className = 'history-group';
+        listEl.appendChild(ul);
+      }
+      ul!.appendChild(buildItem(e, i));
+    }
+
+    if (refocusTag !== null) {
+      listEl.querySelector<HTMLInputElement>(`.history-tag-input[data-idx="${refocusTag}"]`)?.focus();
+      refocusTag = null;
+    }
+  }
+
+  // ---- Contrôles ----
+  for (const btn of filterBtns) {
+    btn.addEventListener('click', () => {
+      kindFilter = btn.dataset.kind as typeof kindFilter;
+      filterBtns.forEach((b) => b.classList.toggle('is-on', b === btn));
+      render();
+    });
+  }
+  searchEl.addEventListener('input', () => {
+    query = searchEl.value;
     render();
   });
 
   clearBtn.addEventListener('click', () => {
     if (!window.confirm(T['history.clearConfirm'])) return;
     clearHistory();
+    openEdit = null;
+    activeTag = null;
+    confirmDelete = null;
     render();
+  });
+
+  // Export : copie le journal entier en Markdown (dates, cartes, tags, notes).
+  exportBtn.addEventListener('click', async () => {
+    const all = readHistory();
+    if (!all.length) return;
+    const text = all
+      .map((e) => {
+        const cardsTxt = e.cards
+          .map((c) => {
+            const card = byId.get(c.id);
+            const n = card ? card.name[locale] : c.id;
+            return c.reversed ? `${n} (${T['card.reversed']})` : n;
+          })
+          .join(' · ');
+        let block = `## ${KIND_LABEL[e.kind]} — ${fullFmt.format(new Date(e.at))}\n${cardsTxt}`;
+        if (e.tags?.length) block += `\n${e.tags.map((tg) => `#${tg}`).join(' ')}`;
+        if (e.note) block += `\n${e.note}`;
+        return block;
+      })
+      .join('\n\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      exportBtn.textContent = T['card.copied'];
+      exportBtn.classList.add('is-copied');
+      window.setTimeout(() => {
+        exportBtn.textContent = T['history.export'];
+        exportBtn.classList.remove('is-copied');
+      }, 1600);
+    } catch {
+      /* presse-papiers indisponible */
+    }
   });
 
   render();
@@ -131,69 +444,221 @@ const { locale } = Astro.props;
     max-width: 44rem;
     margin: 0 auto;
   }
-  .history-bar {
-    display: flex;
-    justify-content: flex-end;
-    min-height: 1.5rem;
-    margin-bottom: 1rem;
+
+  /* ---- Bandeau d'outils : recherche (proéminente) + actions discrètes ---- */
+  .history-controls {
+    display: grid;
+    gap: 0.85rem;
+    margin-bottom: 1.6rem;
   }
-  .history-clear {
+  .history-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+  .history-search {
+    flex: 1 1 14rem;
+    min-width: 0;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text);
+    background: rgba(240, 226, 196, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .history-search::placeholder {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .history-search:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.06);
+  }
+  /* Actions utilitaires en texte : présentes mais en retrait du journal. */
+  .history-actions {
+    display: flex;
+    gap: 1.1rem;
+    flex-shrink: 0;
+  }
+  .history-action {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    padding: 0.2rem 0;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .history-action:hover,
+  .history-action.is-copied {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .history-clear:hover {
+    color: var(--accent-2);
+    border-bottom-color: var(--accent-2);
+  }
+
+  /* ---- Rangée de filtres : type de tirage + tags (les deux filtrent) ---- */
+  /* Hiérarchie subtile : les types sont des pilules cernées (des « modes »),
+     les tags sont plus légers (bordure au survol seulement). */
+  .history-filterrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+  }
+  .history-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .history-filter {
     font-family: var(--font-body);
     font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     color: var(--muted);
     background: transparent;
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 0.35rem 0.9rem;
+    padding: 0.32rem 0.8rem;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
   }
-  .history-clear:hover {
-    color: var(--accent-2);
-    border-color: var(--accent-2);
+  .history-filter:hover {
+    color: var(--text);
   }
+  .history-filter.is-on {
+    color: var(--text);
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.16);
+  }
+  .history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.4rem;
+  }
+  .history-tagfilter {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .history-tagfilter:hover {
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .history-tagfilter.is-on {
+    color: var(--ground);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
   .history-empty {
     text-align: center;
     color: var(--muted);
     font-style: italic;
     margin: 4rem auto;
+    display: grid;
+    gap: 1.2rem;
+    justify-items: center;
   }
-  .history-list {
+  .history-cta {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: rgba(201, 164, 76, 0.12);
+    color: var(--accent);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .history-cta:hover {
+    background: rgba(201, 164, 76, 0.22);
+  }
+  .history-none {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    margin: 3rem auto;
+  }
+
+  /* ---- Liste groupée par jour ---- */
+  .history-day {
+    margin: 1.4rem 0 0.7rem;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.4rem;
+  }
+  .history-day:first-child {
+    margin-top: 0;
+  }
+  .history-group {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     gap: 0.55rem;
   }
-  /* Croix positionnée par-dessus l'entrée : le lien réserve un padding à droite. */
   .history-item {
-    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.55rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 11px;
+    background: linear-gradient(180deg, rgba(240, 226, 196, 0.06), rgba(240, 226, 196, 0.02));
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: box-shadow 0.2s ease;
   }
-  /* Le tirage entier est cliquable : il se rejoue sur la home. Rangée compacte. */
+  .history-item:hover,
+  .history-item:focus-within {
+    box-shadow: inset 0 0 0 1px var(--accent), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  .history-top {
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
   .history .history-link {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    padding: 0.55rem 2.8rem 0.55rem 0.6rem;
-    border-radius: 10px;
     text-decoration: none;
     color: inherit;
-    background: linear-gradient(
-      180deg,
-      rgba(240, 226, 196, 0.06),
-      rgba(240, 226, 196, 0.025)
-    );
-    box-shadow: inset 0 0 0 1px var(--line);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border-radius: 8px;
   }
-  .history .history-link:hover,
   .history .history-link:focus-visible {
-    transform: translateY(-2px);
-    box-shadow: inset 0 0 0 1px var(--accent), 0 8px 22px rgba(0, 0, 0, 0.5),
-      0 0 18px rgba(201, 164, 76, 0.15);
     outline: none;
+  }
+  .history .history-link:hover .history-names,
+  .history .history-link:focus-visible .history-names {
+    color: var(--accent);
   }
   .history-thumbs {
     display: flex;
@@ -202,7 +667,7 @@ const { locale } = Astro.props;
   }
   .history-thumbs img {
     display: block;
-    width: 40px;
+    width: 38px;
     height: auto;
     aspect-ratio: 1100 / 1920;
     object-fit: cover;
@@ -212,20 +677,18 @@ const { locale } = Astro.props;
   .history-thumbs img.is-reversed {
     transform: rotate(180deg);
   }
-  /* Méta serrée : surtitre juste au-dessus des noms, sans blanc vertical. */
   .history-meta {
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 0.1rem;
   }
-  /* Surtitre : type de tirage + date, discret et doré comme les titres de section. */
   .history-kind {
     margin: 0;
     font-size: 0.66rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    color: var(--accent);
+    color: var(--muted);
   }
   .history-names {
     margin: 0;
@@ -233,37 +696,253 @@ const { locale } = Astro.props;
     font-size: 1.15rem;
     line-height: 1.2;
     color: var(--text);
+    transition: color 0.18s ease;
   }
-  .history .history-remove {
-    position: absolute;
-    top: 50%;
-    right: 0.5rem;
-    transform: translateY(-50%);
-    z-index: 1;
-    width: 1.7rem;
-    height: 1.7rem;
+  /* Cluster d'actions : annoter + retirer — toujours visibles, cernées comme de
+     vrais boutons pour être repérables d'emblée. */
+  .history-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+  .history-edit,
+  .history-remove {
+    width: 2.2rem;
+    height: 2.2rem;
     display: grid;
     place-items: center;
     padding: 0;
-    border: 1px solid transparent;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: transparent;
+    background: rgba(240, 226, 196, 0.03);
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 1rem;
     line-height: 1;
     cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s ease, color 0.2s ease, background 0.2s ease;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   }
-  .history .history-remove:hover,
-  .history .history-remove:focus-visible {
-    opacity: 1;
-    color: var(--accent-2);
-    background: rgba(181, 83, 47, 0.14);
+  /* Un tirage déjà annoté garde une pointe d'or au repos. */
+  .history-edit.has-note {
+    color: var(--accent);
+    border-color: rgba(201, 164, 76, 0.5);
+  }
+  .history-edit:hover,
+  .history-edit:focus-visible,
+  .history-edit.is-on {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.16);
     outline: none;
   }
+  .history-remove:hover,
+  .history-remove:focus-visible {
+    color: var(--accent-2);
+    border-color: var(--accent-2);
+    background: rgba(181, 83, 47, 0.16);
+    outline: none;
+  }
+
+  /* Aperçu de note : une boîte dorée bien lisible — le cœur du journal.
+     Écrêtée à 4 lignes ; le texte entier reste éditable en mode annotation. */
+  .history-note {
+    margin: 0;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid rgba(201, 164, 76, 0.4);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(201, 164, 76, 0.08);
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* Tags (lecture) : cliquables pour filtrer. */
+  .history-tagrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .history-tag {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .history-tag:hover,
+  .history-tag.is-on {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---- Éditeur (note + tags) : encadré doré, structuré ---- */
+  .history-editor {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid rgba(201, 164, 76, 0.4);
+    border-radius: 10px;
+    background: rgba(201, 164, 76, 0.05);
+  }
+  .history-editor-cap {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+  }
+  .history-editor-cap:not(:first-child) {
+    margin-top: 0.5rem;
+  }
+  .history-note-input {
+    width: 100%;
+    resize: vertical;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: rgba(21, 16, 30, 0.55);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    transition: border-color 0.2s ease;
+  }
+  .history-note-input::placeholder {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .history-note-input:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .history-editor-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .history-tag.is-removable {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent);
+    border-color: var(--accent);
+    cursor: default;
+  }
+  .history-tag-x {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .history-tag-x:hover {
+    opacity: 1;
+  }
+  .history-tag-input {
+    flex: 1 1 8rem;
+    min-width: 6rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text);
+    background: rgba(21, 16, 30, 0.55);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    transition: border-color 0.2s ease;
+  }
+  .history-tag-input::placeholder {
+    color: var(--muted);
+  }
+  .history-tag-input:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* ---- Confirmation de retrait (en place, pas de popup système) ---- */
+  .history-item.is-confirming {
+    box-shadow: inset 0 0 0 1px var(--accent-2), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  .history-confirm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.8rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(181, 83, 47, 0.45);
+    border-radius: 8px;
+    background: rgba(181, 83, 47, 0.08);
+  }
+  .history-confirm-msg {
+    flex: 1;
+    min-width: 8rem;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+  .history-confirm-yes,
+  .history-confirm-no {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .history-confirm-yes {
+    border: 1px solid var(--accent-2);
+    background: rgba(181, 83, 47, 0.2);
+    color: #e0876a;
+  }
+  .history-confirm-yes:hover {
+    background: var(--accent-2);
+    color: var(--text);
+  }
+  .history-confirm-no {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+  }
+  .history-confirm-no:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+
+  /* ---- Grand écran : le journal passe en cartes multi-colonnes (voir plus) ---- */
+  @media (min-width: 56rem) {
+    .history {
+      max-width: 60rem;
+    }
+    /* stretch (défaut) : la carte la plus courte d'une rangée étire sa boîte à la
+       hauteur de sa voisine — pas de vide vertical entre les colonnes. */
+    .history-group {
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+      gap: 0.7rem;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .history .history-link {
+    .history .history-link,
+    .history-names,
+    .history-cta {
       transition: none;
     }
   }

@@ -15,6 +15,10 @@ export interface HistoryEntry {
   at: number;
   kind: SpreadKind;
   cards: HistoryCard[];
+  /** Note personnelle (journal) — ajoutée après coup sur la page Historique. */
+  note?: string;
+  /** Étiquettes libres pour classer et filtrer les tirages. */
+  tags?: string[];
 }
 
 // Clé versionnée : si le format évolue, on repart proprement au lieu de planter.
@@ -47,7 +51,12 @@ export function readHistory(): HistoryEntry[] {
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isEntry);
+    // Normalise les métadonnées optionnelles (note/tags) contre un JSON abîmé.
+    return parsed.filter(isEntry).map((e) => ({
+      ...e,
+      note: typeof e.note === 'string' ? e.note : undefined,
+      tags: Array.isArray(e.tags) ? e.tags.filter((t): t is string => typeof t === 'string') : undefined,
+    }));
   } catch {
     return [];
   }
@@ -66,6 +75,18 @@ export function pushHistory(entry: HistoryEntry): void {
   const entries = readHistory();
   entries.unshift(entry);
   write(entries.slice(0, MAX_ENTRIES));
+}
+
+/** Met à jour la note et/ou les tags d'une entrée (par index) et persiste. */
+export function updateAt(
+  index: number,
+  patch: Partial<Pick<HistoryEntry, 'note' | 'tags'>>,
+): HistoryEntry[] {
+  const entries = readHistory();
+  if (index < 0 || index >= entries.length) return entries;
+  entries[index] = { ...entries[index], ...patch };
+  write(entries);
+  return entries;
 }
 
 /** Retire l'entrée à l'index donné et renvoie la liste mise à jour. */
