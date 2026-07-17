@@ -1745,12 +1745,20 @@ const base = import.meta.env.BASE_URL;
       transition: none;
     }
   }
-  /* Survol / aperçu croisé région ↔ brique : fond ambré léger (niveau discret). */
+  /* Texte de symbolique au repos : volontairement estompé pour que le survol et la
+     sélection ressortent nettement (contraste fort entre les trois niveaux). */
+  .symbolism .bricks :global(.brick-text) {
+    color: rgba(233, 220, 196, 0.55);
+  }
+  /* Survol / aperçu croisé région ↔ brique : fond ambré + texte quasi plein. */
   .symbolism :global(.brick.is-active) {
     background: rgba(201, 164, 76, 0.08);
   }
-  /* Verrouillé (sélection) : encart appuyé — filet d'or à gauche, fond plus marqué,
-     halo doux, terme éclairci. Déclaré après is-active → l'emporte sur le fond. */
+  .symbolism :global(.brick.is-active .brick-text) {
+    color: rgba(247, 238, 218, 0.98);
+  }
+  /* Verrouillé (sélection) : encart appuyé — filet d'or, fond plus marqué, halo doux,
+     terme éclairci et texte en pleine lumière + légèrement gras. Déclaré après is-active. */
   .symbolism :global(.brick.is-selected) {
     background: rgba(201, 164, 76, 0.15);
     border-left-color: var(--accent);
@@ -1758,6 +1766,10 @@ const base = import.meta.env.BASE_URL;
   }
   .symbolism :global(.brick.is-selected .brick-term) {
     color: #e9cd86;
+  }
+  .symbolism :global(.brick.is-selected .brick-text) {
+    color: #fff;
+    font-weight: 500;
   }
   /* Brique dont le symbole a une région tracée : cliquable (focalise la carte). */
   .symbolism :global(.brick.is-linked) {
@@ -2071,6 +2083,12 @@ const base = import.meta.env.BASE_URL;
     font-size: 0.98rem;
     line-height: 1.72;
     color: rgba(240, 226, 196, 0.82);
+    transition: color 0.2s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bricks :global(.brick-text) {
+      transition: none;
+    }
   }
   /* Brique repliable (symbolique) : la tête <summary> est cliquable ; sur mobile
      le texte se déplie au tap. Chevron discret aligné à droite de la tête. */
