@@ -15,6 +15,7 @@ Pages (sous `/{lang}/`) : `/` (tirage), `/cartes` (galerie), `/grammaire`,
 npm run dev            # serveur de dev (http://localhost:4321/tarot/, souvent déjà lancé en tâche de fond)
 npm run build          # build statique → dist/
 npx astro check        # vérification de types (viser 0 erreur / 0 warning / 0 hint avant commit)
+npm run check:styles   # garde-fou « styles scopés vs DOM JS » (voir pièges ci-dessous)
 npx astro dev stop     # arrête le serveur de dev détaché
 node scripts/fetch-cards.mjs   # (re)télécharge/convertit les 78 cartes (nécessite `cwebp`)
 ```
@@ -76,7 +77,13 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
   `<link rel=preload>` dans `Base.astro` (imports `@fontsource-variable/*/files/*.woff2`).
   **Ne pas** revenir à `import '@fontsource-variable/…'` (met `font-display: swap`
   → flash/glitch du titre au chargement). `src/env.d.ts` déclare les modules woff2.
-- **Site statique, pas de backend** : aucun état persistant côté serveur.
+- **Styles scopés vs DOM créé en JS (PIÈGE RÉCURRENT)** : un `<style>` scopé
+  compile ses sélecteurs avec `[data-astro-cid-…]` que **seuls les éléments du
+  template** portent. Tout élément créé en JS (`document.createElement` + `className`)
+  **n'est pas atteint** par une règle scopée → il faut `:global(.classe)` (ou un
+  `<style is:global>`). Toute nouvelle classe posée sur un élément créé en JS doit
+  être en `:global`. Un garde-fou l'impose : `npm run check:styles` (et un hook
+  `PostToolUse` sur les `.astro`, cf. `.claude/settings.json` + `scripts/`).
 - **Images** : deux rendus par carte (voir `fetch-cards.mjs`). La carte tirée
   (home) charge le « full » (`card.image`), la galerie / l'historique / la
   grammaire chargent la vignette (`<id>-thumb.webp`). Ne pas servir le full dans
