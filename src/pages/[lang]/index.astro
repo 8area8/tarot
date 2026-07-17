@@ -32,7 +32,6 @@ const base = import.meta.env.BASE_URL;
             <label class="seg"><input type="radio" name="spread" value="single" checked /><span>{t(locale, 'spread.single')}</span></label>
             <label class="seg"><input type="radio" name="spread" value="two" /><span>{t(locale, 'spread.two')}</span></label>
             <label class="seg"><input type="radio" name="spread" value="three" /><span>{t(locale, 'spread.three')}</span></label>
-            <label class="seg"><input type="radio" name="spread" value="yesno" /><span>{t(locale, 'spread.yesno')}</span></label>
           </div>
 
           <p class="opt-caption">{t(locale, 'deck.label')}</p>
@@ -68,19 +67,6 @@ const base = import.meta.env.BASE_URL;
         <p class="placeholder" id="placeholder">{t(locale, 'card.placeholder')}</p>
 
         <div class="reading-body" id="reading-body" hidden>
-          <div class="verdict" id="verdict" hidden>
-            <p class="verdict-title" id="verdict-title"></p>
-            <div class="oracle-scale" id="oracle-scale" aria-hidden="true">
-              <span class="oracle-step" data-step="0"></span>
-              <span class="oracle-step" data-step="1"></span>
-              <span class="oracle-step" data-step="2"></span>
-              <span class="oracle-step" data-step="3"></span>
-              <span class="oracle-step" data-step="4"></span>
-              <span class="oracle-step" data-step="5"></span>
-            </div>
-            <p class="verdict-answer" id="verdict-answer"></p>
-            <p class="verdict-why" id="verdict-why"></p>
-          </div>
           <p class="meta" id="card-meta"></p>
           <h2 id="reading-name" tabindex="-1"></h2>
           <p class="orientation" id="orientation"></p>
@@ -153,7 +139,6 @@ const base = import.meta.env.BASE_URL;
 <script>
   import { ui, type Locale } from '../../lib/i18n';
   import { drawCard, drawSpread, type DeckMode, type Draw } from '../../lib/deck';
-  import { answerFor } from '../../lib/oracle';
   import { buildReading } from '../../lib/reading';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
@@ -167,11 +152,6 @@ const base = import.meta.env.BASE_URL;
   const app = document.querySelector<HTMLElement>('.draw-app')!;
   const locale = app.dataset.locale as Locale;
   const T = ui[locale];
-  // Libellés des 6 réponses de l'oracle (question fermée), de « Non, et… » à « Oui, et… ».
-  const ANSWERS = [
-    T['yesno.answer.0'], T['yesno.answer.1'], T['yesno.answer.2'],
-    T['yesno.answer.3'], T['yesno.answer.4'], T['yesno.answer.5'],
-  ];
   const BASE = import.meta.env.BASE_URL;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Desktop : la symbolique s'affiche dépliée (voir syncSymbolismDisclosure).
@@ -194,11 +174,6 @@ const base = import.meta.env.BASE_URL;
   const meaningEl = document.querySelector<HTMLElement>('#meaning')!;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
-  const verdict = document.querySelector<HTMLElement>('#verdict')!;
-  const verdictTitle = document.querySelector<HTMLElement>('#verdict-title')!;
-  const verdictAnswer = document.querySelector<HTMLElement>('#verdict-answer')!;
-  const verdictWhy = document.querySelector<HTMLElement>('#verdict-why')!;
-  const scaleSteps = [...document.querySelectorAll<HTMLElement>('#oracle-scale .oracle-step')];
   const result = document.querySelector<HTMLElement>('.result')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
@@ -235,7 +210,6 @@ const base = import.meta.env.BASE_URL;
   // État courant pour la bascule d'orientation.
   let current: Card | null = null;
   let view: Orientation = 'upright';
-  let askMode = false; // « Question fermée » : affiche la jauge d'inclinaison oui/non
 
   // État du tirage multi-cartes.
   let currentSpread: Draw[] | null = null;
@@ -245,9 +219,9 @@ const base = import.meta.env.BASE_URL;
   let returnSpread: { draws: Draw[]; mode: DeckMode; type: SpreadType } | null = null;
   let hasDrawn = false; // au moins un tirage effectué (fige le libellé du bouton sur « Nouveau tirage »)
 
-  const getSpreadMode = (): 'single' | SpreadType | 'yesno' => {
+  const getSpreadMode = (): 'single' | SpreadType => {
     const v = new FormData(form).get('spread');
-    return v === 'two' || v === 'three' || v === 'yesno' ? v : 'single';
+    return v === 'two' || v === 'three' ? v : 'single';
   };
 
   // Avant le 1er tirage, le bouton reflète le type de tirage choisi.
@@ -257,7 +231,6 @@ const base = import.meta.env.BASE_URL;
     btnDraw.textContent =
       v === 'three' ? T['action.drawThree']
       : v === 'two' ? T['action.drawTwo']
-      : v === 'yesno' ? T['action.drawYesno']
       : T['action.draw'];
   }
 
@@ -319,10 +292,9 @@ const base = import.meta.env.BASE_URL;
     return true;
   }
 
-  // La symbolique (lecture par élément) : affichée par défaut sous la carte,
-  // sauf en mode oracle (« question fermée ») où l'on garde le verdict épuré.
+  // La symbolique (lecture par élément) : affichée par défaut sous la carte.
   function updateSymbolism(card: Card | null) {
-    if (!card || askMode) {
+    if (!card) {
       symbolismEl.hidden = true;
       return;
     }
@@ -402,23 +374,7 @@ const base = import.meta.env.BASE_URL;
   // Reflète la carte + orientation dans l'URL (permalien partageable / bookmarkable).
   function syncHash(card: Card, orientation: Orientation) {
     const rev = orientation === 'reversed' ? '-reversed' : '';
-    // Le mode « question fermée » se distingue par le préfixe ask= (restaure la jauge).
-    const hash = askMode ? `#ask=${card.id}${rev}` : `#${card.id}${rev}`;
-    history.replaceState(null, '', hash);
-  }
-
-  // Titre de la section oracle : fixe, posé une fois pour toutes.
-  verdictTitle.textContent = T['yesno.title'];
-
-  // Oracle « question fermée » : allume la case répondue sur l'échelle à 6 crans,
-  // affiche le libellé (Non, et… → Oui, et…) et le « pourquoi » rédigé.
-  function renderVerdict(card: Card, orientation: Orientation) {
-    const entry = answerFor({ card, orientation });
-    const ans = entry ? entry.answer : 3;
-    scaleSteps.forEach((s, i) => s.classList.toggle('is-active', i === ans));
-    verdictAnswer.textContent = ANSWERS[ans];
-    verdictAnswer.dataset.tone = ans <= 2 ? 'no' : 'yes';
-    verdictWhy.textContent = entry ? entry.why[locale] : '';
+    history.replaceState(null, '', `#${card.id}${rev}`);
   }
 
   // « Cycle » d'une carte : parcourir sa famille — l'enseigne As→10 puis Valet→Roi
@@ -507,15 +463,10 @@ const base = import.meta.env.BASE_URL;
       meaningEl.textContent = T['card.noContent'];
       btnOrient.hidden = true;
     }
-    // En mode oracle, le « pourquoi » remplace le texte d'ambiance.
-    meaningEl.hidden = askMode;
 
     updateSymbolism(card);
     updateFormula(card);
     updateCycle(card, orientation);
-
-    verdict.hidden = !askMode;
-    if (askMode) renderVerdict(card, orientation);
 
     placeholder.hidden = true;
     body.hidden = false;
@@ -557,7 +508,7 @@ const base = import.meta.env.BASE_URL;
     const draw = drawCard(mode, allowReversed);
     current = draw.card;
     view = draw.orientation;
-    recordDraw(askMode ? 'yesno' : 'single', [draw]);
+    recordDraw('single', [draw]);
 
     btnDraw.disabled = true;
     btnDraw.classList.add('is-loading');
@@ -787,10 +738,8 @@ const base = import.meta.env.BASE_URL;
     const allowReversed = data.get('reversed') === 'on';
     const spread = data.get('spread');
     if (spread === 'two' || spread === 'three') {
-      askMode = false;
       await doSpread(mode, allowReversed, spread);
     } else {
-      askMode = spread === 'yesno';
       await doSingle(mode, allowReversed);
     }
   });
@@ -849,13 +798,7 @@ const base = import.meta.env.BASE_URL;
     const key = view === 'reversed' ? 'reversed' : 'upright';
     const orient = view === 'reversed' ? T['card.reversed'] : T['card.upright'];
     const meaning = current.content ? current.content.meaning[key][locale] : T['card.noContent'];
-    let text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
-    if (askMode) {
-      const entry = answerFor({ card: current, orientation: view });
-      const ans = entry ? ANSWERS[entry.answer] : '';
-      const why = entry ? entry.why[locale] : '';
-      text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${T['yesno.title']} : ${ans}\n${why}`;
-    }
+    const text = `${current.name[locale]} — ${orient}\n${metaEl.textContent}\n\n${meaning}`;
     try {
       await navigator.clipboard.writeText(text);
       btnCopy.textContent = T['card.copied'];
@@ -980,10 +923,8 @@ const base = import.meta.env.BASE_URL;
       return;
     }
 
-    // Question fermée partagée : #ask=<id>[-reversed] → restaure la jauge.
-    const asked = raw.startsWith('ask=');
-    let body = asked ? raw.slice('ask='.length) : raw;
-
+    // Carte simple partagée : #<id>[-reversed].
+    let body = raw;
     let orientation: Orientation = 'upright';
     if (body.endsWith('-reversed')) {
       body = body.slice(0, -'-reversed'.length);
@@ -991,11 +932,6 @@ const base = import.meta.env.BASE_URL;
     }
     const card = cardById.get(body);
     if (!card) return;
-    if (asked) {
-      askMode = true;
-      const radio = form.querySelector<HTMLInputElement>('input[name="spread"][value="yesno"]');
-      if (radio) radio.checked = true;
-    }
     current = card;
     view = orientation;
     flip.classList.add('no-anim');
@@ -1136,7 +1072,7 @@ const base = import.meta.env.BASE_URL;
   }
   .spread-select {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.25rem;
   }
   .deck-select {
@@ -1523,77 +1459,6 @@ const base = import.meta.env.BASE_URL;
   .btn-decode.is-on {
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.18);
-    color: var(--text);
-  }
-
-  /* ---- « Question fermée » : oracle de jeu (échelle à 6 crans) ---- */
-  /* Pas un verdict binaire : l'échelle du solo (Non, et… → Oui, et…), la case
-     répondue allumée, puis le « pourquoi » rédigé qui relie l'image à la réponse. */
-  .verdict {
-    display: grid;
-    gap: 0.55rem;
-    padding: 0.95rem 1.1rem;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgba(201, 164, 76, 0.05);
-    text-align: center;
-  }
-  .verdict[hidden] {
-    display: none;
-  }
-  .verdict-title {
-    margin: 0;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--muted);
-  }
-  /* Échelle : 6 segments non→oui. Éteints par défaut, la case répondue s'allume. */
-  .oracle-scale {
-    display: flex;
-    gap: 0.32rem;
-    margin: 0.35rem 0.1rem 0.5rem;
-    align-items: center;
-  }
-  .oracle-step {
-    flex: 1;
-    height: 7px;
-    border-radius: 999px;
-    opacity: 0.25;
-    transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
-  }
-  .oracle-step[data-step='0'] { background: #d1454d; } /* Non, et… */
-  .oracle-step[data-step='1'] { background: #d06a4f; } /* Non */
-  .oracle-step[data-step='2'] { background: #c79a52; } /* Non, mais… */
-  .oracle-step[data-step='3'] { background: #8fae55; } /* Oui, mais… */
-  .oracle-step[data-step='4'] { background: #4faf72; } /* Oui */
-  .oracle-step[data-step='5'] { background: #2fb86a; } /* Oui, et… */
-  .oracle-step.is-active {
-    opacity: 1;
-    transform: scaleY(2.1);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.28);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .oracle-step {
-      transition: none;
-    }
-  }
-  .verdict-answer {
-    margin: 0.1rem 0 0;
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    line-height: 1.2;
-  }
-  .verdict-answer[data-tone='no'] {
-    color: #e0716f;
-  }
-  .verdict-answer[data-tone='yes'] {
-    color: #5cc389;
-  }
-  .verdict-why {
-    margin: 0;
-    font-size: 1.02rem;
-    line-height: 1.65;
     color: var(--text);
   }
 

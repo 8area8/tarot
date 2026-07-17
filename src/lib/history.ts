@@ -3,7 +3,7 @@
 // + type + horodatage. Le contenu (noms, sens, images) est re-dérivé des données.
 // Langue-agnostique : un tirage consigné en FR se réaffiche en EN sans conversion.
 
-export type SpreadKind = 'single' | 'yesno' | 'two' | 'three';
+export type SpreadKind = 'single' | 'two' | 'three';
 
 export interface HistoryCard {
   id: string;
@@ -22,7 +22,7 @@ const STORAGE_KEY = 'tarot.history.v1';
 // Fenêtre glissante : les tirages les plus anciens tombent au-delà de cette limite.
 const MAX_ENTRIES = 50;
 
-const KINDS: readonly SpreadKind[] = ['single', 'yesno', 'two', 'three'];
+const KINDS: readonly SpreadKind[] = ['single', 'two', 'three'];
 
 /** Valide une entrée inconnue (JSON potentiellement corrompu ou d'une autre version). */
 function isEntry(value: unknown): value is HistoryEntry {
@@ -90,7 +90,6 @@ export function clearHistory(): void {
  * Fragment d'URL (#…) qui rejoue le tirage sur la home via `initFromHash`.
  * Doit rester aligné sur le parseur de `src/pages/[lang]/index.astro` :
  *   - spread (two/three) : `#spread=<id>[.r],…`
- *   - question fermée     : `#ask=<id>[-reversed]`
  *   - carte simple        : `#<id>[-reversed]`
  */
 export function hashFor(entry: HistoryEntry): string {
@@ -99,6 +98,5 @@ export function hashFor(entry: HistoryEntry): string {
     return `#spread=${parts.join(',')}`;
   }
   const c = entry.cards[0];
-  const suffix = c.reversed ? '-reversed' : '';
-  return entry.kind === 'yesno' ? `#ask=${c.id}${suffix}` : `#${c.id}${suffix}`;
+  return `#${c.id}${c.reversed ? '-reversed' : ''}`;
 }
