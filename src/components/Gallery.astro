@@ -28,7 +28,7 @@ const galleryGroups = [
       <div class="gallery-grid">
         {group.cards.map((card) => (
           <a class="gallery-card" href={`${base}${locale}/#${card.id}`} title={card.name[locale]}>
-            <img src={`${base}cards/${card.image}`} alt={card.name[locale]} width="110" height="192" loading="lazy" />
+            <img src={`${base}cards/${card.id}-thumb.webp`} alt={card.name[locale]} width="110" height="192" loading="lazy" />
             <span class="gallery-name">{card.name[locale]}</span>
           </a>
         ))}

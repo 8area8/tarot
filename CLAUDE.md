@@ -65,7 +65,7 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
 | `src/data/cards.ts` | 78 cartes (22 majeurs rédigés + 56 mineurs), `SUIT_NAMES` |
 | `src/data/grammar.ts`, `spread.ts`, `method.ts`, `symbols.ts` | contenus pédagogiques / spread / « lire l'image » |
 | `src/data/minor-content.ts` | significations des 56 mineurs |
-| `public/cards/` | 78 WebP + `back.svg` + `manifest.json` (provenance) |
+| `public/cards/` | 78 cartes × 2 rendus WebP (`<id>.webp` 800px « full » + `<id>-thumb.webp` 280px) + `back.svg` + `manifest.json` (provenance) |
 
 ## Conventions & pièges (IMPORTANT)
 
@@ -76,6 +76,10 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
   **Ne pas** revenir à `import '@fontsource-variable/…'` (met `font-display: swap`
   → flash/glitch du titre au chargement). `src/env.d.ts` déclare les modules woff2.
 - **Site statique, pas de backend** : aucun état persistant côté serveur.
+- **Images** : deux rendus par carte (voir `fetch-cards.mjs`). La carte tirée
+  (home) charge le « full » (`card.image`), la galerie / l'historique / la
+  grammaire chargent la vignette (`<id>-thumb.webp`). Ne pas servir le full dans
+  une liste de vignettes (poids ×10 inutile).
 - **Animations** : toujours prévoir `@media (prefers-reduced-motion: reduce)`.
 - **Relancer une animation** au clic : `el.classList.remove(x); void el.offsetWidth; el.classList.add(x)`.
 

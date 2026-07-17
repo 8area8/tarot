@@ -71,7 +71,7 @@ const { locale } = Astro.props;
         names.push(c.reversed ? `${name} (${T['card.reversed']})` : name);
         if (!card) continue;
         const img = document.createElement('img');
-        img.src = `${BASE}cards/${card.image}`;
+        img.src = `${BASE}cards/${card.id}-thumb.webp`;
         img.alt = card.name[locale];
         img.width = 60;
         img.height = 105;

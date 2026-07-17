@@ -13,7 +13,13 @@ const ROOT = join(__dirname, '..');
 const OUT = join(ROOT, 'public', 'cards');
 const TMP = join(ROOT, '.cache-cards');
 const UA = 'tarot-app/0.1 (educational; mikael@popsink.com)';
-const QUALITY = 82;
+// Deux rendus par carte : « full » pour la carte tirée (affichée ≤ 240px, marge
+// retina ×3), « thumb » pour la galerie / l'historique / la grammaire (≤ 110px).
+// Les scans bruts (~1120px) sont bien trop lourds pour ces tailles d'affichage.
+const QUALITY = 82; // qualité du full
+const FULL_WIDTH = 800;
+const THUMB_WIDTH = 280;
+const THUMB_QUALITY = 80;
 
 const MAJORS = [
   '00_Fool', '01_Magician', '02_High_Priestess', '03_Empress', '04_Emperor',
@@ -86,18 +92,22 @@ async function main() {
 
     const jpg = join(TMP, `${id}.jpg`);
     const webp = join(OUT, `${id}.webp`);
+    const thumb = join(OUT, `${id}-thumb.webp`);
     let bytes = 0;
-    if (existsSync(webp)) {
+    if (existsSync(webp) && existsSync(thumb)) {
       process.stdout.write(`\r  ${ok + 1}/78  (${id}, déjà présent)     `);
     } else {
       bytes = await download(ii.url, jpg);
-      execFileSync('cwebp', ['-quiet', '-q', String(QUALITY), jpg, '-o', webp]);
+      // full (carte tirée) + thumb (galerie / historique / grammaire).
+      execFileSync('cwebp', ['-quiet', '-q', String(QUALITY), '-resize', String(FULL_WIDTH), '0', jpg, '-o', webp]);
+      execFileSync('cwebp', ['-quiet', '-q', String(THUMB_QUALITY), '-resize', String(THUMB_WIDTH), '0', jpg, '-o', thumb]);
       await sleep(250); // politesse envers Commons
     }
 
     manifest.push({
       id,
       file: `${id}.webp`,
+      thumb: `${id}-thumb.webp`,
       source: ii.descriptionurl || `https://commons.wikimedia.org/wiki/${title}`,
       original: ii.url,
       width: ii.width,
