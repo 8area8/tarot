@@ -70,6 +70,15 @@ export const ui = {
     'grammar.court': 'La cour (Valet → Roi)',
     'grammar.journey': 'Le voyage du Fou',
     'grammar.dignities': 'Les dignités élémentaires',
+    'grammar.lede':
+      'Chaque carte se lit comme une phrase. En voici le vocabulaire : la matière des enseignes, la phase des nombres, les figures de la cour, le récit des majeurs, et la façon dont les cartes se répondent.',
+    'grammar.toc': 'Sommaire',
+    'grammar.seeCards': 'Parcourir les 78 cartes',
+    'grammar.formula': 'La formule',
+    'grammar.formulaText':
+      'Réunissez la matière d’une enseigne et la phase d’un nombre : vous obtenez le sens d’une mineure. L’élément dit de quoi il s’agit, le nombre dit où l’on en est.',
+    'grammar.formulaSee': 'Voir cette carte',
+    'grammar.matrixCaption': 'Comment deux éléments voisins s’influencent, par enseigne.',
     'method.heading': 'Comment lire',
     'card.upright': 'À l’endroit',
     'card.reversed': 'Inversée',
@@ -147,6 +156,15 @@ export const ui = {
     'grammar.court': 'The court (Page → King)',
     'grammar.journey': "The Fool's journey",
     'grammar.dignities': 'Elemental dignities',
+    'grammar.lede':
+      'Every card reads like a sentence. Here is its vocabulary: the matter of the suits, the phase of the numbers, the court figures, the story of the majors, and the way cards answer one another.',
+    'grammar.toc': 'Contents',
+    'grammar.seeCards': 'Browse all 78 cards',
+    'grammar.formula': 'The formula',
+    'grammar.formulaText':
+      'Combine the matter of a suit with the phase of a number and you get the meaning of a minor card. The element says what it is about; the number says where things stand.',
+    'grammar.formulaSee': 'See this card',
+    'grammar.matrixCaption': 'How two neighbouring elements influence each other, by suit.',
     'method.heading': 'How to read',
     'card.upright': 'Upright',
     'card.reversed': 'Reversed',

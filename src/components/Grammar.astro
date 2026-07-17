@@ -1,6 +1,7 @@
 ---
 import { type Locale, t } from '../lib/i18n';
 import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO, DIGNITIES, DIGNITIES_INTRO } from '../data/grammar';
+import { cards, SUIT_NAMES } from '../data/cards';
 import type { Suit } from '../lib/types';
 
 interface Props {
@@ -8,71 +9,599 @@ interface Props {
 }
 
 const { locale } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
 const SUIT_ORDER: Suit[] = ['wands', 'cups', 'swords', 'pentacles'];
 const numberEntries = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ key: String(n), ...NUMBERS[n] }));
 const courtEntries = [11, 12, 13, 14].map((n) => COURT[n]);
+
+// Couleur d'accent par élément (glyphe, filet, puces) — teintes sobres sur fond sombre.
+const ELEM_COLOR: Record<Suit, string> = {
+  wands: '#cf6b3d', // Feu — braise
+  cups: '#5b96b3', // Eau — bleu-vert
+  swords: '#b0a0d8', // Air — lilas
+  pentacles: '#8ba85a', // Terre — mousse
+};
+
+// Découpe une glose « a · b · c » en puces.
+const chips = (gloss: string) => gloss.split('·').map((s) => s.trim()).filter(Boolean);
+
+// Exemple de « formule » : Eau × Cinq = Cinq de Coupes.
+const example = cards.find((c) => c.id === 'cups-05')!;
+
+// Dignités : relation entre deux éléments (par enseigne). Les 4 types suivent
+// l'ordre du tableau DIGNITIES (même / amis / contraires / neutres).
+type Rel = 'same' | 'friend' | 'contrary' | 'neutral';
+const REL_ORDER: Rel[] = ['same', 'friend', 'contrary', 'neutral'];
+const REL_SYM: Record<Rel, string> = { same: '≡', friend: '+', contrary: '×', neutral: '·' };
+function relation(a: Suit, b: Suit): Rel {
+  if (a === b) return 'same';
+  const has = (x: Suit, y: Suit) => (a === x && b === y) || (a === y && b === x);
+  if (has('wands', 'swords') || has('cups', 'pentacles')) return 'friend';
+  if (has('wands', 'cups') || has('swords', 'pentacles')) return 'contrary';
+  return 'neutral';
+}
+
+// Sommaire (ancres partageables).
+const sections = [
+  { id: 'elements', label: t(locale, 'grammar.elements') },
+  { id: 'nombres', label: t(locale, 'grammar.numbers') },
+  { id: 'formule', label: t(locale, 'grammar.formula') },
+  { id: 'cour', label: t(locale, 'grammar.court') },
+  { id: 'voyage', label: t(locale, 'grammar.journey') },
+  { id: 'dignites', label: t(locale, 'grammar.dignities') },
+];
 ---
 
-<div class="grammar">
-  <div class="grammar-group">
-    <h3>{t(locale, 'grammar.elements')}</h3>
-    <ul class="grammar-list">
+<div class="gr">
+  <p class="gr-lede">{t(locale, 'grammar.lede')}</p>
+  <p class="gr-lede-cta">
+    <a href={`${base}${locale}/cartes`}>{t(locale, 'grammar.seeCards')} →</a>
+  </p>
+
+  <nav class="gr-toc" aria-label={t(locale, 'grammar.toc')}>
+    {sections.map((s) => (
+      <a class="gr-toc-link" href={`#${s.id}`}>{s.label}</a>
+    ))}
+  </nav>
+
+  <!-- Les quatre éléments -->
+  <section id="elements" class="gr-section" aria-labelledby="h-elements">
+    <h2 id="h-elements" class="gr-h">{t(locale, 'grammar.elements')}</h2>
+    <div class="gr-elements">
       {SUIT_ORDER.map((suit) => (
-        <li>
-          <p class="g-term"><span class="g-glyph">{ELEMENTS[suit].glyph}</span>{ELEMENTS[suit].label[locale]} <span class="g-gloss">{ELEMENTS[suit].gloss[locale]}</span></p>
-          <p class="g-text">{ELEMENTS[suit].text[locale]}</p>
-        </li>
+        <article class="gr-elem" style={`--elem: ${ELEM_COLOR[suit]}`}>
+          <p class="gr-elem-head">
+            <span class="gr-elem-glyph" aria-hidden="true">{ELEMENTS[suit].glyph}</span>
+            <span class="gr-elem-name">{ELEMENTS[suit].label[locale]}</span>
+            <span class="gr-elem-suit">{SUIT_NAMES[suit][locale]}</span>
+          </p>
+          <p class="gr-chips">
+            {chips(ELEMENTS[suit].gloss[locale]).map((c) => (
+              <span class="gr-chip">{c}</span>
+            ))}
+          </p>
+          <p class="gr-text">{ELEMENTS[suit].text[locale]}</p>
+        </article>
       ))}
-    </ul>
-  </div>
+    </div>
+  </section>
 
-  <div class="grammar-group">
-    <h3>{t(locale, 'grammar.numbers')}</h3>
-    <ul class="grammar-list">
+  <!-- Les nombres 1→10 -->
+  <section id="nombres" class="gr-section" aria-labelledby="h-nombres">
+    <h2 id="h-nombres" class="gr-h">{t(locale, 'grammar.numbers')}</h2>
+    <ul class="gr-grid gr-grid-2">
       {numberEntries.map((e) => (
-        <li>
-          <p class="g-term"><span class="g-key">{e.key}</span>{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-          <p class="g-text">{e.text[locale]}</p>
+        <li class="gr-item">
+          <p class="gr-item-head">
+            <span class="gr-badge">{e.key}</span>
+            <span class="gr-item-name">{e.label[locale]}</span>
+            <span class="gr-gloss">{e.gloss[locale]}</span>
+          </p>
+          <p class="gr-text">{e.text[locale]}</p>
         </li>
       ))}
     </ul>
-  </div>
+  </section>
 
-  <div class="grammar-group">
-    <h3>{t(locale, 'grammar.court')}</h3>
-    <ul class="grammar-list">
+  <!-- La formule : élément × nombre = mineure -->
+  <section id="formule" class="gr-section" aria-labelledby="h-formule">
+    <h2 id="h-formule" class="gr-h">{t(locale, 'grammar.formula')}</h2>
+    <p class="gr-intro">{t(locale, 'grammar.formulaText')}</p>
+    <div class="gr-formula">
+      <div class="gr-formula-term" style={`--elem: ${ELEM_COLOR.cups}`}>
+        <span class="gr-elem-glyph" aria-hidden="true">{ELEMENTS.cups.glyph}</span>
+        <span class="gr-formula-label">{ELEMENTS.cups.label[locale]}</span>
+        <span class="gr-formula-sub">{chips(ELEMENTS.cups.gloss[locale])[0]}</span>
+      </div>
+      <span class="gr-op" aria-hidden="true">×</span>
+      <div class="gr-formula-term">
+        <span class="gr-badge gr-badge-lg">5</span>
+        <span class="gr-formula-label">{NUMBERS[5].label[locale]}</span>
+        <span class="gr-formula-sub">{NUMBERS[5].gloss[locale]}</span>
+      </div>
+      <span class="gr-op" aria-hidden="true">=</span>
+      <a class="gr-formula-card" href={`${base}${locale}/#${example.id}`}>
+        <img src={`${base}cards/${example.image}`} alt={example.name[locale]} width="110" height="192" loading="lazy" />
+        <span class="gr-formula-cardname">{example.name[locale]}</span>
+        <span class="gr-formula-see">{t(locale, 'grammar.formulaSee')} →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- La cour -->
+  <section id="cour" class="gr-section" aria-labelledby="h-cour">
+    <h2 id="h-cour" class="gr-h">{t(locale, 'grammar.court')}</h2>
+    <ul class="gr-grid gr-grid-2">
       {courtEntries.map((e) => (
-        <li>
-          <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-          <p class="g-text">{e.text[locale]}</p>
+        <li class="gr-item">
+          <p class="gr-item-head">
+            <span class="gr-item-name">{e.label[locale]}</span>
+            <span class="gr-gloss">{e.gloss[locale]}</span>
+          </p>
+          <p class="gr-text">{e.text[locale]}</p>
         </li>
       ))}
     </ul>
-  </div>
+  </section>
 
-  <div class="grammar-group">
-    <h3>{t(locale, 'grammar.journey')}</h3>
-    <p class="grammar-intro">{JOURNEY_INTRO[locale]}</p>
-    <ul class="grammar-list">
+  <!-- Le Voyage du Fou -->
+  <section id="voyage" class="gr-section" aria-labelledby="h-voyage">
+    <h2 id="h-voyage" class="gr-h">{t(locale, 'grammar.journey')}</h2>
+    <p class="gr-intro">{JOURNEY_INTRO[locale]}</p>
+    <ol class="gr-grid gr-grid-3">
       {JOURNEY.map((s) => (
-        <li>
-          <p class="g-term"><span class="g-key">{s.range}</span>{s.label[locale]}</p>
-          <p class="g-text">{s.text[locale]}</p>
+        <li class="gr-item">
+          <p class="gr-item-head">
+            <span class="gr-badge">{s.range}</span>
+            <span class="gr-item-name">{s.label[locale]}</span>
+          </p>
+          <p class="gr-text">{s.text[locale]}</p>
         </li>
       ))}
-    </ul>
-  </div>
+    </ol>
+  </section>
 
-  <div class="grammar-group">
-    <h3>{t(locale, 'grammar.dignities')}</h3>
-    <p class="grammar-intro">{DIGNITIES_INTRO[locale]}</p>
-    <ul class="grammar-list">
-      {DIGNITIES.map((e) => (
-        <li>
-          <p class="g-term">{e.label[locale]} <span class="g-gloss">{e.gloss[locale]}</span></p>
-          <p class="g-text">{e.text[locale]}</p>
+  <!-- Les dignités élémentaires : matrice + détail -->
+  <section id="dignites" class="gr-section" aria-labelledby="h-dignites">
+    <h2 id="h-dignites" class="gr-h">{t(locale, 'grammar.dignities')}</h2>
+    <p class="gr-intro">{DIGNITIES_INTRO[locale]}</p>
+
+    <figure class="gr-matrix-wrap">
+      <table class="gr-matrix">
+        <caption class="gr-sr">{t(locale, 'grammar.matrixCaption')}</caption>
+        <thead>
+          <tr>
+            <td class="gr-matrix-corner"></td>
+            {SUIT_ORDER.map((s) => (
+              <th scope="col" style={`--elem: ${ELEM_COLOR[s]}`}>
+                <span aria-hidden="true">{ELEMENTS[s].glyph}</span>
+                <span class="gr-sr">{ELEMENTS[s].label[locale]}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {SUIT_ORDER.map((row) => (
+            <tr>
+              <th scope="row" style={`--elem: ${ELEM_COLOR[row]}`}>
+                <span aria-hidden="true">{ELEMENTS[row].glyph}</span>
+                <span class="gr-sr">{ELEMENTS[row].label[locale]}</span>
+              </th>
+              {SUIT_ORDER.map((col) => {
+                const r = relation(row, col);
+                const label = `${ELEMENTS[row].label[locale]} + ${ELEMENTS[col].label[locale]} : ${DIGNITIES[REL_ORDER.indexOf(r)].gloss[locale]}`;
+                return (
+                  <td class="gr-cell" data-rel={r} title={label}>
+                    <span aria-hidden="true">{REL_SYM[r]}</span>
+                    <span class="gr-sr">{label}</span>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </figure>
+
+    <ul class="gr-legend">
+      {DIGNITIES.map((e, i) => (
+        <li class="gr-legend-item" data-rel={REL_ORDER[i]}>
+          <span class="gr-legend-swatch" aria-hidden="true">{REL_SYM[REL_ORDER[i]]}</span>
+          <p class="gr-item-head">
+            <span class="gr-item-name">{e.label[locale]}</span>
+            <span class="gr-gloss">{e.gloss[locale]}</span>
+          </p>
+          <p class="gr-text">{e.text[locale]}</p>
         </li>
       ))}
     </ul>
-  </div>
+  </section>
 </div>
+
+<style>
+  .gr {
+    max-width: 48rem;
+    margin: 0 auto;
+    display: grid;
+    gap: 2.75rem;
+  }
+  .gr-lede {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    line-height: 1.5;
+    color: var(--text);
+    text-align: center;
+    max-width: 40rem;
+    justify-self: center;
+  }
+  .gr-lede-cta {
+    margin: -1.75rem 0 0;
+    text-align: center;
+  }
+  .gr-lede-cta a {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  .gr-lede-cta a:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  /* Sommaire : pastilles d'ancrage. */
+  .gr-toc {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 0.5rem;
+    margin-top: -1rem;
+  }
+  .gr-toc-link {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .gr-toc-link:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: rgba(201, 164, 76, 0.08);
+  }
+
+  .gr-section {
+    scroll-margin-top: 1.5rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+  /* Titre de section : filet doré, petites capitales — cohérent avec la galerie. */
+  .gr-h {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+  .gr-intro {
+    margin: -0.35rem 0 0;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .gr-text {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .gr-gloss {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* ---- Éléments : grille 2×2, chacun sa couleur ---- */
+  .gr-elements {
+    display: grid;
+    gap: 0.9rem;
+  }
+  @media (min-width: 40rem) {
+    .gr-elements {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .gr-elem {
+    display: grid;
+    gap: 0.6rem;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--elem);
+    border-radius: 12px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--elem) 8%, transparent), transparent 70%);
+  }
+  .gr-elem-head {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.6rem;
+  }
+  .gr-elem-glyph {
+    font-size: 1.4rem;
+    line-height: 1;
+    align-self: center;
+  }
+  .gr-elem-name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--elem);
+  }
+  .gr-elem-suit {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+  .gr-chips {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .gr-chip {
+    font-size: 0.72rem;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--elem) 45%, var(--line));
+    color: var(--text);
+  }
+
+  /* ---- Grilles génériques (nombres / cour / voyage) ---- */
+  .gr-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+  }
+  @media (min-width: 34rem) {
+    .gr-grid-2 {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem 1.6rem;
+    }
+  }
+  @media (min-width: 44rem) {
+    .gr-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+    }
+  }
+  .gr-item-head {
+    margin: 0 0 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.55rem;
+  }
+  .gr-item-name {
+    color: var(--text);
+    font-size: 1.02rem;
+  }
+  /* Pastille de rang / plage (nombre, « 1–7 »…). */
+  .gr-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.7rem;
+    height: 1.35rem;
+    padding: 0 0.4rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  /* ---- La formule : élément × nombre = carte ---- */
+  .gr-formula {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem 1.1rem;
+    padding: 1.4rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(240, 226, 196, 0.03);
+  }
+  .gr-formula-term {
+    display: grid;
+    justify-items: center;
+    gap: 0.15rem;
+    text-align: center;
+    min-width: 6rem;
+  }
+  .gr-formula-term .gr-elem-glyph {
+    font-size: 1.8rem;
+  }
+  .gr-badge-lg {
+    min-width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.1rem;
+    font-family: var(--font-display);
+  }
+  .gr-formula-label {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--text);
+  }
+  .gr-formula-sub {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+  .gr-op {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--accent);
+  }
+  .gr-formula-card {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .gr-formula-card img {
+    width: 96px;
+    height: auto;
+    aspect-ratio: 1100 / 1920;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .gr-formula-card:hover img,
+  .gr-formula-card:focus-visible img {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent),
+      0 0 18px rgba(201, 164, 76, 0.22);
+    outline: none;
+  }
+  .gr-formula-cardname {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+  .gr-formula-see {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+
+  /* ---- Dignités : matrice 4×4 ---- */
+  .gr-matrix-wrap {
+    margin: 0;
+    overflow-x: auto;
+  }
+  .gr-matrix {
+    border-collapse: separate;
+    border-spacing: 0.35rem;
+    margin: 0 auto;
+  }
+  .gr-matrix th {
+    font-weight: 400;
+    font-size: 1.15rem;
+    color: var(--elem);
+    padding: 0.2rem;
+  }
+  .gr-matrix-corner {
+    background: transparent;
+  }
+  .gr-cell {
+    width: 3rem;
+    height: 3rem;
+    text-align: center;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: default;
+  }
+  .gr-cell[data-rel='same'] {
+    color: #d8b45a;
+    background: rgba(201, 164, 76, 0.18);
+  }
+  .gr-cell[data-rel='friend'] {
+    color: #9cbb63;
+    background: rgba(139, 168, 90, 0.18);
+  }
+  .gr-cell[data-rel='contrary'] {
+    color: #d67a55;
+    background: rgba(201, 96, 63, 0.18);
+  }
+  .gr-cell[data-rel='neutral'] {
+    color: rgba(240, 226, 196, 0.5);
+    background: rgba(240, 226, 196, 0.05);
+  }
+
+  /* ---- Dignités : légende détaillée (double le sens des couleurs) ---- */
+  .gr-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 34rem) {
+    .gr-legend {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem 1.6rem;
+    }
+  }
+  .gr-legend-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.7rem;
+    align-items: baseline;
+  }
+  .gr-legend-item .gr-item-head,
+  .gr-legend-item .gr-text {
+    grid-column: 2;
+  }
+  .gr-legend-swatch {
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+  .gr-legend-item[data-rel='same'] .gr-legend-swatch {
+    color: #d8b45a;
+    background: rgba(201, 164, 76, 0.18);
+  }
+  .gr-legend-item[data-rel='friend'] .gr-legend-swatch {
+    color: #9cbb63;
+    background: rgba(139, 168, 90, 0.18);
+  }
+  .gr-legend-item[data-rel='contrary'] .gr-legend-swatch {
+    color: #d67a55;
+    background: rgba(201, 96, 63, 0.18);
+  }
+  .gr-legend-item[data-rel='neutral'] .gr-legend-swatch {
+    color: rgba(240, 226, 196, 0.6);
+    background: rgba(240, 226, 196, 0.06);
+  }
+
+  /* Contenu réservé aux lecteurs d'écran. */
+  .gr-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-formula-card img {
+      transition: none;
+    }
+  }
+</style>
