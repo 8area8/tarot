@@ -131,7 +131,7 @@ const base = import.meta.env.BASE_URL;
       </div>
 
       <div class="spread-reading" id="spread-reading" hidden>
-        <p class="reading-thread" id="reading-thread" hidden></p>
+        <div class="reading-thread" id="reading-thread" hidden></div>
         <ul class="reading-lines" id="reading-lines"></ul>
       </div>
 
@@ -157,6 +157,7 @@ const base = import.meta.env.BASE_URL;
   import { MAJOR_CYCLE } from '../../data/major-cycle';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
   import { SPREADS, type SpreadType } from '../../data/spread';
+  import { RULES, type RuleKey } from '../../data/rules';
   import { pushHistory, type SpreadKind } from '../../lib/history';
   import type { Card, Orientation, Suit } from '../../lib/types';
 
@@ -672,14 +673,60 @@ const base = import.meta.env.BASE_URL;
   cyclePrev.addEventListener('click', () => stepCycle(-1));
   cycleNext.addEventListener('click', () => stepCycle(1));
 
+  // « Pourquoi ? » : adosse à une affirmation la règle qui l'a produite — son nom
+  // (la famille), son mécanisme en clair, et un lien pour l'apprendre. Le <summary>
+  // porte le toggle ET les repères (positions) sur une même ligne cliquable ; le
+  // mécanisme se déplie en dessous.
+  function makeWhy(rule: RuleKey, refsText = ''): HTMLDetailsElement {
+    const info = RULES[rule];
+    const wrap = document.createElement('details');
+    wrap.className = 'reading-why';
+    const sum = document.createElement('summary');
+    sum.className = 'reading-foot';
+    const toggle = document.createElement('span');
+    toggle.className = 'reading-why-toggle';
+    toggle.textContent = T['reading.why'];
+    sum.append(toggle);
+    if (refsText) {
+      const refs = document.createElement('span');
+      refs.className = 'reading-refs';
+      refs.textContent = refsText;
+      sum.append(refs);
+    }
+    wrap.append(sum);
+    const panel = document.createElement('div');
+    panel.className = 'reading-why-body';
+    const label = document.createElement('p');
+    label.className = 'reading-why-rule';
+    label.textContent = info.label[locale];
+    const explain = document.createElement('p');
+    explain.className = 'reading-why-explain';
+    explain.textContent = info.explain[locale];
+    panel.append(label, explain);
+    if (info.learn) {
+      const a = document.createElement('a');
+      a.className = 'reading-why-learn';
+      a.href = `${BASE}${locale}/${info.learn}`;
+      a.textContent = `${T['reading.learn']} →`;
+      panel.append(a);
+    }
+    wrap.append(panel);
+    return wrap;
+  }
+
   // « La lecture » : synthèse unifiée du tirage — le « fil » (quintessence) en tête,
   // puis des liens courts (substance à gauche, positions en repères à droite).
+  // Chaque affirmation porte son « d'où ça vient ? » (la règle sous-jacente).
   function renderSpreadReading(draws: Draw[], mode: DeckMode, type: SpreadType) {
     const { theme, lines } = buildReading(draws, mode, type, locale);
     if (theme) {
-      readingThread.textContent = `${T['spread.thread']} · ${theme.name} · ${majorRoman(theme.number)}`;
+      const txt = document.createElement('span');
+      txt.className = 'reading-thread-text';
+      txt.textContent = `${T['spread.thread']} · ${theme.name} · ${majorRoman(theme.number)}`;
+      readingThread.replaceChildren(txt, makeWhy('theme.quintessence'));
       readingThread.hidden = false;
     } else {
+      readingThread.replaceChildren();
       readingThread.hidden = true;
     }
     readingLines.replaceChildren(
@@ -693,12 +740,8 @@ const base = import.meta.env.BASE_URL;
         text.className = 'reading-text';
         text.textContent = l.text;
         li.append(text);
-        if (l.refs.length) {
-          const refs = document.createElement('span');
-          refs.className = 'reading-refs';
-          refs.textContent = l.refs.join(l.join === 'arrow' ? ' → ' : ' · ');
-          li.append(refs);
-        }
+        const refsText = l.refs.length ? l.refs.join(l.join === 'arrow' ? ' → ' : ' · ') : '';
+        li.append(makeWhy(l.rule, refsText));
         return li;
       }),
     );
@@ -1852,6 +1895,9 @@ const base = import.meta.env.BASE_URL;
   .reading-thread {
     margin: 0;
     padding-bottom: 0.9rem;
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
     text-align: center;
     font-size: 1.08rem;
     color: var(--accent);
@@ -1877,13 +1923,104 @@ const base = import.meta.env.BASE_URL;
     display: block;
   }
   :global(.reading-refs) {
-    display: block;
-    margin-top: 0.15rem;
-    text-align: right;
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
+    text-align: right;
     color: var(--muted);
+  }
+
+  /* « Pourquoi ? » : repli discret révélant la règle derrière l'affirmation.
+     Créé en JS → styles en :global (le scope Astro ne l'atteint pas). Le <summary>
+     est la ligne de pied cliquable : toggle à gauche, repères de position à droite. */
+  :global(.reading-why) {
+    margin-top: 0.25rem;
+  }
+  :global(.reading-foot) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.2rem 0.9rem;
+    list-style: none;
+    cursor: pointer;
+  }
+  :global(.reading-foot::-webkit-details-marker) {
+    display: none;
+  }
+  :global(.reading-why-toggle) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+  :global(.reading-why-toggle::after) {
+    content: '';
+    width: 0.38rem;
+    height: 0.38rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  :global(.reading-why[open] .reading-why-toggle::after) {
+    transform: rotate(-135deg);
+  }
+  :global(.reading-foot:hover .reading-why-toggle) {
+    color: var(--accent);
+  }
+  :global(.reading-foot:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  /* Panneau ouvert : filet doré à gauche, texte aligné à gauche même dans le
+     fil centré ; mécanisme en clair + lien « apprendre ». */
+  :global(.reading-why-body) {
+    margin-top: 0.5rem;
+    padding: 0.15rem 0 0.15rem 0.9rem;
+    border-left: 2px solid rgba(201, 164, 76, 0.4);
+    display: grid;
+    gap: 0.4rem;
+    max-width: 32rem;
+    text-align: left;
+  }
+  :global(.reading-why-rule) {
+    margin: 0;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+  }
+  :global(.reading-why-explain) {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  :global(.reading-why-learn) {
+    width: fit-content;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    color: var(--accent);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  :global(.reading-why-learn:hover) {
+    border-bottom-color: var(--accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.reading-why-toggle::after),
+    :global(.reading-why-learn) {
+      transition: none;
+    }
   }
 
   /* Survol croisé : les liens/cartes reliés brillent, le reste s'atténue. */

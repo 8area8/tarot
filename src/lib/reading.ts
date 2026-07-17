@@ -6,6 +6,7 @@ import { buildEchoes } from './echoes';
 import { buildDignities } from './dignities';
 import { buildSignals } from './signals';
 import { quintessence } from './quintessence';
+import type { RuleKey } from '../data/rules';
 
 /**
  * « La lecture » : une synthèse UNIFIÉE du tirage. Plutôt que quatre sections
@@ -25,6 +26,8 @@ export interface ReadingLine {
   keys: number[];
   /** Comment relier les repères : simple lien (·) ou flux dirigé (→). */
   join: 'dot' | 'arrow';
+  /** La règle qui a produit cette ligne — clé du catalogue `data/rules.ts`. */
+  rule: RuleKey;
 }
 
 export interface Reading {

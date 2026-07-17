@@ -3,6 +3,7 @@ import type { Draw } from './deck';
 import type { Card, Suit } from './types';
 import type { SpreadPosition } from '../data/spread';
 import type { ReadingLine } from './reading';
+import type { RuleKey } from '../data/rules';
 
 /**
  * Dignités élémentaires (tradition Golden Dawn) : une carte ne se lit jamais
@@ -56,6 +57,7 @@ interface Raw {
   text: Bi;
   refs: number[];
   join: 'dot' | 'arrow';
+  rule: RuleKey;
 }
 
 const ELEMENT_LABEL: Record<Element, Bi> = {
@@ -74,22 +76,22 @@ function pairLine(a: number, b: number, els: Element[]): Raw {
     case 'same':
       return {
         text: { fr: `même élément (${eA.fr}) — l'énergie se prolonge, amplifiée`, en: `same element (${eA.en}) — the energy carries on, amplified` },
-        refs, join: 'arrow',
+        refs, join: 'arrow', rule: 'dignity.pair',
       };
     case 'friend':
       return {
         text: { fr: `${eA.fr} et ${eB.fr} s'accordent — le passage est fluide`, en: `${eA.en} and ${eB.en} agree — the passage flows` },
-        refs, join: 'arrow',
+        refs, join: 'arrow', rule: 'dignity.pair',
       };
     case 'enemy':
       return {
         text: { fr: `${eA.fr} et ${eB.fr} se contrarient — l'élan se dilue`, en: `${eA.en} and ${eB.en} clash — momentum thins` },
-        refs, join: 'arrow',
+        refs, join: 'arrow', rule: 'dignity.pair',
       };
     default:
       return {
         text: { fr: `${eA.fr} et ${eB.fr} coexistent sans se mêler`, en: `${eA.en} and ${eB.en} coexist without mixing` },
-        refs, join: 'arrow',
+        refs, join: 'arrow', rule: 'dignity.pair',
       };
   }
 }
@@ -103,13 +105,13 @@ function centerLine(els: Element[]): Raw | null {
   if (supportive(left) && supportive(right)) {
     return {
       text: { fr: 'soutenue des deux côtés — le geste épouse la scène', en: 'supported on both sides — the move fits the scene' },
-      refs: [1], join: 'dot',
+      refs: [1], join: 'dot', rule: 'dignity.center',
     };
   }
   if (left === 'enemy' && right === 'enemy') {
     return {
       text: { fr: 'contrariée des deux côtés — le geste va contre le courant', en: 'opposed on both sides — the move runs against the current' },
-      refs: [1], join: 'dot',
+      refs: [1], join: 'dot', rule: 'dignity.center',
     };
   }
   return null;
@@ -128,5 +130,6 @@ export function buildDignities(draws: Draw[], positions: SpreadPosition[], local
     refs: r.refs.map((i) => positions[i].label[locale]),
     keys: r.refs,
     join: r.join,
+    rule: r.rule,
   }));
 }

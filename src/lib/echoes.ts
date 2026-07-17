@@ -3,6 +3,7 @@ import type { Draw } from './deck';
 import type { SpreadPosition } from '../data/spread';
 import type { Card } from './types';
 import type { ReadingLine } from './reading';
+import type { RuleKey } from '../data/rules';
 import {
   MOTIFS, MINOR_MOTIFS, COLOR_GLOSS, MOTIF_GLOSS,
   type Color, type Motif, type Gaze, type Facing,
@@ -24,6 +25,7 @@ interface Raw {
   text: Bi;
   refs: number[];
   join: 'dot' | 'arrow';
+  rule: RuleKey;
 }
 
 /**
@@ -74,7 +76,7 @@ function colorLines(draws: Draw[]): Raw[] {
     .filter(([, idx]) => idx.length >= 2)
     .sort((a, b) => (COLOR_FREQ.get(a[0]) ?? 0) - (COLOR_FREQ.get(b[0]) ?? 0) || b[1].length - a[1].length)
     .slice(0, 2)
-    .map(([color, idx]) => ({ text: COLOR_GLOSS[color], refs: idx, join: 'dot' as const }));
+    .map(([color, idx]) => ({ text: COLOR_GLOSS[color], refs: idx, join: 'dot' as const, rule: 'dialogue.color' as const }));
 }
 
 /** Jusqu'à deux motifs de scène partagés (≥ 2 cartes), le plus rare d'abord. */
@@ -83,7 +85,7 @@ function motifLines(draws: Draw[]): Raw[] {
     .filter(([, idx]) => idx.length >= 2)
     .sort((a, b) => (MOTIF_FREQ.get(a[0]) ?? 0) - (MOTIF_FREQ.get(b[0]) ?? 0) || b[1].length - a[1].length)
     .slice(0, 2)
-    .map(([motif, idx]) => ({ text: MOTIF_GLOSS[motif], refs: idx, join: 'dot' as const }));
+    .map(([motif, idx]) => ({ text: MOTIF_GLOSS[motif], refs: idx, join: 'dot' as const, rule: 'dialogue.motif' as const }));
 }
 
 /** Regards accordés : levés ensemble, ou baissés ensemble. */
@@ -96,6 +98,7 @@ function gazeLine(draws: Draw[]): Raw | null {
       text: { fr: "les regards se lèvent ensemble, tournés vers l'invisible", en: 'the gazes lift together, toward the unseen' },
       refs: up,
       join: 'dot',
+      rule: 'dialogue.gaze',
     };
   }
   const down = idxWith('down');
@@ -104,6 +107,7 @@ function gazeLine(draws: Draw[]): Raw | null {
       text: { fr: 'les regards se baissent, tournés vers le dedans', en: 'the gazes lower, turned inward' },
       refs: down,
       join: 'dot',
+      rule: 'dialogue.gaze',
     };
   }
   return null;
@@ -123,6 +127,7 @@ function facingLine(draws: Draw[]): Raw | null {
         text: { fr: 'les deux figures se font face, leurs regards se croisent', en: 'the two figures face each other, their gazes meet' },
         refs: [i, i + 1],
         join: 'dot',
+        rule: 'dialogue.facing',
       };
     }
     if (a === 'left' && b === 'right') {
@@ -130,6 +135,7 @@ function facingLine(draws: Draw[]): Raw | null {
         text: { fr: 'les deux figures se tournent le dos, chacune vers son ailleurs', en: 'the two figures turn their backs, each toward its own elsewhere' },
         refs: [i, i + 1],
         join: 'dot',
+        rule: 'dialogue.facing',
       };
     }
   }
@@ -152,5 +158,6 @@ export function buildEchoes(draws: Draw[], positions: SpreadPosition[], locale: 
       refs: r.refs.map((i) => positions[i].label[locale]),
       keys: r.refs,
       join: r.join,
+      rule: r.rule,
     }));
 }

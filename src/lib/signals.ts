@@ -4,6 +4,7 @@ import { ELEMENTS, JOURNEY } from '../data/grammar';
 import type { SpreadPosition } from '../data/spread';
 import type { Suit } from './types';
 import type { ReadingLine } from './reading';
+import type { RuleKey } from '../data/rules';
 
 /**
  * « Signaux » d'un tirage multi-cartes : des observations honnêtes, calculées à
@@ -19,6 +20,7 @@ interface Raw {
   text: Bi;
   refs: number[];
   join: 'dot' | 'arrow';
+  rule: RuleKey;
 }
 
 const COUNT: Record<Locale, Record<number, string>> = {
@@ -49,6 +51,7 @@ function elementSignal(draws: Draw[]): Raw | null {
     },
     refs: [],
     join: 'dot',
+    rule: 'signal.element',
   };
 }
 
@@ -62,6 +65,7 @@ function majorSignal(draws: Draw[], mode: DeckMode): Raw | null {
       text: { fr: "un arcane majeur — le destin s'en mêle ici", en: 'a major arcanum — fate has a hand here' },
       refs: [majorIdx[0]],
       join: 'dot',
+      rule: 'signal.major',
     };
   }
   if (majorIdx.length === 2) {
@@ -69,12 +73,14 @@ function majorSignal(draws: Draw[], mode: DeckMode): Raw | null {
       text: { fr: 'deux arcanes majeurs — de grandes forces traversent la scène', en: 'two major arcana — great forces cross the scene' },
       refs: [],
       join: 'dot',
+      rule: 'signal.major',
     };
   }
   return {
     text: { fr: 'trois arcanes majeurs — la scène vous dépasse, le destin mène', en: 'three major arcana — the scene is beyond you, fate leads' },
     refs: [],
     join: 'dot',
+    rule: 'signal.major',
   };
 }
 
@@ -92,6 +98,7 @@ function journeySignal(draws: Draw[]): Raw | null {
     },
     refs: [],
     join: 'dot',
+    rule: 'signal.journey',
   };
 }
 
@@ -108,12 +115,14 @@ function courtSignal(draws: Draw[]): Raw | null {
       },
       refs: [],
       join: 'dot',
+      rule: 'signal.court',
     };
   }
   return {
     text: { fr: "plusieurs figures — d'autres mains tirent les fils", en: 'several figures — other hands pull the strings' },
     refs: [],
     join: 'dot',
+    rule: 'signal.court',
   };
 }
 
@@ -125,6 +134,7 @@ function orientationSignal(draws: Draw[]): Raw | null {
       text: { fr: "tout à l'endroit — le courant va dans votre sens", en: 'all upright — the current runs your way' },
       refs: [],
       join: 'dot',
+      rule: 'signal.orientation',
     };
   }
   if (reversedIdx.length === draws.length) {
@@ -132,6 +142,7 @@ function orientationSignal(draws: Draw[]): Raw | null {
       text: { fr: 'tout inversé — rien ne se présente franchement', en: 'all reversed — nothing shows its face plainly' },
       refs: [],
       join: 'dot',
+      rule: 'signal.orientation',
     };
   }
   const plural = reversedIdx.length > 1;
@@ -142,6 +153,7 @@ function orientationSignal(draws: Draw[]): Raw | null {
     },
     refs: reversedIdx,
     join: 'dot',
+    rule: 'signal.orientation',
   };
 }
 
@@ -166,5 +178,6 @@ export function buildSignals(
       refs: r.refs.map((i) => positions[i].label[locale]),
       keys: r.refs,
       join: r.join,
+      rule: r.rule,
     }));
 }
