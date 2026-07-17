@@ -11,6 +11,8 @@ type Bi = Record<Locale, string>;
 export interface MethodStep {
   title: Bi;
   text: Bi;
+  /** Liens contextuels : href relatif à /{lang}/ (ex. 'grammaire#dignites') ou ancre same-page ('#…'). */
+  see?: { label: Bi; href: string }[];
 }
 
 export const METHOD_INTRO: Bi = {
@@ -39,6 +41,7 @@ export const METHOD: MethodStep[] = [
       fr: 'Avant les mots-clés, regarde l’image : qui est là, où, quel geste, dans quelle direction ? La carte est d’abord une scène. Ce que tu ressens en la voyant fait partie de la lecture.',
       en: 'Before the keywords, look at the image: who is there, where, what gesture, facing which way? A card is first a scene. What you feel on seeing it is part of the reading.',
     },
+    see: [{ label: { fr: 'Parcourir les cartes', en: 'Browse the cards' }, href: 'cartes' }],
   },
   {
     title: { fr: 'Lire les positions ensemble', en: 'Read the positions together' },
@@ -53,6 +56,10 @@ export const METHOD: MethodStep[] = [
       fr: 'Mesure les poids : les éléments s’accordent ou se contrarient (les dignités), un arcane majeur pèse plus qu’un mineur — « le destin s’en mêle » —, une carte inversée freine ou retourne son énergie.',
       en: 'Weigh the forces: elements agree or clash (the dignities), a major arcanum weighs more than a minor — “fate steps in” —, a reversed card slows or turns its energy.',
     },
+    see: [
+      { label: { fr: 'Les dignités', en: 'Elemental dignities' }, href: 'grammaire#dignites' },
+      { label: { fr: 'Le Voyage du Fou', en: "The Fool's journey" }, href: 'grammaire#voyage' },
+    ],
   },
   {
     title: { fr: 'Dégager la quintessence', en: 'Draw out the quintessence' },
@@ -69,3 +76,61 @@ export const METHOD: MethodStep[] = [
     },
   },
 ];
+
+/**
+ * Un exemple déroulé pas à pas : un tirage « trois temps » lu selon la méthode.
+ * Les cartes et le calcul (Air amplifié, poids du majeur, quintessence 3+17+1=21)
+ * sont cohérents avec la logique de `lib/dignities.ts` et `lib/quintessence.ts`.
+ * `entries` suit l'ordre des positions de `SPREADS.three` (Situation/Action/Conséquence).
+ */
+export interface ExampleEntry {
+  /** Identifiant de carte (voir data/cards). */
+  id: string;
+  /** Comment lire cette carte à cette place. */
+  read: Bi;
+}
+
+export const METHOD_EXAMPLE: {
+  intro: Bi;
+  entries: ExampleEntry[];
+  forces: Bi;
+  quintId: string;
+  quintText: Bi;
+} = {
+  intro: {
+    fr: 'Prenons un tirage « trois temps » — Situation, Action, Conséquence — et déroulons la méthode dessus.',
+    en: 'Take a three-beat spread — Situation, Action, Consequence — and walk the method through it.',
+  },
+  entries: [
+    {
+      id: 'swords-03',
+      read: {
+        fr: 'Trois d’Épées à la Situation : une peine nette, nommée. L’Air tranche — on regarde la blessure en face plutôt que de la fuir.',
+        en: 'Three of Swords at the Situation: a clean, named grief. Air cuts — you look the wound in the face instead of fleeing it.',
+      },
+    },
+    {
+      id: 'major-17',
+      read: {
+        fr: 'L’Étoile à l’Action : après l’orage, verser l’eau et se découvrir au ciel. Le geste juste est d’espérer et de panser, pas de forcer.',
+        en: 'The Star at the Action: after the storm, pour the water and bare yourself to the sky. The fitting move is to hope and to tend, not to force.',
+      },
+    },
+    {
+      id: 'cups-01',
+      read: {
+        fr: 'As de Coupes à la Conséquence : une source neuve s’ouvre. Du cœur blessé peut renaître un sentiment offert.',
+        en: 'Ace of Cups at the Consequence: a fresh source opens. From the wounded heart a given feeling can be reborn.',
+      },
+    },
+  ],
+  forces: {
+    fr: 'On pèse : Trois d’Épées et L’Étoile partagent l’Air — l’énergie se prolonge, la lucidité de la peine nourrit l’espoir. Et L’Étoile est un arcane majeur : le destin s’en mêle, elle pèse plus que ses voisines mineures et donne le ton du tirage.',
+    en: 'Weigh it: Three of Swords and The Star share Air — the energy carries on, the clarity of the grief feeds the hope. And The Star is a major arcanum: fate steps in, it weighs more than its minor neighbours and sets the tone of the draw.',
+  },
+  quintId: 'major-21',
+  quintText: {
+    fr: 'Puis la quintessence : 3 + 17 + 1 = 21. Inutile de réduire, 21 est déjà un majeur — Le Monde. Le thème caché est l’accomplissement : une boucle qui se ferme, la plénitude retrouvée après la traversée.',
+    en: 'Then the quintessence: 3 + 17 + 1 = 21. No need to reduce, 21 is already a major — The World. The hidden theme is fulfilment: a loop closing, wholeness regained after the crossing.',
+  },
+};

@@ -42,9 +42,10 @@ Toujours faire `npx astro check` **et** `npm run build` avant de commiter.
   (`../../lib/…`, `../../data/…`, `../../components/…`).
 - Layout unique `src/layouts/Base.astro` : `<head>`, header (marque + **nav** +
   `LangToggle`), pied de page avec les **crédits** (illustrations RWS domaine public +
-  Wikimedia), tokens CSS `:root` + styles partagés des pages d'apprentissage
-  (`.grammar*`, `.page-title`, `.nav-link`) en `is:global`, polices. Prend `locale`,
-  `title?` et `active?` (entrée de nav en cours).
+  Wikimedia), tokens CSS `:root` + styles partagés (`.page-title`, `.nav-link`)
+  en `is:global`, polices. Chaque composant de page (`Grammar`, `Method`,
+  `Gallery`) porte désormais ses propres styles **scopés**. Prend `locale`,
+  `title?`, `description?` (SEO) et `active?` (entrée de nav en cours).
 
 ### Fichiers clés
 
