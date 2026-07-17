@@ -36,6 +36,14 @@ export const CARD_PINS: Record<string, Pin[]> = {
   "major-00": [
     { at: [0.1565, 0.81], kind: 'symbol', ref: '0' },
     { at: [0.8347, 0.0791], kind: 'symbol', ref: '4' },
+    { at: [0.8391, 0.2579], kind: 'symbol', ref: '2' },
+    { at: [0.7565, 0.6933], kind: 'symbol', ref: '1' },
+    { at: [0.5913, 0.1568], kind: 'symbol', ref: '5' },
+    { at: [0.2, 0.5301], kind: 'color', ref: 'yellow' },
+    { at: [0.1261, 0.7659], kind: 'color', ref: 'blue' },
+    { at: [0.8913, 0.0972], kind: 'motif', ref: 'sun' },
+    { at: [0.8174, 0.5689], kind: 'motif', ref: 'mountain' },
+    { at: [0.2565, 0.302], kind: 'motif', ref: 'wand' },
   ],
 };
 
