@@ -1700,7 +1700,9 @@ const base = import.meta.env.BASE_URL;
      cf. mémoire « styles scopés vs DOM en JS »). */
   :global(.region-shape) {
     fill: transparent;
-    stroke: rgba(201, 164, 76, 0.4);
+    /* Contour invisible au repos : il n'apparaît (en blanc) qu'au survol / focus.
+       La forme reste cliquable/survolable via `pointer-events: fill`. */
+    stroke: transparent;
     stroke-width: 1.5;
     vector-effect: non-scaling-stroke;
     cursor: pointer;
