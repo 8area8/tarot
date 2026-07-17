@@ -430,6 +430,10 @@ const base = import.meta.env.BASE_URL;
     focused = ref;
     paintDim(ref);
     for (const el of regionShapes()) el.classList.toggle('is-focused', el.dataset.idx === String(ref));
+    // Brique verrouillée : marquée `is-selected` (encart appuyé, distinct du survol).
+    for (const el of symBricksEl.children as HTMLCollectionOf<HTMLElement>) {
+      el.classList.toggle('is-selected', ref >= 0 && el.dataset.idx === String(ref));
+    }
     if (ref >= 0) {
       setActive(ref);
       // Amène la page du carrousel qui contient la brique (data-idx === ref) puis
@@ -1736,10 +1740,19 @@ const base = import.meta.env.BASE_URL;
       transition: none;
     }
   }
-  /* Brique du symbole mise en lumière quand sa région est survolée (et inversement). */
+  /* Survol / aperçu croisé région ↔ brique : fond ambré léger (niveau discret). */
   .symbolism :global(.brick.is-active) {
-    background: rgba(201, 164, 76, 0.1);
-    border-radius: 8px;
+    background: rgba(201, 164, 76, 0.08);
+  }
+  /* Verrouillé (sélection) : encart appuyé — filet d'or à gauche, fond plus marqué,
+     halo doux, terme éclairci. Déclaré après is-active → l'emporte sur le fond. */
+  .symbolism :global(.brick.is-selected) {
+    background: rgba(201, 164, 76, 0.15);
+    border-left-color: var(--accent);
+    box-shadow: 0 0 24px rgba(201, 164, 76, 0.16);
+  }
+  .symbolism :global(.brick.is-selected .brick-term) {
+    color: #e9cd86;
   }
   /* Brique dont le symbole a une région tracée : cliquable (focalise la carte). */
   .symbolism :global(.brick.is-linked) {
@@ -2007,9 +2020,20 @@ const base = import.meta.env.BASE_URL;
   .symbolism .bricks :global(.brick) {
     flex: 0 0 calc((100% - (var(--sym-page-size) - 1) * var(--sym-gap)) / var(--sym-page-size));
     min-width: 0;
+    /* Padding + filet gauche transparent RÉSERVÉS sur toutes les briques : la
+       sélection ne fait que les colorer → aucun décalage. box-sizing border-box
+       pour que padding/filet restent dans la largeur calculée (flex-basis). */
+    box-sizing: border-box;
+    padding: 0.55rem 0.85rem;
+    border-left: 3px solid transparent;
+    border-radius: 10px;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
   @media (prefers-reduced-motion: reduce) {
     .symbolism .bricks {
+      transition: none;
+    }
+    .symbolism .bricks :global(.brick) {
       transition: none;
     }
   }
