@@ -11,7 +11,7 @@ const locale = Astro.params.lang as Locale;
 const heading = t(locale, 'grammar.heading');
 ---
 
-<Base locale={locale} title={heading} active="grammaire">
+<Base locale={locale} title={heading} description={t(locale, 'seo.grammar')} active="grammaire">
   <h1 class="page-title">{heading}</h1>
   <Grammar locale={locale} />
 </Base>

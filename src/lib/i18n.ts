@@ -11,6 +11,16 @@ export const ui = {
   fr: {
     'site.title': 'Tirage Tarot',
     'site.tagline': 'Laissez le hasard vous répondre',
+    'seo.home':
+      'Tirez une carte de tarot Rider-Waite-Smith en ligne : arcanes majeurs, mineurs ou jeu complet, cartes inversées et tirage en trois temps. Gratuit, sans inscription.',
+    'seo.cards':
+      'Les 78 cartes du tarot Rider-Waite-Smith en images, avec leur sens à l’endroit et inversé : les arcanes majeurs et les quatre enseignes des mineurs.',
+    'seo.grammar':
+      'La grammaire du tarot : les quatre éléments, les nombres, la cour et le Voyage du Fou pour apprendre à lire n’importe quelle carte.',
+    'seo.method':
+      'Comment lire un tirage de tarot : une méthode pas à pas pour interpréter une carte, relier les images et dégager le sens d’un tirage.',
+    'seo.history':
+      'Retrouvez vos derniers tirages de tarot, conservés dans votre navigateur, et rejouez-les d’un simple clic.',
     'lang.switch': 'English',
     'home.heading': 'Tirez une carte',
     'deck.label': 'Jeu',
@@ -78,6 +88,16 @@ export const ui = {
   en: {
     'site.title': 'Tarot Draw',
     'site.tagline': 'Let chance answer you',
+    'seo.home':
+      'Draw a Rider-Waite-Smith tarot card online: major arcana, minor arcana or the full deck, reversed cards and a three-card spread. Free, no sign-up.',
+    'seo.cards':
+      'All 78 Rider-Waite-Smith tarot cards in pictures, with their upright and reversed meanings: the major arcana and the four minor suits.',
+    'seo.grammar':
+      'The grammar of tarot: the four elements, the numbers, the court and the Fool’s Journey to learn how to read any card.',
+    'seo.method':
+      'How to read a tarot spread: a step-by-step method to interpret a card, connect the images and draw out the meaning of a spread.',
+    'seo.history':
+      'Find your latest tarot draws, kept in your browser, and replay them in a single click.',
     'lang.switch': 'Français',
     'home.heading': 'Draw a card',
     'deck.label': 'Deck',

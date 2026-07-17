@@ -11,7 +11,7 @@ const locale = Astro.params.lang as Locale;
 const heading = t(locale, 'history.heading');
 ---
 
-<Base locale={locale} title={heading} active="historique">
+<Base locale={locale} title={heading} description={t(locale, 'seo.history')} active="historique">
   <h1 class="page-title">{heading}</h1>
   <History locale={locale} />
 </Base>

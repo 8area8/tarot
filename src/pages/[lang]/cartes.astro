@@ -11,7 +11,7 @@ const locale = Astro.params.lang as Locale;
 const heading = t(locale, 'gallery.heading');
 ---
 
-<Base locale={locale} title={heading} active="cartes">
+<Base locale={locale} title={heading} description={t(locale, 'seo.cards')} active="cartes">
   <h1 class="page-title">{heading}</h1>
   <Gallery locale={locale} />
 </Base>

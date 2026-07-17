@@ -11,7 +11,7 @@ const locale = Astro.params.lang as Locale;
 const heading = t(locale, 'method.heading');
 ---
 
-<Base locale={locale} title={heading} active="comment-lire">
+<Base locale={locale} title={heading} description={t(locale, 'seo.method')} active="comment-lire">
   <h1 class="page-title">{heading}</h1>
   <Method locale={locale} />
 </Base>
