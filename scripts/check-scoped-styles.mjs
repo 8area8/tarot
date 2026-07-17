@@ -46,7 +46,7 @@ function blocks(src, tag) {
 function jsClasses(scriptBody) {
   const set = new Set();
   const created = new Set();
-  for (const m of scriptBody.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*document\.createElement/g)) {
+  for (const m of scriptBody.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*document\.createElement(?:NS)?\b/g)) {
     created.add(m[1]);
   }
   if (created.size === 0) return set;

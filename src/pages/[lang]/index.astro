@@ -61,7 +61,7 @@ const base = import.meta.env.BASE_URL;
           </div>
           <div class="face face-front">
             <img id="card-img" alt="" width="300" height="524" />
-            <div class="pin-layer" id="pin-layer" aria-hidden="true"></div>
+            <svg class="region-layer" id="region-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
           </div>
         </div>
       </div>
@@ -154,7 +154,7 @@ const base = import.meta.env.BASE_URL;
   import { buildReading } from '../../lib/reading';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
-  import { CARD_PINS, type Pin } from '../../data/card-pins';
+  import { CARD_REGIONS, type Region, type Point } from '../../data/card-regions';
   import { MINOR_CYCLE } from '../../data/minor-cycle';
   import { MAJOR_CYCLE } from '../../data/major-cycle';
   import { ELEMENTS, NUMBERS, COURT, JOURNEY, JOURNEY_INTRO } from '../../data/grammar';
@@ -196,7 +196,8 @@ const base = import.meta.env.BASE_URL;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
-  const pinLayer = document.querySelector<HTMLElement>('#pin-layer')!;
+  const regionLayer = document.querySelector<SVGSVGElement>('#region-layer')!;
+  const SVGNS = 'http://www.w3.org/2000/svg';
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
   const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
   const spreadEl = document.querySelector<HTMLElement>('#spread')!;
@@ -310,64 +311,164 @@ const base = import.meta.env.BASE_URL;
     syms.forEach((s, i) => {
       const brick = makeBrick('', s.label[locale], '', s.text[locale], true);
       brick.dataset.idx = String(i);
-      brick.addEventListener('mouseenter', () => focusPin(i));
-      brick.addEventListener('mouseleave', clearPinFocus);
+      brick.addEventListener('mouseenter', () => setActive(i));
+      brick.addEventListener('mouseleave', () => setActive(focused));
       symBricksEl.appendChild(brick);
     });
     return true;
   }
 
-  // Survol croisé pastille ↔ brique (par `data-idx` = index du symbole) : met en
-  // lumière la paire liée, sans rien masquer.
-  function focusPin(idx: number) {
-    for (const el of [...pinLayer.children, ...symBricksEl.children] as HTMLElement[]) {
+  // Région (symbole) actuellement « ouverte » — celle dont le clic assombrit le reste.
+  let focused = -1; // ref du symbole focalisé (-1 = aucun)
+  let regionData: Region[] = []; // régions de la carte courante
+  let regionCard: Card | null = null; // carte dont les régions sont posées
+  // Dimensions du viewBox = ratio réel de l'image courante. Le SVG est recadré
+  // comme l'image (`preserveAspectRatio="xMidYMid slice"` ↔ `object-fit: cover`),
+  // sinon les polygones (coords 0–1) sont décalés par le recadrage de la carte.
+  let vbW = 1000;
+  let vbH = 1000;
+
+  const regionShapes = () =>
+    [...regionLayer.querySelectorAll<SVGPolygonElement>('.region-shape')];
+
+  // Survol croisé région ↔ brique (par `data-idx` = index du symbole) : met en
+  // lumière la paire liée (toutes les formes d'une même région), sans assombrir.
+  function setActive(idx: number) {
+    for (const el of regionShapes()) el.classList.toggle('is-active', el.dataset.idx === String(idx));
+    for (const el of symBricksEl.children as HTMLCollectionOf<HTMLElement>) {
       el.classList.toggle('is-active', el.dataset.idx === String(idx));
     }
   }
-  function clearPinFocus() {
-    for (const el of [...pinLayer.children, ...symBricksEl.children] as HTMLElement[]) {
-      el.classList.remove('is-active');
+
+  // Focalise une région : ses objets restent éclairés, le reste de l'image
+  // s'assombrit (trou du masque = toutes ses formes), la brique se surligne et
+  // défile en vue. -1 = relâche.
+  function setFocus(ref: number) {
+    focused = ref;
+    regionLayer.classList.toggle('has-focus', ref >= 0);
+    for (const el of regionShapes()) el.classList.toggle('is-focused', el.dataset.idx === String(ref));
+    const holeG = regionLayer.querySelector('#region-dim-hole-g');
+    if (holeG) {
+      const region = regionData.find((r) => r.ref === ref);
+      holeG.replaceChildren(
+        ...(region?.shapes ?? []).map((shape) => {
+          const p = svgEl('polygon');
+          p.setAttribute('points', pointsAttr(shape));
+          p.setAttribute('fill', 'black');
+          return p;
+        }),
+      );
     }
-  }
-  // Tap sur une pastille (mobile) : déplie la brique du symbole et l'amène en vue.
-  function revealPin(idx: number) {
-    focusPin(idx);
-    const brick = symBricksEl.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
-    if (!brick) return;
-    if (brick instanceof HTMLDetailsElement) brick.open = true;
-    brick.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+    if (ref >= 0) {
+      setActive(ref);
+      const brick = symBricksEl.querySelector<HTMLElement>(`[data-idx="${ref}"]`);
+      if (brick) {
+        if (brick instanceof HTMLDetailsElement) brick.open = true;
+        brick.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+      }
+    } else {
+      setActive(-1);
+    }
   }
 
-  // Pose les pastilles sur l'illustration (coordonnées normalisées). Chaque pastille
-  // pointe un symbole (`p.ref`) ; son `data-idx` la relie à la brique correspondante.
-  function buildPinLayer(card: Card, pins: Pin[]) {
-    pinLayer.replaceChildren();
+  const svgEl = (name: string) => document.createElementNS(SVGNS, name);
+  const pointsAttr = (shape: Point[]) => shape.map(([x, y]) => `${x * vbW},${y * vbH}`).join(' ');
+
+  // Cale le viewBox sur le ratio de l'image (largeur fixe, hauteur = ratio). À
+  // défaut de dimensions naturelles connues, garde un carré (rebâti au `load`).
+  function syncViewBox() {
+    const w = cardImg.naturalWidth;
+    const h = cardImg.naturalHeight;
+    vbW = 1000;
+    vbH = w > 0 && h > 0 ? Math.round((1000 * h) / w) : 1000;
+    regionLayer.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
+    regionLayer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  }
+
+  // Construit le calque SVG : un masque (trou = formes focalisées), le voile sombre,
+  // et un polygone interactif par forme (toutes les formes d'une région partagent son
+  // `ref` → survol/clic les traitent ensemble).
+  function buildRegionLayer(card: Card, regions: Region[]) {
+    clearRegionLayer();
+    regionData = regions;
+    regionCard = card;
+    syncViewBox();
     const syms = SYMBOLS[card.id] ?? [];
-    for (const p of pins) {
-      const s = syms[p.ref];
+
+    const defs = svgEl('defs');
+    const mask = svgEl('mask');
+    mask.setAttribute('id', 'region-dim-hole');
+    mask.setAttribute('maskUnits', 'userSpaceOnUse');
+    const mrect = svgEl('rect');
+    mrect.setAttribute('x', '0');
+    mrect.setAttribute('y', '0');
+    mrect.setAttribute('width', String(vbW));
+    mrect.setAttribute('height', String(vbH));
+    mrect.setAttribute('fill', 'white');
+    const holeG = svgEl('g');
+    holeG.setAttribute('id', 'region-dim-hole-g');
+    mask.append(mrect, holeG);
+    defs.append(mask);
+
+    const dim = svgEl('rect');
+    dim.setAttribute('class', 'region-dim');
+    dim.setAttribute('x', '0');
+    dim.setAttribute('y', '0');
+    dim.setAttribute('width', String(vbW));
+    dim.setAttribute('height', String(vbH));
+    dim.setAttribute('mask', 'url(#region-dim-hole)');
+    dim.addEventListener('click', () => setFocus(-1));
+
+    const g = svgEl('g');
+    for (const rg of regions) {
+      const s = syms[rg.ref];
       if (!s) continue;
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'pin-dot';
-      dot.dataset.idx = String(p.ref);
-      dot.style.left = `${p.at[0] * 100}%`;
-      dot.style.top = `${p.at[1] * 100}%`;
-      dot.setAttribute('aria-label', s.label[locale]);
-      dot.addEventListener('mouseenter', () => focusPin(p.ref));
-      dot.addEventListener('mouseleave', clearPinFocus);
-      dot.addEventListener('click', () => revealPin(p.ref));
-      pinLayer.appendChild(dot);
+      const toggle = () => setFocus(focused === rg.ref ? -1 : rg.ref);
+      for (const shape of rg.shapes) {
+        const poly = svgEl('polygon') as SVGPolygonElement;
+        poly.setAttribute('points', pointsAttr(shape));
+        poly.classList.add('region-shape');
+        poly.dataset.idx = String(rg.ref);
+        poly.setAttribute('tabindex', '0');
+        poly.setAttribute('role', 'button');
+        poly.setAttribute('aria-label', s.label[locale]);
+        poly.addEventListener('mouseenter', () => setActive(rg.ref));
+        poly.addEventListener('mouseleave', () => setActive(focused));
+        poly.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggle();
+        });
+        poly.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        });
+        g.append(poly);
+      }
     }
+    regionLayer.append(defs, dim, g);
   }
-  function clearPinLayer() {
-    pinLayer.replaceChildren();
+  function clearRegionLayer() {
+    regionLayer.replaceChildren();
+    regionLayer.classList.remove('has-focus');
+    focused = -1;
+    regionData = [];
+    regionCard = null;
   }
+
+  // Les dimensions naturelles de l'image peuvent n'être connues qu'au chargement
+  // (premier tirage, cache froid) : le viewBox posé à « carré » serait alors faux.
+  // On rebâtit le calque une fois l'image décodée.
+  cardImg.addEventListener('load', () => {
+    if (regionCard && regionData.length > 0) buildRegionLayer(regionCard, regionData);
+  });
 
   // La symbolique, sous la carte : TOUS les symboles en briques (ancienne façon).
-  // En plus, si la carte est annotée et tirée à l'endroit, on pose les pastilles
-  // sur l'illustration (l'art pivote à 180° en inversé → pas d'épingles alors).
+  // En plus, si la carte est annotée et tirée à l'endroit, on trace les régions sur
+  // l'illustration (l'art pivote à 180° en inversé → pas de régions alors).
   function updateSymbolism(card: Card | null, orientation: Orientation) {
-    clearPinLayer();
+    clearRegionLayer();
     if (!card) {
       symbolismEl.hidden = true;
       return;
@@ -375,9 +476,14 @@ const base = import.meta.env.BASE_URL;
     const has = fillSymbols(card);
     symbolismEl.hidden = !has;
     if (has) syncSymbolismDisclosure();
-    const pins = CARD_PINS[card.id] ?? [];
-    if (has && pins.length > 0 && orientation === 'upright') buildPinLayer(card, pins);
+    const regions = CARD_REGIONS[card.id] ?? [];
+    if (has && regions.length > 0 && orientation === 'upright') buildRegionLayer(card, regions);
   }
+
+  // Échap relâche la région focalisée (assombrissement).
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && focused >= 0) setFocus(-1);
+  });
 
   // Ouvre/replie les briques de symbolique selon la largeur : dépliées sur desktop
   // (non repliables, cf. CSS), repliées sur mobile (tap pour ouvrir). Chrome récent
@@ -1500,54 +1606,67 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  /* ---- Épingles interprétatives ----
-     Pastilles numérotées posées sur l'illustration, reliées à la légende « La
-     symbolique » par survol croisé. Le calque vit dans la face avant : il pivote
-     et se masque avec elle (backface-visibility), et le JS le vide quand la carte
-     est inversée (l'art tourne alors à 180°, les coordonnées ne collent plus). */
-  .pin-layer {
+  /* ---- Régions interprétatives ----
+     Calque SVG dans la face avant (pivote/masqué avec elle) : un polygone par objet
+     détouré. Contour discret au repos, doré au survol ; au clic, l'objet reste
+     éclairé et le reste de l'image s'assombrit (voile masqué par le polygone). Le JS
+     vide le calque quand la carte est inversée (l'art tourne à 180°). */
+  .region-layer {
     position: absolute;
     inset: 0;
-    pointer-events: none;
+    width: 100%;
+    height: 100%;
   }
-  /* Pastilles créées en JS → styles en :global (le scope Astro ne les atteint pas,
-     cf. mémoire « styles scopés vs DOM en JS »). Sans ça, pas de position:absolute
-     → elles s'empilent en haut à gauche. Petit point doré au repos ; il grossit et
-     s'entoure de blanc quand il est actif (survol de la pastille OU de sa brique). */
-  :global(.pin-dot) {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: 0.95rem;
-    height: 0.95rem;
-    padding: 0;
-    border-radius: 50%;
-    border: 1.5px solid #140e1a;
-    background: var(--accent);
+  /* Éléments SVG créés en JS → styles en :global (le scope Astro ne les atteint pas ;
+     cf. mémoire « styles scopés vs DOM en JS »). */
+  :global(.region-shape) {
+    fill: transparent;
+    stroke: rgba(201, 164, 76, 0.4);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
     cursor: pointer;
+    pointer-events: fill;
+    /* Pas d'outline navigateur : c'est un rectangle (bounding-box) autour du
+       polygone ; le focus est signalé par le `stroke` (cf. :focus-visible). */
+    outline: none;
+    transition: stroke 0.18s ease, stroke-width 0.18s ease;
+  }
+  :global(.region-shape:hover),
+  :global(.region-shape.is-active) {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+  :global(.region-shape.is-focused) {
+    stroke: #fff;
+    stroke-width: 2.5;
+  }
+  /* Région focalisée : on masque le contour de TOUTES les autres régions (on ne
+     veut voir que l'objet sélectionné, le reste étant assombri). */
+  .region-layer.has-focus :global(.region-shape:not(.is-focused)) {
+    stroke: transparent;
+  }
+  :global(.region-shape:focus-visible) {
+    stroke: #fff;
+    stroke-width: 3;
+  }
+  /* Voile sombre : masqué (opacity 0) tant qu'aucune région n'est focalisée. */
+  :global(.region-dim) {
+    fill: rgba(10, 7, 13, 0.74);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  .region-layer.has-focus :global(.region-dim) {
+    opacity: 1;
     pointer-events: auto;
-    box-shadow: 0 0 0 1.5px rgba(201, 164, 76, 0.7), 0 1px 4px rgba(0, 0, 0, 0.6);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-  :global(.pin-dot:hover),
-  :global(.pin-dot.is-active) {
-    z-index: 4;
-    transform: translate(-50%, -50%) scale(1.4);
-    box-shadow: 0 0 0 2px #fff, 0 0 14px rgba(201, 164, 76, 0.9);
-  }
-  :global(.pin-dot:focus-visible) {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    :global(.pin-dot) {
+    :global(.region-shape),
+    :global(.region-dim) {
       transition: none;
     }
-    :global(.pin-dot:hover),
-    :global(.pin-dot.is-active) {
-      transform: translate(-50%, -50%);
-    }
   }
-  /* Brique du symbole mise en lumière quand sa pastille est survolée (et inversement). */
+  /* Brique du symbole mise en lumière quand sa région est survolée (et inversement). */
   .symbolism :global(.brick.is-active) {
     background: rgba(201, 164, 76, 0.1);
     border-radius: 8px;

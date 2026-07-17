@@ -1,13 +1,13 @@
 ---
 /**
- * Outil d'annotation (DÉVELOPPEMENT UNIQUEMENT) — pose des épingles sur n'importe
- * quelle carte et rattache-les à une donnée existante (symbole / couleur / motif).
- * « Enregistrer » réécrit `src/data/card-pins.ts` via le middleware Vite
- * `annotateSavePlugin` (voir astro.config.mjs). Non liée dans la navigation.
+ * Outil d'annotation (DÉVELOPPEMENT UNIQUEMENT) — trace des RÉGIONS sur n'importe
+ * quelle carte et rattache chacune à un SYMBOLE (`symbols.ts`). Une région peut
+ * comporter PLUSIEURS formes (polygones disjoints). « Enregistrer » réécrit
+ * `src/data/card-regions.ts` via le middleware Vite `annotateSavePlugin`
+ * (voir astro.config.mjs). Non liée dans la navigation.
  *
  * Vit sous `[lang]` (servi sur `/fr/annotate`) : en dev, les routes non préfixées
- * par la locale renvoient 404 (prefixDefaultLocale). La locale n'a aucun autre rôle
- * ici — l'UI de cet outil interne reste en français.
+ * par la locale renvoient 404 (prefixDefaultLocale). L'UI reste en français.
  */
 export function getStaticPaths() {
   return [{ params: { lang: 'fr' } }];
@@ -46,29 +46,33 @@ const isDev = import.meta.env.DEV;
         <section class="stage">
           <div class="img-wrap" id="img-wrap">
             <img id="card-img" alt="" />
-            <div class="pins" id="pins"></div>
+            <svg id="draw" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+            <div class="handles" id="handles"></div>
           </div>
-          <p class="hint">
-            Clique sur l'image pour poser une épingle. Glisse une épingle pour l'ajuster.
-            Clique une épingle pour la sélectionner.
-          </p>
+          <div class="toolbar">
+            <button type="button" id="btn-new">+ Nouvelle région</button>
+            <button type="button" id="btn-add" hidden>+ Ajouter une forme</button>
+            <button type="button" id="btn-finish" hidden>Terminer (Entrée)</button>
+            <button type="button" id="btn-cancel" hidden>Annuler (Échap)</button>
+          </div>
+          <p class="hint" id="hint"></p>
         </section>
 
         <aside class="panel">
           <div class="editor" id="editor" hidden>
-            <p class="editor-title">Épingle <span id="pin-num"></span></p>
+            <p class="editor-title">Région <span id="form-num"></span></p>
             <label class="field">
               <span>Symbole</span>
               <select id="ref-select"></select>
             </label>
             <p class="preview" id="preview"></p>
-            <button type="button" id="btn-delete" class="danger">Supprimer l'épingle</button>
+            <button type="button" id="btn-delete" class="danger">Supprimer la région</button>
           </div>
-          <p class="editor-empty" id="editor-empty">Aucune épingle sélectionnée.</p>
+          <p class="editor-empty" id="editor-empty">Aucune région sélectionnée.</p>
 
           <div class="list-wrap">
-            <p class="list-title">Épingles de la carte (<span id="pin-count">0</span>)</p>
-            <ol class="pin-list" id="pin-list"></ol>
+            <p class="list-title">Régions de la carte (<span id="count">0</span>)</p>
+            <ol class="reg-list" id="reg-list"></ol>
           </div>
         </aside>
       </div>
@@ -85,8 +89,6 @@ const isDev = import.meta.env.DEV;
     --text: #efe6d6;
     --muted: #a99fbf;
     --gold: #c9a44c;
-    --blue: #5b96b3;
-    --green: #8ba85a;
   }
   * { box-sizing: border-box; }
   body {
@@ -96,7 +98,7 @@ const isDev = import.meta.env.DEV;
     font: 15px/1.5 system-ui, sans-serif;
   }
   .dev-only { padding: 2rem; }
-  #annotate-app { padding: 1rem 1.25rem 3rem; max-width: 1200px; margin: 0 auto; }
+  #annotate-app { padding: 1rem 1.25rem 3rem; max-width: 1280px; margin: 0 auto; }
   .bar {
     display: flex;
     flex-wrap: wrap;
@@ -129,45 +131,62 @@ const isDev = import.meta.env.DEV;
   button.primary { border-color: var(--gold); background: rgba(201, 164, 76, 0.18); color: var(--gold); }
   button.danger { border-color: #a5566a; color: #e79ab0; background: transparent; }
   button:hover { filter: brightness(1.15); }
+  button:disabled { opacity: 0.4; cursor: default; }
   .status { font-size: 0.85rem; color: var(--muted); }
 
-  .work { display: grid; grid-template-columns: minmax(0, 1fr) 22rem; gap: 1.5rem; margin-top: 1.25rem; align-items: start; }
+  .work { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.5rem; margin-top: 1.25rem; align-items: start; }
   @media (max-width: 60rem) { .work { grid-template-columns: 1fr; } }
 
   .stage { display: grid; gap: 0.6rem; }
-  .img-wrap { position: relative; width: fit-content; margin: 0 auto; user-select: none; }
+  /* Carte agrandie pour tracer précisément. */
+  .img-wrap { position: relative; width: min(760px, 64vw); margin: 0 auto; user-select: none; touch-action: none; }
+  @media (max-width: 60rem) { .img-wrap { width: min(760px, 92vw); } }
   #card-img {
     display: block;
-    width: min(460px, 90vw);
+    width: 100%;
     height: auto;
     border-radius: 10px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   }
-  .pins { position: absolute; inset: 0; cursor: crosshair; }
-  .hint { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0; }
-
-  /* Épingle : pastille numérotée, couleur selon le type. */
-  .pin {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    border-radius: 50%;
-    border: 2px solid #000;
-    background: var(--gold);
-    color: #14101c;
-    font-size: 0.72rem;
-    font-weight: 700;
-    display: grid;
-    place-items: center;
-    cursor: grab;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  /* Calque de tracé (SVG) : polygones + fond capteur de clics. */
+  #draw { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #draw.is-drawing { cursor: crosshair; }
+  .draw-bg { fill: transparent; pointer-events: fill; }
+  .shape {
+    fill: rgba(201, 164, 76, 0.12);
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    pointer-events: fill;
+    cursor: pointer;
   }
-  .pin[data-kind='color'] { background: var(--blue); }
-  .pin[data-kind='motif'] { background: var(--green); }
-  .pin.is-selected { outline: 3px solid #fff; z-index: 3; }
-  .pin:active { cursor: grabbing; }
+  #draw.is-drawing .shape { pointer-events: none; opacity: 0.45; }
+  .shape.is-selected { fill: rgba(201, 164, 76, 0.24); stroke: #fff; stroke-width: 2; }
+  .draft {
+    fill: rgba(201, 164, 76, 0.1);
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 3;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+  /* Poignées de sommets (HTML au-dessus du SVG, pour rester rondes). */
+  .handles { position: absolute; inset: 0; pointer-events: none; }
+  .handle {
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--gold);
+    pointer-events: auto;
+    cursor: grab;
+  }
+  .handle:active { cursor: grabbing; }
+  .handle.draft-pt { background: var(--gold); border-color: #fff; cursor: default; }
+  .toolbar { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+  .hint { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0; max-width: 40rem; justify-self: center; }
 
   .panel { display: grid; gap: 1.2rem; }
   .editor { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
@@ -179,8 +198,8 @@ const isDev = import.meta.env.DEV;
   .preview { margin: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5; min-height: 1.2rem; }
 
   .list-title { margin: 0 0 0.5rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-  .pin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
-  .pin-list li {
+  .reg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .reg-list li {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -190,8 +209,8 @@ const isDev = import.meta.env.DEV;
     cursor: pointer;
     font-size: 0.85rem;
   }
-  .pin-list li.is-selected { border-color: var(--gold); background: rgba(201, 164, 76, 0.1); }
-  .pin-list .badge {
+  .reg-list li.is-selected { border-color: var(--gold); background: rgba(201, 164, 76, 0.1); }
+  .reg-list .badge {
     flex: none;
     width: 1.4rem; height: 1.4rem;
     border-radius: 50%;
@@ -199,40 +218,49 @@ const isDev = import.meta.env.DEV;
     font-size: 0.72rem; font-weight: 700; color: #14101c;
     background: var(--gold);
   }
-  .pin-list .badge[data-kind='color'] { background: var(--blue); }
-  .pin-list .badge[data-kind='motif'] { background: var(--green); }
-  .pin-list .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .reg-list .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 
 <script>
   import { cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
-  import { CARD_PINS, type Pin } from '../../data/card-pins';
+  import { CARD_REGIONS, type Region, type Point } from '../../data/card-regions';
 
   function init() {
     const BASE = import.meta.env.BASE_URL;
+    const SVGNS = 'http://www.w3.org/2000/svg';
     const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
     const cardSelect = $<HTMLSelectElement>('card-select');
     const img = $<HTMLImageElement>('card-img');
-    const pinsEl = $<HTMLElement>('pins');
+    const draw = document.getElementById('draw') as unknown as SVGSVGElement;
+    const handlesEl = $<HTMLElement>('handles');
     const editor = $<HTMLElement>('editor');
     const editorEmpty = $<HTMLElement>('editor-empty');
-    const pinNum = $<HTMLElement>('pin-num');
+    const formNum = $<HTMLElement>('form-num');
     const refSelect = $<HTMLSelectElement>('ref-select');
     const preview = $<HTMLElement>('preview');
     const btnDelete = $<HTMLButtonElement>('btn-delete');
     const btnSave = $<HTMLButtonElement>('btn-save');
     const statusEl = $<HTMLElement>('status');
-    const pinList = $<HTMLOListElement>('pin-list');
-    const pinCount = $<HTMLElement>('pin-count');
+    const list = $<HTMLOListElement>('reg-list');
+    const count = $<HTMLElement>('count');
+    const btnNew = $<HTMLButtonElement>('btn-new');
+    const btnAdd = $<HTMLButtonElement>('btn-add');
+    const btnFinish = $<HTMLButtonElement>('btn-finish');
+    const btnCancel = $<HTMLButtonElement>('btn-cancel');
+    const hint = $<HTMLElement>('hint');
 
-    // Copie de travail des données (le fichier reste la source de vérité).
-    const store: Record<string, Pin[]> = structuredClone(CARD_PINS);
+    // Copie de travail (le fichier reste la source de vérité).
+    const store: Record<string, Region[]> = structuredClone(CARD_REGIONS);
     let cardId = cards[0].id;
-    let selected = -1;
+    let selected = -1; // index de région
+    let mode: 'idle' | 'draw' = 'idle';
+    let draft: Point[] = [];
+    let drawTarget: 'new' | number = 'new'; // à qui rattacher la forme en cours
+    let dragS = -1; // forme en cours de déplacement
+    let dragV = -1; // sommet en cours de déplacement
 
-    // Peuple le sélecteur de cartes.
     for (const c of cards) {
       const o = document.createElement('option');
       o.value = c.id;
@@ -240,42 +268,124 @@ const isDev = import.meta.env.DEV;
       cardSelect.append(o);
     }
 
-    const pinsOf = (): Pin[] => (store[cardId] ??= []);
+    const regionsOf = (): Region[] => (store[cardId] ??= []);
+    const refLabel = (rg: Region) => SYMBOLS[cardId]?.[rg.ref]?.label.fr ?? `symbole ${rg.ref}`;
+    const refOptions = (): [number, string][] =>
+      (SYMBOLS[cardId] ?? []).map((s, i) => [i, `${i + 1}. ${s.label.fr}`]);
+    const status = (m: string) => (statusEl.textContent = m);
+    const svgEl = (n: string) => document.createElementNS(SVGNS, n);
+    const pts = (shape: Point[]) => shape.map(([x, y]) => `${x * 1000},${y * 1000}`).join(' ');
 
-    // Libellé lisible d'une épingle : le nom du symbole visé.
-    function refLabel(p: Pin): string {
-      return SYMBOLS[cardId]?.[p.ref]?.label.fr ?? `symbole ${p.ref}`;
+    // Position normalisée (0–1) d'un pointeur, relative à l'image.
+    function normPos(e: PointerEvent): Point {
+      const r = draw.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      return [Math.round(x * 1e4) / 1e4, Math.round(y * 1e4) / 1e4];
     }
 
-    // Options = les symboles de la carte : [index, libellé].
-    function refOptions(): [number, string][] {
-      return (SYMBOLS[cardId] ?? []).map((s, i) => [i, `${i + 1}. ${s.label.fr}`]);
+    // Distance d'un point au segment [a,b] (espace normalisé, approximatif).
+    function segDist(p: Point, a: Point, b: Point): number {
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const l2 = dx * dx + dy * dy;
+      let t = l2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2 : 0;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
     }
 
-    function status(msg: string) {
-      statusEl.textContent = msg;
+    // Insère un sommet dans une forme, sur l'arête la plus proche du clic (affinage).
+    function insertVertex(shape: Point[], p: Point) {
+      let best = 0;
+      let bestD = Infinity;
+      for (let i = 0; i < shape.length; i++) {
+        const d = segDist(p, shape[i], shape[(i + 1) % shape.length]);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+      shape.splice(best + 1, 0, p);
     }
 
-    // Rendu des pastilles sur l'image.
-    function renderPins() {
-      pinsEl.replaceChildren();
-      pinsOf().forEach((p, i) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'pin' + (i === selected ? ' is-selected' : '');
-        b.textContent = String(i + 1);
-        b.style.left = `${p.at[0] * 100}%`;
-        b.style.top = `${p.at[1] * 100}%`;
-        b.addEventListener('pointerdown', (e) => startDrag(e, i));
-        pinsEl.append(b);
+    function renderSvg() {
+      draw.replaceChildren();
+      draw.classList.toggle('is-drawing', mode === 'draw');
+      const bg = svgEl('rect');
+      bg.setAttribute('class', 'draw-bg');
+      bg.setAttribute('x', '0');
+      bg.setAttribute('y', '0');
+      bg.setAttribute('width', '1000');
+      bg.setAttribute('height', '1000');
+      bg.addEventListener('pointerdown', (e) => {
+        if (mode === 'draw') {
+          draft.push(normPos(e as PointerEvent));
+          render();
+        } else if (selected !== -1) {
+          selected = -1;
+          render();
+        }
       });
+      draw.append(bg);
+
+      regionsOf().forEach((rg, ri) => {
+        rg.shapes.forEach((shape, si) => {
+          const poly = svgEl('polygon');
+          poly.setAttribute('points', pts(shape));
+          poly.setAttribute('class', 'shape' + (ri === selected ? ' is-selected' : ''));
+          poly.dataset.s = String(si);
+          poly.addEventListener('pointerdown', (e) => {
+            if (mode === 'draw') return;
+            e.stopPropagation();
+            if (ri === selected) {
+              // clic dans la région déjà sélectionnée → ajoute un point (affinage)
+              insertVertex(shape, normPos(e as PointerEvent));
+              render();
+            } else {
+              selected = ri;
+              render();
+            }
+          });
+          draw.append(poly);
+        });
+      });
+
+      if (mode === 'draw' && draft.length) {
+        const dpoly = svgEl('polygon');
+        dpoly.setAttribute('points', pts(draft));
+        dpoly.setAttribute('class', 'draft');
+        draw.append(dpoly);
+      }
     }
 
-    // Rendu de la liste latérale.
+    function renderHandles() {
+      handlesEl.replaceChildren();
+      const mk = (p: Point, cls: string, s: number, v: number) => {
+        const h = document.createElement('div');
+        h.className = cls;
+        h.style.left = `${p[0] * 100}%`;
+        h.style.top = `${p[1] * 100}%`;
+        if (v >= 0) {
+          h.dataset.s = String(s);
+          h.dataset.v = String(v);
+          h.addEventListener('pointerdown', (e) => startVertexDrag(e, s, v));
+          h.addEventListener('dblclick', () => removeVertex(s, v));
+        }
+        handlesEl.append(h);
+      };
+      if (mode === 'draw') {
+        draft.forEach((p) => mk(p, 'handle draft-pt', -1, -1));
+      } else if (selected !== -1) {
+        regionsOf()[selected].shapes.forEach((shape, si) =>
+          shape.forEach((p, v) => mk(p, 'handle', si, v)),
+        );
+      }
+    }
+
     function renderList() {
-      pinCount.textContent = String(pinsOf().length);
-      pinList.replaceChildren();
-      pinsOf().forEach((p, i) => {
+      count.textContent = String(regionsOf().length);
+      list.replaceChildren();
+      regionsOf().forEach((rg, i) => {
         const li = document.createElement('li');
         if (i === selected) li.classList.add('is-selected');
         const badge = document.createElement('span');
@@ -283,20 +393,24 @@ const isDev = import.meta.env.DEV;
         badge.textContent = String(i + 1);
         const lbl = document.createElement('span');
         lbl.className = 'lbl';
-        lbl.textContent = refLabel(p);
+        lbl.textContent = `${refLabel(rg)}${rg.shapes.length > 1 ? ` (${rg.shapes.length} formes)` : ''}`;
         li.append(badge, lbl);
-        li.addEventListener('click', () => select(i));
-        pinList.append(li);
+        li.addEventListener('click', () => {
+          if (mode === 'draw') return;
+          selected = i;
+          render();
+        });
+        list.append(li);
       });
     }
 
-    // Rendu de l'éditeur de l'épingle sélectionnée.
     function renderEditor() {
-      const p = pinsOf()[selected];
-      editor.hidden = !p;
-      editorEmpty.hidden = !!p;
-      if (!p) return;
-      pinNum.textContent = String(selected + 1);
+      const rg = regionsOf()[selected];
+      const show = mode === 'idle' && !!rg;
+      editor.hidden = !show;
+      editorEmpty.hidden = show;
+      if (!show || !rg) return;
+      formNum.textContent = String(selected + 1);
       refSelect.replaceChildren();
       for (const [val, label] of refOptions()) {
         const o = document.createElement('option');
@@ -304,67 +418,105 @@ const isDev = import.meta.env.DEV;
         o.textContent = label;
         refSelect.append(o);
       }
-      refSelect.value = String(p.ref);
-      preview.textContent = refLabel(p);
+      refSelect.value = String(rg.ref);
+      preview.textContent = refLabel(rg);
+    }
+
+    function renderToolbar() {
+      const drawing = mode === 'draw';
+      btnNew.hidden = drawing;
+      btnAdd.hidden = drawing || selected === -1;
+      btnFinish.hidden = !drawing;
+      btnCancel.hidden = !drawing;
+      btnFinish.disabled = draft.length < 3;
+      hint.textContent = drawing
+        ? 'Clique sur l’image pour ajouter des points (≥ 3), puis « Terminer ». Échap pour annuler.'
+        : 'Sélectionne une région (glisse ses poignées ; clique dans la forme pour ajouter un point ; double-clic sur une poignée pour la retirer). « Ajouter une forme » complète la région sélectionnée.';
     }
 
     function render() {
-      renderPins();
+      renderSvg();
+      renderHandles();
       renderList();
       renderEditor();
+      renderToolbar();
     }
 
-    function select(i: number) {
-      selected = i;
+    // Déplacement d'un sommet (re-render du SVG seulement — les poignées gardent
+    // leur capture de pointeur ; on repositionne juste celle qu'on glisse).
+    function startVertexDrag(e: PointerEvent, s: number, v: number) {
+      e.stopPropagation();
+      e.preventDefault();
+      dragS = s;
+      dragV = v;
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    }
+    document.addEventListener('pointermove', (e) => {
+      if (dragV < 0 || selected === -1) return;
+      regionsOf()[selected].shapes[dragS][dragV] = normPos(e);
+      const h = handlesEl.querySelector<HTMLElement>(`[data-s="${dragS}"][data-v="${dragV}"]`);
+      if (h) {
+        h.style.left = `${regionsOf()[selected].shapes[dragS][dragV][0] * 100}%`;
+        h.style.top = `${regionsOf()[selected].shapes[dragS][dragV][1] * 100}%`;
+      }
+      renderSvg();
+    });
+    document.addEventListener('pointerup', () => {
+      dragS = -1;
+      dragV = -1;
+    });
+
+    function removeVertex(s: number, v: number) {
+      const rg = regionsOf()[selected];
+      if (!rg) return;
+      if (rg.shapes[s].length > 3) rg.shapes[s].splice(v, 1);
+      else if (rg.shapes.length > 1) rg.shapes.splice(s, 1);
       render();
     }
 
-    // Position normalisée (0–1) d'un événement pointeur, relative à l'image.
-    function normPos(e: PointerEvent): [number, number] {
-      const r = pinsEl.getBoundingClientRect();
-      const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-      const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-      return [Math.round(x * 1e4) / 1e4, Math.round(y * 1e4) / 1e4];
+    function startDraw(target: 'new' | number) {
+      mode = 'draw';
+      drawTarget = target;
+      draft = [];
+      if (target === 'new') selected = -1;
+      render();
     }
-
-    // Glisser une épingle (et distinguer un simple clic pour la sélection).
-    let drag: { i: number; moved: boolean } | null = null;
-    function startDrag(e: PointerEvent, i: number) {
-      e.stopPropagation();
-      e.preventDefault();
-      select(i);
-      drag = { i, moved: false };
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    }
-    pinsEl.addEventListener('pointermove', (e) => {
-      if (!drag) return;
-      drag.moved = true;
-      pinsOf()[drag.i].at = normPos(e);
-      const el = pinsEl.children[drag.i] as HTMLElement;
-      el.style.left = `${pinsOf()[drag.i].at[0] * 100}%`;
-      el.style.top = `${pinsOf()[drag.i].at[1] * 100}%`;
+    btnNew.addEventListener('click', () => startDraw('new'));
+    btnAdd.addEventListener('click', () => {
+      if (selected !== -1) startDraw(selected);
     });
-    pinsEl.addEventListener('pointerup', () => {
-      drag = null;
+    btnFinish.addEventListener('click', () => {
+      if (draft.length < 3) return;
+      if (drawTarget === 'new') {
+        regionsOf().push({ shapes: [draft.slice()], ref: 0 });
+        selected = regionsOf().length - 1;
+      } else {
+        regionsOf()[drawTarget].shapes.push(draft.slice());
+        selected = drawTarget;
+      }
+      mode = 'idle';
+      draft = [];
+      render();
     });
-
-    // Clic sur l'image (zone vide) → nouvelle épingle (symbole 0 par défaut).
-    pinsEl.addEventListener('pointerdown', (e) => {
-      if (e.target !== pinsEl) return; // un clic sur une pastille est géré par startDrag
-      const at = normPos(e);
-      pinsOf().push({ at, ref: 0 });
-      select(pinsOf().length - 1);
+    btnCancel.addEventListener('click', () => {
+      mode = 'idle';
+      draft = [];
+      render();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mode === 'draw') btnCancel.click();
+      else if (e.key === 'Enter' && mode === 'draw') btnFinish.click();
     });
 
     refSelect.addEventListener('change', () => {
-      const p = pinsOf()[selected];
-      if (!p) return;
-      p.ref = Number(refSelect.value);
+      const rg = regionsOf()[selected];
+      if (!rg) return;
+      rg.ref = Number(refSelect.value);
       render();
     });
     btnDelete.addEventListener('click', () => {
       if (selected < 0) return;
-      pinsOf().splice(selected, 1);
+      regionsOf().splice(selected, 1);
       selected = -1;
       render();
     });
@@ -372,6 +524,8 @@ const isDev = import.meta.env.DEV;
     function loadCard(id: string) {
       cardId = id;
       selected = -1;
+      mode = 'idle';
+      draft = [];
       img.src = `${BASE}cards/${id}.webp`;
       img.alt = id;
       render();
@@ -388,7 +542,7 @@ const isDev = import.meta.env.DEV;
           body: JSON.stringify(store),
         });
         const j = await res.json();
-        status(j.ok ? 'Enregistré ✓ — card-pins.ts mis à jour' : `Erreur : ${j.error}`);
+        status(j.ok ? 'Enregistré ✓ — card-regions.ts mis à jour' : `Erreur : ${j.error}`);
       } catch (err) {
         status(`Erreur réseau : ${err}`);
       } finally {

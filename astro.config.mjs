@@ -9,15 +9,17 @@ import { fileURLToPath } from 'node:url';
  * POST vers `…/__save-pins` réécrit `src/data/card-pins.ts` à partir du JSON reçu.
  */
 function annotateSavePlugin() {
-  const target = fileURLToPath(new URL('./src/data/card-pins.ts', import.meta.url));
+  const target = fileURLToPath(new URL('./src/data/card-regions.ts', import.meta.url));
   const r = (n) => Math.round(n * 1e4) / 1e4; // 4 décimales
-  const serialize = (pins) =>
-    Object.keys(pins)
-      .filter((id) => Array.isArray(pins[id]) && pins[id].length > 0)
+  const pt = ([x, y]) => `[${r(x)}, ${r(y)}]`;
+  const poly = (shape) => `[${shape.map(pt).join(', ')}]`;
+  const serialize = (regions) =>
+    Object.keys(regions)
+      .filter((id) => Array.isArray(regions[id]) && regions[id].length > 0)
       .sort()
       .map((id) => {
-        const rows = pins[id]
-          .map((p) => `    { at: [${r(p.at[0])}, ${r(p.at[1])}], ref: ${Number(p.ref)} },`)
+        const rows = regions[id]
+          .map((rg) => `    { shapes: [${rg.shapes.map(poly).join(', ')}], ref: ${Number(rg.ref)} },`)
           .join('\n');
         return `  ${JSON.stringify(id)}: [\n${rows}\n  ],`;
       })
@@ -32,12 +34,12 @@ function annotateSavePlugin() {
         req.on('data', (c) => (body += c));
         req.on('end', () => {
           try {
-            const pins = JSON.parse(body);
+            const regions = JSON.parse(body);
             const src = fs.readFileSync(target, 'utf8');
-            const anchor = 'export const CARD_PINS: Record<string, Pin[]> = {';
+            const anchor = 'export const CARD_REGIONS: Record<string, Region[]> = {';
             const braceStart = src.indexOf('{', src.indexOf(anchor));
             const braceEnd = src.indexOf('\n};', braceStart);
-            const next = `${src.slice(0, braceStart + 1)}\n${serialize(pins)}${src.slice(braceEnd)}`;
+            const next = `${src.slice(0, braceStart + 1)}\n${serialize(regions)}${src.slice(braceEnd)}`;
             fs.writeFileSync(target, next, 'utf8');
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
