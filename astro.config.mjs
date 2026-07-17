@@ -11,14 +11,13 @@ import { fileURLToPath } from 'node:url';
 function annotateSavePlugin() {
   const target = fileURLToPath(new URL('./src/data/card-pins.ts', import.meta.url));
   const r = (n) => Math.round(n * 1e4) / 1e4; // 4 décimales
-  const q = (s) => `'${String(s).replace(/'/g, "\\'")}'`;
   const serialize = (pins) =>
     Object.keys(pins)
       .filter((id) => Array.isArray(pins[id]) && pins[id].length > 0)
       .sort()
       .map((id) => {
         const rows = pins[id]
-          .map((p) => `    { at: [${r(p.at[0])}, ${r(p.at[1])}], kind: ${q(p.kind)}, ref: ${q(p.ref)} },`)
+          .map((p) => `    { at: [${r(p.at[0])}, ${r(p.at[1])}], ref: ${Number(p.ref)} },`)
           .join('\n');
         return `  ${JSON.stringify(id)}: [\n${rows}\n  ],`;
       })

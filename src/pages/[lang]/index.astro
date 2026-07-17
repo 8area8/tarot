@@ -98,10 +98,6 @@ const base = import.meta.env.BASE_URL;
         <div class="symbolism" id="symbolism" hidden>
           <p class="study-title">{t(locale, 'study.image')}</p>
           <div class="bricks" id="sym-bricks"></div>
-          <div class="pin-explore" id="pin-explore" hidden>
-            <div class="pin-chips" id="pin-chips"></div>
-            <div class="pin-fiche" id="pin-fiche" aria-live="polite"></div>
-          </div>
         </div>
         <div class="study" id="study" hidden>
           <div class="bricks" id="bricks"></div>
@@ -158,7 +154,6 @@ const base = import.meta.env.BASE_URL;
   import { buildReading } from '../../lib/reading';
   import { SUIT_NAMES, SUIT_ELEMENTS, MAJOR_CORRESPONDENCE, cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
-  import { COLOR_GLOSS, MOTIF_GLOSS } from '../../data/motifs';
   import { CARD_PINS, type Pin } from '../../data/card-pins';
   import { MINOR_CYCLE } from '../../data/minor-cycle';
   import { MAJOR_CYCLE } from '../../data/major-cycle';
@@ -202,9 +197,6 @@ const base = import.meta.env.BASE_URL;
   const bricksEl = document.querySelector<HTMLElement>('#bricks')!;
   const symBricksEl = document.querySelector<HTMLElement>('#sym-bricks')!;
   const pinLayer = document.querySelector<HTMLElement>('#pin-layer')!;
-  const pinExplore = document.querySelector<HTMLElement>('#pin-explore')!;
-  const pinChips = document.querySelector<HTMLElement>('#pin-chips')!;
-  const pinFiche = document.querySelector<HTMLElement>('#pin-fiche')!;
   const btnOptions = document.querySelector<HTMLButtonElement>('#btn-options')!;
   const optionsPanel = document.querySelector<HTMLElement>('#options-panel')!;
   const spreadEl = document.querySelector<HTMLElement>('#spread')!;
@@ -308,141 +300,83 @@ const base = import.meta.env.BASE_URL;
     return false;
   }
 
-  // « L'image » : liste les symboles repérables de l'illustration RWS.
+  // « L'image » : liste TOUS les symboles repérables de l'illustration RWS (affichage
+  // « ancienne façon », tout visible sous la carte). Chaque brique porte son index
+  // (`data-idx`) pour le survol croisé avec l'épingle correspondante.
   function fillSymbols(card: Card): boolean {
     const syms = SYMBOLS[card.id];
     if (!syms || !syms.length) return false;
     symBricksEl.replaceChildren();
-    for (const s of syms) {
-      symBricksEl.appendChild(makeBrick('', s.label[locale], '', s.text[locale], true));
-    }
+    syms.forEach((s, i) => {
+      const brick = makeBrick('', s.label[locale], '', s.text[locale], true);
+      brick.dataset.idx = String(i);
+      brick.addEventListener('mouseenter', () => focusPin(i));
+      brick.addEventListener('mouseleave', clearPinFocus);
+      symBricksEl.appendChild(brick);
+    });
     return true;
   }
 
-  // Lecture résolue d'une épingle selon son type : un symbole propre à la carte,
-  // une couleur ou un motif du vocabulaire — jamais de prose nouvelle, on ne fait
-  // que POINTER un sens déjà écrit dans les données.
-  function pinReading(card: Card, p: Pin): { term: string; body: string } {
-    if (p.kind === 'symbol') {
-      const s = SYMBOLS[card.id]?.[Number(p.ref)];
-      return { term: s?.label[locale] ?? `#${p.ref}`, body: s?.text[locale] ?? '' };
-    }
-    if (p.kind === 'color') {
-      return { term: T['pin.color'], body: COLOR_GLOSS[p.ref as keyof typeof COLOR_GLOSS]?.[locale] ?? p.ref };
-    }
-    return { term: T['pin.motif'], body: MOTIF_GLOSS[p.ref as keyof typeof MOTIF_GLOSS]?.[locale] ?? p.ref };
-  }
-
-  // « Explorer l'image » : une seule fiche à la fois, celle de l'épingle choisie.
-  // État de la sélection courante (le survol n'est qu'un aperçu, le clic la fixe).
-  let pinCard: Card | null = null;
-  let pinDraws: Pin[] = [];
-  let pinSelected = 0;
-
-  // Met en lumière la pastille + la puce d'index i (les autres au repos).
-  function setPinActive(i: number) {
-    for (const el of [...pinLayer.children, ...pinChips.children] as HTMLElement[]) {
-      el.classList.toggle('is-active', el.dataset.idx === String(i));
+  // Survol croisé pastille ↔ brique (par `data-idx` = index du symbole) : met en
+  // lumière la paire liée, sans rien masquer.
+  function focusPin(idx: number) {
+    for (const el of [...pinLayer.children, ...symBricksEl.children] as HTMLElement[]) {
+      el.classList.toggle('is-active', el.dataset.idx === String(idx));
     }
   }
-
-  // Affiche la fiche de l'épingle i (numéro + terme + texte) et surligne ses repères.
-  function showFiche(i: number) {
-    if (!pinCard || !pinDraws[i]) return;
-    const r = pinReading(pinCard, pinDraws[i]);
-    const head = document.createElement('p');
-    head.className = 'pin-fiche-head';
-    const num = document.createElement('span');
-    num.className = 'pin-fiche-num';
-    num.textContent = String(i + 1);
-    const term = document.createElement('span');
-    term.className = 'pin-fiche-term';
-    term.textContent = r.term;
-    head.append(num, term);
-    const kids: HTMLElement[] = [head];
-    if (r.body) {
-      const bodyEl = document.createElement('p');
-      bodyEl.className = 'pin-fiche-body';
-      bodyEl.textContent = r.body;
-      kids.push(bodyEl);
+  function clearPinFocus() {
+    for (const el of [...pinLayer.children, ...symBricksEl.children] as HTMLElement[]) {
+      el.classList.remove('is-active');
     }
-    pinFiche.replaceChildren(...kids);
-    setPinActive(i);
+  }
+  // Tap sur une pastille (mobile) : déplie la brique du symbole et l'amène en vue.
+  function revealPin(idx: number) {
+    focusPin(idx);
+    const brick = symBricksEl.querySelector<HTMLElement>(`[data-idx="${idx}"]`);
+    if (!brick) return;
+    if (brick instanceof HTMLDetailsElement) brick.open = true;
+    brick.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
   }
 
-  // Rend une pastille ou une puce sélectionnable : survol = aperçu, clic/focus = fixe.
-  function wireSelectable(el: HTMLElement, i: number) {
-    el.addEventListener('mouseenter', () => showFiche(i));
-    el.addEventListener('mouseleave', () => showFiche(pinSelected));
-    el.addEventListener('focus', () => showFiche(i));
-    el.addEventListener('click', () => {
-      pinSelected = i;
-      showFiche(i);
-    });
-  }
-
-  // Pose les pastilles numérotées sur l'illustration (coordonnées normalisées).
+  // Pose les pastilles sur l'illustration (coordonnées normalisées). Chaque pastille
+  // pointe un symbole (`p.ref`) ; son `data-idx` la relie à la brique correspondante.
   function buildPinLayer(card: Card, pins: Pin[]) {
     pinLayer.replaceChildren();
-    pins.forEach((p, i) => {
+    const syms = SYMBOLS[card.id] ?? [];
+    for (const p of pins) {
+      const s = syms[p.ref];
+      if (!s) continue;
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = 'pin-dot';
-      dot.dataset.idx = String(i);
-      dot.textContent = String(i + 1);
+      dot.dataset.idx = String(p.ref);
       dot.style.left = `${p.at[0] * 100}%`;
       dot.style.top = `${p.at[1] * 100}%`;
-      dot.setAttribute('aria-label', pinReading(card, p).term);
-      wireSelectable(dot, i);
+      dot.setAttribute('aria-label', s.label[locale]);
+      dot.addEventListener('mouseenter', () => focusPin(p.ref));
+      dot.addEventListener('mouseleave', clearPinFocus);
+      dot.addEventListener('click', () => revealPin(p.ref));
       pinLayer.appendChild(dot);
-    });
+    }
   }
   function clearPinLayer() {
     pinLayer.replaceChildren();
   }
 
-  // Rangée de puces numérotées : vue d'ensemble + navigation clavier/tactile.
-  function buildPinChips(card: Card, pins: Pin[]) {
-    pinChips.replaceChildren();
-    pins.forEach((p, i) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'pin-chip';
-      chip.dataset.idx = String(i);
-      chip.textContent = String(i + 1);
-      chip.setAttribute('aria-label', pinReading(card, p).term);
-      wireSelectable(chip, i);
-      pinChips.appendChild(chip);
-    });
-  }
-
-  // La symbolique, sous la carte. Deux modes : carte annotée et à l'endroit →
-  // « explorer l'image » (pastilles + une fiche) ; sinon → toutes les symboliques.
+  // La symbolique, sous la carte : TOUS les symboles en briques (ancienne façon).
+  // En plus, si la carte est annotée et tirée à l'endroit, on pose les pastilles
+  // sur l'illustration (l'art pivote à 180° en inversé → pas d'épingles alors).
   function updateSymbolism(card: Card | null, orientation: Orientation) {
     clearPinLayer();
     if (!card) {
       symbolismEl.hidden = true;
       return;
     }
+    const has = fillSymbols(card);
+    symbolismEl.hidden = !has;
+    if (has) syncSymbolismDisclosure();
     const pins = CARD_PINS[card.id] ?? [];
-    const pinMode = pins.length > 0 && orientation === 'upright';
-    if (pinMode) {
-      pinCard = card;
-      pinDraws = pins;
-      pinSelected = 0;
-      buildPinLayer(card, pins);
-      buildPinChips(card, pins);
-      showFiche(0);
-      symBricksEl.hidden = true;
-      pinExplore.hidden = false;
-      symbolismEl.hidden = false;
-    } else {
-      pinExplore.hidden = true;
-      symBricksEl.hidden = false;
-      const has = fillSymbols(card);
-      symbolismEl.hidden = !has;
-      if (has) syncSymbolismDisclosure();
-    }
+    if (has && pins.length > 0 && orientation === 'upright') buildPinLayer(card, pins);
   }
 
   // Ouvre/replie les briques de symbolique selon la largeur : dépliées sur desktop
@@ -1578,39 +1512,27 @@ const base = import.meta.env.BASE_URL;
   }
   /* Pastilles créées en JS → styles en :global (le scope Astro ne les atteint pas,
      cf. mémoire « styles scopés vs DOM en JS »). Sans ça, pas de position:absolute
-     → elles s'empilent en haut à gauche. */
-  /* Disque sombre + anneau doré. Discret au repos (petit, sobre) pour ne pas
-     saturer quand une carte porte beaucoup d'épingles ; l'épingle ACTIVE (survol
-     d'elle-même ou de son entrée de légende) grossit et s'allume en doré plein. */
+     → elles s'empilent en haut à gauche. Petit point doré au repos ; il grossit et
+     s'entoure de blanc quand il est actif (survol de la pastille OU de sa brique). */
   :global(.pin-dot) {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 1.15rem;
-    height: 1.15rem;
+    width: 0.95rem;
+    height: 0.95rem;
     padding: 0;
-    display: grid;
-    place-items: center;
     border-radius: 50%;
-    border: 1px solid rgba(201, 164, 76, 0.8);
-    background: rgba(20, 14, 26, 0.72);
-    color: var(--accent);
-    font-family: var(--font-body);
-    font-size: 0.62rem;
-    font-weight: 700;
-    line-height: 1;
+    border: 1.5px solid #140e1a;
+    background: var(--accent);
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.5);
-    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease,
-      color 0.18s ease;
+    box-shadow: 0 0 0 1.5px rgba(201, 164, 76, 0.7), 0 1px 4px rgba(0, 0, 0, 0.6);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
   :global(.pin-dot:hover),
   :global(.pin-dot.is-active) {
     z-index: 4;
-    background: var(--accent);
-    color: #140e1a;
-    transform: translate(-50%, -50%) scale(1.5);
-    box-shadow: 0 0 0 2px #fff, 0 0 16px rgba(201, 164, 76, 0.85);
+    transform: translate(-50%, -50%) scale(1.4);
+    box-shadow: 0 0 0 2px #fff, 0 0 14px rgba(201, 164, 76, 0.9);
   }
   :global(.pin-dot:focus-visible) {
     outline: 2px solid #fff;
@@ -1625,108 +1547,10 @@ const base = import.meta.env.BASE_URL;
       transform: translate(-50%, -50%);
     }
   }
-  /* « Explorer l'image » (mode épingles) : rangée de puces numérotées + une seule
-     fiche à la fois. On centre et on borne la largeur de lecture sous la carte. */
-  .pin-explore {
-    display: grid;
-    gap: 1rem;
-    max-width: 34rem;
-    margin-inline: auto;
-  }
-  .pin-explore[hidden] {
-    display: none;
-  }
-  .pin-chips {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.4rem;
-  }
-  /* Puces et contenu de la fiche sont créés en JS → styles en :global (le scope
-     Astro ne les atteint pas ; cf. mémoire « styles scopés vs DOM en JS »). */
-  :global(.pin-chip) {
-    width: 1.9rem;
-    height: 1.9rem;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--font-body);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-  }
-  :global(.pin-chip:hover) {
-    color: var(--text);
-    border-color: var(--accent);
-  }
-  :global(.pin-chip.is-active) {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #140e1a;
-    font-weight: 700;
-  }
-  :global(.pin-chip:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  /* Fiche : hauteur mini pour limiter les sauts de mise en page entre entrées. */
-  .pin-fiche {
-    min-height: 6rem;
-    text-align: left;
-  }
-  :global(.pin-fiche-head) {
-    margin: 0 0 0.5rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.55rem;
-  }
-  :global(.pin-fiche-num) {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-  :global(.pin-fiche-term) {
-    color: var(--accent);
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-  :global(.pin-fiche-body) {
-    margin: 0;
-    line-height: 1.75;
-    color: rgba(240, 226, 196, 0.85);
-    font-size: 1.02rem;
-  }
-  :global(.pin-fiche-head),
-  :global(.pin-fiche-body) {
-    animation: fiche-in 0.28s ease both;
-  }
-  @keyframes fiche-in {
-    from {
-      opacity: 0;
-      transform: translateY(3px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.pin-chip) {
-      transition: none;
-    }
-    :global(.pin-fiche-head),
-    :global(.pin-fiche-body) {
-      animation: none;
-    }
+  /* Brique du symbole mise en lumière quand sa pastille est survolée (et inversement). */
+  .symbolism :global(.brick.is-active) {
+    background: rgba(201, 164, 76, 0.1);
+    border-radius: 8px;
   }
 
   /* Respiration du dos de carte à l'état initial : le halo pulse pour inviter au tirage. */

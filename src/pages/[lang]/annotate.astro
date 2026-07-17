@@ -58,15 +58,7 @@ const isDev = import.meta.env.DEV;
           <div class="editor" id="editor" hidden>
             <p class="editor-title">Épingle <span id="pin-num"></span></p>
             <label class="field">
-              <span>Type</span>
-              <select id="kind-select">
-                <option value="symbol">Symbole (de cette carte)</option>
-                <option value="color">Couleur</option>
-                <option value="motif">Motif</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Donnée</span>
+              <span>Symbole</span>
               <select id="ref-select"></select>
             </label>
             <p class="preview" id="preview"></p>
@@ -215,8 +207,7 @@ const isDev = import.meta.env.DEV;
 <script>
   import { cards } from '../../data/cards';
   import { SYMBOLS } from '../../data/symbols';
-  import { COLOR_GLOSS, MOTIF_GLOSS } from '../../data/motifs';
-  import { CARD_PINS, type Pin, type PinKind } from '../../data/card-pins';
+  import { CARD_PINS, type Pin } from '../../data/card-pins';
 
   function init() {
     const BASE = import.meta.env.BASE_URL;
@@ -228,7 +219,6 @@ const isDev = import.meta.env.DEV;
     const editor = $<HTMLElement>('editor');
     const editorEmpty = $<HTMLElement>('editor-empty');
     const pinNum = $<HTMLElement>('pin-num');
-    const kindSelect = $<HTMLSelectElement>('kind-select');
     const refSelect = $<HTMLSelectElement>('ref-select');
     const preview = $<HTMLElement>('preview');
     const btnDelete = $<HTMLButtonElement>('btn-delete');
@@ -242,9 +232,6 @@ const isDev = import.meta.env.DEV;
     let cardId = cards[0].id;
     let selected = -1;
 
-    const COLORS = Object.keys(COLOR_GLOSS);
-    const MOTIFS = Object.keys(MOTIF_GLOSS);
-
     // Peuple le sélecteur de cartes.
     for (const c of cards) {
       const o = document.createElement('option');
@@ -255,21 +242,14 @@ const isDev = import.meta.env.DEV;
 
     const pinsOf = (): Pin[] => (store[cardId] ??= []);
 
-    // Libellé lisible d'une épingle selon sa référence.
+    // Libellé lisible d'une épingle : le nom du symbole visé.
     function refLabel(p: Pin): string {
-      if (p.kind === 'symbol') return SYMBOLS[cardId]?.[Number(p.ref)]?.label.fr ?? `symbole ${p.ref}`;
-      if (p.kind === 'color') return COLOR_GLOSS[p.ref as keyof typeof COLOR_GLOSS]?.fr ?? p.ref;
-      return MOTIF_GLOSS[p.ref as keyof typeof MOTIF_GLOSS]?.fr ?? p.ref;
+      return SYMBOLS[cardId]?.[p.ref]?.label.fr ?? `symbole ${p.ref}`;
     }
 
-    // Options possibles pour un type donné : [valeur, libellé].
-    function refOptions(kind: PinKind): [string, string][] {
-      if (kind === 'symbol') return (SYMBOLS[cardId] ?? []).map((s, i) => [String(i), `${i + 1}. ${s.label.fr}`]);
-      if (kind === 'color') return COLORS.map((k) => [k, `${k} — ${COLOR_GLOSS[k as keyof typeof COLOR_GLOSS].fr}`]);
-      return MOTIFS.map((k) => [k, `${k} — ${MOTIF_GLOSS[k as keyof typeof MOTIF_GLOSS].fr}`]);
-    }
-    function defaultRef(kind: PinKind): string {
-      return refOptions(kind)[0]?.[0] ?? '';
+    // Options = les symboles de la carte : [index, libellé].
+    function refOptions(): [number, string][] {
+      return (SYMBOLS[cardId] ?? []).map((s, i) => [i, `${i + 1}. ${s.label.fr}`]);
     }
 
     function status(msg: string) {
@@ -283,7 +263,6 @@ const isDev = import.meta.env.DEV;
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'pin' + (i === selected ? ' is-selected' : '');
-        b.dataset.kind = p.kind;
         b.textContent = String(i + 1);
         b.style.left = `${p.at[0] * 100}%`;
         b.style.top = `${p.at[1] * 100}%`;
@@ -301,7 +280,6 @@ const isDev = import.meta.env.DEV;
         if (i === selected) li.classList.add('is-selected');
         const badge = document.createElement('span');
         badge.className = 'badge';
-        badge.dataset.kind = p.kind;
         badge.textContent = String(i + 1);
         const lbl = document.createElement('span');
         lbl.className = 'lbl';
@@ -319,15 +297,14 @@ const isDev = import.meta.env.DEV;
       editorEmpty.hidden = !!p;
       if (!p) return;
       pinNum.textContent = String(selected + 1);
-      kindSelect.value = p.kind;
       refSelect.replaceChildren();
-      for (const [val, label] of refOptions(p.kind)) {
+      for (const [val, label] of refOptions()) {
         const o = document.createElement('option');
-        o.value = val;
+        o.value = String(val);
         o.textContent = label;
         refSelect.append(o);
       }
-      refSelect.value = p.ref;
+      refSelect.value = String(p.ref);
       preview.textContent = refLabel(p);
     }
 
@@ -371,26 +348,18 @@ const isDev = import.meta.env.DEV;
       drag = null;
     });
 
-    // Clic sur l'image (zone vide) → nouvelle épingle.
+    // Clic sur l'image (zone vide) → nouvelle épingle (symbole 0 par défaut).
     pinsEl.addEventListener('pointerdown', (e) => {
       if (e.target !== pinsEl) return; // un clic sur une pastille est géré par startDrag
       const at = normPos(e);
-      const kind: PinKind = 'symbol';
-      pinsOf().push({ at, kind, ref: defaultRef(kind) });
+      pinsOf().push({ at, ref: 0 });
       select(pinsOf().length - 1);
     });
 
-    kindSelect.addEventListener('change', () => {
-      const p = pinsOf()[selected];
-      if (!p) return;
-      p.kind = kindSelect.value as PinKind;
-      p.ref = defaultRef(p.kind);
-      render();
-    });
     refSelect.addEventListener('change', () => {
       const p = pinsOf()[selected];
       if (!p) return;
-      p.ref = refSelect.value;
+      p.ref = Number(refSelect.value);
       render();
     });
     btnDelete.addEventListener('click', () => {
