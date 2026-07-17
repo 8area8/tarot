@@ -1,0 +1,438 @@
+---
+/**
+ * Outil d'annotation (DÉVELOPPEMENT UNIQUEMENT) — pose des épingles sur n'importe
+ * quelle carte et rattache-les à une donnée existante (symbole / couleur / motif).
+ * « Enregistrer » réécrit `src/data/card-pins.ts` via le middleware Vite
+ * `annotateSavePlugin` (voir astro.config.mjs). Non liée dans la navigation.
+ *
+ * Vit sous `[lang]` (servi sur `/fr/annotate`) : en dev, les routes non préfixées
+ * par la locale renvoient 404 (prefixDefaultLocale). La locale n'a aucun autre rôle
+ * ici — l'UI de cet outil interne reste en français.
+ */
+export function getStaticPaths() {
+  return [{ params: { lang: 'fr' } }];
+}
+const isDev = import.meta.env.DEV;
+---
+
+<!-- Page de dev autonome : document complet (pas de layout), non indexée. -->
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Annotation des cartes — dev</title>
+</head>
+<body>
+{
+  !isDev ? (
+    <main class="dev-only">
+      <p>Outil d'annotation — disponible en développement uniquement (<code>npm run dev</code>).</p>
+    </main>
+  ) : (
+    <main id="annotate-app">
+      <header class="bar">
+        <h1>Annotation des cartes</h1>
+        <label class="field">
+          <span>Carte</span>
+          <select id="card-select"></select>
+        </label>
+        <button type="button" id="btn-save" class="primary">Enregistrer</button>
+        <span id="status" class="status" role="status" aria-live="polite"></span>
+      </header>
+
+      <div class="work">
+        <section class="stage">
+          <div class="img-wrap" id="img-wrap">
+            <img id="card-img" alt="" />
+            <div class="pins" id="pins"></div>
+          </div>
+          <p class="hint">
+            Clique sur l'image pour poser une épingle. Glisse une épingle pour l'ajuster.
+            Clique une épingle pour la sélectionner.
+          </p>
+        </section>
+
+        <aside class="panel">
+          <div class="editor" id="editor" hidden>
+            <p class="editor-title">Épingle <span id="pin-num"></span></p>
+            <label class="field">
+              <span>Type</span>
+              <select id="kind-select">
+                <option value="symbol">Symbole (de cette carte)</option>
+                <option value="color">Couleur</option>
+                <option value="motif">Motif</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Donnée</span>
+              <select id="ref-select"></select>
+            </label>
+            <p class="preview" id="preview"></p>
+            <button type="button" id="btn-delete" class="danger">Supprimer l'épingle</button>
+          </div>
+          <p class="editor-empty" id="editor-empty">Aucune épingle sélectionnée.</p>
+
+          <div class="list-wrap">
+            <p class="list-title">Épingles de la carte (<span id="pin-count">0</span>)</p>
+            <ol class="pin-list" id="pin-list"></ol>
+          </div>
+        </aside>
+      </div>
+    </main>
+  )
+}
+
+<style is:global>
+  /* Page de dev autonome : styles globaux (pas de scope, une seule route). */
+  :root {
+    --bg: #14101c;
+    --panel: #1e1830;
+    --line: #3a3350;
+    --text: #efe6d6;
+    --muted: #a99fbf;
+    --gold: #c9a44c;
+    --blue: #5b96b3;
+    --green: #8ba85a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 system-ui, sans-serif;
+  }
+  .dev-only { padding: 2rem; }
+  #annotate-app { padding: 1rem 1.25rem 3rem; max-width: 1200px; margin: 0 auto; }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .bar h1 { font-size: 1.15rem; margin: 0; margin-right: auto; }
+  .field { display: inline-flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; color: var(--muted); }
+  .field select {
+    font: inherit;
+    padding: 0.4rem 0.5rem;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    min-width: 14rem;
+    max-width: 22rem;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+  }
+  button.primary { border-color: var(--gold); background: rgba(201, 164, 76, 0.18); color: var(--gold); }
+  button.danger { border-color: #a5566a; color: #e79ab0; background: transparent; }
+  button:hover { filter: brightness(1.15); }
+  .status { font-size: 0.85rem; color: var(--muted); }
+
+  .work { display: grid; grid-template-columns: minmax(0, 1fr) 22rem; gap: 1.5rem; margin-top: 1.25rem; align-items: start; }
+  @media (max-width: 60rem) { .work { grid-template-columns: 1fr; } }
+
+  .stage { display: grid; gap: 0.6rem; }
+  .img-wrap { position: relative; width: fit-content; margin: 0 auto; user-select: none; }
+  #card-img {
+    display: block;
+    width: min(460px, 90vw);
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+  .pins { position: absolute; inset: 0; cursor: crosshair; }
+  .hint { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0; }
+
+  /* Épingle : pastille numérotée, couleur selon le type. */
+  .pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid #000;
+    background: var(--gold);
+    color: #14101c;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    cursor: grab;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+  .pin[data-kind='color'] { background: var(--blue); }
+  .pin[data-kind='motif'] { background: var(--green); }
+  .pin.is-selected { outline: 3px solid #fff; z-index: 3; }
+  .pin:active { cursor: grabbing; }
+
+  .panel { display: grid; gap: 1.2rem; }
+  .editor { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+  .editor[hidden] { display: none; }
+  .editor .field { color: var(--muted); }
+  .editor .field select { min-width: 0; width: 100%; max-width: none; }
+  .editor-title { margin: 0; font-weight: 700; }
+  .editor-empty { margin: 0; color: var(--muted); font-style: italic; }
+  .preview { margin: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5; min-height: 1.2rem; }
+
+  .list-title { margin: 0 0 0.5rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .pin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .pin-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .pin-list li.is-selected { border-color: var(--gold); background: rgba(201, 164, 76, 0.1); }
+  .pin-list .badge {
+    flex: none;
+    width: 1.4rem; height: 1.4rem;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 0.72rem; font-weight: 700; color: #14101c;
+    background: var(--gold);
+  }
+  .pin-list .badge[data-kind='color'] { background: var(--blue); }
+  .pin-list .badge[data-kind='motif'] { background: var(--green); }
+  .pin-list .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+
+<script>
+  import { cards } from '../../data/cards';
+  import { SYMBOLS } from '../../data/symbols';
+  import { COLOR_GLOSS, MOTIF_GLOSS } from '../../data/motifs';
+  import { CARD_PINS, type Pin, type PinKind } from '../../data/card-pins';
+
+  function init() {
+    const BASE = import.meta.env.BASE_URL;
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+    const cardSelect = $<HTMLSelectElement>('card-select');
+    const img = $<HTMLImageElement>('card-img');
+    const pinsEl = $<HTMLElement>('pins');
+    const editor = $<HTMLElement>('editor');
+    const editorEmpty = $<HTMLElement>('editor-empty');
+    const pinNum = $<HTMLElement>('pin-num');
+    const kindSelect = $<HTMLSelectElement>('kind-select');
+    const refSelect = $<HTMLSelectElement>('ref-select');
+    const preview = $<HTMLElement>('preview');
+    const btnDelete = $<HTMLButtonElement>('btn-delete');
+    const btnSave = $<HTMLButtonElement>('btn-save');
+    const statusEl = $<HTMLElement>('status');
+    const pinList = $<HTMLOListElement>('pin-list');
+    const pinCount = $<HTMLElement>('pin-count');
+
+    // Copie de travail des données (le fichier reste la source de vérité).
+    const store: Record<string, Pin[]> = structuredClone(CARD_PINS);
+    let cardId = cards[0].id;
+    let selected = -1;
+
+    const COLORS = Object.keys(COLOR_GLOSS);
+    const MOTIFS = Object.keys(MOTIF_GLOSS);
+
+    // Peuple le sélecteur de cartes.
+    for (const c of cards) {
+      const o = document.createElement('option');
+      o.value = c.id;
+      o.textContent = `${c.name.fr} (${c.id})`;
+      cardSelect.append(o);
+    }
+
+    const pinsOf = (): Pin[] => (store[cardId] ??= []);
+
+    // Libellé lisible d'une épingle selon sa référence.
+    function refLabel(p: Pin): string {
+      if (p.kind === 'symbol') return SYMBOLS[cardId]?.[Number(p.ref)]?.label.fr ?? `symbole ${p.ref}`;
+      if (p.kind === 'color') return COLOR_GLOSS[p.ref as keyof typeof COLOR_GLOSS]?.fr ?? p.ref;
+      return MOTIF_GLOSS[p.ref as keyof typeof MOTIF_GLOSS]?.fr ?? p.ref;
+    }
+
+    // Options possibles pour un type donné : [valeur, libellé].
+    function refOptions(kind: PinKind): [string, string][] {
+      if (kind === 'symbol') return (SYMBOLS[cardId] ?? []).map((s, i) => [String(i), `${i + 1}. ${s.label.fr}`]);
+      if (kind === 'color') return COLORS.map((k) => [k, `${k} — ${COLOR_GLOSS[k as keyof typeof COLOR_GLOSS].fr}`]);
+      return MOTIFS.map((k) => [k, `${k} — ${MOTIF_GLOSS[k as keyof typeof MOTIF_GLOSS].fr}`]);
+    }
+    function defaultRef(kind: PinKind): string {
+      return refOptions(kind)[0]?.[0] ?? '';
+    }
+
+    function status(msg: string) {
+      statusEl.textContent = msg;
+    }
+
+    // Rendu des pastilles sur l'image.
+    function renderPins() {
+      pinsEl.replaceChildren();
+      pinsOf().forEach((p, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pin' + (i === selected ? ' is-selected' : '');
+        b.dataset.kind = p.kind;
+        b.textContent = String(i + 1);
+        b.style.left = `${p.at[0] * 100}%`;
+        b.style.top = `${p.at[1] * 100}%`;
+        b.addEventListener('pointerdown', (e) => startDrag(e, i));
+        pinsEl.append(b);
+      });
+    }
+
+    // Rendu de la liste latérale.
+    function renderList() {
+      pinCount.textContent = String(pinsOf().length);
+      pinList.replaceChildren();
+      pinsOf().forEach((p, i) => {
+        const li = document.createElement('li');
+        if (i === selected) li.classList.add('is-selected');
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.dataset.kind = p.kind;
+        badge.textContent = String(i + 1);
+        const lbl = document.createElement('span');
+        lbl.className = 'lbl';
+        lbl.textContent = refLabel(p);
+        li.append(badge, lbl);
+        li.addEventListener('click', () => select(i));
+        pinList.append(li);
+      });
+    }
+
+    // Rendu de l'éditeur de l'épingle sélectionnée.
+    function renderEditor() {
+      const p = pinsOf()[selected];
+      editor.hidden = !p;
+      editorEmpty.hidden = !!p;
+      if (!p) return;
+      pinNum.textContent = String(selected + 1);
+      kindSelect.value = p.kind;
+      refSelect.replaceChildren();
+      for (const [val, label] of refOptions(p.kind)) {
+        const o = document.createElement('option');
+        o.value = val;
+        o.textContent = label;
+        refSelect.append(o);
+      }
+      refSelect.value = p.ref;
+      preview.textContent = refLabel(p);
+    }
+
+    function render() {
+      renderPins();
+      renderList();
+      renderEditor();
+    }
+
+    function select(i: number) {
+      selected = i;
+      render();
+    }
+
+    // Position normalisée (0–1) d'un événement pointeur, relative à l'image.
+    function normPos(e: PointerEvent): [number, number] {
+      const r = pinsEl.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      return [Math.round(x * 1e4) / 1e4, Math.round(y * 1e4) / 1e4];
+    }
+
+    // Glisser une épingle (et distinguer un simple clic pour la sélection).
+    let drag: { i: number; moved: boolean } | null = null;
+    function startDrag(e: PointerEvent, i: number) {
+      e.stopPropagation();
+      e.preventDefault();
+      select(i);
+      drag = { i, moved: false };
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    }
+    pinsEl.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      drag.moved = true;
+      pinsOf()[drag.i].at = normPos(e);
+      const el = pinsEl.children[drag.i] as HTMLElement;
+      el.style.left = `${pinsOf()[drag.i].at[0] * 100}%`;
+      el.style.top = `${pinsOf()[drag.i].at[1] * 100}%`;
+    });
+    pinsEl.addEventListener('pointerup', () => {
+      drag = null;
+    });
+
+    // Clic sur l'image (zone vide) → nouvelle épingle.
+    pinsEl.addEventListener('pointerdown', (e) => {
+      if (e.target !== pinsEl) return; // un clic sur une pastille est géré par startDrag
+      const at = normPos(e);
+      const kind: PinKind = 'symbol';
+      pinsOf().push({ at, kind, ref: defaultRef(kind) });
+      select(pinsOf().length - 1);
+    });
+
+    kindSelect.addEventListener('change', () => {
+      const p = pinsOf()[selected];
+      if (!p) return;
+      p.kind = kindSelect.value as PinKind;
+      p.ref = defaultRef(p.kind);
+      render();
+    });
+    refSelect.addEventListener('change', () => {
+      const p = pinsOf()[selected];
+      if (!p) return;
+      p.ref = refSelect.value;
+      render();
+    });
+    btnDelete.addEventListener('click', () => {
+      if (selected < 0) return;
+      pinsOf().splice(selected, 1);
+      selected = -1;
+      render();
+    });
+
+    function loadCard(id: string) {
+      cardId = id;
+      selected = -1;
+      img.src = `${BASE}cards/${id}.webp`;
+      img.alt = id;
+      render();
+    }
+    cardSelect.addEventListener('change', () => loadCard(cardSelect.value));
+
+    async function save() {
+      status('Enregistrement…');
+      btnSave.disabled = true;
+      try {
+        const res = await fetch(`${BASE}__save-pins`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(store),
+        });
+        const j = await res.json();
+        status(j.ok ? 'Enregistré ✓ — card-pins.ts mis à jour' : `Erreur : ${j.error}`);
+      } catch (err) {
+        status(`Erreur réseau : ${err}`);
+      } finally {
+        btnSave.disabled = false;
+      }
+    }
+    btnSave.addEventListener('click', save);
+
+    cardSelect.value = cardId;
+    loadCard(cardId);
+  }
+
+  if (document.getElementById('annotate-app')) init();
+</script>
+</body>
+</html>
