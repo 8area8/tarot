@@ -415,9 +415,14 @@ const base = import.meta.env.BASE_URL;
 
   // Aperçu au survol : surligne la région et — tant qu'aucune sélection n'est
   // verrouillée — assombrit le reste comme une sélection. Ne touche pas `focused`.
-  function hoverRegion(idx: number) {
+  // `pan` : survol depuis la CARTE → amène le carrousel sur la symbolique associée.
+  function hoverRegion(idx: number, pan = false) {
     setActive(idx);
     if (focused < 0) paintDim(idx);
+    if (pan && idx >= 0 && symBricksEl.querySelector(`[data-idx="${idx}"]`)) {
+      symPage = Math.floor(idx / symPageSize());
+      renderSymCarousel();
+    }
   }
   function unhoverRegion() {
     setActive(focused);
@@ -512,7 +517,7 @@ const base = import.meta.env.BASE_URL;
         poly.setAttribute('tabindex', '0');
         poly.setAttribute('role', 'button');
         poly.setAttribute('aria-label', s.label[locale]);
-        poly.addEventListener('mouseenter', () => hoverRegion(rg.ref));
+        poly.addEventListener('mouseenter', () => hoverRegion(rg.ref, true));
         poly.addEventListener('mouseleave', () => unhoverRegion());
         poly.addEventListener('click', (e) => {
           e.stopPropagation();
