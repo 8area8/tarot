@@ -44,13 +44,20 @@ const isDev = import.meta.env.DEV;
 
       <div class="work">
         <section class="stage">
-          <div class="img-wrap" id="img-wrap">
-            <img id="card-img" alt="" />
-            <svg id="draw" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
-            <div class="handles" id="handles"></div>
+          <div class="canvas" id="canvas">
+            <div class="img-wrap" id="img-wrap">
+              <img id="card-img" alt="" />
+              <svg id="draw" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+              <div class="handles" id="handles"></div>
+            </div>
+            <div class="zoom-ctrl" role="group" aria-label="Zoom">
+              <button type="button" id="zoom-out" aria-label="Dézoomer">−</button>
+              <button type="button" id="zoom-reset" aria-label="Ajuster (100 %)">100 %</button>
+              <button type="button" id="zoom-in" aria-label="Zoomer">+</button>
+            </div>
           </div>
           <div class="toolbar">
-            <button type="button" id="btn-new">+ Nouvelle région</button>
+            <button type="button" id="btn-new" class="primary">+ Nouvelle région</button>
             <button type="button" id="btn-add" hidden>+ Ajouter une forme</button>
             <button type="button" id="btn-finish" hidden>Terminer (Entrée)</button>
             <button type="button" id="btn-cancel" hidden>Annuler (Échap)</button>
@@ -59,6 +66,11 @@ const isDev = import.meta.env.DEV;
         </section>
 
         <aside class="panel">
+          <div class="coverage">
+            <p class="list-title">Symboles à annoter (<span id="todo-count">0/0</span>)</p>
+            <div class="chips" id="todo-chips"></div>
+          </div>
+
           <div class="editor" id="editor" hidden>
             <p class="editor-title">Région <span id="form-num"></span></p>
             <label class="field">
@@ -137,17 +149,63 @@ const isDev = import.meta.env.DEV;
   .work { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.5rem; margin-top: 1.25rem; align-items: start; }
   @media (max-width: 60rem) { .work { grid-template-columns: 1fr; } }
 
-  .stage { display: grid; gap: 0.6rem; }
-  /* Carte agrandie pour tracer précisément. */
-  .img-wrap { position: relative; width: min(760px, 64vw); margin: 0 auto; user-select: none; touch-action: none; }
-  @media (max-width: 60rem) { .img-wrap { width: min(760px, 92vw); } }
+  .stage { display: grid; gap: 0.7rem; }
+  /* Viewport : masque le débordement du zoom. Sa hauteur est celle de .img-wrap
+     à l'échelle 1 (les transforms n'affectent pas la mise en page) → le zoom
+     agrandit visuellement sans casser le flux. */
+  .canvas {
+    position: relative;
+    overflow: hidden;
+    width: min(760px, 64vw);
+    margin: 0 auto;
+    border-radius: 12px;
+    background: #0d0a14;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--line);
+    user-select: none;
+    touch-action: none;
+  }
+  @media (max-width: 60rem) { .canvas { width: min(760px, 92vw); } }
+  /* Couche transformée : le zoom (échelle) et le pan (translation) sont pilotés
+     par --z / --tx / --ty. transform-origin en haut-gauche pour un calcul simple. */
+  .img-wrap {
+    --z: 1;
+    --tx: 0px;
+    --ty: 0px;
+    position: relative;
+    width: 100%;
+    transform-origin: 0 0;
+    transform: translate(var(--tx), var(--ty)) scale(var(--z));
+  }
   #card-img {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 10px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   }
+  /* Contrôle de zoom flottant (pastille bas-droite du viewport). */
+  .zoom-ctrl {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgba(13, 10, 20, 0.82);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(4px);
+  }
+  .zoom-ctrl button {
+    padding: 0.25rem 0.6rem;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.1rem;
+  }
+  .zoom-ctrl button:hover:not(:disabled) { background: rgba(201, 164, 76, 0.18); }
+  #zoom-reset { font-size: 0.8rem; color: var(--muted); }
   /* Calque de tracé (SVG) : polygones + fond capteur de clics. */
   #draw { position: absolute; inset: 0; width: 100%; height: 100%; }
   #draw.is-drawing { cursor: crosshair; }
@@ -172,14 +230,15 @@ const isDev = import.meta.env.DEV;
   }
   /* Poignées de sommets (HTML au-dessus du SVG, pour rester rondes). */
   .handles { position: absolute; inset: 0; pointer-events: none; }
+  /* Taille/épaisseur divisées par le zoom → constantes à l'écran quel que soit --z. */
   .handle {
     position: absolute;
-    width: 0.75rem;
-    height: 0.75rem;
+    width: calc(0.8rem / var(--z, 1));
+    height: calc(0.8rem / var(--z, 1));
     transform: translate(-50%, -50%);
     border-radius: 50%;
     background: #fff;
-    border: 2px solid var(--gold);
+    border: calc(2px / var(--z, 1)) solid var(--gold);
     pointer-events: auto;
     cursor: grab;
   }
@@ -219,6 +278,21 @@ const isDev = import.meta.env.DEV;
     background: var(--gold);
   }
   .reg-list .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* « Symboles à annoter » : puces cliquables (lance un tracé pré-affecté). */
+  .coverage { display: grid; gap: 0.5rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .chips .chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 999px;
+    border: 1px dashed var(--line);
+    background: transparent;
+    color: var(--muted);
+  }
+  .chips .chip:hover { border-style: solid; border-color: var(--gold); color: var(--text); background: rgba(201, 164, 76, 0.1); }
+  .chips .chip::before { content: '+ '; color: var(--gold); }
+  .chips .all-done { color: #7fd6a0; font-size: 0.85rem; }
 </style>
 
 <script>
@@ -250,6 +324,13 @@ const isDev = import.meta.env.DEV;
     const btnFinish = $<HTMLButtonElement>('btn-finish');
     const btnCancel = $<HTMLButtonElement>('btn-cancel');
     const hint = $<HTMLElement>('hint');
+    const canvas = $<HTMLElement>('canvas');
+    const imgWrap = $<HTMLElement>('img-wrap');
+    const zoomIn = $<HTMLButtonElement>('zoom-in');
+    const zoomOut = $<HTMLButtonElement>('zoom-out');
+    const zoomReset = $<HTMLButtonElement>('zoom-reset');
+    const todoCount = $<HTMLElement>('todo-count');
+    const todoChips = $<HTMLElement>('todo-chips');
 
     // Copie de travail (le fichier reste la source de vérité).
     const store: Record<string, Region[]> = structuredClone(CARD_REGIONS);
@@ -260,15 +341,85 @@ const isDev = import.meta.env.DEV;
     let drawTarget: 'new' | number = 'new'; // à qui rattacher la forme en cours
     let dragS = -1; // forme en cours de déplacement
     let dragV = -1; // sommet en cours de déplacement
+    let pendingNewRef = 0; // symbole pré-affecté à la prochaine région « new »
+
+    // ---- Zoom / déplacement (molette + flèches) ----
+    const MIN_Z = 1;
+    const MAX_Z = 8;
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+
+    // Borne le pan pour que l'image couvre toujours le viewport (origine 0,0).
+    function clampPan() {
+      const cw = canvas.clientWidth;
+      const ch = canvas.clientHeight;
+      panX = Math.min(0, Math.max(cw * (1 - zoom), panX));
+      panY = Math.min(0, Math.max(ch * (1 - zoom), panY));
+    }
+    function applyView() {
+      clampPan();
+      imgWrap.style.setProperty('--z', String(zoom));
+      imgWrap.style.setProperty('--tx', `${panX}px`);
+      imgWrap.style.setProperty('--ty', `${panY}px`);
+      zoomReset.textContent = `${Math.round(zoom * 100)} %`;
+      zoomOut.disabled = zoom <= MIN_Z + 1e-3;
+      zoomIn.disabled = zoom >= MAX_Z - 1e-3;
+    }
+    // Zoom en gardant fixe le point (sx,sy) exprimé dans le repère du viewport.
+    function zoomAt(sx: number, sy: number, factor: number) {
+      const prev = zoom;
+      zoom = Math.min(MAX_Z, Math.max(MIN_Z, zoom * factor));
+      if (zoom === prev) return;
+      panX = sx - (zoom / prev) * (sx - panX);
+      panY = sy - (zoom / prev) * (sy - panY);
+      applyView();
+    }
+    function resetView() {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      applyView();
+    }
+    canvas.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0015));
+      },
+      { passive: false },
+    );
+    zoomIn.addEventListener('click', () =>
+      zoomAt(canvas.clientWidth / 2, canvas.clientHeight / 2, 1.3),
+    );
+    zoomOut.addEventListener('click', () =>
+      zoomAt(canvas.clientWidth / 2, canvas.clientHeight / 2, 1 / 1.3),
+    );
+    zoomReset.addEventListener('click', resetView);
 
     for (const c of cards) {
       const o = document.createElement('option');
       o.value = c.id;
-      o.textContent = `${c.name.fr} (${c.id})`;
+      o.dataset.base = `${c.name.fr} (${c.id})`;
       cardSelect.append(o);
     }
 
     const regionsOf = (): Region[] => (store[cardId] ??= []);
+    // Nombre de symboles distincts couverts par au moins une région.
+    const distinctRefs = (regs: Region[]) => new Set(regs.map((r) => r.ref)).size;
+    // Suffixe de couverture pour l'option d'une carte (« — 3/9 » ou « ✓ »).
+    function cardCovLabel(id: string): string {
+      const total = (SYMBOLS[id] ?? []).length;
+      if (!total) return '';
+      const cov = distinctRefs(store[id] ?? []);
+      return cov >= total ? '  ✓' : `  — ${cov}/${total}`;
+    }
+    function refreshCardOptions() {
+      for (const o of Array.from(cardSelect.options)) {
+        o.textContent = (o.dataset.base ?? '') + cardCovLabel(o.value);
+      }
+    }
     const refLabel = (rg: Region) => SYMBOLS[cardId]?.[rg.ref]?.label.fr ?? `symbole ${rg.ref}`;
     const refOptions = (): [number, string][] =>
       (SYMBOLS[cardId] ?? []).map((s, i) => [i, `${i + 1}. ${s.label.fr}`]);
@@ -430,8 +581,45 @@ const isDev = import.meta.env.DEV;
       btnCancel.hidden = !drawing;
       btnFinish.disabled = draft.length < 3;
       hint.textContent = drawing
-        ? 'Clique sur l’image pour ajouter des points (≥ 3), puis « Terminer ». Échap pour annuler.'
-        : 'Sélectionne une région (glisse ses poignées ; clique dans la forme pour ajouter un point ; double-clic sur une poignée pour la retirer). « Ajouter une forme » complète la région sélectionnée.';
+        ? 'Clique sur l’image pour ajouter des points (≥ 3), puis « Terminer ». Échap pour annuler. Molette = zoom, flèches = déplacement.'
+        : 'Molette = zoom (vers le curseur), flèches = déplacement, « 0 » = ajuster. Sélectionne une région (glisse ses poignées ; clique dans la forme pour ajouter un point ; double-clic sur une poignée pour la retirer).';
+    }
+
+    // Symboles de la carte sans aucune région : puces cliquables (→ tracé pré-affecté).
+    function renderCoverage() {
+      const syms = SYMBOLS[cardId] ?? [];
+      const covered = new Set(regionsOf().map((r) => r.ref));
+      const missing = syms.map((s, i) => ({ s, i })).filter(({ i }) => !covered.has(i));
+      todoCount.textContent = `${syms.length - missing.length}/${syms.length}`;
+      todoChips.replaceChildren();
+      if (!syms.length) {
+        const p = document.createElement('span');
+        p.className = 'all-done';
+        p.textContent = 'Aucun symbole défini pour cette carte.';
+        todoChips.append(p);
+        return;
+      }
+      if (!missing.length) {
+        const p = document.createElement('span');
+        p.className = 'all-done';
+        p.textContent = 'Tous les symboles sont annotés ✓';
+        todoChips.append(p);
+        return;
+      }
+      for (const { s, i } of missing) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.textContent = `${i + 1}. ${s.label.fr}`;
+        b.title = 'Tracer une région pour ce symbole';
+        b.disabled = mode === 'draw';
+        b.addEventListener('click', () => {
+          if (mode === 'draw') return;
+          pendingNewRef = i;
+          startDraw('new');
+        });
+        todoChips.append(b);
+      }
     }
 
     function render() {
@@ -440,6 +628,8 @@ const isDev = import.meta.env.DEV;
       renderList();
       renderEditor();
       renderToolbar();
+      renderCoverage();
+      refreshCardOptions();
     }
 
     // Déplacement d'un sommet (re-render du SVG seulement — les poignées gardent
@@ -481,15 +671,19 @@ const isDev = import.meta.env.DEV;
       if (target === 'new') selected = -1;
       render();
     }
-    btnNew.addEventListener('click', () => startDraw('new'));
+    btnNew.addEventListener('click', () => {
+      pendingNewRef = 0;
+      startDraw('new');
+    });
     btnAdd.addEventListener('click', () => {
       if (selected !== -1) startDraw(selected);
     });
     btnFinish.addEventListener('click', () => {
       if (draft.length < 3) return;
       if (drawTarget === 'new') {
-        regionsOf().push({ shapes: [draft.slice()], ref: 0 });
+        regionsOf().push({ shapes: [draft.slice()], ref: pendingNewRef });
         selected = regionsOf().length - 1;
+        pendingNewRef = 0;
       } else {
         regionsOf()[drawTarget].shapes.push(draft.slice());
         selected = drawTarget;
@@ -504,8 +698,33 @@ const isDev = import.meta.env.DEV;
       render();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && mode === 'draw') btnCancel.click();
-      else if (e.key === 'Enter' && mode === 'draw') btnFinish.click();
+      if (e.key === 'Escape' && mode === 'draw') return void btnCancel.click();
+      if (e.key === 'Enter' && mode === 'draw') return void btnFinish.click();
+      // Déplacement/zoom clavier — inactif quand un champ a le focus.
+      const tag = (document.activeElement?.tagName ?? '').toLowerCase();
+      if (tag === 'select' || tag === 'input' || tag === 'textarea') return;
+      const step = 48;
+      const pans: Record<string, [number, number]> = {
+        ArrowLeft: [step, 0],
+        ArrowRight: [-step, 0],
+        ArrowUp: [0, step],
+        ArrowDown: [0, -step],
+      };
+      if (pans[e.key]) {
+        panX += pans[e.key][0];
+        panY += pans[e.key][1];
+        applyView();
+        e.preventDefault();
+      } else if (e.key === '+' || e.key === '=') {
+        zoomAt(canvas.clientWidth / 2, canvas.clientHeight / 2, 1.3);
+        e.preventDefault();
+      } else if (e.key === '-') {
+        zoomAt(canvas.clientWidth / 2, canvas.clientHeight / 2, 1 / 1.3);
+        e.preventDefault();
+      } else if (e.key === '0') {
+        resetView();
+        e.preventDefault();
+      }
     });
 
     refSelect.addEventListener('change', () => {
@@ -528,6 +747,7 @@ const isDev = import.meta.env.DEV;
       draft = [];
       img.src = `${BASE}cards/${id}.webp`;
       img.alt = id;
+      resetView();
       render();
     }
     cardSelect.addEventListener('change', () => loadCard(cardSelect.value));
