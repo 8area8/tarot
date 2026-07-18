@@ -424,7 +424,7 @@ const sections = [
     padding: 1.4rem 1.2rem;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: rgba(240, 226, 196, 0.03);
+    background: rgb(var(--text-rgb) / 0.03);
   }
   .gr-formula-term {
     display: grid;
@@ -532,8 +532,8 @@ const sections = [
     background: rgba(201, 96, 63, 0.18);
   }
   .gr-cell[data-rel='neutral'] {
-    color: rgba(240, 226, 196, 0.5);
-    background: rgba(240, 226, 196, 0.05);
+    color: rgb(var(--text-rgb) / 0.5);
+    background: rgb(var(--text-rgb) / 0.05);
   }
 
   /* ---- Dignités : légende détaillée (double le sens des couleurs) ---- */
@@ -582,8 +582,8 @@ const sections = [
     background: rgba(201, 96, 63, 0.18);
   }
   .gr-legend-item[data-rel='neutral'] .gr-legend-swatch {
-    color: rgba(240, 226, 196, 0.6);
-    background: rgba(240, 226, 196, 0.06);
+    color: rgb(var(--text-rgb) / 0.6);
+    background: rgb(var(--text-rgb) / 0.06);
   }
 
   /* Contenu réservé aux lecteurs d'écran. */
