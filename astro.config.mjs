@@ -27,6 +27,13 @@ function annotateSavePlugin() {
   return {
     name: 'annotate-save',
     apply: 'serve',
+    // L'auto-enregistrement réécrit card-regions.ts ; comme ce fichier est importé
+    // ailleurs (la home), Vite déclencherait un rechargement complet. On neutralise
+    // le hot-update pour CE fichier (l'outil garde son état en mémoire ; la home le
+    // relira à son prochain chargement).
+    handleHotUpdate(ctx) {
+      if (ctx.file === target) return [];
+    },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.method !== 'POST' || !req.url.split('?')[0].endsWith('/__save-pins')) return next();

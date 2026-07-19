@@ -38,7 +38,6 @@ const isDev = import.meta.env.DEV;
           <span>Carte</span>
           <select id="card-select"></select>
         </label>
-        <button type="button" id="btn-save" class="primary">Enregistrer</button>
         <span id="status" class="status" role="status" aria-live="polite"></span>
       </header>
 
@@ -59,8 +58,7 @@ const isDev = import.meta.env.DEV;
           <div class="toolbar">
             <button type="button" id="btn-new" class="primary">+ Nouvelle région</button>
             <button type="button" id="btn-add" hidden>+ Ajouter une forme</button>
-            <button type="button" id="btn-finish" hidden>Terminer (Entrée)</button>
-            <button type="button" id="btn-cancel" hidden>Annuler (Échap)</button>
+            <button type="button" id="btn-done" hidden>Terminer le tracé (Entrée)</button>
           </div>
           <p class="hint" id="hint"></p>
         </section>
@@ -278,6 +276,18 @@ const isDev = import.meta.env.DEV;
     background: var(--gold);
   }
   .reg-list .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .reg-list .del {
+    flex: none;
+    padding: 0.1rem 0.4rem;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1;
+    border-radius: 6px;
+  }
+  .reg-list .del:hover { color: #e79ab0; background: rgba(165, 86, 106, 0.16); filter: none; }
+  .canvas.is-panning { cursor: grabbing; }
 
   /* « Symboles à annoter » : puces cliquables (lance un tracé pré-affecté). */
   .coverage { display: grid; gap: 0.5rem; }
@@ -315,14 +325,12 @@ const isDev = import.meta.env.DEV;
     const refSelect = $<HTMLSelectElement>('ref-select');
     const preview = $<HTMLElement>('preview');
     const btnDelete = $<HTMLButtonElement>('btn-delete');
-    const btnSave = $<HTMLButtonElement>('btn-save');
     const statusEl = $<HTMLElement>('status');
     const list = $<HTMLOListElement>('reg-list');
     const count = $<HTMLElement>('count');
     const btnNew = $<HTMLButtonElement>('btn-new');
     const btnAdd = $<HTMLButtonElement>('btn-add');
-    const btnFinish = $<HTMLButtonElement>('btn-finish');
-    const btnCancel = $<HTMLButtonElement>('btn-cancel');
+    const btnDone = $<HTMLButtonElement>('btn-done');
     const hint = $<HTMLElement>('hint');
     const canvas = $<HTMLElement>('canvas');
     const imgWrap = $<HTMLElement>('img-wrap');
@@ -337,8 +345,10 @@ const isDev = import.meta.env.DEV;
     let cardId = cards[0].id;
     let selected = -1; // index de région
     let mode: 'idle' | 'draw' = 'idle';
-    let draft: Point[] = [];
-    let drawTarget: 'new' | number = 'new'; // à qui rattacher la forme en cours
+    // Tracé « live » : on ajoute les points directement à une forme réelle de la
+    // région en cours (déjà dans le store) — pas de brouillon à valider. drawShape
+    // est l'index de cette forme dans la région `selected`.
+    let drawShape = -1;
     let dragS = -1; // forme en cours de déplacement
     let dragV = -1; // sommet en cours de déplacement
     let pendingNewRef = 0; // symbole pré-affecté à la prochaine région « new »
@@ -397,6 +407,42 @@ const isDev = import.meta.env.DEV;
       zoomAt(canvas.clientWidth / 2, canvas.clientHeight / 2, 1 / 1.3),
     );
     zoomReset.addEventListener('click', resetView);
+
+    // Déplacement au clic-molette maintenu (glisser-déposer). Le bouton du milieu
+    // (button 1) déclenche autrement l'autoscroll : on le neutralise.
+    let panning = false;
+    let panFromX = 0;
+    let panFromY = 0;
+    let panOrigX = 0;
+    let panOrigY = 0;
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 1) e.preventDefault();
+    });
+    canvas.addEventListener('pointerdown', (e) => {
+      if (e.button !== 1) return;
+      e.preventDefault();
+      panning = true;
+      panFromX = e.clientX;
+      panFromY = e.clientY;
+      panOrigX = panX;
+      panOrigY = panY;
+      canvas.setPointerCapture(e.pointerId);
+      canvas.classList.add('is-panning');
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!panning) return;
+      panX = panOrigX + (e.clientX - panFromX);
+      panY = panOrigY + (e.clientY - panFromY);
+      applyView();
+    });
+    const endPan = (e: PointerEvent) => {
+      if (!panning) return;
+      panning = false;
+      canvas.releasePointerCapture?.(e.pointerId);
+      canvas.classList.remove('is-panning');
+    };
+    canvas.addEventListener('pointerup', endPan);
+    canvas.addEventListener('pointercancel', endPan);
 
     for (const c of cards) {
       const o = document.createElement('option');
@@ -469,9 +515,14 @@ const isDev = import.meta.env.DEV;
       bg.setAttribute('width', '1000');
       bg.setAttribute('height', '1000');
       bg.addEventListener('pointerdown', (e) => {
+        if ((e as PointerEvent).button !== 0) return; // molette = pan, géré ailleurs
         if (mode === 'draw') {
-          draft.push(normPos(e as PointerEvent));
+          // Ajout LIVE : le point va directement dans la forme en cours (déjà réelle).
+          const shape = regionsOf()[selected]?.shapes[drawShape];
+          if (!shape) return;
+          shape.push(normPos(e as PointerEvent));
           render();
+          if (shape.length >= 3) scheduleSave(); // prise en compte dès 3 points
         } else if (selected !== -1) {
           selected = -1;
           render();
@@ -481,32 +532,41 @@ const isDev = import.meta.env.DEV;
 
       regionsOf().forEach((rg, ri) => {
         rg.shapes.forEach((shape, si) => {
+          // La forme en cours de tracé s'affiche en pointillé (« draft »), non cliquable.
+          const drafting = mode === 'draw' && ri === selected && si === drawShape;
           const poly = svgEl('polygon');
           poly.setAttribute('points', pts(shape));
-          poly.setAttribute('class', 'shape' + (ri === selected ? ' is-selected' : ''));
-          poly.dataset.s = String(si);
-          poly.addEventListener('pointerdown', (e) => {
-            if (mode === 'draw') return;
-            e.stopPropagation();
-            if (ri === selected) {
-              // clic dans la région déjà sélectionnée → ajoute un point (affinage)
-              insertVertex(shape, normPos(e as PointerEvent));
-              render();
-            } else {
-              selected = ri;
-              render();
-            }
-          });
+          poly.setAttribute('class', drafting ? 'draft' : 'shape' + (ri === selected ? ' is-selected' : ''));
+          if (!drafting) {
+            poly.dataset.s = String(si);
+            poly.addEventListener('pointerdown', (e) => {
+              if (mode === 'draw' || (e as PointerEvent).button !== 0) return;
+              e.stopPropagation();
+              if (ri === selected) {
+                // clic dans la région déjà sélectionnée → ajoute un point (affinage)
+                insertVertex(shape, normPos(e as PointerEvent));
+                render();
+                scheduleSave();
+              } else {
+                selected = ri;
+                render();
+              }
+            });
+            // Clic droit sur une forme → la supprimer, APRÈS confirmation (un clic
+            // droit accidentel ne doit rien détruire). La dernière forme retire la région.
+            poly.addEventListener('contextmenu', (e) => {
+              if (mode === 'draw') return;
+              e.preventDefault();
+              const last = rg.shapes.length <= 1;
+              const msg = last
+                ? `Supprimer la région « ${refLabel(rg)} » (sa dernière forme) ?`
+                : `Supprimer cette forme de « ${refLabel(rg)} » ?`;
+              if (confirm(msg)) deleteShape(ri, si);
+            });
+          }
           draw.append(poly);
         });
       });
-
-      if (mode === 'draw' && draft.length) {
-        const dpoly = svgEl('polygon');
-        dpoly.setAttribute('points', pts(draft));
-        dpoly.setAttribute('class', 'draft');
-        draw.append(dpoly);
-      }
     }
 
     function renderHandles() {
@@ -525,7 +585,7 @@ const isDev = import.meta.env.DEV;
         handlesEl.append(h);
       };
       if (mode === 'draw') {
-        draft.forEach((p) => mk(p, 'handle draft-pt', -1, -1));
+        regionsOf()[selected]?.shapes[drawShape]?.forEach((p) => mk(p, 'handle draft-pt', -1, -1));
       } else if (selected !== -1) {
         regionsOf()[selected].shapes.forEach((shape, si) =>
           shape.forEach((p, v) => mk(p, 'handle', si, v)),
@@ -545,11 +605,24 @@ const isDev = import.meta.env.DEV;
         const lbl = document.createElement('span');
         lbl.className = 'lbl';
         lbl.textContent = `${refLabel(rg)}${rg.shapes.length > 1 ? ` (${rg.shapes.length} formes)` : ''}`;
-        li.append(badge, lbl);
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'del';
+        del.textContent = '✕';
+        del.title = 'Supprimer la région';
+        del.setAttribute('aria-label', `Supprimer la région ${i + 1}`);
+        del.disabled = mode === 'draw';
+        del.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteRegion(i);
+        });
+        li.append(badge, lbl, del);
         li.addEventListener('click', () => {
-          if (mode === 'draw') return;
-          selected = i;
-          render();
+          finishDraw(); // clôt un tracé en cours avant de changer de sélection
+          if (i < regionsOf().length) {
+            selected = i;
+            render();
+          }
         });
         list.append(li);
       });
@@ -575,14 +648,12 @@ const isDev = import.meta.env.DEV;
 
     function renderToolbar() {
       const drawing = mode === 'draw';
-      btnNew.hidden = drawing;
+      btnNew.hidden = false; // toujours dispo : démarrer une région clôt le tracé en cours
       btnAdd.hidden = drawing || selected === -1;
-      btnFinish.hidden = !drawing;
-      btnCancel.hidden = !drawing;
-      btnFinish.disabled = draft.length < 3;
+      btnDone.hidden = !drawing;
       hint.textContent = drawing
-        ? 'Clique sur l’image pour ajouter des points (≥ 3), puis « Terminer ». Échap pour annuler. Molette = zoom, flèches = déplacement.'
-        : 'Molette = zoom (vers le curseur), flèches = déplacement, « 0 » = ajuster. Sélectionne une région (glisse ses poignées ; clique dans la forme pour ajouter un point ; double-clic sur une poignée pour la retirer).';
+        ? 'Clique pour poser les points : la région est prise en compte et enregistrée dès 3 points, sans validation. Entrée / Échap (ou « Terminer ») pour arrêter d’ajouter des points. Molette = zoom, flèches ou clic-molette glissé = déplacement.'
+        : 'Molette = zoom, flèches ou clic-molette glissé = déplacement, « 0 » = ajuster. Sélectionne une région (glisse ses poignées ; clic dans la forme = ajouter un point ; double-clic sur une poignée = la retirer). Clic droit sur une forme = la supprimer (confirmation) ; « Suppr » = supprimer la région.';
     }
 
     // Symboles de la carte sans aucune région : puces cliquables (→ tracé pré-affecté).
@@ -612,9 +683,7 @@ const isDev = import.meta.env.DEV;
         b.className = 'chip';
         b.textContent = `${i + 1}. ${s.label.fr}`;
         b.title = 'Tracer une région pour ce symbole';
-        b.disabled = mode === 'draw';
         b.addEventListener('click', () => {
-          if (mode === 'draw') return;
           pendingNewRef = i;
           startDraw('new');
         });
@@ -630,11 +699,20 @@ const isDev = import.meta.env.DEV;
       renderToolbar();
       renderCoverage();
       refreshCardOptions();
+      // Mémorise l'état d'édition : l'auto-enregistrement réécrit card-regions.ts,
+      // ce qui recharge la page (HMR) → on restaure la carte et la région au boot.
+      try {
+        sessionStorage.setItem('annotate:card', cardId);
+        sessionStorage.setItem('annotate:sel', String(selected));
+      } catch {
+        /* stockage indisponible : sans effet */
+      }
     }
 
     // Déplacement d'un sommet (re-render du SVG seulement — les poignées gardent
     // leur capture de pointeur ; on repositionne juste celle qu'on glisse).
     function startVertexDrag(e: PointerEvent, s: number, v: number) {
+      if (e.button !== 0) return; // laisse la molette (pan) passer
       e.stopPropagation();
       e.preventDefault();
       dragS = s;
@@ -652,6 +730,7 @@ const isDev = import.meta.env.DEV;
       renderSvg();
     });
     document.addEventListener('pointerup', () => {
+      if (dragV >= 0) scheduleSave(); // un sommet vient d'être déplacé
       dragS = -1;
       dragV = -1;
     });
@@ -662,13 +741,69 @@ const isDev = import.meta.env.DEV;
       if (rg.shapes[s].length > 3) rg.shapes[s].splice(v, 1);
       else if (rg.shapes.length > 1) rg.shapes.splice(s, 1);
       render();
+      scheduleSave();
     }
 
+    // Supprime une région entière, en gardant `selected` cohérent.
+    function deleteRegion(i: number) {
+      const regs = regionsOf();
+      if (i < 0 || i >= regs.length) return;
+      regs.splice(i, 1);
+      if (selected === i) selected = -1;
+      else if (selected > i) selected -= 1;
+      render();
+      scheduleSave();
+    }
+
+    // Supprime une forme (zone) d'une région ; la dernière forme retire la région.
+    function deleteShape(ri: number, si: number) {
+      const rg = regionsOf()[ri];
+      if (!rg) return;
+      rg.shapes.splice(si, 1);
+      if (rg.shapes.length === 0) {
+        deleteRegion(ri);
+      } else {
+        render();
+        scheduleSave();
+      }
+    }
+
+    // Clôt le tracé en cours : abandonne une forme de moins de 3 points (et la région
+    // si elle devient vide), puis repasse en « idle ». Une région ≥ 3 points est déjà
+    // dans le store et enregistrée — il n'y a rien à « valider ».
+    function finishDraw() {
+      if (mode !== 'draw') return;
+      const rg = regionsOf()[selected];
+      if (rg) {
+        const sh = rg.shapes[drawShape];
+        if (!sh || sh.length < 3) {
+          rg.shapes.splice(drawShape, 1);
+          if (rg.shapes.length === 0) {
+            regionsOf().splice(selected, 1);
+            selected = -1;
+          }
+        }
+      }
+      mode = 'idle';
+      drawShape = -1;
+      render();
+      scheduleSave();
+    }
+
+    // Démarre un tracé LIVE : la forme réelle est créée tout de suite (région neuve,
+    // ou forme ajoutée à la région `target`) ; les points s'y ajoutent au fil des clics.
     function startDraw(target: 'new' | number) {
+      finishDraw(); // clôt proprement un tracé éventuellement en cours
+      if (target === 'new') {
+        regionsOf().push({ shapes: [[]], ref: pendingNewRef });
+        selected = regionsOf().length - 1;
+        pendingNewRef = 0;
+      } else {
+        selected = target;
+        regionsOf()[target].shapes.push([]);
+      }
+      drawShape = regionsOf()[selected].shapes.length - 1;
       mode = 'draw';
-      drawTarget = target;
-      draft = [];
-      if (target === 'new') selected = -1;
       render();
     }
     btnNew.addEventListener('click', () => {
@@ -676,33 +811,19 @@ const isDev = import.meta.env.DEV;
       startDraw('new');
     });
     btnAdd.addEventListener('click', () => {
-      if (selected !== -1) startDraw(selected);
+      if (mode === 'idle' && selected !== -1) startDraw(selected);
     });
-    btnFinish.addEventListener('click', () => {
-      if (draft.length < 3) return;
-      if (drawTarget === 'new') {
-        regionsOf().push({ shapes: [draft.slice()], ref: pendingNewRef });
-        selected = regionsOf().length - 1;
-        pendingNewRef = 0;
-      } else {
-        regionsOf()[drawTarget].shapes.push(draft.slice());
-        selected = drawTarget;
-      }
-      mode = 'idle';
-      draft = [];
-      render();
-    });
-    btnCancel.addEventListener('click', () => {
-      mode = 'idle';
-      draft = [];
-      render();
-    });
+    btnDone.addEventListener('click', finishDraw);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && mode === 'draw') return void btnCancel.click();
-      if (e.key === 'Enter' && mode === 'draw') return void btnFinish.click();
-      // Déplacement/zoom clavier — inactif quand un champ a le focus.
+      if ((e.key === 'Escape' || e.key === 'Enter') && mode === 'draw') return void finishDraw();
+      // Déplacement/zoom/suppression clavier — inactif quand un champ a le focus.
       const tag = (document.activeElement?.tagName ?? '').toLowerCase();
       if (tag === 'select' || tag === 'input' || tag === 'textarea') return;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && mode === 'idle' && selected >= 0) {
+        deleteRegion(selected);
+        e.preventDefault();
+        return;
+      }
       const step = 48;
       const pans: Record<string, [number, number]> = {
         ArrowLeft: [step, 0],
@@ -732,29 +853,35 @@ const isDev = import.meta.env.DEV;
       if (!rg) return;
       rg.ref = Number(refSelect.value);
       render();
+      scheduleSave();
     });
-    btnDelete.addEventListener('click', () => {
-      if (selected < 0) return;
-      regionsOf().splice(selected, 1);
-      selected = -1;
-      render();
-    });
+    btnDelete.addEventListener('click', () => deleteRegion(selected));
 
     function loadCard(id: string) {
       cardId = id;
       selected = -1;
       mode = 'idle';
-      draft = [];
+      drawShape = -1;
       img.src = `${BASE}cards/${id}.webp`;
       img.alt = id;
       resetView();
       render();
     }
-    cardSelect.addEventListener('change', () => loadCard(cardSelect.value));
+    cardSelect.addEventListener('change', () => {
+      finishDraw(); // clôt un tracé en cours (sur la carte courante) avant de changer
+      loadCard(cardSelect.value);
+    });
 
+    // Auto-enregistrement : réécrit card-regions.ts après une courte pause (debounce),
+    // à chaque mutation. Plus de bouton — le statut affiche l'état.
+    let saveTimer = 0;
+    function scheduleSave() {
+      status('Modifié…');
+      clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(save, 700);
+    }
     async function save() {
       status('Enregistrement…');
-      btnSave.disabled = true;
       try {
         const res = await fetch(`${BASE}__save-pins`, {
           method: 'POST',
@@ -762,17 +889,30 @@ const isDev = import.meta.env.DEV;
           body: JSON.stringify(store),
         });
         const j = await res.json();
-        status(j.ok ? 'Enregistré ✓ — card-regions.ts mis à jour' : `Erreur : ${j.error}`);
+        status(j.ok ? 'Enregistré ✓' : `Erreur : ${j.error}`);
       } catch (err) {
         status(`Erreur réseau : ${err}`);
-      } finally {
-        btnSave.disabled = false;
       }
     }
-    btnSave.addEventListener('click', save);
 
-    cardSelect.value = cardId;
-    loadCard(cardId);
+    // Reprend la carte et la région d'avant le rechargement (capturées AVANT le
+    // premier render, qui réécrirait sessionStorage à selected = -1).
+    let startCard = cards[0].id;
+    let startSel = -1;
+    try {
+      const c = sessionStorage.getItem('annotate:card');
+      if (c && cards.some((x) => x.id === c)) startCard = c;
+      const s = Number(sessionStorage.getItem('annotate:sel'));
+      if (Number.isInteger(s)) startSel = s;
+    } catch {
+      /* stockage indisponible */
+    }
+    cardSelect.value = startCard;
+    loadCard(startCard);
+    if (startSel >= 0 && startSel < regionsOf().length) {
+      selected = startSel;
+      render();
+    }
   }
 
   if (document.getElementById('annotate-app')) init();
