@@ -84,19 +84,22 @@ const base = import.meta.env.BASE_URL;
         </div>
       </article>
 
-      <div class="reading-full" id="reading-full" hidden>
-        <div class="symbolism" id="symbolism" hidden>
-          <div class="sym-head">
-            <p class="study-title">{t(locale, 'study.image')}</p>
-            <div class="sym-nav" id="sym-nav" hidden>
-              <button type="button" class="cycle-arrow" id="sym-prev" aria-label={t(locale, 'sym.prev')}>◄</button>
-              <button type="button" class="cycle-arrow" id="sym-next" aria-label={t(locale, 'sym.next')}>►</button>
-            </div>
-          </div>
-          <div class="sym-viewport">
-            <div class="bricks" id="sym-bricks"></div>
+      <!-- Symbolique : item direct du grid (zone `sym`) → sur mobile, remontée
+           juste sous la carte, collée à l'image dont elle décrit les régions. -->
+      <div class="symbolism" id="symbolism" hidden>
+        <div class="sym-head">
+          <p class="study-title">{t(locale, 'study.image')}</p>
+          <div class="sym-nav" id="sym-nav" hidden>
+            <button type="button" class="cycle-arrow" id="sym-prev" aria-label={t(locale, 'sym.prev')}>◄</button>
+            <button type="button" class="cycle-arrow" id="sym-next" aria-label={t(locale, 'sym.next')}>►</button>
           </div>
         </div>
+        <div class="sym-viewport">
+          <div class="bricks" id="sym-bricks"></div>
+        </div>
+      </div>
+
+      <div class="reading-full" id="reading-full" hidden>
         <div class="cycle" id="cycle" hidden>
           <p class="cycle-title" id="cycle-suit"></p>
           <ol class="cycle-track" id="cycle-track"></ol>
@@ -384,7 +387,7 @@ const base = import.meta.env.BASE_URL;
   let vbH = 1000;
 
   const regionShapes = () =>
-    [...regionLayer.querySelectorAll<SVGPolygonElement>('.region-shape')];
+    [...regionLayer.querySelectorAll<SVGElement>('.region-shape')];
 
   // Survol croisé région ↔ brique (par `data-idx` = index du symbole) : met en
   // lumière la paire liée (toutes les formes d'une même région).
@@ -402,14 +405,18 @@ const base = import.meta.env.BASE_URL;
     regionLayer.classList.toggle('has-focus', !!region);
     const holeG = regionLayer.querySelector('#region-dim-hole-g');
     if (holeG) {
-      holeG.replaceChildren(
-        ...(region?.shapes ?? []).map((shape) => {
-          const p = svgEl('polygon');
-          p.setAttribute('points', pointsAttr(shape));
-          p.setAttribute('fill', 'black');
-          return p;
-        }),
-      );
+      // Trou du masque = mêmes boucles evenodd que la forme → une boucle négative
+      // reste assombrie (exclue de la zone éclairée).
+      const shapes = region?.shapes ?? [];
+      if (shapes.length) {
+        const p = svgEl('path');
+        p.setAttribute('d', pathD(shapes));
+        p.setAttribute('fill-rule', 'evenodd');
+        p.setAttribute('fill', 'black');
+        holeG.replaceChildren(p);
+      } else {
+        holeG.replaceChildren();
+      }
     }
   }
 
@@ -455,7 +462,13 @@ const base = import.meta.env.BASE_URL;
   }
 
   const svgEl = (name: string) => document.createElementNS(SVGNS, name);
-  const pointsAttr = (shape: Point[]) => shape.map(([x, y]) => `${x * vbW},${y * vbH}`).join(' ');
+  // Chemin SVG d'une région : une sous-boucle `M…L…Z` par forme. Combiné à
+  // `fill-rule="evenodd"`, une boucle imbriquée dans une autre devient un TROU
+  // (forme négative) ; deux boucles disjointes restent une union.
+  const pathD = (shapes: Point[][]) =>
+    shapes
+      .map((shape) => 'M' + shape.map(([x, y]) => `${x * vbW},${y * vbH}`).join('L') + 'Z')
+      .join('');
 
   // Cale le viewBox sur le ratio de l'image (largeur fixe, hauteur = ratio). À
   // défaut de dimensions naturelles connues, garde un carré (rebâti au `load`).
@@ -509,28 +522,30 @@ const base = import.meta.env.BASE_URL;
       // Signale la brique correspondante comme cliquable (curseur + focalisation).
       symBricksEl.querySelector(`[data-idx="${rg.ref}"]`)?.classList.add('is-linked');
       const toggle = () => setFocus(focused === rg.ref ? -1 : rg.ref);
-      for (const shape of rg.shapes) {
-        const poly = svgEl('polygon') as SVGPolygonElement;
-        poly.setAttribute('points', pointsAttr(shape));
-        poly.classList.add('region-shape');
-        poly.dataset.idx = String(rg.ref);
-        poly.setAttribute('tabindex', '0');
-        poly.setAttribute('role', 'button');
-        poly.setAttribute('aria-label', s.label[locale]);
-        poly.addEventListener('mouseenter', () => hoverRegion(rg.ref, true));
-        poly.addEventListener('mouseleave', () => unhoverRegion());
-        poly.addEventListener('click', (e) => {
-          e.stopPropagation();
+      // Une seule forme interactive par région : un `<path>` evenodd regroupe
+      // toutes ses boucles (union + trous). Un clic dans un trou traverse la
+      // forme (pointer-events: fill respecte fill-rule) — le comportement voulu.
+      const path = svgEl('path') as SVGPathElement;
+      path.setAttribute('d', pathD(rg.shapes));
+      path.setAttribute('fill-rule', 'evenodd');
+      path.classList.add('region-shape');
+      path.dataset.idx = String(rg.ref);
+      path.setAttribute('tabindex', '0');
+      path.setAttribute('role', 'button');
+      path.setAttribute('aria-label', s.label[locale]);
+      path.addEventListener('mouseenter', () => hoverRegion(rg.ref, true));
+      path.addEventListener('mouseleave', () => unhoverRegion());
+      path.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggle();
+      });
+      path.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
           toggle();
-        });
-        poly.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggle();
-          }
-        });
-        g.append(poly);
-      }
+        }
+      });
+      g.append(path);
     }
     regionLayer.append(defs, dim, g);
   }
@@ -1591,16 +1606,28 @@ const base = import.meta.env.BASE_URL;
   /* ---- Résultat ---- */
   /* Mise en page « journal » : carte en haut à gauche, titre + interprétation à
      droite, puis la symbolique pleine largeur sous la carte. */
+  /* Carte + tête sur la 1re rangée ; symbolique et suite en pleine largeur dessous
+     (auto-placement en ordre DOM). Pas de zones nommées : une section masquée
+     (ex. carte sans symboles) ne laisse alors aucune rangée vide (double gap). */
   .result {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'card head'
-      'full full';
     column-gap: 2.5rem;
     row-gap: 1.4rem;
     align-items: start;
     justify-content: center;
+  }
+  .result > .card-slot {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .result > .reading {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .result > .symbolism,
+  .result > .reading-full {
+    grid-column: 1 / -1;
   }
   .result[hidden] {
     display: none;
@@ -1635,7 +1662,6 @@ const base = import.meta.env.BASE_URL;
     }
   }
   .card-slot {
-    grid-area: card;
     perspective: 1400px;
     width: min(240px, 62vw);
     aspect-ratio: 1100 / 1920;
@@ -1754,7 +1780,7 @@ const base = import.meta.env.BASE_URL;
   }
   /* Survol / aperçu croisé région ↔ brique : fond ambré + texte quasi plein. */
   .symbolism :global(.brick.is-active) {
-    background: rgba(201, 164, 76, 0.08);
+    background: var(--brick-active-bg);
   }
   .symbolism :global(.brick.is-active .brick-text) {
     color: rgb(var(--text-rgb) / 0.98);
@@ -1762,12 +1788,12 @@ const base = import.meta.env.BASE_URL;
   /* Verrouillé (sélection) : encart appuyé — filet d'or, fond plus marqué, halo doux,
      terme éclairci et texte en pleine lumière + légèrement gras. Déclaré après is-active. */
   .symbolism :global(.brick.is-selected) {
-    background: rgba(201, 164, 76, 0.15);
+    background: var(--brick-sel-bg);
     border-left-color: var(--accent);
-    box-shadow: 0 0 24px rgba(201, 164, 76, 0.16);
+    box-shadow: 0 0 24px var(--brick-sel-shadow);
   }
   .symbolism :global(.brick.is-selected .brick-term) {
-    color: #e9cd86;
+    color: var(--brick-sel-term);
   }
   .symbolism :global(.brick.is-selected .brick-text) {
     color: var(--text-strong);
@@ -1800,12 +1826,11 @@ const base = import.meta.env.BASE_URL;
   }
 
   .reading {
-    grid-area: head;
     max-width: 34rem;
   }
-  /* Zone pleine largeur sous la carte : symbolique + formule + actions. */
+  /* Zone pleine largeur sous la carte : formule + actions (la symbolique est
+     désormais un item direct de .result, juste au-dessus). */
   .reading-full {
-    grid-area: full;
     display: grid;
     gap: 1.2rem;
   }
@@ -2494,13 +2519,27 @@ const base = import.meta.env.BASE_URL;
   }
 
   @media (max-width: 46rem) {
+    /* Colonne unique : la symbolique (order 1) remonte juste sous la carte (order 0),
+       collée à l'image dont elle décrit les régions ; le sens suit (order 2). */
     .result {
       grid-template-columns: 1fr;
-      grid-template-areas:
-        'card'
-        'head'
-        'full';
       row-gap: 1.75rem;
+    }
+    .result > .card-slot {
+      grid-column: 1;
+      grid-row: auto;
+      order: 0;
+    }
+    .result > .symbolism {
+      order: 1;
+    }
+    .result > .reading {
+      grid-column: 1;
+      grid-row: auto;
+      order: 2;
+    }
+    .result > .reading-full {
+      order: 3;
     }
     .reading {
       max-width: none;

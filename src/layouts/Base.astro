@@ -176,6 +176,14 @@ const fontFace = `
         --accent-2: #b5532f;
         --line: rgb(var(--accent-rgb) / 0.28);
         --panel: rgb(var(--text-rgb) / 0.045);
+        /* États des briques de symbolique (survol/sélection). Tokens par thème :
+           sur fond blanc, un voile d'or clair à 8–15 % devient invisible → le thème
+           clair pousse l'opacité (encre bronze plus foncée) pour rester lisible. */
+        --brick-active-bg: rgb(var(--accent-rgb) / 0.08);
+        --brick-sel-bg: rgb(var(--accent-rgb) / 0.16);
+        --brick-sel-shadow: rgb(var(--accent-rgb) / 0.16);
+        /* Intitulé d'une brique sélectionnée : or clair qui ressort sur le sombre. */
+        --brick-sel-term: #e9cd86;
         --font-display: 'Cormorant Variable', Georgia, 'Times New Roman', serif;
         --font-body: 'EB Garamond Variable', Georgia, 'Times New Roman', serif;
         --maxw: 60rem;
@@ -191,6 +199,12 @@ const fontFace = `
         --text-strong: #171021;
         --accent: #8a6a15;
         --accent-2: #a5431d;
+        /* Opacités renforcées pour trancher sur le blanc pur. */
+        --brick-active-bg: rgb(var(--accent-rgb) / 0.16);
+        --brick-sel-bg: rgb(var(--accent-rgb) / 0.28);
+        --brick-sel-shadow: rgb(var(--accent-rgb) / 0.1);
+        /* Sur blanc, l'intitulé sélectionné doit foncer (or bronze soutenu). */
+        --brick-sel-term: #5f4a0e;
         color-scheme: light;
       }
       * {
