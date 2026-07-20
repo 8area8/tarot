@@ -632,6 +632,14 @@ const NAV = [
     let panFromY = 0;
     let panOrigX = 0;
     let panOrigY = 0;
+    let panPointerId = -1;
+    const endPan = () => {
+      if (!panning) return;
+      panning = false;
+      if (panPointerId >= 0) canvas.releasePointerCapture?.(panPointerId);
+      panPointerId = -1;
+      canvas.classList.remove('is-panning');
+    };
     canvas.addEventListener('mousedown', (e) => {
       if (e.button === 1) e.preventDefault();
     });
@@ -643,23 +651,26 @@ const NAV = [
       panFromY = e.clientY;
       panOrigX = panX;
       panOrigY = panY;
+      panPointerId = e.pointerId;
       canvas.setPointerCapture(e.pointerId);
       canvas.classList.add('is-panning');
     });
     canvas.addEventListener('pointermove', (e) => {
       if (!panning) return;
+      // Le glisser sort de la fenêtre → on relâche le déplacement (sinon, capture du
+      // pointeur oblige, l'action « collerait » jusqu'à un relâchement hors page).
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= innerWidth || e.clientY >= innerHeight) {
+        endPan();
+        return;
+      }
       panX = panOrigX + (e.clientX - panFromX);
       panY = panOrigY + (e.clientY - panFromY);
       applyView();
     });
-    const endPan = (e: PointerEvent) => {
-      if (!panning) return;
-      panning = false;
-      canvas.releasePointerCapture?.(e.pointerId);
-      canvas.classList.remove('is-panning');
-    };
     canvas.addEventListener('pointerup', endPan);
     canvas.addEventListener('pointercancel', endPan);
+    // Filet de sécurité : perte de focus (alt-tab…) relâche aussi le déplacement.
+    window.addEventListener('blur', endPan);
 
     // Suit le pointeur sur la carte → alimente l'accroche magnétique (mode −).
     canvas.addEventListener('pointermove', (e) => {
