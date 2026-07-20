@@ -65,6 +65,8 @@ function annotateSavePlugin() {
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
+  // Barre d'outils de dev Astro désactivée (gêne l'outil d'annotation en bas de page).
+  devToolbar: { enabled: false },
   // Déployé sur GitHub Pages sous le sous-chemin du dépôt (8area8.github.io/tarot).
   // Tous les liens internes passent par `import.meta.env.BASE_URL` pour rester corrects.
   site: 'https://8area8.github.io',
