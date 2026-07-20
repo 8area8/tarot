@@ -9,10 +9,22 @@
  * Vit sous `[lang]` (servi sur `/fr/annotate`) : en dev, les routes non préfixées
  * par la locale renvoient 404 (prefixDefaultLocale). L'UI reste en français.
  */
+import { t } from '../../lib/i18n';
+
 export function getStaticPaths() {
   return [{ params: { lang: 'fr' } }];
 }
 const isDev = import.meta.env.DEV;
+const base = import.meta.env.BASE_URL;
+const locale = 'fr' as const;
+// Réplique de la navigation du site (l'outil est un document autonome, hors layout).
+const NAV = [
+  { slug: '', label: 'nav.draw' },
+  { slug: 'cartes', label: 'nav.cards' },
+  { slug: 'grammaire', label: 'nav.grammar' },
+  { slug: 'comment-lire', label: 'nav.method' },
+  { slug: 'historique', label: 'nav.history' },
+] as const;
 ---
 
 <!-- Page de dev autonome : document complet (pas de layout), non indexée. -->
@@ -31,6 +43,19 @@ const isDev = import.meta.env.DEV;
       <p>Outil d'annotation — disponible en développement uniquement (<code>npm run dev</code>).</p>
     </main>
   ) : (
+    <>
+    <header class="topnav">
+      <a class="brand" href={`${base}${locale}/`}>
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span>{t(locale, 'site.title')}</span>
+      </a>
+      <nav class="topnav-links" aria-label={t(locale, 'nav.label')}>
+        {NAV.map((item) => (
+          <a href={`${base}${locale}/${item.slug}`}>{t(locale, item.label)}</a>
+        ))}
+      </nav>
+      <a class="goto-card" id="goto-card" href={`${base}${locale}/`}>Aller vers la carte ↗</a>
+    </header>
     <main id="annotate-app">
       <header class="bar">
         <h1>Annotation des cartes</h1>
@@ -57,10 +82,46 @@ const isDev = import.meta.env.DEV;
           </div>
           <div class="toolbar">
             <button type="button" id="btn-new" class="primary">+ Nouvelle région</button>
-            <button type="button" id="btn-add" hidden>+ Ajouter une forme</button>
-            <button type="button" id="btn-done" hidden>Terminer le tracé (Entrée)</button>
+            <button type="button" id="btn-add" hidden>+ Ajouter une forme (F)</button>
+            <button type="button" id="btn-done" hidden>Terminer (Entrée)</button>
           </div>
-          <p class="hint" id="hint"></p>
+
+          <div class="help" id="help">
+            <section class="help-group">
+              <p class="help-title">Vue</p>
+              <ul>
+                <li><kbd>molette</kbd> zoom</li>
+                <li><kbd>clic-molette</kbd> déplacer</li>
+                <li><kbd>0</kbd> ajuster</li>
+              </ul>
+            </section>
+            <section class="help-group">
+              <p class="help-title">Régions</p>
+              <ul>
+                <li><kbd>clic</kbd> sélectionner une forme</li>
+                <li><kbd>clic hors carte</kbd> désélectionner</li>
+                <li><kbd>Suppr</kbd> supprimer la région</li>
+              </ul>
+            </section>
+            <section class="help-group" data-when="draw">
+              <p class="help-title">Tracé</p>
+              <ul>
+                <li><kbd>+ Nouvelle région</kbd> / une puce</li>
+                <li><kbd>F</kbd> ajouter une forme</li>
+                <li><kbd>clic</kbd> poser un point <em>(glisser pour placer)</em></li>
+                <li><kbd>Entrée</kbd> / <kbd>Échap</kbd> terminer</li>
+              </ul>
+            </section>
+            <section class="help-group" data-when="edit">
+              <p class="help-title">Éditer une forme</p>
+              <ul>
+                <li>glisser une <b>poignée</b> déplacer un point</li>
+                <li><kbd>Maj</kbd>+clic <span class="op op-add">+</span> ajouter un point</li>
+                <li><kbd>Maj</kbd>+<kbd>Tab</kbd>+clic <span class="op op-del">−</span> supprimer un point</li>
+                <li><kbd>clic droit</kbd> supprimer la forme</li>
+              </ul>
+            </section>
+          </div>
         </section>
 
         <aside class="panel">
@@ -87,6 +148,7 @@ const isDev = import.meta.env.DEV;
         </aside>
       </div>
     </main>
+    </>
   )
 }
 
@@ -108,6 +170,46 @@ const isDev = import.meta.env.DEV;
     font: 15px/1.5 system-ui, sans-serif;
   }
   .dev-only { padding: 2rem; }
+  /* Barre de navigation du site (répliquée : l'outil est un document autonome). */
+  .topnav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    padding: 0.7rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    background: rgba(13, 10, 20, 0.6);
+  }
+  .topnav .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .topnav .brand-mark { color: var(--gold); }
+  .topnav-links { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; margin-right: auto; }
+  .topnav-links a {
+    padding: 0.25rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .topnav-links a:hover { color: var(--text); background: rgba(201, 164, 76, 0.12); }
+  .goto-card {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    background: rgba(201, 164, 76, 0.14);
+    color: var(--gold);
+    font-size: 0.9rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .goto-card:hover { background: rgba(201, 164, 76, 0.24); }
   #annotate-app { padding: 1rem 1.25rem 3rem; max-width: 1280px; margin: 0 auto; }
   .bar {
     display: flex;
@@ -247,9 +349,87 @@ const isDev = import.meta.env.DEV;
     cursor: grab;
   }
   .handle:active { cursor: grabbing; }
-  .handle.draft-pt { background: var(--gold); border-color: #fff; cursor: default; }
+  /* Point « actif » : le dernier cliqué/créé (ancre d'insertion du prochain Maj+clic).
+     Plus gros, cerclé de bleu + halo → repérable d'un coup d'œil. */
+  .handle.is-active {
+    width: calc(1.2rem / var(--z, 1));
+    height: calc(1.2rem / var(--z, 1));
+    background: #fff;
+    border-color: #4c9be8;
+    box-shadow: 0 0 0 calc(2px / var(--z, 1)) rgba(76, 155, 232, 0.5);
+  }
+  /* Cible de suppression (mode −) : poignée qui « brille » en rouge quand on l'approche. */
+  .handle.is-target {
+    width: calc(1.35rem / var(--z, 1));
+    height: calc(1.35rem / var(--z, 1));
+    background: #e79ab0;
+    border-color: #fff;
+    box-shadow: 0 0 calc(9px / var(--z, 1)) calc(3px / var(--z, 1)) rgba(231, 154, 176, 0.85);
+  }
+  /* Curseurs d'outil (Maj = ajouter « + », Maj+Tab = supprimer « − »). Data-URI SVG,
+     posés sur toute la carte (!important pour couvrir les curseurs des formes/poignées). */
+  .canvas.tool-add,
+  .canvas.tool-add * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Ccircle cx='13' cy='13' r='9' fill='%2314101c' stroke='%23c9a44c' stroke-width='1.6'/%3E%3Cpath d='M13 8.5v9M8.5 13h9' stroke='%23fff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 13 13, crosshair !important;
+  }
+  .canvas.tool-del,
+  .canvas.tool-del * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Ccircle cx='13' cy='13' r='9' fill='%2314101c' stroke='%23a5566a' stroke-width='1.6'/%3E%3Cpath d='M8.5 13h9' stroke='%23fff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 13 13, crosshair !important;
+  }
   .toolbar { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
-  .hint { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0; max-width: 40rem; justify-self: center; }
+  /* Aide aux commandes : grille de groupes (Vue / Régions / Tracé / Éditer). */
+  .help {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0.6rem 1.2rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(13, 10, 20, 0.4);
+  }
+  .help-group { transition: opacity 0.2s ease; }
+  .help-title {
+    margin: 0 0 0.35rem;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--gold);
+  }
+  .help-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.28rem; }
+  .help-group li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .help-group em { font-style: italic; opacity: 0.75; }
+  .help kbd {
+    font: inherit;
+    font-size: 0.72rem;
+    padding: 0.06rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .op {
+    display: inline-grid;
+    place-items: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+  .op-add { background: rgba(201, 164, 76, 0.9); }
+  .op-del { background: rgba(165, 86, 106, 0.9); }
+  /* Estompe le groupe de l'autre phase (tracé ↔ édition) pour guider l'œil. */
+  .help[data-phase='draw'] .help-group[data-when='edit'],
+  .help[data-phase='edit'] .help-group[data-when='draw'] { opacity: 0.4; }
 
   .panel { display: grid; gap: 1.2rem; }
   .editor { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
@@ -337,7 +517,8 @@ const isDev = import.meta.env.DEV;
     const btnNew = $<HTMLButtonElement>('btn-new');
     const btnAdd = $<HTMLButtonElement>('btn-add');
     const btnDone = $<HTMLButtonElement>('btn-done');
-    const hint = $<HTMLElement>('hint');
+    const helpEl = $<HTMLElement>('help');
+    const gotoCard = $<HTMLAnchorElement>('goto-card');
     const canvas = $<HTMLElement>('canvas');
     const imgWrap = $<HTMLElement>('img-wrap');
     const zoomIn = $<HTMLButtonElement>('zoom-in');
@@ -357,7 +538,37 @@ const isDev = import.meta.env.DEV;
     let drawShape = -1;
     let dragS = -1; // forme en cours de déplacement
     let dragV = -1; // sommet en cours de déplacement
+    let dragMoved = false; // le sommet saisi a-t-il réellement bougé ? (évite un save inutile)
+    let dragCreated = false; // le drag saisit-il un point qui vient d'être créé ? (à enregistrer)
     let pendingNewRef = 0; // symbole pré-affecté à la prochaine région « new »
+    // Dernier sommet cliqué/créé (dans la région sélectionnée) : un point ajouté
+    // en Maj+clic s'insère juste APRÈS lui (comme voisin). -1 = aucun point actif.
+    let activeS = -1;
+    let activeV = -1;
+    const resetActive = () => {
+      activeS = -1;
+      activeV = -1;
+    };
+    // Outils au clic pilotés par le clavier maintenu : Maj = ajouter un point (+),
+    // Maj+Tab = supprimer un point (−). Le curseur reflète l'outil actif.
+    let shiftHeld = false;
+    let tabHeld = false;
+    const toolFor = (e: { shiftKey: boolean }) =>
+      e.shiftKey && tabHeld ? 'del' : e.shiftKey ? 'add' : null;
+    // Suppression « magnétique » : en mode −, la poignée la plus proche (dans ce rayon
+    // normalisé) s'illumine et devient la cible du clic, même sans viser pile dessus.
+    const DEL_SNAP = 0.05;
+    let lastCanvasPos: Point | null = null;
+    // Reflète l'outil courant sur le curseur (seulement quand une région est
+    // sélectionnée en édition : ajouter/supprimer un point y a un sens).
+    function updateCursor() {
+      const editable = mode === 'idle' && selected !== -1;
+      const tool = shiftHeld && tabHeld ? 'del' : shiftHeld ? 'add' : null;
+      canvas.classList.toggle('tool-add', editable && tool === 'add');
+      canvas.classList.toggle('tool-del', editable && tool === 'del');
+      // Accroche magnétique : (dés)illumine la poignée cible selon le mode courant.
+      setDelTarget(editable && tool === 'del' ? lastCanvasPos : null);
+    }
 
     // ---- Zoom / déplacement (molette + flèches) ----
     const MIN_Z = 1;
@@ -450,6 +661,16 @@ const isDev = import.meta.env.DEV;
     canvas.addEventListener('pointerup', endPan);
     canvas.addEventListener('pointercancel', endPan);
 
+    // Suit le pointeur sur la carte → alimente l'accroche magnétique (mode −).
+    canvas.addEventListener('pointermove', (e) => {
+      lastCanvasPos = normPos(e);
+      if (mode === 'idle' && selected !== -1 && shiftHeld && tabHeld) setDelTarget(lastCanvasPos);
+    });
+    canvas.addEventListener('pointerleave', () => {
+      lastCanvasPos = null;
+      setDelTarget(null);
+    });
+
     for (const c of cards) {
       const o = document.createElement('option');
       o.value = c.id;
@@ -502,7 +723,12 @@ const isDev = import.meta.env.DEV;
     }
 
     // Insère un sommet dans une forme, sur l'arête la plus proche du clic (affinage).
-    function insertVertex(shape: Point[], p: Point) {
+    // Renvoie l'index du sommet inséré (une forme vide → simple ajout en tête).
+    function insertVertex(shape: Point[], p: Point): number {
+      if (shape.length === 0) {
+        shape.push(p);
+        return 0;
+      }
       let best = 0;
       let bestD = Infinity;
       for (let i = 0; i < shape.length; i++) {
@@ -513,6 +739,110 @@ const isDev = import.meta.env.DEV;
         }
       }
       shape.splice(best + 1, 0, p);
+      return best + 1;
+    }
+
+    // Index du sommet le plus proche d'un point (pour la suppression Ctrl+Maj+clic).
+    function nearestVertex(shape: Point[], p: Point): number {
+      let best = 0;
+      let bestD = Infinity;
+      shape.forEach((q, i) => {
+        const d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      return best;
+    }
+
+    // Sommet le plus proche d'un point sur TOUTE la région sélectionnée (toutes formes).
+    function nearestHandle(p: Point): { s: number; v: number; d: number } | null {
+      const rg = regionsOf()[selected];
+      if (!rg) return null;
+      let bs = -1;
+      let bv = -1;
+      let bd = Infinity;
+      rg.shapes.forEach((shape, s) =>
+        shape.forEach((q, v) => {
+          const d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+          if (d < bd) {
+            bd = d;
+            bs = s;
+            bv = v;
+          }
+        }),
+      );
+      return bs < 0 ? null : { s: bs, v: bv, d: bd };
+    }
+
+    // Illumine la poignée à supprimer (accroche magnétique). `null` = éteint tout.
+    function setDelTarget(p: Point | null) {
+      handlesEl.querySelector('.handle.is-target')?.classList.remove('is-target');
+      const n = p && nearestHandle(p);
+      if (!n || n.d > DEL_SNAP) return;
+      handlesEl
+        .querySelector<HTMLElement>(`[data-s="${n.s}"][data-v="${n.v}"]`)
+        ?.classList.add('is-target');
+    }
+
+    // Supprime le sommet le plus proche s'il est dans le rayon d'accroche.
+    function deleteNearest(p: Point): boolean {
+      const n = nearestHandle(p);
+      if (n && n.d <= DEL_SNAP) {
+        removeVertex(n.s, n.v);
+        return true;
+      }
+      return false;
+    }
+
+    // Saisit un sommet pour le glisser-déposer : re-render, puis capture le pointeur
+    // sur sa poignée (persistante pendant le drag → les moves la repositionnent).
+    function beginDrag(pointerId: number, s: number, v: number, created = false) {
+      dragS = s;
+      dragV = v;
+      dragMoved = false;
+      dragCreated = created;
+      renderSvg();
+      renderHandles();
+      const h = handlesEl.querySelector<HTMLElement>(`[data-s="${s}"][data-v="${v}"]`);
+      h?.setPointerCapture?.(pointerId);
+    }
+
+    // Crée un point dans la région sélectionnée, le rend ACTIF, et le saisit aussitôt
+    // pour le glisser-déposer (pas besoin de recliquer). S'il y a un point actif, le
+    // nouveau s'insère juste après lui (voisin) ; sinon on affine l'arête la plus
+    // proche de la forme indiquée (`hintShape`).
+    function createPoint(pointerId: number, p: Point, hintShape: number) {
+      const rg = regionsOf()[selected];
+      if (!rg) return;
+      let s: number;
+      let v: number;
+      if (activeS >= 0 && rg.shapes[activeS] && rg.shapes[activeS].length > 0) {
+        s = activeS;
+        const shape = rg.shapes[s];
+        if (mode === 'draw' || shape.length < 2) {
+          // Tracé (ou forme naissante) : ajout séquentiel, après le point actif.
+          v = activeV + 1;
+        } else {
+          // Édition : insère du côté du point de référence (voisin gauche OU droit)
+          // dont le segment est le plus proche du clic → chemin le plus court.
+          const n = shape.length;
+          const ref = shape[activeV];
+          const dLeft = segDist(p, ref, shape[(activeV - 1 + n) % n]);
+          const dRight = segDist(p, ref, shape[(activeV + 1) % n]);
+          v = dLeft < dRight ? activeV : activeV + 1; // activeV = insère AVANT le ref
+        }
+        shape.splice(v, 0, p);
+      } else {
+        s = hintShape >= 0 && rg.shapes[hintShape] ? hintShape : drawShape >= 0 ? drawShape : 0;
+        v = insertVertex((rg.shapes[s] ??= []), p);
+      }
+      activeS = s;
+      activeV = v;
+      // Le point créé se laisse glisser ; l'enregistrement se fera au relâchement
+      // (pas de save ici → aucun reload HMR en plein glissé).
+      beginDrag(pointerId, s, v, true);
     }
 
     function renderSvg() {
@@ -525,35 +855,55 @@ const isDev = import.meta.env.DEV;
       bg.setAttribute('width', '1000');
       bg.setAttribute('height', '1000');
       bg.addEventListener('pointerdown', (e) => {
-        if ((e as PointerEvent).button !== 0) return; // molette = pan, géré ailleurs
+        const ev = e as PointerEvent;
+        if (ev.button !== 0) return; // molette = pan, géré ailleurs
+        // Un clic sur le fond est SUR la carte : il ne doit jamais remonter au handler
+        // « hors carte ». Indispensable car createPoint → renderSvg détache ce `bg` du
+        // DOM ; sans ça, `canvas.contains(e.target)` deviendrait faux au bubbling et
+        // déclencherait finishDraw()/désélection à tort.
+        e.stopPropagation();
         if (mode === 'draw') {
-          // Ajout LIVE : le point va directement dans la forme en cours (déjà réelle).
-          const shape = regionsOf()[selected]?.shapes[drawShape];
-          if (!shape) return;
-          shape.push(normPos(e as PointerEvent));
-          render();
-          if (shape.length >= 3) scheduleSave(); // prise en compte dès 3 points
-        } else if (selected !== -1) {
-          selected = -1;
-          render();
+          // Tracé LIVE : le point s'ajoute à la forme en cours et se laisse aussitôt
+          // glisser (clic enfoncé) — inutile de recliquer dessus pour l'ajuster.
+          e.preventDefault();
+          createPoint(ev.pointerId, normPos(ev), drawShape);
+          return;
+        }
+        if (selected === -1) return;
+        // Maj+clic sur l'image = ajouter un point ; Maj+Tab+clic = supprimer le point
+        // accroché (le plus proche). Un clic simple ne fait RIEN : la désélection ne se
+        // fait qu'en cliquant hors de la carte (handler document).
+        const tool = toolFor(ev);
+        if (tool === 'add') {
+          e.preventDefault();
+          createPoint(ev.pointerId, normPos(ev), -1);
+        } else if (tool === 'del') {
+          e.preventDefault();
+          deleteNearest(normPos(ev));
         }
       });
       draw.append(bg);
 
-      // Remplissage par région : un `<path>` evenodd regroupant toutes ses boucles.
-      // Combiné à fill-rule="evenodd", une boucle imbriquée dans une autre s'affiche
-      // comme un TROU (forme négative). Non interactif : les contours/poignées, eux,
-      // restent par boucle (polygones ci-dessous). Inclut la forme en cours de tracé
-      // → l'aperçu du remplissage (et du trou) se met à jour au fil des clics.
-      regionsOf().forEach((rg, ri) => {
+      // Régions rendues : toutes tant qu'aucune n'est sélectionnée ; UNE SEULE (la
+      // sélectionnée) sinon → les autres deviennent invisibles ET non cliquables.
+      const shown = selected === -1 ? regionsOf().map((_, i) => i) : [selected];
+
+      // Remplissage evenodd (révèle les trous). Non interactif : les contours/poignées
+      // captent les clics. Inclut la forme en cours de tracé (aperçu live du trou).
+      for (const ri of shown) {
+        const rg = regionsOf()[ri];
+        if (!rg) continue;
         const fill = svgEl('path');
         fill.setAttribute('d', pathD(rg.shapes));
         fill.setAttribute('fill-rule', 'evenodd');
         fill.setAttribute('class', 'rfill' + (ri === selected ? ' is-selected' : ''));
         draw.append(fill);
-      });
+      }
 
-      regionsOf().forEach((rg, ri) => {
+      // Contours + cibles de clic, par boucle.
+      for (const ri of shown) {
+        const rg = regionsOf()[ri];
+        if (!rg) continue;
         rg.shapes.forEach((shape, si) => {
           // La forme en cours de tracé s'affiche en pointillé (« draft »), non cliquable.
           const drafting = mode === 'draw' && ri === selected && si === drawShape;
@@ -563,17 +913,29 @@ const isDev = import.meta.env.DEV;
           if (!drafting) {
             poly.dataset.s = String(si);
             poly.addEventListener('pointerdown', (e) => {
-              if (mode === 'draw' || (e as PointerEvent).button !== 0) return;
+              const ev = e as PointerEvent;
+              if (mode === 'draw' || ev.button !== 0) return;
               e.stopPropagation();
-              if (ri === selected) {
-                // clic dans la région déjà sélectionnée → ajoute un point (affinage)
-                insertVertex(shape, normPos(e as PointerEvent));
-                render();
-                scheduleSave();
-              } else {
+              if (ri !== selected) {
+                // Sélectionne la région (seulement quand rien n'est encore sélectionné).
                 selected = ri;
+                resetActive();
                 render();
+                return;
               }
+              const p = normPos(ev);
+              const tool = toolFor(ev);
+              if (tool === 'del') {
+                // Maj+Tab+clic : supprime le sommet accroché (le plus proche).
+                e.preventDefault();
+                deleteNearest(p) || removeVertex(si, nearestVertex(shape, p));
+              } else if (tool === 'add') {
+                // Maj+clic : ajoute un point (voisin de l'actif, ou sur l'arête proche).
+                e.preventDefault();
+                createPoint(ev.pointerId, p, si);
+              }
+              // Clic simple sur le corps d'une forme sélectionnée : aucun effet
+              // (l'ajout de point est volontaire, via Maj+clic).
             });
             // Clic droit sur une forme → la supprimer, APRÈS confirmation (un clic
             // droit accidentel ne doit rien détruire). La dernière forme retire la région.
@@ -589,29 +951,48 @@ const isDev = import.meta.env.DEV;
           }
           draw.append(poly);
         });
-      });
+      }
     }
 
     function renderHandles() {
       handlesEl.replaceChildren();
-      const mk = (p: Point, cls: string, s: number, v: number) => {
+      const mk = (p: Point, s: number, v: number) => {
         const h = document.createElement('div');
-        h.className = cls;
+        h.className = 'handle' + (s === activeS && v === activeV ? ' is-active' : '');
         h.style.left = `${p[0] * 100}%`;
         h.style.top = `${p[1] * 100}%`;
-        if (v >= 0) {
-          h.dataset.s = String(s);
-          h.dataset.v = String(v);
-          h.addEventListener('pointerdown', (e) => startVertexDrag(e, s, v));
-          h.addEventListener('dblclick', () => removeVertex(s, v));
-        }
+        h.dataset.s = String(s);
+        h.dataset.v = String(v);
+        h.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return; // laisse la molette (pan) passer
+          e.preventDefault();
+          e.stopPropagation();
+          const tool = toolFor(e);
+          if (tool === 'del') {
+            // Maj+Tab+clic sur une poignée : supprime ce sommet.
+            removeVertex(s, v);
+          } else if (tool === 'add') {
+            // Maj+clic sur une poignée : ajoute un point juste après elle.
+            activeS = s;
+            activeV = v;
+            createPoint(e.pointerId, normPos(e), s);
+          } else {
+            // Clic simple : ce sommet devient ACTIF et se laisse glisser-déposer.
+            activeS = s;
+            activeV = v;
+            beginDrag(e.pointerId, s, v);
+          }
+        });
+        h.addEventListener('dblclick', () => removeVertex(s, v));
         handlesEl.append(h);
       };
+      // En tracé : poignées de la forme en cours (glissables). En édition : toutes
+      // les poignées de la région sélectionnée.
       if (mode === 'draw') {
-        regionsOf()[selected]?.shapes[drawShape]?.forEach((p) => mk(p, 'handle draft-pt', -1, -1));
+        regionsOf()[selected]?.shapes[drawShape]?.forEach((p, v) => mk(p, drawShape, v));
       } else if (selected !== -1) {
         regionsOf()[selected].shapes.forEach((shape, si) =>
-          shape.forEach((p, v) => mk(p, 'handle', si, v)),
+          shape.forEach((p, v) => mk(p, si, v)),
         );
       }
     }
@@ -644,6 +1025,7 @@ const isDev = import.meta.env.DEV;
           finishDraw(); // clôt un tracé en cours avant de changer de sélection
           if (i < regionsOf().length) {
             selected = i;
+            resetActive();
             render();
           }
         });
@@ -674,9 +1056,8 @@ const isDev = import.meta.env.DEV;
       btnNew.hidden = false; // toujours dispo : démarrer une région clôt le tracé en cours
       btnAdd.hidden = drawing || selected === -1;
       btnDone.hidden = !drawing;
-      hint.textContent = drawing
-        ? 'Clique pour poser les points : la région est prise en compte et enregistrée dès 3 points, sans validation. Entrée / Échap (ou « Terminer ») pour arrêter d’ajouter des points. Molette = zoom, flèches ou clic-molette glissé = déplacement.'
-        : 'Molette = zoom, flèches ou clic-molette glissé = déplacement, « 0 » = ajuster. Sélectionne une région (glisse ses poignées ; clic dans la forme = ajouter un point ; double-clic sur une poignée = la retirer). Clic droit sur une forme = la supprimer (confirmation) ; « Suppr » = supprimer la région.';
+      // Met en avant le groupe d'aide pertinent (tracé / édition), les autres restent lisibles.
+      helpEl.dataset.phase = drawing ? 'draw' : selected !== -1 ? 'edit' : 'none';
     }
 
     // Symboles de la carte sans aucune région : puces cliquables (→ tracé pré-affecté).
@@ -722,6 +1103,7 @@ const isDev = import.meta.env.DEV;
       renderToolbar();
       renderCoverage();
       refreshCardOptions();
+      updateCursor(); // l'outil dépend de mode/selection
       // Mémorise l'état d'édition : l'auto-enregistrement réécrit card-regions.ts,
       // ce qui recharge la page (HMR) → on restaure la carte et la région au boot.
       try {
@@ -732,18 +1114,11 @@ const isDev = import.meta.env.DEV;
       }
     }
 
-    // Déplacement d'un sommet (re-render du SVG seulement — les poignées gardent
-    // leur capture de pointeur ; on repositionne juste celle qu'on glisse).
-    function startVertexDrag(e: PointerEvent, s: number, v: number) {
-      if (e.button !== 0) return; // laisse la molette (pan) passer
-      e.stopPropagation();
-      e.preventDefault();
-      dragS = s;
-      dragV = v;
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    }
+    // Déplacement d'un sommet : `beginDrag` capture le pointeur sur la poignée ; le
+    // move ci-dessous repositionne juste celle qu'on glisse (re-render du SVG seul).
     document.addEventListener('pointermove', (e) => {
       if (dragV < 0 || selected === -1) return;
+      dragMoved = true;
       regionsOf()[selected].shapes[dragS][dragV] = normPos(e);
       const h = handlesEl.querySelector<HTMLElement>(`[data-s="${dragS}"][data-v="${dragV}"]`);
       if (h) {
@@ -753,9 +1128,44 @@ const isDev = import.meta.env.DEV;
       renderSvg();
     });
     document.addEventListener('pointerup', () => {
-      if (dragV >= 0) scheduleSave(); // un sommet vient d'être déplacé
+      // Enregistre en fin d'interaction si le sommet a bougé OU vient d'être créé.
+      // Un simple clic sur une poignée (activation, sans déplacement) n'écrit rien.
+      // Garde-fou : en tracé, pas de save (→ reload) avant 3 points.
+      if (dragV >= 0 && (dragMoved || dragCreated)) {
+        const len = regionsOf()[selected]?.shapes[dragS]?.length ?? 0;
+        if (mode !== 'draw' || len >= 3) scheduleSave();
+      }
       dragS = -1;
       dragV = -1;
+      dragMoved = false;
+      dragCreated = false;
+    });
+
+    // Clic en dehors de la carte (hors canvas, hors panneau/contrôles) : désélectionne
+    // le calque actif — SAUF en mode ajout (Maj), où l'on crée plutôt le point (clampé
+    // au bord de l'image via normPos) pour ne pas perdre la sélection en cours d'édition.
+    const panelEl = document.querySelector<HTMLElement>('.panel');
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      const t = e.target as HTMLElement;
+      if (canvas.contains(t)) return; // sur la carte : géré par le SVG
+      if (panelEl?.contains(t)) return; // panneau : liste de régions / éditeur
+      if (t.closest('button, select, input, label')) return; // contrôles (toolbar, zoom)
+      if (mode === 'draw') {
+        finishDraw();
+      } else if (selected !== -1) {
+        const tool = toolFor(e);
+        if (tool === 'add') {
+          // Maj+clic hors carte : ajoute un point (au bord) plutôt que désélectionner.
+          createPoint(e.pointerId, normPos(e), -1);
+        } else if (!tool) {
+          // Désélection uniquement par clic SIMPLE (aucun outil actif).
+          selected = -1;
+          resetActive();
+          render();
+        }
+        // Mode suppression hors carte : rien (on protège la sélection).
+      }
     });
 
     function removeVertex(s: number, v: number) {
@@ -763,6 +1173,7 @@ const isDev = import.meta.env.DEV;
       if (!rg) return;
       if (rg.shapes[s].length > 3) rg.shapes[s].splice(v, 1);
       else if (rg.shapes.length > 1) rg.shapes.splice(s, 1);
+      resetActive(); // les index de sommets ont bougé
       render();
       scheduleSave();
     }
@@ -774,6 +1185,7 @@ const isDev = import.meta.env.DEV;
       regs.splice(i, 1);
       if (selected === i) selected = -1;
       else if (selected > i) selected -= 1;
+      resetActive();
       render();
       scheduleSave();
     }
@@ -786,6 +1198,7 @@ const isDev = import.meta.env.DEV;
       if (rg.shapes.length === 0) {
         deleteRegion(ri);
       } else {
+        resetActive(); // les index de formes/sommets ont bougé
         render();
         scheduleSave();
       }
@@ -809,6 +1222,7 @@ const isDev = import.meta.env.DEV;
       }
       mode = 'idle';
       drawShape = -1;
+      resetActive();
       render();
       scheduleSave();
     }
@@ -827,6 +1241,7 @@ const isDev = import.meta.env.DEV;
       }
       drawShape = regionsOf()[selected].shapes.length - 1;
       mode = 'draw';
+      resetActive(); // le 1er point de la nouvelle forme s'ajoute en tête
       render();
     }
     btnNew.addEventListener('click', () => {
@@ -844,6 +1259,12 @@ const isDev = import.meta.env.DEV;
       if (tag === 'select' || tag === 'input' || tag === 'textarea') return;
       if ((e.key === 'Delete' || e.key === 'Backspace') && mode === 'idle' && selected >= 0) {
         deleteRegion(selected);
+        e.preventDefault();
+        return;
+      }
+      if ((e.key === 'f' || e.key === 'F') && mode === 'idle' && selected >= 0) {
+        // « f » : ajoute une nouvelle forme à la région sélectionnée.
+        startDraw(selected);
         e.preventDefault();
         return;
       }
@@ -871,6 +1292,30 @@ const isDev = import.meta.env.DEV;
       }
     });
 
+    // Suivi des touches maintenues (Maj / Tab) → outils au clic + curseur. Tab n'est
+    // pas dans les événements pointeur : on le suit ici. On neutralise la navigation
+    // Maj+Tab (sauf dans un champ) pour l'utiliser comme modificateur « supprimer ».
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Shift') shiftHeld = true;
+      if (e.key === 'Tab') {
+        tabHeld = true;
+        const tag = (document.activeElement?.tagName ?? '').toLowerCase();
+        const inField = tag === 'select' || tag === 'input' || tag === 'textarea';
+        if (shiftHeld && !inField) e.preventDefault();
+      }
+      updateCursor();
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'Shift') shiftHeld = false;
+      if (e.key === 'Tab') tabHeld = false;
+      updateCursor();
+    });
+    window.addEventListener('blur', () => {
+      shiftHeld = false;
+      tabHeld = false;
+      updateCursor();
+    });
+
     refSelect.addEventListener('change', () => {
       const rg = regionsOf()[selected];
       if (!rg) return;
@@ -885,8 +1330,10 @@ const isDev = import.meta.env.DEV;
       selected = -1;
       mode = 'idle';
       drawShape = -1;
+      resetActive();
       img.src = `${BASE}cards/${id}.webp`;
       img.alt = id;
+      gotoCard.href = `${BASE}fr/#${id}`; // « aller vers la carte » suit la carte courante
       resetView();
       render();
     }
@@ -929,6 +1376,20 @@ const isDev = import.meta.env.DEV;
       if (Number.isInteger(s)) startSel = s;
     } catch {
       /* stockage indisponible */
+    }
+    // Présélection par hash (#<id>) : bouton « Annoter » depuis la page d'une carte.
+    // Prioritaire sur la reprise sessionStorage — MAIS consommé une seule fois : on
+    // retire le hash de l'URL, sinon chaque reload HMR (auto-save) le ré-appliquerait
+    // et re-forcerait startSel = -1 → désélection intempestive en cours d'édition.
+    const hashId = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if (hashId && cards.some((x) => x.id === hashId)) {
+      startCard = hashId;
+      startSel = -1;
+      try {
+        history.replaceState(null, '', location.pathname + location.search);
+      } catch {
+        /* replaceState indisponible : sans effet */
+      }
     }
     cardSelect.value = startCard;
     loadCard(startCard);

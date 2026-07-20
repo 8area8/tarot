@@ -9,6 +9,7 @@ export function getStaticPaths() {
 
 const locale = Astro.params.lang as Locale;
 const base = import.meta.env.BASE_URL;
+const isDev = import.meta.env.DEV;
 ---
 
 <Base locale={locale} description={t(locale, 'seo.home')} active="home">
@@ -80,6 +81,9 @@ const base = import.meta.env.BASE_URL;
             <button type="button" class="btn-orient" id="btn-orient"></button>
             <button type="button" class="btn-copy" id="btn-copy">{t(locale, 'card.copy')}</button>
             <button type="button" class="btn-copy" id="btn-share">{t(locale, 'share.link')}</button>
+            {isDev && (
+              <a class="btn-annotate" id="btn-annotate" href={`${base}fr/annotate`}>Annoter</a>
+            )}
           </div>
         </div>
       </article>
@@ -203,6 +207,8 @@ const base = import.meta.env.BASE_URL;
   const btnOrient = document.querySelector<HTMLButtonElement>('#btn-orient')!;
   const btnCopy = document.querySelector<HTMLButtonElement>('#btn-copy')!;
   const btnShare = document.querySelector<HTMLButtonElement>('#btn-share')!;
+  // Bouton « Annoter » (dev uniquement) : absent du build de prod → nullable.
+  const btnAnnotate = document.querySelector<HTMLAnchorElement>('#btn-annotate');
   const result = document.querySelector<HTMLElement>('.result')!;
   const studyEl = document.querySelector<HTMLElement>('#study')!;
   const symbolismEl = document.querySelector<HTMLElement>('#symbolism')!;
@@ -719,6 +725,8 @@ const base = import.meta.env.BASE_URL;
   function renderReading(card: Card, orientation: Orientation) {
     current = card;
     view = orientation;
+    // Cible l'annotation de CETTE carte (dev). L'outil n'existe qu'en fr.
+    if (btnAnnotate) btnAnnotate.href = `${BASE}fr/annotate#${card.id}`;
     // Le badge « carte du jour » ne subsiste pas au-delà du dévoilement initial
     // (bascule d'orientation, parcours du cycle…).
     dailyBadge.hidden = true;
@@ -1956,6 +1964,24 @@ const base = import.meta.env.BASE_URL;
     border-color: var(--accent);
     background: rgba(201, 164, 76, 0.18);
     color: var(--text);
+  }
+  /* Bouton « Annoter » (dev uniquement) : pastille pointillée, teinte distincte. */
+  .btn-annotate {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.4rem 0.9rem;
+    border: 1px dashed var(--accent-2);
+    border-radius: 999px;
+    color: var(--accent-2);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .btn-annotate:hover {
+    background: rgb(var(--accent-rgb) / 0.1);
   }
   /* Badge « carte du jour » : surtitre discret au-dessus de la lecture. */
   .daily-badge {
